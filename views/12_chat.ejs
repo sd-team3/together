@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+</head>
+<body>
+<!-- ═══════ SIDEBAR ═══════ -->
+<nav class="sidenav">
+  <div class="sidenav-logo">
+    <div>
+      <div class="logo-mark">SPORTMATCH <span style="display:inline-block;vertical-align:middle;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:3px;margin-bottom:2px"></span></div>
+      <div class="logo-sub">생활 스포츠 매칭</div>
+    </div>
+  </div>
+  <div class="sidenav-menu">
+    <div class="nav-section-label">홈</div>
+    <button class="nav-item active" data-page="home" onclick="goPage('home')">
+      <span class="nav-icon">🏠</span> 홈 피드
+      <span class="nav-live"></span>
+    </button>
+
+    <div class="nav-section-label">매칭</div>
+    <button class="nav-item" data-page="map" onclick="goPage('map')">
+      <span class="nav-icon">📍</span> 지도 매칭
+    </button>
+    <button class="nav-item" data-page="regular" onclick="goPage('regular')">
+      <span class="nav-icon">🔁</span> 정기 모임
+    </button>
+
+    <div class="nav-section-label">커뮤니티</div>
+    <button class="nav-item" data-page="community" onclick="goPage('community')">
+      <span class="nav-icon">💬</span> 커뮤니티
+      <span class="nav-badge">3</span>
+    </button>
+    <button class="nav-item" data-page="ranking" onclick="goPage('ranking')">
+      <span class="nav-icon">🏆</span> 랭킹
+    </button>
+
+    <div class="nav-section-label">기타</div>
+    <button class="nav-item" data-page="notifications" onclick="goPage('notifications')">
+      <span class="nav-icon">🔔</span> 알림
+      <span class="nav-badge" id="notif-badge">4</span>
+    </button>
+    <button class="nav-item" data-page="trade" onclick="goPage('trade')">
+      <span class="nav-icon">🛒</span> 중고 거래
+    </button>
+    <button class="nav-item" data-page="chat" onclick="goPage('chat')">
+      <span class="nav-icon">✉️</span> 채팅
+      <span class="nav-badge">5</span>
+    </button>
+    <button class="nav-item" onclick="showModal('⚙️ 설정','알림, 개인정보, 보안 설정 등을 변경합니다.')">
+      <span class="nav-icon">⚙️</span> 설정
+    </button>
+  </div>
+  <div class="sidenav-footer">
+    <!-- 비로그인 상태 -->
+    <div class="user-chip" id="nav-guest" onclick="openAuthModal('login')" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div class="user-av" style="background:linear-gradient(135deg,var(--border-strong),var(--text-3));font-size:18px">👤</div>
+      <div>
+        <div class="user-name" style="color:var(--text-2);font-size:12.5px">로그인이 필요합니다</div>
+        <div class="user-level" style="color:var(--primary);font-weight:600">탭하여 로그인 →</div>
+      </div>
+    </div>
+    <!-- 로그인 상태 (숨김) -->
+    <div id="nav-user" style="display:none">
+      <div class="user-chip" onclick="goPage('mypage')">
+        <div class="user-av">JH</div>
+        <div>
+          <div class="user-name">이준혁</div>
+          <div class="user-level">⭐ 중급 · 47경기</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════ MAIN ═══════ -->
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+<!-- ──────── CHAT PAGE ──────── -->
+<div class="page" id="page-chat" style="display:flex;flex-direction:column;flex:1">
+  <div class="topbar">
+    <div><div class="topbar-title">✉️ 채팅</div></div>
+    <div class="topbar-actions">
+      <span class="auth-state-btns" data-state="guest">
+        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
+        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
+      </span>
+      <span class="auth-state-btns" data-state="user" style="display:none">
+        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
+      </span>
+      <button class="btn btn-ghost btn-sm">+ 새 채팅</button>
+    </div>
+  </div>
+  <div class="page-body-wide" style="flex:1">
+    <div class="chat-layout" style="flex:1">
+      <!-- Room List -->
+      <div class="chat-rooms">
+        <div class="chat-rooms-header">
+          <div class="chat-rooms-title">채팅방</div>
+          <span class="cr-unread">5</span>
+        </div>
+        <div class="chat-rooms-list">
+          <div class="chat-room-item active" onclick="openChatRoom('futsal',this)">
+            <div class="cr-av">⚽</div>
+            <div class="cr-info">
+              <div class="cr-top"><div class="cr-name">성수 풋살 나이트</div><div class="cr-time">20:14</div></div>
+              <div class="cr-preview">김민준: 이따 봬요 👋</div>
+            </div>
+          </div>
+          <div class="chat-room-item" onclick="openChatRoom('badminton',this)">
+            <div class="cr-av">🏸</div>
+            <div class="cr-info">
+              <div class="cr-top"><div class="cr-name">건대 배드민턴 믹스</div><div class="cr-time">11:28</div></div>
+              <div class="cr-preview">주최자: 셔틀콕은 제공됩니다!</div>
+            </div>
+            <div class="cr-unread">2</div>
+          </div>
+          <div class="chat-room-item" onclick="openChatRoom('running',this)">
+            <div class="cr-av">🏃</div>
+            <div class="cr-info">
+              <div class="cr-top"><div class="cr-name">성동 나이트 러닝 크루</div><div class="cr-time">17:35</div></div>
+              <div class="cr-preview">나: 저는 갑니다 💪</div>
+            </div>
+            <div class="cr-unread">1</div>
+          </div>
+          <div class="chat-room-item" onclick="openChatRoom('basketball',this)">
+            <div class="cr-av">🏀</div>
+            <div class="cr-info">
+              <div class="cr-top"><div class="cr-name">뚝섬 농구 스크림</div><div class="cr-time">어제</div></div>
+              <div class="cr-preview">이현: 저도요!</div>
+            </div>
+            <div class="cr-unread">2</div>
+          </div>
+          <div class="chat-room-item" onclick="openChatRoom('training',this)">
+            <div class="cr-av">💪</div>
+            <div class="cr-info">
+              <div class="cr-top"><div class="cr-name">퍼포먼스 트레이닝</div><div class="cr-time">2일전</div></div>
+              <div class="cr-preview">트레이너: 화이팅입니다!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div class="chat-header">
+          <div class="chat-hd-av" id="chatRoomIcon">⚽</div>
+          <div>
+            <div class="chat-hd-name" id="chatRoomName">성수 풋살 나이트</div>
+            <div class="chat-hd-meta" id="chatRoomMeta">멤버 12명 · 오늘 20:00 성수 실내풋살장</div>
+          </div>
+          <div class="chat-hd-actions">
+            <button class="chat-icon-btn" title="모임 정보" onclick="showModal('⚽ 성수 풋살 나이트','📍 성수 실내풋살장<br>🕗 오늘 20:00<br>👥 12명 참여 중<br>📊 초중급')">ℹ️</button>
+            <button class="chat-icon-btn" onclick="showModal('🔔 알림 설정','이 채팅방의 알림을 설정합니다.')">🔔</button>
+          </div>
+        </div>
+        <div class="chat-msgs" id="chatMessages">
+          <div class="chat-date-divider">오늘</div>
+          <div class="msg-row">
+            <div class="msg-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">민</div>
+            <div class="msg-content">
+              <div class="msg-sender">김민준</div>
+              <div class="msg-bubble theirs">오늘 성수 풋살장 주차 가능한가요?</div>
+              <div class="msg-time">19:48</div>
+            </div>
+          </div>
+          <div class="msg-row">
+            <div class="msg-av hidden" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">민</div>
+            <div class="msg-content">
+              <div class="msg-bubble theirs">오늘 진짜 기대됩니다 ⚽</div>
+              <div class="msg-time">19:49</div>
+            </div>
+          </div>
+          <div class="msg-row">
+            <div class="msg-av" style="background:linear-gradient(135deg,#16a34a,#15803d)">주</div>
+            <div class="msg-content">
+              <div class="msg-sender">주최자</div>
+              <div class="msg-bubble theirs">네! 건물 뒤 주차장 무료 2시간 가능합니다 🚗</div>
+              <div class="msg-time">19:52</div>
+            </div>
+          </div>
+          <div class="msg-row mine">
+            <div class="msg-content">
+              <div class="msg-bubble mine">저 지금 출발해요! 20분 후 도착 🚀</div>
+              <div class="msg-time">20:01</div>
+            </div>
+          </div>
+          <div class="msg-row">
+            <div class="msg-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">민</div>
+            <div class="msg-content">
+              <div class="msg-sender">김민준</div>
+              <div class="msg-bubble theirs">저도 거의 다 왔어요 👋</div>
+              <div class="msg-time">20:05</div>
+            </div>
+          </div>
+          <div id="typingRow" class="msg-row" style="display:none">
+            <div class="msg-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">민</div>
+            <div class="msg-content">
+              <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chatInput" rows="1" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+          <button class="chat-send-btn" onclick="sendChatMsg()">↑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.main -->
+
+<!-- ═══════ MAP POPUP ═══════ -->
+
+</div><!-- /main -->
+
+<div class="map-popup-overlay" id="map-popup" onclick="if(event.target===this)closeMapPopup()">
+  <div class="map-popup">
+    <button class="popup-close" onclick="closeMapPopup()">✕</button>
+    <div class="popup-sport" id="pp-sport">⚽</div>
+    <div class="popup-title" id="pp-title">강남 풋살파크 5:5 매칭</div>
+    <div class="popup-meta">
+      <span id="pp-loc">📍 강남구 역삼동</span>
+      <span id="pp-time">⏰ 오늘 19:30</span>
+      <span id="pp-members">👥 6/10명</span>
+      <span>💰 <span id="pp-price">10,000원</span></span>
+    </div>
+    <div class="flex gap-6 mb-16">
+      <span class="tag tag-outline" id="pp-level">중급</span>
+      <span class="tag tag-green">실내</span>
+    </div>
+    <div class="popup-host">
+      <div class="popup-host-av">K</div>
+      <div><div class="popup-host-name">강남킬러 <span style="color:var(--text-3);font-weight:400">⭐ 4.9</span></div><div class="popup-host-sub">47경기 · 매너 우수</div></div>
+    </div>
+    <div class="popup-btns">
+      <button class="btn btn-primary flex-1" onclick="closeMapPopup();showModal('🎉 참가 신청 완료!','매칭에 참가 신청이 완료되었습니다!<br>당일 30분 전 알림을 드립니다.',null)">참가 신청</button>
+      <button class="btn btn-outline" onclick="closeMapPopup()">공유 🔗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ AUTH MODALS ═══════ -->
+<!-- Login Modal -->
+<div class="auth-modal-overlay" id="modal-login" onclick="if(event.target===this)closeAuthModal('login')">
+  <div class="auth-modal-box">
+    <button class="auth-close" onclick="closeAuthModal('login')">✕</button>
+    <div class="auth-header">
+      <div class="auth-title">다시 만나서 반가워요! 👋</div>
+      <div class="auth-sub">SPORTMATCH에 오신 것을 환영합니다.</div>
+    </div>
+    <div class="social-login">
+      <button class="social-btn kakao" onclick="handleAuthSuccess('로그인')">💬 카카오로 시작하기</button>
+      <button class="social-btn" onclick="handleAuthSuccess('로그인')">🌐 구글로 시작하기</button>
+    </div>
+    <div class="field">
+      <label class="label">이메일</label>
+      <input type="email" class="input" placeholder="example@sportmatch.com">
+    </div>
+    <div class="field">
+      <label class="label">비밀번호</label>
+      <input type="password" class="input" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('로그인')">로그인</button>
+    <div class="auth-footer">
+      아직 회원이 아니신가요? <span class="auth-link" onclick="switchAuthModal('login', 'signup')">회원가입</span>
+    </div>
+  </div>
+</div>
+
+<!-- Signup Modal -->
+<div class="auth-modal-overlay" id="modal-signup" onclick="if(event.target===this)closeAuthModal('signup')">
+  <div class="auth-modal-box">
+    <button class="auth-close" onclick="closeAuthModal('signup')">✕</button>
+    <div class="auth-header">
+      <div class="auth-title">환영합니다! 🏅</div>
+      <div class="auth-sub">지금 가입하고 내 주변 매칭을 찾아보세요.</div>
+    </div>
+    <div class="social-login">
+      <button class="social-btn kakao" onclick="handleAuthSuccess('회원가입')">💬 카카오로 시작하기</button>
+      <button class="social-btn" onclick="handleAuthSuccess('회원가입')">🌐 구글로 시작하기</button>
+    </div>
+    <div class="field">
+      <label class="label">이름</label>
+      <input type="text" class="input" placeholder="홍길동">
+    </div>
+    <div class="field">
+      <label class="label">이메일</label>
+      <input type="email" class="input" placeholder="example@sportmatch.com">
+    </div>
+    <div class="field">
+      <label class="label">비밀번호</label>
+      <input type="password" class="input" placeholder="8자 이상 입력해주세요">
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('회원가입')">회원가입 완료</button>
+    <div class="auth-footer">
+      이미 계정이 있으신가요? <span class="auth-link" onclick="switchAuthModal('signup', 'login')">로그인</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title">완료!</div>
+    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline flex-1" onclick="closeModal()">닫기</button>
+      <button class="btn btn-primary flex-1" id="modal-ok" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
