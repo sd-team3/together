@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<!-- ═══════ SIDEBAR ═══════ -->
+<nav class="sidenav">
+  <div class="sidenav-logo">
+    <div>
+      <div class="logo-mark">SPORTMATCH <span style="display:inline-block;vertical-align:middle;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:3px;margin-bottom:2px"></span></div>
+      <div class="logo-sub">생활 스포츠 매칭</div>
+    </div>
+  </div>
+  <div class="sidenav-menu">
+    <div class="nav-section-label">홈</div>
+    <button class="nav-item active" data-page="home" onclick="goPage('home')">
+      <span class="nav-icon">🏠</span> 홈 피드
+      <span class="nav-live"></span>
+    </button>
+
+    <div class="nav-section-label">매칭</div>
+    <button class="nav-item" data-page="map" onclick="goPage('map')">
+      <span class="nav-icon">📍</span> 지도 매칭
+    </button>
+    <button class="nav-item" data-page="regular" onclick="goPage('regular')">
+      <span class="nav-icon">🔁</span> 정기 모임
+    </button>
+
+    <div class="nav-section-label">커뮤니티</div>
+    <button class="nav-item" data-page="community" onclick="goPage('community')">
+      <span class="nav-icon">💬</span> 커뮤니티
+      <span class="nav-badge">3</span>
+    </button>
+    <button class="nav-item" data-page="ranking" onclick="goPage('ranking')">
+      <span class="nav-icon">🏆</span> 랭킹
+    </button>
+
+    <div class="nav-section-label">기타</div>
+    <button class="nav-item" data-page="notifications" onclick="goPage('notifications')">
+      <span class="nav-icon">🔔</span> 알림
+      <span class="nav-badge" id="notif-badge">4</span>
+    </button>
+    <button class="nav-item" data-page="trade" onclick="goPage('trade')">
+      <span class="nav-icon">🛒</span> 중고 거래
+    </button>
+    <button class="nav-item" data-page="chat" onclick="goPage('chat')">
+      <span class="nav-icon">✉️</span> 채팅
+      <span class="nav-badge">5</span>
+    </button>
+    <button class="nav-item" onclick="showModal('⚙️ 설정','알림, 개인정보, 보안 설정 등을 변경합니다.')">
+      <span class="nav-icon">⚙️</span> 설정
+    </button>
+  </div>
+  <div class="sidenav-footer">
+    <!-- 비로그인 상태 -->
+    <div class="user-chip" id="nav-guest" onclick="openAuthModal('login')" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div class="user-av" style="background:linear-gradient(135deg,var(--border-strong),var(--text-3));font-size:18px">👤</div>
+      <div>
+        <div class="user-name" style="color:var(--text-2);font-size:12.5px">로그인이 필요합니다</div>
+        <div class="user-level" style="color:var(--primary);font-weight:600">탭하여 로그인 →</div>
+      </div>
+    </div>
+    <!-- 로그인 상태 (숨김) -->
+    <div id="nav-user" style="display:none">
+      <div class="user-chip" onclick="goPage('mypage')">
+        <div class="user-av">JH</div>
+        <div>
+          <div class="user-name">이준혁</div>
+          <div class="user-level">⭐ 중급 · 47경기</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════ MAIN ═══════ -->
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+<!-- ──────── REGULAR PAGE ──────── -->
+<div class="page" id="page-regular" style="display:flex;flex-direction:column;flex:1">
+  <div class="topbar" style="flex-wrap:wrap;gap:10px">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div><div class="topbar-title">🔁 정기 모임</div><div class="topbar-sub">매주 함께하는 스포츠 모임</div></div>
+      <div style="height:28px;width:1px;background:var(--border)"></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3)">
+        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--text)">124</span>개 모임 운영 중
+        <span style="margin-left:4px;font-size:11px;color:var(--green);font-weight:600;font-family:'DM Mono',monospace">↑ 12 신규</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="auth-state-btns" data-state="guest">
+        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
+        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
+      </span>
+      <span class="auth-state-btns" data-state="user" style="display:none">
+        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
+      </span>
+      <div style="display:flex;gap:5px;align-items:center;margin-left:4px">
+        <button class="reg-filter-chip on" onclick="regFilter(this,'all')">전체</button>
+        <button class="reg-filter-chip" onclick="regFilter(this,'open')">⚡ 참가가능</button>
+        <button class="reg-filter-chip" onclick="regFilter(this,'free')">🆓 무료</button>
+        <button class="reg-filter-chip" onclick="regFilter(this,'weekend')">📅 주말</button>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="goPage('regular-create')">+ 모임 만들기</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="section-title">추천 정기모임</div>
+    <div class="regular-grid">
+      <div class="reg-card" data-filter="warn paid weekday" onclick="showModal('🔁 성수 풋살 나이트','📍 성수 실내풋살장<br>📅 매주 화·목 20:00<br>👥 현재 12/16명<br>💰 8,000원/회<br>📊 초중급<br><br>신청하시겠습니까?',()=>showModal('✅ 신청 완료!','모임 참가 신청이 완료되었습니다! 모임장이 수락하면 알림을 드립니다.'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">⚽</div><div><div class="reg-card-title">성수 풋살 나이트</div><div class="reg-card-sub">매주 화·목 · 성수구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 20:00</span><span>💰 8,000원/회</span><span>📊 초중급</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:75%"></div></div>
+          <div class="reg-progress-label"><span>12/16명</span><span>4자리 남음</span></div>
+        </div>
+      </div>
+      <div class="reg-card" data-filter="open paid weekday" onclick="showModal('🏸 건대 배드민턴 믹스','📍 건대입구 실내체육관<br>📅 매주 목 19:30<br>👥 현재 6/10명<br>💰 5,000원/회<br>📊 입문~초급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">🏸</div><div><div class="reg-card-title">건대 배드민턴 믹스</div><div class="reg-card-sub">매주 목 · 광진구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 19:30</span><span>💰 5,000원/회</span><span>📊 입문가능</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:60%"></div></div>
+          <div class="reg-progress-label"><span>6/10명</span><span>4자리 남음</span></div>
+        </div>
+      </div>
+      <div class="reg-card" data-filter="open free weekday" onclick="showModal('🏃 성동 나이트 러닝','📍 성수역 1번 출구<br>📅 평일 21:00<br>👥 현재 41/50명<br>💰 무료<br>📊 5~10km',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">🏃</div><div><div class="reg-card-title">성동 나이트 러닝 크루</div><div class="reg-card-sub">평일 · 성동구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 21:00</span><span>💰 무료</span><span>📊 5~10km</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:82%"></div></div>
+          <div class="reg-progress-label"><span>41/50명</span><span>9자리 남음</span></div>
+        </div>
+      </div>
+      <div class="reg-card" data-filter="warn free weekend" onclick="showModal('🏀 뚝섬 농구 스크림','📍 뚝섬한강공원 농구코트<br>📅 매주 토·일 18:00<br>👥 현재 10/12명<br>💰 무료<br>📊 중급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">🏀</div><div><div class="reg-card-title">뚝섬 농구 스크림</div><div class="reg-card-sub">주말 · 성동구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 18:00</span><span>💰 무료</span><span>📊 중급</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:83%"></div></div>
+          <div class="reg-progress-label"><span>10/12명</span><span>2자리 남음</span></div>
+        </div>
+      </div>
+      <div class="reg-card" data-filter="warn paid weekend" onclick="showModal('🎾 왕십리 테니스 브런치','📍 왕십리 테니스장<br>📅 매주 일 09:30<br>👥 현재 3/4명<br>💰 15,000원/회<br>📊 초급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">🎾</div><div><div class="reg-card-title">왕십리 테니스 브런치</div><div class="reg-card-sub">매주 일 · 성동구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 09:30</span><span>💰 15,000원/회</span><span>📊 초급</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:75%"></div></div>
+          <div class="reg-progress-label"><span>3/4명</span><span>1자리 남음</span></div>
+        </div>
+      </div>
+      <div class="reg-card" data-filter="open paid weekday" onclick="showModal('💪 퍼포먼스 트레이닝','📍 왕십리 트레이닝센터<br>📅 매주 수 20:00<br>👥 현재 16/20명<br>💰 10,000원/회<br>📊 전 레벨',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
+        <div class="reg-card-head"><div class="reg-sport-icon">💪</div><div><div class="reg-card-title">퍼포먼스 트레이닝 스터디</div><div class="reg-card-sub">매주 수 · 성동구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
+        <div class="reg-card-body">
+          <div class="reg-meta-row"><span>⏰ 20:00</span><span>💰 10,000원/회</span><span>📊 전 레벨</span></div>
+          <div class="reg-progress"><div class="reg-progress-fill" style="width:80%"></div></div>
+          <div class="reg-progress-label"><span>16/20명</span><span>4자리 남음</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</div><!-- /main -->
+
+<div class="map-popup-overlay" id="map-popup" onclick="if(event.target===this)closeMapPopup()">
+  <div class="map-popup">
+    <button class="popup-close" onclick="closeMapPopup()">✕</button>
+    <div class="popup-sport" id="pp-sport">⚽</div>
+    <div class="popup-title" id="pp-title">강남 풋살파크 5:5 매칭</div>
+    <div class="popup-meta">
+      <span id="pp-loc">📍 강남구 역삼동</span>
+      <span id="pp-time">⏰ 오늘 19:30</span>
+      <span id="pp-members">👥 6/10명</span>
+      <span>💰 <span id="pp-price">10,000원</span></span>
+    </div>
+    <div class="flex gap-6 mb-16">
+      <span class="tag tag-outline" id="pp-level">중급</span>
+      <span class="tag tag-green">실내</span>
+    </div>
+    <div class="popup-host">
+      <div class="popup-host-av">K</div>
+      <div><div class="popup-host-name">강남킬러 <span style="color:var(--text-3);font-weight:400">⭐ 4.9</span></div><div class="popup-host-sub">47경기 · 매너 우수</div></div>
+    </div>
+    <div class="popup-btns">
+      <button class="btn btn-primary flex-1" onclick="closeMapPopup();showModal('🎉 참가 신청 완료!','매칭에 참가 신청이 완료되었습니다!<br>당일 30분 전 알림을 드립니다.',null)">참가 신청</button>
+      <button class="btn btn-outline" onclick="closeMapPopup()">공유 🔗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ AUTH MODALS ═══════ -->
+<!-- Login Modal -->
+<div class="auth-modal-overlay" id="modal-login" onclick="if(event.target===this)closeAuthModal('login')">
+  <div class="auth-modal-box">
+    <button class="auth-close" onclick="closeAuthModal('login')">✕</button>
+    <div class="auth-header">
+      <div class="auth-title">다시 만나서 반가워요! 👋</div>
+      <div class="auth-sub">SPORTMATCH에 오신 것을 환영합니다.</div>
+    </div>
+    <div class="social-login">
+      <button class="social-btn kakao" onclick="handleAuthSuccess('로그인')">💬 카카오로 시작하기</button>
+      <button class="social-btn" onclick="handleAuthSuccess('로그인')">🌐 구글로 시작하기</button>
+    </div>
+    <div class="field">
+      <label class="label">이메일</label>
+      <input type="email" class="input" placeholder="example@sportmatch.com">
+    </div>
+    <div class="field">
+      <label class="label">비밀번호</label>
+      <input type="password" class="input" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('로그인')">로그인</button>
+    <div class="auth-footer">
+      아직 회원이 아니신가요? <span class="auth-link" onclick="switchAuthModal('login', 'signup')">회원가입</span>
+    </div>
+  </div>
+</div>
+
+<!-- Signup Modal -->
+<div class="auth-modal-overlay" id="modal-signup" onclick="if(event.target===this)closeAuthModal('signup')">
+  <div class="auth-modal-box">
+    <button class="auth-close" onclick="closeAuthModal('signup')">✕</button>
+    <div class="auth-header">
+      <div class="auth-title">환영합니다! 🏅</div>
+      <div class="auth-sub">지금 가입하고 내 주변 매칭을 찾아보세요.</div>
+    </div>
+    <div class="social-login">
+      <button class="social-btn kakao" onclick="handleAuthSuccess('회원가입')">💬 카카오로 시작하기</button>
+      <button class="social-btn" onclick="handleAuthSuccess('회원가입')">🌐 구글로 시작하기</button>
+    </div>
+    <div class="field">
+      <label class="label">이름</label>
+      <input type="text" class="input" placeholder="홍길동">
+    </div>
+    <div class="field">
+      <label class="label">이메일</label>
+      <input type="email" class="input" placeholder="example@sportmatch.com">
+    </div>
+    <div class="field">
+      <label class="label">비밀번호</label>
+      <input type="password" class="input" placeholder="8자 이상 입력해주세요">
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('회원가입')">회원가입 완료</button>
+    <div class="auth-footer">
+      이미 계정이 있으신가요? <span class="auth-link" onclick="switchAuthModal('signup', 'login')">로그인</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title">완료!</div>
+    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline flex-1" onclick="closeModal()">닫기</button>
+      <button class="btn btn-primary flex-1" id="modal-ok" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTH STATE ──
+let isLoggedIn = false;
+
+// ── PAGE NAVIGATION ──
+function goPage(p) {
+  // 로그인이 필요한 페이지 접근 시 로그인 체크
+  const authRequired = ['mypage', 'chat', 'notifications'];
+  if (!isLoggedIn && authRequired.includes(p)) {
+    openAuthModal('login');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const pg = document.getElementById('page-' + p);
+  if (pg) { pg.classList.add('active'); }
+  document.querySelector('.main').scrollTo(0, 0);
+  // Update nav — data-page 속성 기반으로 정확히 매칭
+  const pageGroup = { 'map-create':'map', 'regular-create':'regular', 'trade-sell':'trade' };
+  const activeKey = pageGroup[p] || p;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === activeKey);
+  });
+  if (p === 'home') {
+    const msgs = document.getElementById('chatMessages');
+    if (msgs) setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 100);
+  }
+  // Leaflet 지도 초기화
+  if (p === 'map') {
+    setTimeout(() => {
+      initLeafletMap();
+      if (leafletMap) leafletMap.invalidateSize();
+    }, 50);
+  }
+}
+
+// ── FILTER FUNCTIONS ──
+function toggleFilter(el) {
+  document.querySelectorAll('.map-filter-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setSortTab(el) {
+  el.closest('.map-sort-tabs').querySelectorAll('.map-sort-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+function setFilter(el) {
+  el.closest('.filter-section').querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+function singleChip(el) {
+  el.closest('.chip-group, .topbar-actions, .flex').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function filterSport(el) {
+  document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+function singleLv(el) {
+  el.closest('.level-row').querySelectorAll('.lv-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── MAP POPUP ──
+function showMapPopup(title, loc, time, members, sport, level, price) {
+  document.getElementById('pp-sport').textContent = sport;
+  document.getElementById('pp-title').textContent = title;
+  document.getElementById('pp-loc').textContent = '📍 ' + loc;
+  document.getElementById('pp-time').textContent = '⏰ ' + time;
+  document.getElementById('pp-members').textContent = '👥 ' + members;
+  document.getElementById('pp-level').textContent = level;
+  document.getElementById('pp-price').textContent = price;
+  document.getElementById('map-popup').classList.add('show');
+}
+function closeMapPopup() { document.getElementById('map-popup').classList.remove('show'); }
+
+// ── MODAL ──
+let _modalCb = null;
+function showModal(title, msg, cb) {
+  const emojiMatch = title.match(/^(\p{Emoji})/u);
+  const emoji = emojiMatch ? emojiMatch[1] : '💡';
+  const rest = title.replace(/^(\p{Emoji}\s*)/u, '');
+  document.getElementById('modal-icon').textContent = emoji;
+  document.getElementById('modal-title').textContent = rest;
+  document.getElementById('modal-msg').innerHTML = msg;
+  _modalCb = cb;
+  const okBtn = document.getElementById('modal-ok');
+  okBtn.onclick = cb ? () => { closeModal(); cb(); } : closeModal;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// ── AUTH MODALS ──
+function openAuthModal(type) {
+  document.getElementById('modal-' + type).classList.add('show');
+}
+function closeAuthModal(type) {
+  document.getElementById('modal-' + type).classList.remove('show');
+}
+function switchAuthModal(from, to) {
+  closeAuthModal(from);
+  setTimeout(() => openAuthModal(to), 100);
+}
+function handleAuthSuccess(action) {
+  const type = action === '로그인' ? 'login' : 'signup';
+  closeAuthModal(type);
+  isLoggedIn = true;
+  setLoginState(true);
+  showModal('🎉 ' + action + ' 완료!', action + '에 성공하였습니다.<br>SPORTMATCH의 모든 기능을 자유롭게 이용해보세요.', null);
+}
+
+function setLoginState(loggedIn) {
+  // 모든 페이지 topbar의 auth-state-btns 전환
+  document.querySelectorAll('.auth-state-btns[data-state="guest"]').forEach(el => {
+    el.style.display = loggedIn ? 'none' : 'inline-flex';
+  });
+  document.querySelectorAll('.auth-state-btns[data-state="user"]').forEach(el => {
+    el.style.display = loggedIn ? 'inline-flex' : 'none';
+  });
+  // 사이드바 하단 전환
+  const navGuest = document.getElementById('nav-guest');
+  const navUser  = document.getElementById('nav-user');
+  if (navGuest) navGuest.style.display = loggedIn ? 'none' : 'flex';
+  if (navUser)  navUser.style.display  = loggedIn ? 'block' : 'none';
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  setLoginState(false);
+  goPage('home');
+  showModal('👋 로그아웃', '로그아웃 되었습니다.<br>다음에 또 만나요!', null);
+}
+
+// ── COMMUNITY TABS ──
+document.querySelectorAll('.comm-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    // 같은 탭 그룹(부모 컨테이너) 안에서만 active 토글
+    const group = this.closest('.comm-tabs');
+    if (group) group.querySelectorAll('.comm-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ── NOTIFICATIONS ──
+function filterNotif(btn, type) {
+  // 탭 active
+  const group = btn.closest('.comm-tabs');
+  if (group) group.querySelectorAll('.comm-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  // 항목 필터
+  document.querySelectorAll('#notif-list .notif-item').forEach(el => {
+    el.style.display = (type === 'all' || el.dataset.type === type) ? '' : 'none';
+  });
+}
+
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => {
+    el.classList.remove('unread');
+    const dot = el.querySelector('.notif-dot');
+    if (dot) dot.remove();
+  });
+  const badge = document.getElementById('notif-badge');
+  if (badge) badge.style.display = 'none';
+}
+
+// ── CHAT ──
+const chatData = {
+  futsal:    { name:'성수 풋살 나이트', icon:'⚽', meta:'멤버 12명 · 오늘 20:00 성수 실내풋살장' },
+  badminton: { name:'건대 배드민턴 믹스', icon:'🏸', meta:'멤버 6명 · 목요일 19:30 건대 실내체육관' },
+  running:   { name:'성동 나이트 러닝 크루', icon:'🏃', meta:'멤버 41명 · 평일 21:00 성수역 집합' },
+  basketball:{ name:'뚝섬 농구 스크림', icon:'🏀', meta:'멤버 10명 · 주말 18:00 뚝섬한강공원' },
+  training:  { name:'퍼포먼스 트레이닝', icon:'💪', meta:'멤버 16명 · 수요일 20:00 왕십리' }
+};
+const chatMsgs = {
+  badminton:[
+    {type:'date',text:'오늘'},
+    {from:'주최자',color:'#16a34a',init:'주',text:'이번 주 목요일 코트 예약 완료됐어요! ✅',time:'11:20'},
+    {from:'홍다인',color:'#7c3aed',init:'홍',text:'감사합니다 🙏 라켓 가져가야 하나요?',time:'11:25'},
+    {from:'주최자',color:'#16a34a',init:'주',text:'네, 라켓은 개인 지참 부탁드려요. 셔틀콕은 제공됩니다!',time:'11:28'},
+    {mine:true,text:'저도 참석할게요!',time:'11:45'}
+  ],
+  running:[
+    {type:'date',text:'오늘'},
+    {from:'박수아',color:'#f97316',init:'박',text:'오늘 비 올 것 같은데 진행하나요?',time:'17:10'},
+    {from:'크루장',color:'#1A5CFF',init:'크',text:'소나기 예보라 8시 이후엔 괜찮을 것 같아요!',time:'17:22'},
+    {mine:true,text:'저는 갑니다 💪',time:'17:35'}
+  ],
+  basketball:[
+    {type:'date',text:'어제'},
+    {from:'김슬',color:'#ef4444',init:'김',text:'다음 주 토요일 가능하신 분 손 들어주세요 ✋',time:'20:05'},
+    {mine:true,text:'저 가능해요!',time:'20:12'},
+    {from:'이현',color:'#00C8D4',init:'이',text:'저도요!',time:'20:13'}
+  ],
+  training:[
+    {type:'date',text:'2일 전'},
+    {from:'트레이너',color:'#f59e0b',init:'트',text:'이번 주 루틴 공유드립니다 📋\n코어 20분 → 민첩성 드릴 15분 → 쿨다운 10분',time:'10:00'},
+    {mine:true,text:'감사합니다! 혼자 연습해 볼게요',time:'10:30'}
+  ]
+};
+const chatReplies = {
+  futsal:[{from:'김민준',color:'#7c3aed',init:'민',texts:['ㅋㅋ 맞아요!','그럼 이따 봬요 👋','저도 지금 출발해요']}],
+  badminton:[{from:'주최자',color:'#16a34a',init:'주',texts:['넵 환영합니다! 🙌','혹시 실력은 어느 정도이신가요?']}],
+  running:[{from:'박수아',color:'#f97316',init:'박',texts:['오 진짜요?? 저도 갈게요!','같이 달려요 🏃']}],
+  basketball:[{from:'김슬',color:'#ef4444',init:'김',texts:['좋아요! 확정이에요 ✅']}],
+  training:[{from:'트레이너',color:'#f59e0b',init:'트',texts:['화이팅입니다! 💪','궁금한 점 있으시면 언제든지!']}]
+};
+let currentRoom = 'futsal';
+
+function openChatRoom(roomId, el) {
+  currentRoom = roomId;
+  document.querySelectorAll('.chat-room-item').forEach(r => r.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const unread = el ? el.querySelector('.cr-unread') : null;
+  if (unread) unread.remove();
+  const room = chatData[roomId];
+  if (!room) return;
+  document.getElementById('chatRoomIcon').textContent = room.icon;
+  document.getElementById('chatRoomName').textContent = room.name;
+  document.getElementById('chatRoomMeta').textContent = room.meta;
+  document.querySelector('.chat-icon-btn[title="모임 정보"]').onclick = () =>
+    showModal(room.icon+' '+room.name, room.meta.replace(/·/g,'<br>'));
+
+  if (roomId === 'futsal') {
+    setTimeout(() => { document.getElementById('chatMessages').scrollTop = 99999; }, 50);
+    return;
+  }
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = '';
+  let lastFrom = null;
+  (chatMsgs[roomId] || []).forEach(m => {
+    if (m.type === 'date') {
+      msgs.innerHTML += `<div class="chat-date-divider">${m.text}</div>`;
+      lastFrom = null; return;
+    }
+    if (m.mine) {
+      msgs.innerHTML += `<div class="msg-row mine"><div class="msg-content"><div class="msg-bubble mine">${m.text.replace(/\n/g,'<br>')}</div><div class="msg-time">${m.time}</div></div></div>`;
+      lastFrom = 'mine';
+    } else {
+      const showAv = lastFrom !== m.from;
+      msgs.innerHTML += `<div class="msg-row"><div class="msg-av ${showAv?'':'hidden'}" style="background:linear-gradient(135deg,${m.color},${m.color}bb)">${m.init}</div><div class="msg-content">${showAv?`<div class="msg-sender">${m.from}</div>`:''}<div class="msg-bubble theirs">${m.text.replace(/\n/g,'<br>')}</div><div class="msg-time">${m.time}</div></div></div>`;
+      lastFrom = m.from;
+    }
+  });
+  msgs.innerHTML += `<div id="typingRow" class="msg-row" style="display:none"><div class="msg-av" style="background:var(--border)">?</div><div class="msg-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+  setTimeout(() => { msgs.scrollTop = 99999; }, 50);
+}
+
+function sendChatMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const msgs = document.getElementById('chatMessages');
+  const typingRow = document.getElementById('typingRow');
+  const now = new Date();
+  const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  const myMsg = document.createElement('div');
+  myMsg.className = 'msg-row mine';
+  myMsg.innerHTML = `<div class="msg-content"><div class="msg-bubble mine">${text}</div><div class="msg-time">${t}</div></div>`;
+  msgs.insertBefore(myMsg, typingRow);
+  msgs.scrollTop = 99999;
+  setTimeout(() => { if (typingRow) typingRow.style.display = 'flex'; msgs.scrollTop = 99999; }, 600);
+  const pool = chatReplies[currentRoom] || chatReplies.futsal;
+  const replySet = pool[Math.floor(Math.random() * pool.length)];
+  const replyText = replySet.texts[Math.floor(Math.random() * replySet.texts.length)];
+  setTimeout(() => {
+    if (typingRow) typingRow.style.display = 'none';
+    const rMsg = document.createElement('div');
+    rMsg.className = 'msg-row';
+    rMsg.innerHTML = `<div class="msg-av" style="background:linear-gradient(135deg,${replySet.color},${replySet.color}bb)">${replySet.init}</div><div class="msg-content"><div class="msg-sender">${replySet.from}</div><div class="msg-bubble theirs">${replyText}</div><div class="msg-time">${t}</div></div>`;
+    msgs.insertBefore(rMsg, typingRow);
+    msgs.scrollTop = 99999;
+  }, 1800);
+}
+
+// ── LIVE FEED AUTO UPDATE ──
+const feedEvents = [
+  {emoji:'⚽',text:'<strong>박준혁</strong>님이 성수 풋살 참가'},
+  {emoji:'🏸',text:'건대 배드민턴 <strong>마감임박</strong> — 1자리'},
+  {emoji:'🏀',text:'<strong>새 매칭</strong> 등록 — 뚝섬 3on3'},
+  {emoji:'🎾',text:'<strong>홍다인</strong>님 테니스 후기 작성'},
+  {emoji:'🏃',text:'성동 러닝크루 <strong>출발!</strong> 8명'},
+  {emoji:'💪',text:'<strong>트레이닝 스터디</strong> 신규 세션'},
+  {emoji:'🛒',text:'나이키 풋살화 <strong>새 매물</strong> 등록'},
+  {emoji:'🏊',text:'<strong>새 클럽</strong> — 한강 수영 크루 오픈'}
+];
+let feedIdx = 0;
+setInterval(() => {
+  const feed = document.getElementById('liveFeed');
+  if (!feed) return;
+  const ev = feedEvents[feedIdx++ % feedEvents.length];
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `<div class="feed-emoji">${ev.emoji}</div><div>${ev.text}</div><div class="feed-time">방금</div>`;
+  feed.insertBefore(item, feed.firstChild);
+  const items = feed.querySelectorAll('.feed-item');
+  if (items.length > 5) items[items.length-1].remove();
+}, 4500);
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  goPage('regular');
+  goPage('regular'.replace('home','home'));
+  document.getElementById('chatMessages').scrollTop = 99999;
+});
+
+// ── LEAFLET MAP ──
+const leafletMatches = [
+  { title:'강남 풋살파크 5:5', addr:'강남구 역삼동', time:'오늘 19:30', members:'6/10명', emoji:'⚽', level:'중급', fee:'10,000원', lat:37.5012, lng:127.0396, color:'#1A5CFF', day:'D-0' },
+  { title:'뚝섬 3on3 농구',    addr:'성동구 뚝섬',   time:'오늘 18:00', members:'5/6명',  emoji:'🏀', level:'중급', fee:'무료',    lat:37.5475, lng:127.0526, color:'#FF6B00', day:'D-0' },
+  { title:'홍대 배드민턴',     addr:'마포구 홍대입구', time:'내일 20:00', members:'3/8명',  emoji:'🏸', level:'입문', fee:'5,000원', lat:37.5563, lng:126.9236, color:'#00C8D4', day:'D-1' },
+  { title:'성수 러닝크루',     addr:'성동구 성수역',  time:'오늘 21:00', members:'28/40명',emoji:'🏃', level:'전레벨',fee:'무료',   lat:37.5447, lng:127.0561, color:'#00C853', day:'D-0' },
+  { title:'왕십리 테니스',     addr:'성동구 왕십리',  time:'일 09:30',   members:'3/4명',  emoji:'🎾', level:'초급', fee:'15,000원',lat:37.5614, lng:127.0369, color:'#FF3B30', day:'D-6' },
+];
+
+let leafletMap = null;
+let leafletMarkers = [];
+let leafletFilterActive = 'all';
+
+function makeLeafletIcon(emoji, color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="52" viewBox="0 0 44 52">
+    <path d="M22 0C10 0 1 9 1 21c0 16 21 31 21 31s21-15 21-31C43 9 34 0 22 0z" fill="${color}" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+    <text x="22" y="27" text-anchor="middle" dominant-baseline="middle" font-size="18">${emoji}</text>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    iconSize: [44, 52],
+    iconAnchor: [22, 52],
+    popupAnchor: [0, -54],
+    className: ''
+  });
+}
+
+function initLeafletMap() {
+  if (leafletMap) return;
+
+  leafletMap = L.map('leaflet-map', { zoomControl: false }).setView([37.5350, 127.0050], 13);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(leafletMap);
+
+  // 내 위치 마커 (성수동 기준)
+  const myIcon = L.divIcon({
+    html: `<div style="width:14px;height:14px;background:#C8FF00;border:2px solid #111;border-radius:50%;box-shadow:0 0 0 8px rgba(200,255,0,.25)"></div>`,
+    iconSize: [14,14], iconAnchor: [7,7], className: ''
+  });
+  L.marker([37.5447, 127.0461], { icon: myIcon }).addTo(leafletMap)
+    .bindTooltip('📍 내 위치', { permanent: false });
+
+  // 줌 컨트롤 (우측 상단)
+  L.control.zoom({ position: 'topright' }).addTo(leafletMap);
+
+  leafletMatches.forEach(m => {
+    const marker = L.marker([m.lat, m.lng], { icon: makeLeafletIcon(m.emoji, m.color) })
+      .addTo(leafletMap)
+      .bindPopup(`
+        <div style="font-family:'DM Sans',sans-serif;min-width:200px;padding:4px 0">
+          <div style="font-size:15px;font-weight:700;margin-bottom:6px">${m.emoji} ${m.title}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:3px">📍 ${m.addr}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:3px">⏰ ${m.time}</div>
+          <div style="font-size:12px;color:#666;margin-bottom:3px">👥 ${m.members} · ${m.level}</div>
+          <div style="font-size:13px;font-weight:700;color:${m.color};margin-top:8px">💰 ${m.fee}</div>
+          <button onclick="showMapPopup('${m.title}','${m.addr}','${m.time}','${m.members}','${m.emoji}','${m.level}','${m.fee}')"
+            style="margin-top:10px;width:100%;padding:7px;background:#111;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">
+            참가 신청하기
+          </button>
+        </div>
+      `, { maxWidth: 240 });
+    marker._sportEmoji = m.emoji;
+    leafletMarkers.push(marker);
+  });
+}
+
+// ── COMMUNITY FILTERS ──
+let currentCommCat = 'all';
+let currentCommPeriod = 'daily';
+
+const periodLabels = {
+  daily: '📅 오늘의 인기글',
+  weekly: '📅 이번 주 인기글',
+  monthly: '📅 이번 달 인기글'
+};
+
+// Simulated like counts by period (multiplier for demo)
+const periodMultiplier = { daily: 1, weekly: 5, monthly: 20 };
+
+function filterCommTab(btn, cat) {
+  document.querySelectorAll('.comm-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentCommCat = cat;
+  applyCommFilter();
+}
+
+function filterCommPeriod(btn, period) {
+  document.querySelectorAll('.comm-period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCommPeriod = period;
+  document.getElementById('comm-period-label').textContent = periodLabels[period];
+  applyCommFilter();
+}
+
+function applyCommFilter() {
+  const posts = document.querySelectorAll('#comm-posts .post-item');
+  const mul = periodMultiplier[currentCommPeriod];
+
+  // Filter by category
+  posts.forEach(p => {
+    const cat = p.dataset.cat;
+    const show = currentCommCat === 'all' || cat === currentCommCat;
+    p.style.display = show ? '' : 'none';
+  });
+
+  // Sort visible posts by likes * period multiplier
+  const container = document.getElementById('comm-posts');
+  const visible = [...posts].filter(p => p.style.display !== 'none');
+  visible.sort((a, b) => {
+    const la = parseInt(a.dataset.likes || 0) * mul;
+    const lb = parseInt(b.dataset.likes || 0) * mul;
+    return lb - la;
+  });
+  visible.forEach(p => container.appendChild(p));
+}
+
+// ── REGULAR MEETING FILTER ──
+function regFilter(btn, type) {
+  document.querySelectorAll('.reg-filter-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.reg-card').forEach(card => {
+    if (type === 'all') {
+      card.style.display = '';
+    } else {
+      const f = card.dataset.filter || '';
+      card.style.display = f.includes(type) ? '' : 'none';
+    }
+  });
+}
+
+function leafletFilterToggle(btn, type) {
+  document.querySelectorAll('.map-filter-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  leafletFilterActive = type;
+  leafletMarkers.forEach((marker, i) => {
+    const m = leafletMatches[i];
+    if (type === 'all' || m.emoji === type) {
+      if (!leafletMap.hasLayer(marker)) marker.addTo(leafletMap);
+    } else {
+      if (leafletMap.hasLayer(marker)) leafletMap.removeLayer(marker);
+    }
+  });
+}
+
+
+</script>
+</body>
+</html>
