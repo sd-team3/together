@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/sd-team3/together#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.1",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
