@@ -1,50 +1,31 @@
 const express = require('express');
 const router = express.Router();
-<<<<<<< Updated upstream
 const {signupValidationRules, validate} = require('../middlewares/validationMiddleware')
-=======
-const {joinValidationRules, validate} = require('../middlewares/validationMiddleware')
->>>>>>> Stashed changes
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
 const {uploadProfile} = require('../config/upload');
 
 //회원가입 페이지
-<<<<<<< Updated upstream
 router.get('/signup', userController.getSignup);
 
 //회원가입 처리
 router.post('/signup', uploadProfile.single('uploadFile'), signupValidationRules, validate,
  userController.postSignup);
-=======
-router.get('/join', userController.getJoin);
-
-//회원가입 처리
-router.post('/join', uploadProfile.single('uploadFile'), joinValidationRules, validate,
- userController.postJoin);
->>>>>>> Stashed changes
 
 //로그인 페이지
 router.get('/login', userController.getLogin);
 
 //로그인 처리
 router.post('/login', passport.authenticate('local', {
-<<<<<<< Updated upstream
     successRedirect: '/',           //성공 시 메인페이지
     failureRedirect: '/user/login', //실패 시 로그인페이지
     failureMessage: true            
-=======
-    successRedirect: '/',           //로그인 성공 시 메인페이지로
-    failureRedirect: '/user/login', //로그인 실패 시 로그인페이지로
-    failureMessage: true            //실패 메시지를 세션에 저장
->>>>>>> Stashed changes
 }));
 
 //로그아웃 처리
 router.get('/logout', userController.logout);
 
 //마이페이지
-<<<<<<< Updated upstream
 router.get('/profile', userController.getProfile);
 
 //회원수정 페이지
@@ -52,15 +33,6 @@ router.get('/edit-profile', userController.getEditProfile);
 
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
-=======
-router.get('/info', userController.getInfo);
-
-//회원수정 페이지
-router.get('/modify', userController.getModify);
-
-//회원수정 처리
-router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
->>>>>>> Stashed changes
 
 //회원탈퇴 페이지
 router.get('/delete', userController.getDelete);
