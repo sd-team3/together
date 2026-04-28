@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 접근 금지</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/navbar') %>
+<div class="error-page">
+  <div class="error-bg-number">403</div>
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="error-emoji">⛔</div>
+    <div class="error-code">403 · Forbidden</div>
+    <div class="error-title">접근이 제한된 페이지예요</div>
+    <div class="error-desc">
+      이 페이지에 접근할 권한이 없어요.<br>
+      계정 권한을 확인하거나 관리자에게 문의해 주세요.
+    </div>
+    <div class="error-actions">
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
+    </div>
+
+    <div class="reason-list">
+      <div class="reason-list-title">접근이 제한되는 경우</div>
+      <div class="reason-item"><div class="reason-dot"></div><span>모임장 전용 관리 페이지에 일반 회원이 접근한 경우</span></div>
+      <div class="reason-item"><div class="reason-dot"></div><span>탈퇴 또는 정지 처리된 계정으로 로그인한 경우</span></div>
+      <div class="reason-item"><div class="reason-dot"></div><span>참가하지 않은 모임의 채팅방에 접근한 경우</span></div>
+      <div class="reason-item"><div class="reason-dot"></div><span>관리자 권한이 필요한 기능에 접근한 경우</span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

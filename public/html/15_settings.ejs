@@ -170,7 +170,47 @@
         </div>
       </div>
 
-      <!-- ⑥ 위험 영역 -->
+      <!-- ⑥ 고객센터 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:linear-gradient(135deg,#00C8D4,#1A5CFF)">🎧</div>
+          <div>
+            <div class="settings-section-title">고객센터</div>
+            <div class="settings-section-sub">문의사항이 있으시면 언제든지 연락주세요</div>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="openInquiryModal()">
+          <div class="settings-row-left">
+            <div class="settings-row-label">1:1 문의하기</div>
+            <div class="settings-row-desc">평균 응답 시간 24시간 이내</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="openFaqModal()">
+          <div class="settings-row-left">
+            <div class="settings-row-label">자주 묻는 질문 (FAQ)</div>
+            <div class="settings-row-desc">빠른 해결을 위해 먼저 확인해보세요</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="showModal('📣 공지사항','서비스 점검 및 업데이트 소식은<br>공지사항에서 확인하실 수 있습니다.', null)">
+          <div class="settings-row-left">
+            <div class="settings-row-label">공지사항</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑦ 위험 영역 -->
       <div class="settings-section" style="border-color:rgba(255,59,48,0.2)">
         <div class="settings-section-header" style="border-color:rgba(255,59,48,0.12)">
           <div class="settings-section-icon" style="background:linear-gradient(135deg,#FF3B30,#FF6B00)">⚠️</div>
@@ -208,7 +248,82 @@
   </div>
 </div><!-- /main -->
 
-<!-- ═══════ MODAL ═══════ -->
+<!-- ═══════ 1:1 문의 모달 ═══════ -->
+<div class="modal-overlay" id="inquiry-modal" onclick="if(event.target===this)closeInquiryModal()">
+  <div class="modal-box" style="max-width:420px;width:90%">
+    <div class="modal-icon">🎧</div>
+    <div class="modal-title">1:1 문의하기</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;text-align:left">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-2);display:block;margin-bottom:5px">문의 유형</label>
+        <select id="inquiry-type" style="width:100%;font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-1);outline:none">
+          <option value="">유형을 선택해주세요</option>
+          <option value="match">매칭 관련</option>
+          <option value="account">계정·로그인</option>
+          <option value="trade">중고 거래</option>
+          <option value="payment">결제·환불</option>
+          <option value="report">신고·제재</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-2);display:block;margin-bottom:5px">제목</label>
+        <input id="inquiry-title" type="text" placeholder="문의 제목을 입력하세요" style="width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-1);outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--text-2);display:block;margin-bottom:5px">내용</label>
+        <textarea id="inquiry-body" placeholder="문의 내용을 자세히 입력해주세요" rows="4" style="width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text-1);outline:none;resize:vertical"></textarea>
+      </div>
+      <div style="font-size:11px;color:var(--text-3)">📧 답변은 가입하신 이메일로 발송됩니다. 평균 응답 시간은 24시간 이내입니다.</div>
+    </div>
+    <div class="modal-btns" style="margin-top:18px">
+      <button class="btn btn-outline flex-1" onclick="closeInquiryModal()">취소</button>
+      <button class="btn btn-primary flex-1" onclick="submitInquiry()">문의 제출</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FAQ 모달 ═══════ -->
+<div class="modal-overlay" id="faq-modal" onclick="if(event.target===this)closeFaqModal()">
+  <div class="modal-box" style="max-width:460px;width:90%">
+    <div class="modal-icon">❓</div>
+    <div class="modal-title">자주 묻는 질문</div>
+    <div id="faq-list" style="margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left;max-height:360px;overflow-y:auto">
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">매칭 취소는 어떻게 하나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">매칭 상세 페이지 → 하단 '참가 취소' 버튼을 누르시면 됩니다. 단, 매칭 시작 2시간 전부터는 취소가 제한됩니다.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">매너 점수는 어떻게 쌓이나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">매칭 종료 후 상대방이 남긴 후기 평가를 기반으로 산정됩니다. 시간 약속, 매너 플레이, 긍정적인 태도 등이 반영됩니다.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">비밀번호를 잊어버렸어요. <span class="faq-arrow">›</span></div>
+        <div class="faq-a">로그인 화면 하단의 '비밀번호 재설정'을 통해 가입 이메일로 재설정 링크를 받으실 수 있습니다.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">중고 거래 사기가 의심될 때는? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">거래 채팅창 우측 상단 '신고' 버튼을 눌러주세요. 운영팀이 24시간 내 검토 후 조치합니다. 직거래 시 안전한 장소를 이용해 주세요.</div>
+      </div>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">레벨은 어떻게 결정되나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">참여 경기 수, 매칭 후기의 실력 평가, 주최자의 레벨 태깅을 종합해 자동 산정됩니다. 경기를 쌓을수록 더 정확해집니다.</div>
+      </div>
+
+    </div>
+    <div class="modal-btns" style="margin-top:18px">
+      <button class="btn btn-outline flex-1" onclick="closeFaqModal()">닫기</button>
+      <button class="btn btn-primary flex-1" onclick="closeFaqModal();openInquiryModal()">1:1 문의하기</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div class="modal-icon" id="modal-icon">🎉</div>
@@ -285,7 +400,42 @@ function showToast(msg) {
   _toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ── NAV (단독 페이지 실행 시 폴백) ──
+
+// ── INQUIRY MODAL ──
+function openInquiryModal() {
+  document.getElementById('inquiry-modal').classList.add('show');
+}
+function closeInquiryModal() {
+  document.getElementById('inquiry-modal').classList.remove('show');
+}
+function submitInquiry() {
+  const type  = document.getElementById('inquiry-type').value;
+  const title = document.getElementById('inquiry-title').value.trim();
+  const body  = document.getElementById('inquiry-body').value.trim();
+  if (!type)  { showToast('문의 유형을 선택해주세요.'); return; }
+  if (!title) { showToast('제목을 입력해주세요.'); return; }
+  if (!body)  { showToast('내용을 입력해주세요.'); return; }
+  closeInquiryModal();
+  // 입력값 초기화
+  document.getElementById('inquiry-type').value = '';
+  document.getElementById('inquiry-title').value = '';
+  document.getElementById('inquiry-body').value = '';
+  showModal('✅ 문의 접수 완료', '문의가 정상적으로 접수되었습니다.<br>가입하신 이메일로 24시간 내 답변 드리겠습니다.', null);
+}
+
+// ── FAQ MODAL ──
+function openFaqModal() {
+  document.getElementById('faq-modal').classList.add('show');
+}
+function closeFaqModal() {
+  document.getElementById('faq-modal').classList.remove('show');
+}
+function toggleFaq(el) {
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
 function goPage(p) {
   if (window.parent && window.parent.goPage) { window.parent.goPage(p); return; }
   console.log('[goPage]', p);
