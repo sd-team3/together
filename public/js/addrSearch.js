@@ -1,4 +1,4 @@
-export const openAddressSearch = () => {
+export const addrSearch = () => {
     return new Promise((resolve) => {
         new daum.Postcode({
             oncomplete: function(data) {
