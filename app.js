@@ -6,13 +6,21 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const connectDB = require('./config/database');
+const userRouter = require('./routes/userRouter');
+
+
+connectDB();
 
 app.use(express.json());
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({extended : true}));
 
+
+app.use('/user', userRouter);
 app.get('/', (req, res) => {
     res.render('01_home');
 });
@@ -34,6 +42,7 @@ app.get('/notifications', (req, res) => {
 app.get('/trade', (req, res) => {
     res.render('07_trade');
 });
+
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
