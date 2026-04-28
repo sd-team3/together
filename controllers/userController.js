@@ -64,7 +64,6 @@ const postEditProfile = async (req, res, next) => {
         await userService.updateUser(req.user.id, { name, age, phone, address, currentPassword, newPassword, uploadFile : req.file});
 
         res.redirect('/user/profile');
-
     } catch (error) {
         return next(error);
     }

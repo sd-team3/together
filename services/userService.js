@@ -51,7 +51,6 @@ async function updateUser(userId, { name, age, phone, address, currentPassword, 
     if (!user) {
         throw new Error('사용자를 찾을 수 없습니다');
     }
-    
     user.name = name;
     user.age = age;
     user.tel = phone;
@@ -80,7 +79,6 @@ async function updateUser(userId, { name, age, phone, address, currentPassword, 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
     }
-
     await user.save();
 }
 
