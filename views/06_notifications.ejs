@@ -28,7 +28,7 @@
         <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
         <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
       </span>
-      <button class="btn btn-outline btn-sm" onclick="markAllRead()">모두 읽음</button>
+      
     </div>
   </div>
   <div class="page-body" style="max-width:700px">
@@ -41,6 +41,7 @@
       <button class="comm-tab" onclick="filterNotif(this,'community')">커뮤니티</button>
       <button class="comm-tab" onclick="filterNotif(this,'trade')">거래</button>
     </div>
+    <button class="btn btn-outline btn-sm" onclick="markAllRead()">모두 읽음</button>
 
     <!-- 알림 목록 -->
     <div id="notif-list" style="display:flex;flex-direction:column;gap:8px">

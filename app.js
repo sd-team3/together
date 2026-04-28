@@ -35,6 +35,15 @@ app.get('/trade', (req, res) => {
     res.render('07_trade');
 });
 
+app.get('/ep', (req, res) => {
+    res.render('ep');
+});
+
+app.get('/vp', (req, res) => {
+    res.render('vp');
+});
+
+
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });
