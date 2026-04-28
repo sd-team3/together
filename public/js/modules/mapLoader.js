@@ -1,6 +1,29 @@
 window.MAP = null;
 
-const mapLoader = {
+async function loadKakaoMapAPI() {
+    return new Promise(async (resolve, reject)=>{
+        if (typeof kakao !== 'undefined') {
+            return resolve(kakao);
+        }
+
+        try {
+            const response = await fetch('/kakao-map-js-key');
+            const KAKAO_JS_KEY = await response.json().key;
+            const script = document.createElement('script');
+
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&libraries=services&autoload=false`;
+            
+            script.onload = () => { kakao.maps.load(() => resolve(kakao.maps)) };
+            script.onerror = () => reject(new Error("KAKAO_API_ERR"));
+
+            document.head.appendChild(script);
+        } catch (err) {
+            reject(new Error("API 키를 가져오는 데 실패했습니다."));
+        }
+    });
+}
+
+const kakaoMap = {
     getXY() {
         return new Promise((resolve, reject)=>{
             if (!navigator.geolocation) {
@@ -23,6 +46,22 @@ const mapLoader = {
                     maximumAge: 0
                 }
             );
+        });
+    },
+
+    getXY(address) {
+        const geocoder = new kakao.maps.services.Geocoder();
+        return new Promise((resolve, reject) => {
+            geocoder.addressSearch(address, (result, status) => {
+                if (status === kakao.maps.services.Status.OK) {
+                    resolve({
+                        x: result[0].x,
+                        y: result[0].y
+                    });
+                } else {
+                    reject(new Error("GET XY ERROR"));
+                }
+            });
         });
     },
 
@@ -51,7 +90,7 @@ const mapLoader = {
         }
     },
 
-    async loadMapByAddress() {
+    async loadMapByAddress(address) {
         try {
             const lat = 37.5600;
             const lng = 126.8000;
@@ -107,4 +146,4 @@ const mapLoader = {
     }
 }
 
-export default mapLoader;
+export default kakaoMap;
