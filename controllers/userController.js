@@ -1,21 +1,21 @@
 const userService = require('../services/userService');
 
 //# 회원 가입 페이지
-const getJoin = (req, res) => {
-    res.render('user/join', {
+const getSignup = (req, res) => {
+    res.render('user/signup', {
         errors: {}
     });
 };
 
 //# 회원 가입 처리
-const postJoin = async (req, res, next) => {
+const postSignup = async (req, res, next) => {
     try {
         const { email, password, name, address } = req.body;
         //회원 생성
         await userService.createUser({ email, password, name, address, uploadFile: req.file });
         res.redirect('/');
     } catch (error) {
-        return next(error);//에러를 미들웨어에게 넘기기
+        return next(error);
     }
 };
 
@@ -38,23 +38,23 @@ const logout = (req, res, next) => {
 }
 
 //마이페이지
-const getInfo = async (req, res) => {
+const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }//인증되지 않은 사용자가 마이페이지 요청 시 로그인 페이지로 이동
-    res.render('user/info');
+    res.render('user/profile');
 };
 
 //회원 수정 페이지
-const getModify = async (req, res) => {
+const getEditProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }//인증되지 않은 사용자가 회원수정 페이지 요청 시 로그인 페이지로 이동
-    res.render('user/modify');
+    res.render('user/edit-profile');
 }
 
 //회원 수정 처리
-const postModify = async (req, res, next) => {
+const postEditProfile = async (req, res, next) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
@@ -62,8 +62,8 @@ const postModify = async (req, res, next) => {
     const { password, name, address } = req.body;
     try {
         await userService.updateUser(req.user.id, { password, name, address, uploadFile: req.file});
-        //DB에서 회원정보 수정(세션에 들어있는 회원의 기본키와 수정하고자 할 값 들)
-        res.redirect('/user/info');
+        //
+        res.redirect('/user/profile');
         //수정 후 마이페이지로 이동
 
     } catch (error) {
@@ -97,13 +97,13 @@ const postDelete = async (req, res, next) => {
 const checkEmail = async (req, res, next) => {
     const { email } = req.query;
     try {
-        const avalilabe = await userService.checkEmail(email);
-        console.log(avalilabe);
-        res.json({ avalilabe });//DB에 해당 email이 있으면 false, 없으면 true
+        const available = await userService.checkEmail(email);
+        console.log(available);
+        res.json({ available });//DB에 해당 email이 있으면 false, 없으면 true
     } catch (error) {
         next(error);
     }
 
 }
 
-module.exports = { getJoin, postJoin, getLogin, logout, getInfo, getModify, postModify, getDelete, postDelete, checkEmail };
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail };
