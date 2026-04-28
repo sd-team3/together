@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="/css/style.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<body>
 <%- include('partials/navbar') %>
 <!-- ═══════ MAIN ═══════ -->
 
@@ -28,6 +27,8 @@
         <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
         <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
       </span>
+      <button class="btn btn-outline btn-sm">🔔 알림 설정</button>
+      <button class="btn btn-primary" onclick="goPage('map-create')">+ 매칭 만들기</button>
     </div>
   </div>
   <div class="page-body-wide" style="flex:1;min-height:0">
@@ -44,20 +45,20 @@
           <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🏃')">🏃 러닝</div>
           <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🎾')">🎾 테니스</div>
         </div>
+        <button class="map-fab" onclick="goPage('map-create')" style="z-index:1000">＋</button>
       </div>
       <!-- List Panel -->
       <div class="map-list">
-  <div class="map-list-header">
-    <div class="map-list-title">5개의 매칭</div>
-    <div class="map-sort-tabs">
-      <button class="map-sort-tab on" onclick="setSortTab(this)">거리순</button>
-      <button class="map-sort-tab" onclick="setSortTab(this)">시간순</button>
-      <button class="map-sort-tab" onclick="setSortTab(this)">인원순</button>
-    </div>
-  </div>
-
-  <div class="map-list-items" style="height: 100px; overflow-y: auto; border-bottom: 1px solid #eee;">
-    <div class="map-item sel" onclick="showMapPopup('강남 풋살파크 5:5','강남구 역삼동','오늘 19:30','6/10명','⚽','중급','10,000원')">
+        <div class="map-list-header">
+          <div class="map-list-title">5개의 매칭</div>
+          <div class="map-sort-tabs">
+            <button class="map-sort-tab on" onclick="setSortTab(this)">거리순</button>
+            <button class="map-sort-tab" onclick="setSortTab(this)">시간순</button>
+            <button class="map-sort-tab" onclick="setSortTab(this)">인원순</button>
+          </div>
+        </div>
+        <div class="map-list-items">
+          <div class="map-item sel" onclick="showMapPopup('강남 풋살파크 5:5','강남구 역삼동','오늘 19:30','6/10명','⚽','중급','10,000원')">
             <div class="mi-top"><div class="mi-sport">⚽</div><div><div class="mi-title">강남 풋살파크 5:5 매칭</div><div class="mi-meta"><span>📍 역삼동 · 1.2km</span></div></div></div>
             <div class="mi-meta"><span>⏰ 오늘 19:30</span><span>👥 6/10명</span><span>💰 10,000원</span></div>
             <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">중급</span></div>
@@ -82,16 +83,11 @@
             <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
             <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
           </div>
-  </div>
-
-  <div class="map-list-action" style="padding: 12px; background: white;">
-    <button class="btn btn-primary btn-full" onclick="goPage('map_create')" style="width: 100%; height: 48px; font-weight: bold;">
-      + 매칭 만들기
-    </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
-
 
 
 </div><!-- /main -->
