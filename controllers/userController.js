@@ -59,12 +59,11 @@ const postEditProfile = async (req, res, next) => {
         return res.redirect('/user/login');
     }
     //회원정보 수정
-    const { password, name, address } = req.body;
+    const { name, age, phone, address, currentPassword, newPassword} = req.body;
     try {
-        await userService.updateUser(req.user.id, { password, name, address, uploadFile: req.file});
-        //
+        await userService.updateUser(req.user.id, { name, age, phone, address, currentPassword, newPassword, uploadFile : req.file});
+
         res.redirect('/user/profile');
-        //수정 후 마이페이지로 이동
 
     } catch (error) {
         return next(error);
