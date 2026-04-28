@@ -35,6 +35,26 @@ app.get('/trade', (req, res) => {
     res.render('07_trade');
 });
 
+app.get('/trade-sell', (req, res) => {
+    res.render('08_trade_sell');
+});
+
+app.get('/community', (req, res) => {
+    res.render('09_community');
+});
+
+app.get('/ranking', (req, res) => {
+    res.render('10_ranking');
+});
+
+app.get('/mypage', (req, res) => {
+    res.render('11_mypage');
+});
+
+app.get('/chat', (req, res) => {
+    res.render('12_chat');
+});
+
 app.get('/ep', (req, res) => {
     res.render('ep');
 });
