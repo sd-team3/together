@@ -16,19 +16,8 @@
 <div class="main">
 
 <!-- ──────── REGULAR CREATE ──────── -->
-<div class="page" id="page-regular-create" style="display:flex;flex-direction:column;flex:1">
-  <div class="topbar">
-    <div><div class="topbar-title">정기모임 만들기</div></div>
-    <div class="topbar-actions">
-      <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
-        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
-      </span>
-      <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
-        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
-      </span></div>
-  </div>
+<%- include('partials/head', { title: '🔁 정기 모임 만들기', pageId: 'page-regular-create', active: '' }) %>
+
   <div class="form-page">
     <div class="form-max">
       <div class="form-section">

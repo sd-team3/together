@@ -16,21 +16,8 @@
 <div class="main">
 
 <!-- ──────── MAP PAGE ──────── -->
-<div class="page" id="page-map" style="display:flex;flex-direction:column;flex:1">
-  <div class="topbar">
-    <div><div class="topbar-title">📍 지도 매칭</div><div class="topbar-sub">내 주변 오늘 열리는 매칭 찾기</div></div>
-    <div class="topbar-actions">
-      <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
-        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
-      </span>
-      <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
-        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
-      </span>
-      <!--<button class="btn btn-primary" onclick="goPage('map-create')">+ 매칭 만들기</button>-->
-    </div>
-  </div>
+<%- include('partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '' }) %>
+
   <div class="page-body-wide" style="flex:1;min-height:0">
     <div class="map-container" style="flex:1">
       <!-- Map Area (Leaflet) -->

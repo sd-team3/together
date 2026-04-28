@@ -55,12 +55,12 @@ app.get('/chat', (req, res) => {
     res.render('12_chat');
 });
 
-app.get('/ep', (req, res) => {
-    res.render('ep');
+app.get('/edit-profile', (req, res) => {
+    res.render('13_edit_profile');
 });
 
-app.get('/vp', (req, res) => {
-    res.render('vp');
+app.get('/verify-password', (req, res) => {
+    res.render('14_verify_password');
 });
 
 

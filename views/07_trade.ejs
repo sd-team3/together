@@ -16,21 +16,8 @@
 <div class="main">
 
 <!-- ──────── TRADE PAGE ──────── -->
-<div class="page" id="page-trade" style="display:flex;flex-direction:column;flex:1">
-  <div class="topbar">
-    <div><div class="topbar-title">🛒 중고 거래</div><div class="topbar-sub">스포츠 장비 사고 팔기</div></div>
-    <div class="topbar-actions">
-      <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
-        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
-      </span>
-      <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
-        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
-      </span>
-      
-    </div>
-  </div>
+<%- include('partials/head', { title: '🛒 중고 거래', pageId: 'page-trade', active: '' }) %>
+
   <div class="page-body-wide" style="flex:1">
     <div class="trade-layout" style="flex:1">
       <div class="trade-filter">
