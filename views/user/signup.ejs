@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+</head>
+<body>
+<h1>SIGNUP PAGE V3</h1>
+<h2>회원가입</h2>
+
+<% if (errors) { %>
+    <% Object.values(errors).forEach(err => { %>
+        <p style="color:red;"><%= err %></p>
+    <% }) %>
+<% } %>
+
+<form action="/user/signup" method="POST" enctype="multipart/form-data">
+
+    <!-- 기본 정보 -->
+    <input type="text" name="email" placeholder="이메일"><br>
+    <input type="password" name="password" placeholder="비밀번호"><br>
+    <input type="password" name="password2" placeholder="비밀번호 확인"><br>
+    <input type="text" name="name" placeholder="이름"><br>
+
+    <!-- 필수 -->
+    <input type="number" name="age" placeholder="나이"><br>
+    <input type="text" name="tel" placeholder="전화번호"><br>
+
+    <hr>
+
+    <h3>주소</h3>
+
+    <input type="text" name="state" placeholder="시/도"><br>
+    <input type="text" name="city" placeholder="시/군/구"><br>
+    <input type="text" name="road" placeholder="도로명 주소"><br>
+
+    <hr>
+
+    <input type="file" name="uploadFile"><br><br>
+
+    <button type="submit">회원가입</button>
+</form>
+
+</body>
+</html>
