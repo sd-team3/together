@@ -36,24 +36,50 @@ const findUserById = async (id) => {
 }
 
 //회원수정
-async function updateUser(userId, { password, name, address, uploadFile }) {
-    const user = await User.findById(userId);
-    const profile = uploadFile ? uploadFile.filename : 'default-profile.png'
-
+async function updateUser(userId, { name, age, phone, address, currentPassword, newPassword ,uploadFile}) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         const error = new Error('사용자를 찾을 수 없습니다');
         error.status = 404;
         throw error;
     }
+
+    const user = await User.findById(userId);
+    if (uploadFile) {
+        user.profileImage = uploadFile.filename;
+    }
+
     if (!user) {
         throw new Error('사용자를 찾을 수 없습니다');
     }
-   
-
+    
     user.name = name;
-    user.address = address;
-    user.profileImage = profile;
-   
+    user.age = age;
+    user.tel = phone;
+    // 주소 변경
+    if (address && address.full) {
+        const { state, city, road } = partAddress(address.full);
+
+        user.address = {state, city, road, detail : address.detail};
+    }
+    // 비밀번호 변경 (새 비밀번호에 값이 있을 때만)
+    if (newPassword && newPassword.trim() != '') {
+        if (!currentPassword || currentPassword.trim() === '') {
+            const error = new Error ('현재 비밀번호를 입력해주세요');
+            error.status = 400;
+            throw error;
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isMatch) {
+            const error = new Error ('비밀번호가 틀립니다');
+            error.status = 400;
+            throw error;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+    }
 
     await user.save();
 }
@@ -95,6 +121,16 @@ async function createSocialUser({email, name, profileImage, address, provider}) 
     });
     await newUser.save();
     return newUser;
+}
+
+// 주소 나누는 함수
+function partAddress(fullAddress) {
+    const parts = fullAddress.trim().split(/\s+/);
+
+    return {state : parts[0],
+            city : parts[1],
+            road : parts.slice(2).join(' ')
+            }
 }
 
 module.exports = { createUser, findUserByEmail, 
