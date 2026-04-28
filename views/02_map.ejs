@@ -27,15 +27,14 @@
         <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
         <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
       </span>
-      <button class="btn btn-outline btn-sm">🔔 알림 설정</button>
-      <button class="btn btn-primary" onclick="goPage('map-create')">+ 매칭 만들기</button>
+      <!--<button class="btn btn-primary" onclick="goPage('map-create')">+ 매칭 만들기</button>-->
     </div>
   </div>
   <div class="page-body-wide" style="flex:1;min-height:0">
     <div class="map-container" style="flex:1">
       <!-- Map Area (Leaflet) -->
       <div class="map-area" style="position:relative">
-        <div id="leaflet-map" style="width:100%;height:100%;min-height:500px;"></div>
+        <div id="leaflet-map" style="width:100%; height:350px;"></div>
         <!-- Filter bar -->
         <div class="map-filter-bar" style="z-index:1000">
           <div class="map-filter-chip on" onclick="leafletFilterToggle(this,'all')">전체</div>
@@ -45,7 +44,7 @@
           <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🏃')">🏃 러닝</div>
           <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🎾')">🎾 테니스</div>
         </div>
-        <button class="map-fab" onclick="goPage('map-create')" style="z-index:1000">＋</button>
+        <!--<button class="map-fab" onclick="goPage('map-create')" style="z-index:1000">＋</button>-->
       </div>
       <!-- List Panel -->
       <div class="map-list">
@@ -83,6 +82,10 @@
             <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
             <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
           </div>
+        </div>
+        <div style="padding: 10px; display: flex; justify-content: flex-end; background: #fff; border-top: 1px solid #eee;">
+        <button class="btn btn-primary" onclick="goPage('map_create')" style="padding: 8px 20px; font-size: 14px; border-radius: 8px;">매칭 만들기</button>
+        </div>
         </div>
       </div>
     </div>
