@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 설정</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<%- include('partials/navbar') %>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+<%- include('partials/head', { title: '⚙️ 설정', pageId: 'page-settings', active: '' }) %>
+
+  <div class="page-body" style="overflow-y:auto">
+    <div class="settings-wrap">
+
+      <!-- ③ 개인정보 보호 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">🛡️</div>
+          <div>
+            <div class="settings-section-title">개인정보 보호</div>
+            <div class="settings-section-sub">내 정보가 어떻게 표시될지 설정합니다</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">프로필 공개 범위</div>
+            <div class="settings-row-desc">다른 사용자에게 보이는 내 프로필 범위</div>
+          </div>
+          <div class="settings-row-right">
+            <select class="settings-select" id="priv-profile" onchange="saveSetting('priv-profile', this.value)">
+              <option value="all" selected>전체 공개</option>
+              <option value="matched">매칭 상대만</option>
+              <option value="none">비공개</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">활동 이력 공개</div>
+            <div class="settings-row-desc">참여 경기 수·결과를 프로필에서 공개합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="priv-history" checked onchange="saveSetting('priv-history', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">매너 점수 공개</div>
+            <div class="settings-row-desc">다른 사용자가 내 매너 점수를 볼 수 있습니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="priv-manner" checked onchange="saveSetting('priv-manner', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">위치 정보 사용</div>
+            <div class="settings-row-desc">지도 매칭 기능 및 반경 검색에 사용됩니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="priv-location" checked onchange="saveSetting('priv-location', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ 앱 설정 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:linear-gradient(135deg,#FF6B00,#FF9500)">📱</div>
+          <div>
+            <div class="settings-section-title">앱 설정</div>
+            <div class="settings-section-sub">화면 표시 및 언어 설정</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">다크 모드</div>
+            <div class="settings-row-desc">어두운 화면으로 전환합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="app-darkmode" onchange="toggleDarkMode(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">언어</div>
+            <div class="settings-row-desc">서비스 표시 언어를 선택합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <select class="settings-select" id="app-lang" onchange="saveSetting('app-lang', this.value)">
+              <option value="ko" selected>한국어</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ 계정 관리 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:linear-gradient(135deg,#555,#333)">🔑</div>
+          <div>
+            <div class="settings-section-title">계정 관리</div>
+            <div class="settings-section-sub">계정 및 보안 설정</div>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="goPage('verify-password')">
+          <div class="settings-row-left">
+            <div class="settings-row-label">비밀번호 변경</div>
+            <div class="settings-row-desc">정기적으로 비밀번호를 변경하면 계정이 더 안전합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="showModal('💬 연결된 소셜 계정','카카오 계정 연결됨<br>구글 계정 연결됨')">
+          <div class="settings-row-left">
+            <div class="settings-row-label">연결된 소셜 계정</div>
+            <div class="settings-row-desc">카카오, 구글 등 소셜 로그인 연결 관리</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-value">카카오 · 구글</span>
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="showModal('📋 서비스 이용약관','이용약관 내용은 웹사이트를 참조해주세요.')">
+          <div class="settings-row-left">
+            <div class="settings-row-label">서비스 이용약관</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" onclick="showModal('🛡️ 개인정보 처리방침','개인정보 처리방침 내용은 웹사이트를 참조해주세요.')">
+          <div class="settings-row-left">
+            <div class="settings-row-label">개인정보 처리방침</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑥ 위험 영역 -->
+      <div class="settings-section" style="border-color:rgba(255,59,48,0.2)">
+        <div class="settings-section-header" style="border-color:rgba(255,59,48,0.12)">
+          <div class="settings-section-icon" style="background:linear-gradient(135deg,#FF3B30,#FF6B00)">⚠️</div>
+          <div>
+            <div class="settings-section-title" style="color:var(--red,#FF3B30)">위험 영역</div>
+            <div class="settings-section-sub">되돌릴 수 없는 작업입니다. 신중하게 진행해주세요.</div>
+          </div>
+        </div>
+
+        <div class="settings-danger-row" onclick="confirmLogout()">
+          <div class="settings-row-left">
+            <div class="settings-row-label">로그아웃</div>
+            <div class="settings-row-desc">현재 기기에서 로그아웃합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow" style="color:var(--red,#FF3B30)">›</span>
+          </div>
+        </div>
+
+        <div class="settings-danger-row" onclick="confirmWithdraw()">
+          <div class="settings-row-left">
+            <div class="settings-row-label">회원 탈퇴</div>
+            <div class="settings-row-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow" style="color:var(--red,#FF3B30)">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 버전 정보 -->
+      <div class="settings-footer">SPORTMATCH v1.0.0 · © 2025 SPORTMATCH TEAM</div>
+
+    </div><!-- /settings-wrap -->
+  </div>
+</div><!-- /main -->
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title">완료!</div>
+    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline flex-1" onclick="closeModal()">닫기</button>
+      <button class="btn btn-primary flex-1" id="modal-ok" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast-notify" id="toast"></div>
+
+<script>
+// ── TOGGLE CHIP ──
+function toggleChip(el, key) {
+  el.classList.toggle('on');
+  showToast('설정이 저장되었습니다.');
+}
+
+// ── SAVE SETTING (placeholder — 실제 구현 시 API 연동) ──
+function saveSetting(key, value) {
+  console.log('[설정 저장]', key, ':', value);
+  showToast('설정이 저장되었습니다.');
+}
+
+// ── DARK MODE ──
+function toggleDarkMode(on) {
+  document.body.classList.toggle('dark', on);
+  showToast(on ? '다크 모드가 켜졌습니다.' : '라이트 모드로 전환됐습니다.');
+}
+
+// ── LOGOUT CONFIRM ──
+function confirmLogout() {
+  showModal('👋 로그아웃', '정말 로그아웃 하시겠습니까?', () => {
+    if (typeof doLogout === 'function') doLogout();
+    else showModal('✅ 로그아웃 완료', '로그아웃 되었습니다. 다음에 또 만나요!', null);
+  });
+}
+
+// ── WITHDRAW CONFIRM ──
+function confirmWithdraw() {
+  showModal('⚠️ 회원 탈퇴', '탈퇴하면 모든 데이터가 영구 삭제되며 복구할 수 없습니다.<br><br>정말 탈퇴하시겠습니까?', () => {
+    showModal('😢 탈퇴 완료', '계정이 삭제되었습니다.<br>그동안 SPORTMATCH를 이용해 주셔서 감사합니다.', null);
+  });
+}
+
+// ── MODAL ──
+let _modalCb = null;
+function showModal(title, msg, cb) {
+  const emojiMatch = title.match(/^(\p{Emoji})/u);
+  const emoji = emojiMatch ? emojiMatch[1] : '💡';
+  const rest = title.replace(/^(\p{Emoji}\s*)/u, '');
+  document.getElementById('modal-icon').textContent = emoji;
+  document.getElementById('modal-title').textContent = rest;
+  document.getElementById('modal-msg').innerHTML = msg;
+  _modalCb = cb;
+  const okBtn = document.getElementById('modal-ok');
+  okBtn.onclick = cb ? () => { closeModal(); cb(); } : closeModal;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// ── TOAST ──
+let _toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── NAV (단독 페이지 실행 시 폴백) ──
+function goPage(p) {
+  if (window.parent && window.parent.goPage) { window.parent.goPage(p); return; }
+  console.log('[goPage]', p);
+}
+</script>
+
+</body>
+</html>
