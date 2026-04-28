@@ -3,7 +3,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 //회원가입 서비스(DB에 회원 객체 저장)
-async function createUser({ email, password, name, address, uploadFile }) {
+async function createUser({ email, password, name, age, tel, address, uploadFile }) {
 
     //비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,6 +16,8 @@ async function createUser({ email, password, name, address, uploadFile }) {
         email,
         password: hashedPassword,
         name,
+        age,
+        tel,
         address,
         profileImage: profile
     });

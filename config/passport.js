@@ -43,6 +43,8 @@ passport.use(new GoogleStrategy({
                 name: profile.displayName,
                 profileImage: profile.photos[0].value,
                 address: '',
+                age: '',
+                tel: '',
                 provider: 'google'
             }
         );
@@ -72,6 +74,8 @@ passport.use(new NaverStrategy({
                 name: profile.name,
                 profileImage: profile.profileImage,
                 address: '',
+                age: '',
+                tel: '',
                 provider: 'naver'
             }
         );

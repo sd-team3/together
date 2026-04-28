@@ -10,9 +10,9 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, address } = req.body;
+        const { email, password, name, age, tel, address } = req.body;
         //회원 생성
-        await userService.createUser({ email, password, name, address, uploadFile: req.file });
+        await userService.createUser({ email, password, name, age, tel, address, uploadFile: req.file });
         res.redirect('/');
     } catch (error) {
         return next(error);
