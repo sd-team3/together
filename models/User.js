@@ -14,14 +14,7 @@ const addressSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        x: {
-            type: Number,
-            required: true
-        },
-        y: {
-            type: Number,
-            required: true
-        }
+        
     }, {
         _id: false
     }
@@ -58,6 +51,11 @@ const userSchema = new mongoose.Schema(
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
             //폴더나 파일 명은 적절하다고 생각하는 한도에서 사용 
             default: 'default-profile-image.jpg'
+        },
+        provider: {
+            type: String,
+            enum: ['local', 'google', 'naver'],
+            default: 'local'
         }
     }, {
         timestamps: true
