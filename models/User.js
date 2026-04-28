@@ -14,12 +14,8 @@ const addressSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        x: {
-            type: Number,
-            required: true
-        },
-        y: {
-            type: Number,
+        detail: {
+            type: String,
             required: true
         }
     }, {
