@@ -13,7 +13,7 @@ const memberSchema = new mongoose.Schema(
             type: Number,
             default: 1
         },
-        pList: [{
+        memberList: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }]
