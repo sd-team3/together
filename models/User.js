@@ -13,14 +13,6 @@ const addressSchema = new mongoose.Schema(
         road: {
             type: String,
             required: true
-        },
-        x: {
-            type: Number,
-            required: true
-        },
-        y: {
-            type: Number,
-            required: true
         }
     }, {
         _id: false

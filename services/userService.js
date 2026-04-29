@@ -18,8 +18,13 @@ async function createUser({ email, password, name, age, tel, address, uploadFile
         name,
         age,
         tel,
-        address,
-        profileImage: profile
+        address: {
+            state: req.body.state,
+            city: req.body.city,
+            road: req.body.road
+        },
+        profileImage: profile,
+        provider
     });
 
     //DB 저장
