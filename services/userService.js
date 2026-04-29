@@ -81,6 +81,7 @@ async function updateUser(userId, { name, age,address, uploadFile, currentPasswo
         const { state, city, road } = partAddress(address.full);
 
         user.address = {state, city, road, detail : address.detail};
+    }
     // 비밀번호 변경 (새 비밀번호에 값이 있을 때만)
     if (newPassword && newPassword.trim() != '') {
         if (!currentPassword || currentPassword.trim() === '') {
