@@ -45,6 +45,18 @@ const findUserById = async (id) => {
     return await User.findById(id);
 }
 
+// 회원 수정 전 비밀번호 확인
+async function verifyPassword (userId, password) {
+    const user = await User.findById(userId);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        const error = new Error ('비밀번호가 일치하지 않습니다');
+        error.status = 400;
+        throw error;
+    }
+}
+
 //회원수정
 async function updateUser(userId, { name, address, uploadFile, currentPassword, newPassword }) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -90,7 +102,6 @@ async function updateUser(userId, { name, address, uploadFile, currentPassword, 
     }
 
         user.address = {state, city, road, detail : address.detail};
-    }
     // 비밀번호 변경 (새 비밀번호에 값이 있을 때만)
     if (newPassword && newPassword.trim() != '') {
         if (!currentPassword || currentPassword.trim() === '') {
@@ -181,4 +192,4 @@ function partAddress(fullAddress) {
 }
 
 module.exports = { createUser, findUserByEmail, 
-    findUserById, updateUser, deleteUser, checkEmail, createSocialUser };
+    findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword };
