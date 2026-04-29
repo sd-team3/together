@@ -105,8 +105,10 @@ const postEditProfile = async (req, res, next) => {
 
         res.redirect('/user/profile');
     } catch (error) {
-        return next(error);
-    }
+    return res.status(error.status || 400).json({
+        message: error.message
+    });
+}
 };
 
 //회원탈퇴 페이지

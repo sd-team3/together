@@ -54,13 +54,17 @@ async function updateUser(userId, { name, age,address, uploadFile, currentPasswo
     }
 
     const user = await User.findById(userId);
+    if (!user) {
+    const error = new Error('사용자를 찾을 수 없습니다');
+    error.status = 404;
+    throw error;
+}
+
     if (uploadFile) {
         user.profileImage = uploadFile.filename;
     }
 
-    if (!user) {
-        throw new Error('사용자를 찾을 수 없습니다');
-    }
+    
     user.name = name;
     user.age = age;
     user.tel = tel;

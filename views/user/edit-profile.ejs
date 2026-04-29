@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 프로필 수정</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+
+<body>
+
+<!-- ✅ navbar (user → root로 올라감) -->
+<%- include('../partials/navbar') %>
+
+<div class="main">
+
+<!-- ✅ head도 동일하게 수정 -->
+<%- include('../partials/head', {
+  title: '✏️ 프로필 수정',
+  pageId: 'page-edit-profile',
+  active: ''
+}) %>
+
+<div class="page-body" style="overflow-y:auto">
+<div class="edit-wrap">
+
+<form action="/user/edit-profile" method="POST" enctype="multipart/form-data">
+    <% if (errorMessage) { %>
+  <div class="error-box" style="color:red; margin-bottom:10px;">
+    <%= errorMessage %>
+  </div>
+<% } %>
+
+<!-- ① 프로필 이미지 -->
+<div>
+  <div class="edit-section-title">프로필 이미지</div>
+
+  <div class="avatar-section">
+    <div class="avatar-preview-wrap">
+      <div class="avatar-preview" id="avatar-preview">
+        <img id="avatar-img" src="<%= user?.profileImg || '' %>" alt="">
+      </div>
+
+      <label class="avatar-edit-label" for="avatar-file">✏️</label>
+      <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
+    </div>
+  </div>
+</div>
+
+<!-- ② 기본 정보 -->
+<div>
+  <div class="edit-section-title">기본 정보</div>
+
+  <div class="edit-card">
+    <div class="form-grid-2">
+
+      <div class="edit-field field-full">
+        <label class="edit-label">이메일 🔒</label>
+        <input type="email" class="edit-input readonly-field"
+               value="<%= user.email %>" readonly>
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">이름</label>
+        <input type="text" name="name" class="edit-input"
+               value="<%= user.name %>">
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label">나이</label>
+        <input type="number" name="age" class="edit-input"
+               value="<%= user.age %>">
+      </div>
+
+      <div class="edit-field field-full">
+        <label class="edit-label">전화번호</label>
+        <input type="tel" name="tel" class="edit-input"
+               value="<%= user.tel %>">
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ③ 주소 -->
+<div>
+  <div class="edit-section-title">주소</div>
+
+  <div class="edit-card">
+    <div class="edit-field field-full">
+      <label class="edit-label">상세 주소</label>
+      <input type="text" name="road" class="edit-input"
+             value="<%= user.address?.road %>">
+    </div>
+  </div>
+</div>
+
+<!-- ④ 비밀번호 -->
+<div>
+  <div class="edit-section-title">비밀번호 변경(선택)</div>
+
+  <div class="edit-card">
+
+    <div class="edit-field field-full">
+      <label class="edit-label">현재 비밀번호</label>
+      <input type="password" name="currentPassword" class="edit-input">
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">새 비밀번호</label>
+      <input type="password" name="newPassword" class="edit-input">
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑤ 저장 -->
+<div class="edit-actions">
+  <button type="submit" class="edit-save-btn">💾 저장</button>
+</div>
+
+</form>
+<div id="modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div id="modal-title">알림</div>
+    <div id="modal-msg"></div>
+    <button onclick="closeModal()">확인</button>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+<script>
+document.querySelector("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const res = await fetch("/user/edit-profile", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        openModal(data.message);
+        return;
+    }
+
+    openModal("수정 성공!");
+});
+</script>
+
+</body>
+</html>
