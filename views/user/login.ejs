@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+
+<h2>로그인</h2>
+
+<!-- 일반 로그인 에러 -->
+<% if (errorMessage) { %>
+    <p style="color:red;"><%= errorMessage %></p>
+<% } %>
+
+<!-- 일반 로그인 폼 -->
+<form action="/user/login" method="POST">
+
+    <input type="text" name="email" placeholder="이메일"><br>
+    <input type="password" name="password" placeholder="비밀번호"><br>
+
+    <button type="submit">로그인</button>
+</form>
+
+<hr>
+
+<!-- 소셜 로그인 -->
+<h3>간편 로그인</h3>
+
+<!-- 구글 로그인 -->
+<a href="/auth/google">
+    <button type="button">Google 로그인</button>
+</a>
+
+<br><br>
+
+<!-- 네이버 로그인 -->
+<a href="/auth/naver">
+    <button type="button">Naver 로그인</button>
+</a>
+
+</body>
+</html>
