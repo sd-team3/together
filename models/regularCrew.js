@@ -8,10 +8,6 @@ const memberSchema = new mongoose.Schema(
             required: true,
             min: [1, 'MEMBER_CAPACITY_MIN_ERROR'],
             max: [50, 'MEMBER_CAPACITY_MAX_ERROR']
-        }, 
-        count: {
-            type: Number,
-            default: 1
         },
         memberList: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +39,9 @@ const regularCrewSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        intro: {
+            type: String
+        },
         host: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -51,6 +50,20 @@ const regularCrewSchema = new mongoose.Schema(
         member: {
             type: memberSchema,
             required: true
+        },
+        period: {
+            type: String,
+            enum: ['week', '2week', 'month'],
+            default: 'week'
+        },
+        day: {
+            type: [String], 
+            enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none']
+        },
+        ageRange: {
+            type: [String],
+            enum: ['10s', '20s', '30s', '40s', '50s', '60+'],
+            default: ['all']
         },
         address: {
             type: addressSchema,
@@ -61,6 +74,10 @@ const regularCrewSchema = new mongoose.Schema(
             required: true,
             enum: SPORTS_EN
         },
+        fee: {
+            type: Number,
+            default: 0
+        },
         rating: {
             type: Number,
             default: 0,
@@ -69,6 +86,12 @@ const regularCrewSchema = new mongoose.Schema(
         reputation: {
             type: Number,
             default: 0
+        },
+        profileImage: {
+            type: String, 
+            //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
+            //폴더나 파일 명은 적절하다고 생각하는 한도에서 사용 
+            default: 'default-crew-profile.jpg'
         }
     }
 );
