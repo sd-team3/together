@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<%- include('partials/navbar') %>
+<%- include('../partials/navbar') %>
 <div class="error-page">
   <div class="error-bg-number">404</div>
 
@@ -22,30 +22,8 @@
       아래 링크에서 원하는 항목을 찾아보세요!
     </div>
     <div class="error-actions">
-      <button class="btn btn-accent btn-lg" onclick="location.href='/'">🏠 홈으로 돌아가기</button>
-      <button class="btn btn-outline" onclick="history.back()">← 이전으로</button>
-    </div>
-
-    <div class="suggest-section">
-      <div class="suggest-title">이런 페이지는 어때요?</div>
-      <div class="suggest-grid">
-        <a class="suggest-card" href="/map">
-          <div class="suggest-card-emoji">🗺️</div>
-          <div><div class="suggest-card-text">매칭 지도</div><div class="suggest-card-sub">내 주변 매칭 찾기</div></div>
-        </a>
-        <a class="suggest-card" href="/regular">
-          <div class="suggest-card-emoji">🔁</div>
-          <div><div class="suggest-card-text">정기 모임</div><div class="suggest-card-sub">클럽 & 정기모임 참가</div></div>
-        </a>
-        <a class="suggest-card" href="/trade">
-          <div class="suggest-card-emoji">🛒</div>
-          <div><div class="suggest-card-text">장비 거래</div><div class="suggest-card-sub">스포츠 용품 사고팔기</div></div>
-        </a>
-        <a class="suggest-card" href="/community">
-          <div class="suggest-card-emoji">💬</div>
-          <div><div class="suggest-card-text">커뮤니티</div><div class="suggest-card-sub">자유게시판 & 꿀팁</div></div>
-        </a>
-      </div>
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
     </div>
   </div>
 </div>

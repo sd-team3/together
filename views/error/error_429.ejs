@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<%- include('partials/navbar') %>
+<%- include('../partials/navbar') %>
 <div class="error-page">
   <div class="error-bg-number">429</div>
 
@@ -21,18 +21,8 @@
       잠시 후 다시 시도해 주세요.
     </div>
     <div class="error-actions">
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
       <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
-    </div>
-
-    <div class="countdown-box">
-      <div class="countdown-label">재시도 가능까지</div>
-      <div class="countdown-timer" id="countdown">
-        <%= typeof retryAfter !== 'undefined' ? retryAfter : '60' %>
-      </div>
-      <div class="countdown-sub">초 후 다시 이용할 수 있어요</div>
-      <div class="countdown-bar-wrap">
-        <div class="countdown-bar" id="countdownBar"></div>
-      </div>
     </div>
   </div>
 </div>

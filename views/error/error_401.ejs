@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<%- include('partials/navbar') %>
+<%- include('../partials/navbar') %>
 <div class="error-page">
   <div class="error-bg-number">401</div>
 
@@ -23,16 +23,7 @@
     <div class="error-actions">
       <button class="btn btn-accent btn-lg" onclick="location.href='/login'">🚀 로그인하기</button>
       <button class="btn btn-outline" onclick="location.href='/register'">회원가입</button>
-    </div>
-
-    <div class="login-card">
-      <div class="login-card-title">🏃 바로 로그인</div>
-      <input class="login-input" type="text" placeholder="이메일 또는 아이디" />
-      <input class="login-input" type="password" placeholder="비밀번호" />
-      <button class="btn btn-primary" style="width:100%" onclick="location.href='/login'">로그인 →</button>
-      <div style="margin-top:12px;font-size:12px;color:var(--muted);text-align:center">
-        계정이 없으신가요? <a href="/register" style="color:var(--accent);text-decoration:none;font-weight:600">회원가입</a>
-      </div>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
     </div>
   </div>
 </div>

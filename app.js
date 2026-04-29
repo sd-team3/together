@@ -73,6 +73,34 @@ app.use('/settings', (req, res) => {
     res.render('15_settings');
 })
 
+app.use('/400', (req, res) => {
+    res.render('error/error_400');
+})
+
+app.use('/401', (req, res) => {
+    res.render('error/error_401');
+})
+
+app.use('/403', (req, res) => {
+    res.render('error/error_403');
+})
+
+app.use('/404', (req, res) => {
+    res.render('error/error_404');
+})
+
+app.use('/429', (req, res) => {
+    res.render('error/error_429');
+})
+
+app.use('/500', (req, res) => {
+    res.render('error/error_500');
+})
+
+app.use('/503', (req, res) => {
+    res.render('error/error_503');
+})
+
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });

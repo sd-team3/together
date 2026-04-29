@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+<%- include('../partials/navbar') %>
 <div class="error-page">
   <div class="maintenance-bg"></div>
   <div class="error-bg-number">503</div>
@@ -16,45 +17,12 @@
     <div class="error-emoji">🔧</div>
     <div class="error-code">503 · Service Unavailable</div>
     <div class="error-title">잠깐, 점검 중이에요</div>
-    <div class="eta-badge">
-      <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse-dot 1s ease-in-out infinite"></span>
-      예상 완료: <%= typeof eta !== 'undefined' ? eta : '약 30분 후' %>
-    </div>
     <div class="error-desc">
       더 나은 SPORTMATCH를 위해 서버를 점검 중이에요.<br>
-      잠시 후 더 빠르고 안정적으로 돌아올게요! 🏃
+      더 빠르고 안정적인 서비스로 돌아올게요! 🏃
     </div>
-
-    <div class="progress-section">
-      <div class="progress-title">점검 진행 현황</div>
-      <div class="progress-item">
-        <div class="progress-icon p-done">✓</div>
-        <div class="p-label">데이터베이스 마이그레이션</div>
-        <div class="p-time">완료</div>
-      </div>
-      <div class="progress-item">
-        <div class="progress-icon p-done">✓</div>
-        <div class="p-label">캐시 서버 재시작</div>
-        <div class="p-time">완료</div>
-      </div>
-      <div class="progress-item">
-        <div class="progress-icon p-active">●</div>
-        <div class="p-label">API 서버 배포</div>
-        <div class="p-time">진행 중</div>
-      </div>
-      <div class="progress-item">
-        <div class="progress-icon p-wait">○</div>
-        <div class="p-label">서비스 검증 & 재오픈</div>
-        <div class="p-time">대기</div>
-      </div>
-      <div class="overall-bar-wrap">
-        <div class="overall-bar"></div>
-      </div>
-      <div class="overall-label">
-        <span>점검 진행률</span>
-        <span>약 65%</span>
-      </div>
-    </div>
+    <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
+    <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
   </div>
 </div>
 </body>

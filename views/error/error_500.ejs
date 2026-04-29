@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<%- include('partials/navbar') %>
+<%- include('../partials/navbar') %>
 <div class="error-page">
   <div class="error-bg-number">500</div>
 
@@ -16,17 +16,12 @@
     <div class="error-emoji">💥</div>
     <div class="error-code">500 · Internal Server Error</div>
     <div class="error-title">서버에서 문제가 생겼어요</div>
-    <div class="status-row">
-      <div class="status-pill"><div class="status-dot"></div> DB 정상</div>
-      <div class="status-pill"><div class="status-dot red"></div> API 오류</div>
-      <div class="status-pill"><div class="status-dot"></div> 인증 정상</div>
-    </div>
     <div class="error-desc">
-      저희 서버에서 예상치 못한 오류가 발생했어요.<br>
-      팀이 빠르게 확인 중이에요. 잠시 후 다시 시도해 주세요.
+      서버에서 예상치 못한 오류가 발생했어요.<br>
+      잠시 후 다시 시도해 주세요.
     </div>
     <div class="error-actions">
-      <button class="btn btn-primary" onclick="location.reload()">🔄 새로고침</button>
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
       <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
     </div>
 
