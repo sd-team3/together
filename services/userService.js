@@ -5,6 +5,14 @@ const bcrypt = require('bcrypt');
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, uploadFile, age, tel }) {
 
+    //이메일 중복 체크
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        const error = new Error('이미 사용중인 이메일입니다');
+        error.status = 400;
+        throw error;
+    };
+
     //비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 

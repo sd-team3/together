@@ -8,9 +8,13 @@ const {uploadProfile} = require('../config/upload');
 //회원가입 페이지
 router.get('/signup', userController.getSignup);
 
-//회원가입 처리
-router.post('/signup', uploadProfile.single('uploadFile'), signupValidationRules, validate,
- userController.postSignup);
+router.post(
+  '/signup',
+  uploadProfile.single('uploadFile'),
+  signupValidationRules,
+  validate('user/signup'), 
+  userController.postSignup
+);
 
 //로그인 페이지
 router.get('/login', userController.getLogin);
