@@ -14,6 +14,7 @@ const signupValidationRules = [
         .matches(/^[가-힣]{2,5}$/)
         .withMessage('이름은 2~5자 한글로 입력하세요'),
     body('password2')
+        .notEmpty().withMessage('비밀번호 확인을 입력해주세요')
         .custom((value, {req})=>{
             if(value !== req.body.password){
                 throw new Error('비밀번호가 일치하지 않습니다');
@@ -21,31 +22,60 @@ const signupValidationRules = [
             return true;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         }),
     body('age')
-        .notEmpty().withMessage('나이를 입력하세요')
-        .isInt({min: 1, max: 120 }).withMessage('유효한 나이를 입력하세요'),
+        .notEmpty().withMessage('나이는 필수입니다')
+        .isInt({ min: 1, max: 120 })
+        .withMessage('올바른 나이를 입력하세요'),
+
     body('tel')
-        .notEmpty().withMessage('전화번호를 입력하세요')
-        .matches(/^01(?:0|1|[6-9])-(?:\d{3,4})-\d{4}$/)
-        .withMessage('유효한 전화번호 형식을 입력해주세요(예: 010-1234-5678)'),
-    body('address')
-        .if(body('provider').equals('local'))
-        .notEmpty().withMessage('주소 정보는 필수입니다')
+    .notEmpty().withMessage('전화번호는 필수입니다')
+    .matches(/^01[016789]-?\d{3,4}-?\d{4}$/)
+    .withMessage('올바른 전화번호를 입력하세요'),
+];
+
+//비번변경 유효성 검사 규칙
+const editProfileValidationRules = [
+    body('name')
+        .optional({ checkFalsy: true })
+        .matches(/^[가-힣]{2,5}$/)
+        .withMessage('이름은 2~5자 한글로 입력하세요'),
+
+    body('newPassword')
+        .optional({ checkFalsy: true }) //빈 문자열 거르기
+        .matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/)
+        .withMessage('비밀번호는 영문, 숫자, 특수문자 조합 8자 이상이어야 합니다'),
+
+    body('currentPassword')
+        .optional({ checkFalsy: true }) //빈 문자열 거르기
+        .custom((value, { req }) => {
+            if (req.body.newPassword && !value) {
+                throw new Error('현재 비밀번호를 입력해야 합니다');
+            }
+            return true;
+        })
 ];
 
 
-const validate = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {//유효성 검사 실패
-        req.validationErrors = {};
-        errors.array().forEach(err => {
-            req.validationErrors[err.path] = err.msg;
-        });
-        
-        return res.render('user/signup', {
-            errors: req.validationErrors
-        });
-    }
-    next();
-}
+//유효성 검사
+const validate = (viewName) => {
+    return (req, res, next) => {
+        const errors = validationResult(req);
 
-module.exports = { signupValidationRules, validate };
+        if (!errors.isEmpty()) {
+            const validationErrors = {};
+
+            errors.array().forEach(err => {
+                if (!validationErrors[err.path]) {
+                    validationErrors[err.path] = err.msg;
+                }
+            });
+
+            return res.render(viewName, {
+                errors: validationErrors
+            });
+        }
+
+        next();
+    };
+};
+
+module.exports = { editProfileValidationRules, signupValidationRules, validate };

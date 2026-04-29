@@ -1,0 +1,14 @@
+<div class="page <%= typeof active !== 'undefined' ? active : '' %>" id="<%= pageId %>" style="display:flex;flex-direction:column;flex:1">
+<div class="topbar">
+    <div><div class="topbar-title"><%= typeof title !== 'undefined' ? title : '타이틀 없음' %></div></div>
+    <div class="topbar-actions">
+      <span class="auth-state-btns" data-state="guest">
+        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
+        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
+      </span>
+      <span class="auth-state-btns" data-state="user" style="display:none">
+        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
+      </span>
+    </div>
+  </div>
