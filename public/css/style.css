@@ -91,11 +91,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .user-level{font-size:10.5px;color:var(--text-3)}
 
 /* ─── MAIN ─── */
-.main{flex:1;min-height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
 
 /* ─── PAGES ─── */
-.page{display:none;flex:1;animation:pageIn .2s ease}
+.page{display:none;flex:1;animation:pageIn .2s ease;min-height:0}
 .page.active{display:flex;flex-direction:column}
+#page-map.active{height:100%;overflow:hidden}
 @keyframes pageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── TOPBAR ─── */
@@ -331,8 +332,8 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    MAP PAGE
 ═══════════════════════════════════════ */
-.map-container{display:grid;grid-template-columns:1fr 340px;flex:1;min-height:0}
-.map-area{position:relative;background:#EEF0EC;overflow:hidden}
+.map-container{display:grid;grid-template-columns:1fr 340px;flex:1;min-height:0;overflow:hidden}
+.map-area{position:relative;background:#EEF0EC;overflow:hidden;display:flex;flex-direction:column}
 .map-grid{
   position:absolute;inset:0;
   background:
@@ -403,7 +404,7 @@ select.input{cursor:pointer}
 }
 .map-fab:hover{background:#222;transform:scale(1.06)}
 
-.map-list{display:flex;flex-direction:column;border-left:1px solid var(--border);background:var(--surface)}
+.map-list{display:flex;flex-direction:column;border-left:1px solid var(--border);background:var(--surface);overflow:hidden}
 .map-list-header{padding:14px 18px;border-bottom:1px solid var(--border)}
 .map-list-title{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:8px}
 .map-sort-tabs{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--bg)}

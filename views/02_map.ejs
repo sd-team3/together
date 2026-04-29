@@ -15,65 +15,74 @@
 <!-- ═══════ MAIN ═══════ -->
 <div class="main">
 
-<!-- ──────── REGULAR PAGE ──────── -->
-<%- include('partials/head', { title: '🔁 정기 모임', pageId: 'page-regular', active: '' }) %>
+<!-- ──────── MAP PAGE ──────── -->
+<%- include('partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '' }) %>
 
-  <div class="page-body">
-    <div class="section-title">추천 정기모임</div>
-    <div style="display:flex;gap:5px;align-items:center;margin-left:4px">
-        <button class="reg-filter-chip on" onclick="regFilter(this,'all')">전체</button>
-        <button class="reg-filter-chip" onclick="regFilter(this,'open')">⚡ 참가가능</button>
-        <button class="reg-filter-chip" onclick="regFilter(this,'free')">🆓 무료</button>
-        <button class="reg-filter-chip" onclick="regFilter(this,'weekend')">📅 주말</button>
-        <button class="btn btn-primary btn-sm" onclick="goPage('regular-create')">+ 모임 만들기</button>
-      </div>
-    <div class="regular-grid">
-      <div class="reg-card" data-filter="warn paid weekday" onclick="showModal('🔁 성수 풋살 나이트','📍 성수 실내풋살장<br>📅 매주 화·목 20:00<br>👥 현재 12/16명<br>💰 8,000원/회<br>📊 초중급<br><br>신청하시겠습니까?',()=>showModal('✅ 신청 완료!','모임 참가 신청이 완료되었습니다! 모임장이 수락하면 알림을 드립니다.'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">⚽</div><div><div class="reg-card-title">성수 풋살 나이트</div><div class="reg-card-sub">매주 화·목 · 성수구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 20:00</span><span>💰 8,000원/회</span><span>📊 초중급</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:75%"></div></div>
-          <div class="reg-progress-label"><span>12/16명</span><span>4자리 남음</span></div>
+  <div class="page-body-wide" style="flex:1;min-height:0;overflow:hidden">
+    <div class="map-container" style="height:100%;overflow:hidden">
+      <!-- Map Area (Leaflet) -->
+      <div class="map-area" style="position:relative;flex:1">
+        <div id="leaflet-map" style="width:100%; height:100%;"></div>
+        <!-- Filter bar -->
+        <div class="map-filter-bar" style="z-index:1000">
+          <div class="map-filter-chip on" onclick="leafletFilterToggle(this,'all')">전체</div>
+          <div class="map-filter-chip" onclick="leafletFilterToggle(this,'⚽')">⚽ 풋살</div>
+          <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🏀')">🏀 농구</div>
+          <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🏸')">🏸 배드민턴</div>
+          <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🏃')">🏃 러닝</div>
+          <div class="map-filter-chip" onclick="leafletFilterToggle(this,'🎾')">🎾 테니스</div>
         </div>
+        <!--<button class="map-fab" onclick="goPage('map-create')" style="z-index:1000">＋</button>-->
       </div>
-      <div class="reg-card" data-filter="open paid weekday" onclick="showModal('🏸 건대 배드민턴 믹스','📍 건대입구 실내체육관<br>📅 매주 목 19:30<br>👥 현재 6/10명<br>💰 5,000원/회<br>📊 입문~초급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">🏸</div><div><div class="reg-card-title">건대 배드민턴 믹스</div><div class="reg-card-sub">매주 목 · 광진구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 19:30</span><span>💰 5,000원/회</span><span>📊 입문가능</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:60%"></div></div>
-          <div class="reg-progress-label"><span>6/10명</span><span>4자리 남음</span></div>
+      <!-- List Panel -->
+      <div class="map-list">
+        <div class="map-list-header">
+          <div class="map-list-title">5개의 매칭</div>
+          <div class="map-sort-tabs">
+            <button class="map-sort-tab on" onclick="setSortTab(this)">거리순</button>
+            <button class="map-sort-tab" onclick="setSortTab(this)">시간순</button>
+            <button class="map-sort-tab" onclick="setSortTab(this)">인원순</button>
+          </div>
         </div>
-      </div>
-      <div class="reg-card" data-filter="open free weekday" onclick="showModal('🏃 성동 나이트 러닝','📍 성수역 1번 출구<br>📅 평일 21:00<br>👥 현재 41/50명<br>💰 무료<br>📊 5~10km',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">🏃</div><div><div class="reg-card-title">성동 나이트 러닝 크루</div><div class="reg-card-sub">평일 · 성동구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 21:00</span><span>💰 무료</span><span>📊 5~10km</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:82%"></div></div>
-          <div class="reg-progress-label"><span>41/50명</span><span>9자리 남음</span></div>
+        <div class="map-list-items" style="flex: 1; overflow-y: auto;">
+          <div class="map-item sel" onclick="showMapPopup('강남 풋살파크 5:5','강남구 역삼동','오늘 19:30','6/10명','⚽','중급','10,000원')">
+            <div class="mi-top"><div class="mi-sport">⚽</div><div><div class="mi-title">강남 풋살파크 5:5 매칭</div><div class="mi-meta"><span>📍 역삼동 · 1.2km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 오늘 19:30</span><span>👥 6/10명</span><span>💰 10,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">중급</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('뚝섬 3on3 농구','성동구 뚝섬','오늘 18:00','5/6명','🏀','중급','무료')">
+            <div class="mi-top"><div class="mi-sport">🏀</div><div><div class="mi-title">뚝섬 3on3 농구 스크림</div><div class="mi-meta"><span>📍 뚝섬 · 2.0km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 오늘 18:00</span><span>👥 5/6명</span><span>💰 무료</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">중급</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('홍대 배드민턴','마포구 홍대입구','내일 20:00','3/8명','🏸','입문','5,000원')">
+            <div class="mi-top"><div class="mi-sport">🏸</div><div><div class="mi-title">홍대 배드민턴 나이트</div><div class="mi-meta"><span>📍 홍대입구 · 3.4km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 내일 20:00</span><span>👥 3/8명</span><span>💰 5,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-open">참가가능</span><span class="tag tag-outline">입문</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('성수 러닝크루','성동구 성수역','오늘 21:00','28/40명','🏃','전레벨','무료')">
+            <div class="mi-top"><div class="mi-sport">🏃</div><div><div class="mi-title">성동 나이트 러닝 크루</div><div class="mi-meta"><span>📍 성수역 · 0.8km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 오늘 21:00</span><span>👥 28/40명</span><span>💰 무료</span></div>
+            <div class="mi-bottom"><span class="pill pill-open">참가가능</span><span class="tag tag-outline">전레벨</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('왕십리 테니스','성동구 왕십리','일 09:30','3/4명','🎾','초급','15,000원')">
+            <div class="mi-top"><div class="mi-sport">🎾</div><div><div class="mi-title">왕십리 테니스 브런치</div><div class="mi-meta"><span>📍 왕십리 · 1.6km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('왕십리 테니스','성동구 왕십리','일 09:30','3/4명','🎾','초급','15,000원')">
+            <div class="mi-top"><div class="mi-sport">🎾</div><div><div class="mi-title">왕십리 테니스 브런치</div><div class="mi-meta"><span>📍 왕십리 · 1.6km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('왕십리 테니스','성동구 왕십리','일 09:30','3/4명','🎾','초급','15,000원')">
+            <div class="mi-top"><div class="mi-sport">🎾</div><div><div class="mi-title">왕십리 테니스 브런치</div><div class="mi-meta"><span>📍 왕십리 · 1.6km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
+          </div>
         </div>
-      </div>
-      <div class="reg-card" data-filter="warn free weekend" onclick="showModal('🏀 뚝섬 농구 스크림','📍 뚝섬한강공원 농구코트<br>📅 매주 토·일 18:00<br>👥 현재 10/12명<br>💰 무료<br>📊 중급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">🏀</div><div><div class="reg-card-title">뚝섬 농구 스크림</div><div class="reg-card-sub">주말 · 성동구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 18:00</span><span>💰 무료</span><span>📊 중급</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:83%"></div></div>
-          <div class="reg-progress-label"><span>10/12명</span><span>2자리 남음</span></div>
-        </div>
-      </div>
-      <div class="reg-card" data-filter="warn paid weekend" onclick="showModal('🎾 왕십리 테니스 브런치','📍 왕십리 테니스장<br>📅 매주 일 09:30<br>👥 현재 3/4명<br>💰 15,000원/회<br>📊 초급',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">🎾</div><div><div class="reg-card-title">왕십리 테니스 브런치</div><div class="reg-card-sub">매주 일 · 성동구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 09:30</span><span>💰 15,000원/회</span><span>📊 초급</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:75%"></div></div>
-          <div class="reg-progress-label"><span>3/4명</span><span>1자리 남음</span></div>
-        </div>
-      </div>
-      <div class="reg-card" data-filter="open paid weekday" onclick="showModal('💪 퍼포먼스 트레이닝','📍 왕십리 트레이닝센터<br>📅 매주 수 20:00<br>👥 현재 16/20명<br>💰 10,000원/회<br>📊 전 레벨',()=>showModal('✅ 신청 완료!','참가 신청이 완료되었습니다!'))">
-        <div class="reg-card-head"><div class="reg-sport-icon">💪</div><div><div class="reg-card-title">퍼포먼스 트레이닝 스터디</div><div class="reg-card-sub">매주 수 · 성동구</div></div><span class="pill pill-open" style="margin-left:auto">참가가능</span></div>
-        <div class="reg-card-body">
-          <div class="reg-meta-row"><span>⏰ 20:00</span><span>💰 10,000원/회</span><span>📊 전 레벨</span></div>
-          <div class="reg-progress"><div class="reg-progress-fill" style="width:80%"></div></div>
-          <div class="reg-progress-label"><span>16/20명</span><span>4자리 남음</span></div>
+        <div style="padding: 16px; background: #fff; border-top: 1px solid #eee; z-index: 10;">
+          <button class="btn btn-primary" onclick="goPage('map_create')" style="width: 100%; padding: 12px; font-size: 15px; border-radius: 8px; font-weight: 600;">＋ 매칭 만들기</button>
         </div>
       </div>
     </div>
@@ -480,8 +489,8 @@ setInterval(() => {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  goPage('regular');
-  goPage('regular'.replace('home','home'));
+  goPage('map');
+  goPage('map'.replace('home','home'));
   document.getElementById('chatMessages').scrollTop = 99999;
 });
 
