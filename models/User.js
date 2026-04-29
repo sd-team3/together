@@ -14,7 +14,10 @@ const addressSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        
+        detail: {
+            type: String,
+            required: true
+        }
     }, {
         _id: false
     }
