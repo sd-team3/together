@@ -72,3 +72,7 @@ const regularCrewSchema = new mongoose.Schema(
         }
     }
 );
+
+const regularCrew = mongoose.model('regularCrew', regularCrewSchema);
+
+module.exports = regularCrew;
