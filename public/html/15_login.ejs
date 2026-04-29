@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>SPORTMATCH - 로그인</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Bebas+Neue&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #1A5CFF;
+            --primary-dark: #0040CC;
+            --accent: #C8FF00;
+            --bg: #F7F8F5;
+            --surface: #FFFFFF;
+            --text: #111110;
+            --text-soft: #555552;
+            --border: #E6E8E2;
+            --radius: 14px;
+            --shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--surface);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            min-height: 640px;
+        }
+
+        .auth-visual {
+            background: linear-gradient(135deg, #0f1520 0%, #1A5CFF 55%, #00C8D4 100%);
+            padding: 60px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(200,255,0,0.15), transparent 60%);
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .visual-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .visual-desc {
+            font-size: 18px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .auth-form-side {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 40px;
+        }
+
+        .form-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            color: var(--text-soft);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-soft);
+        }
+
+        .input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26, 92, 255, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #222;
+            transform: translateY(-2px);
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-soft);
+        }
+
+        .link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            .auth-visual {
+                display: none;
+            }
+            .auth-form-side {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-visual">
+            <div class="logo">
+                SPORTMATCH <div class="logo-dot"></div>
+            </div>
+            <div class="visual-content">
+                <h1 class="visual-title">Welcome<br>Back.</h1>
+                <p class="visual-desc">스포츠로 연결되는 새로운 즐거움,<br>오늘도 최고의 매치를 찾아보세요.</p>
+            </div>
+            <div style="font-size: 13px; opacity: 0.6;">© 2024 SPORTMATCH. All rights reserved.</div>
+        </div>
+        <div class="auth-form-side">
+            <div class="form-header">
+                <h2 class="form-title">로그인</h2>
+                <p class="form-subtitle">계정 정보를 입력하여 접속하세요.</p>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="label">이메일 주소</label>
+                    <input type="email" class="input" placeholder="example@sportmatch.com" required />
+                </div>
+                <div class="form-group">
+                    <label class="label">비밀번호</label>
+                    <input type="password" class="input" placeholder="••••••••" required />
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                        <input type="checkbox" /> 로그인 상태 유지
+                    </label>
+                    <a href="#" class="link" style="font-size: 13px;">비밀번호 찾기</a>
+                </div>
+                <button type="submit" class="btn btn-primary">로그인</button>
+            </form>
+
+            <div class="form-footer">
+                계정이 없으신가요? <a href="signup.html" class="link">회원가입 하기</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
