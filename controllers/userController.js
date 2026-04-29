@@ -76,6 +76,31 @@ const getEditProfile = async (req, res) => {
     });
 }
 
+// 회원 수정 전 비밀번호 인증 페이지
+const getVerify = async (req, res) => {
+//    if (!req.isAuthenticated()) {
+//         return res.redirect('/user/login');
+//    }
+   res.render('user/verify-password', {error : {} });
+}
+
+// 회원 수정 전 비밀번호 인증 처리
+const postVerify = async (req, res, next) => {
+//    if (!req.isAuthenticated()) {
+//         return res.redirect('/user/login');
+//    }
+    const { password }= req.body;
+    try {
+        await userService.verifyPassword(req.user.id, password);
+        res.redirect('/user/edit-prifile');
+    } catch (error) {
+        if (error.status === 400) {
+            return res.status(400).render('/user/verify-password', {error : error.message});
+        }
+        return next(error);
+    }
+}
+
 //회원 수정 처리
 const postEditProfile = async (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -151,4 +176,4 @@ const checkEmail = async (req, res, next) => {
 
 }
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail };
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail, getVerify, postVerify };
