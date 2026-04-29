@@ -42,6 +42,12 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+app.use((err, req, res, next) => {
+    console.error('ERROR:', err);
+
+    res.status(err.status || 500).send(err.message || '서버 에러');
+});
+
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

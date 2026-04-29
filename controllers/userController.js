@@ -82,6 +82,7 @@ const postEditProfile = async (req, res, next) => {
         return res.redirect('/user/login');
     }
 
+<<<<<<< Updated upstream
     const { name, state, city, road, currentPassword, newPassword } = req.body;
 
     try {
@@ -94,6 +95,15 @@ const postEditProfile = async (req, res, next) => {
             },
             currentPassword,
             newPassword,
+=======
+    const { password, name, address } = req.body;
+
+    try {
+        await userService.updateUser(req.user.id, {
+            password,
+            name,
+            address,
+>>>>>>> Stashed changes
             uploadFile: req.file
         });
 
