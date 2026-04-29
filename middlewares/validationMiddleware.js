@@ -21,9 +21,15 @@ const signupValidationRules = [
             return true;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         }),
     body('age')
-        .notEmpty().withMessage('나이를 입력하세요.'),
+        .notEmpty().withMessage('나이를 입력하세요')
+        .isInt({min: 1, max: 120 }).withMessage('유효한 나이를 입력하세요'),
     body('tel')
-        .notEmpty().withMessage('전화번호를 입력하세요.')
+        .notEmpty().withMessage('전화번호를 입력하세요')
+        .matches(/^01(?:0|1|[6-9])-(?:\d{3,4})-\d{4}$/)
+        .withMessage('유효한 전화번호 형식을 입력해주세요(예: 010-1234-5678)'),
+    body('address')
+        .if(body('provider').equals('local'))
+        .notEmpty().withMessage('주소 정보는 필수입니다')
 ];
 
 
