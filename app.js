@@ -34,24 +34,12 @@ app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use('/user', userRouter);
-app.use('/auth', authRouter);
-
-app.use(notFoundHandler);
-app.use(errorHandler);
-
-
 app.get('/', (req, res) => {
     res.render('index');
 });
+
+app.use('/user', userRouter);
+app.use('/auth', authRouter);
 
 app.use((err, req, res, next) => {
     console.error('ERROR:', err);
@@ -59,6 +47,8 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
 
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

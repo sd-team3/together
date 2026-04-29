@@ -27,7 +27,7 @@
                 <h2 class="form-title">회원가입</h2>
                 <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
             </div>
-            <form action="/user/signup" method="post" id="signupForm" onsubmit="handleSignup(event)">
+            <form action="/user/signup" method="post" id="signup" onsubmit="handleSignup(event)">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>
                     <input type="text" class="input" name="name" id="name" required />
@@ -80,7 +80,7 @@
                 <div class="form-group">
                     <label class="label">비밀번호 확인 <span class="req">*</span></label>
                     <div class="input-icon-wrap">
-                        <input type="password" class="input" name="pw2" id="pw2" placeholder="비밀번호 확인" required />
+                        <input type="password" class="input" name="password2" id="pw2" placeholder="비밀번호 확인" required />
                         <button type="button" class="input-eye" onclick="togglePw('pw2', this)" tabindex="-1">👁</button>
                     </div>
                     <% if(errors.password2) { %>
@@ -185,34 +185,47 @@
             setTimeout(() => t.classList.remove('show'), 2000);
         }
 
-        function handleSignup(e) {
+        async function handleSignup(e) {
             e.preventDefault();
-            const name = document.getElementById('name').value;
+
             const pw = document.getElementById('pw').value;
             const pw2 = document.getElementById('pw2').value;
-
-            if (pw !== pw2) {
-                const t = document.getElementById('toast');
-                t.textContent = "비밀번호가 일치하지 않습니다.";
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 2000);
-                return;
-            }
-
+            if (pw !== pw2) { showToast('비밀번호가 일치하지 않습니다.'); return; }
             if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
-                const t = document.getElementById('toast');
-                t.textContent = "필수 약관에 동의해주세요.";
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 2000);
-                return;
+                showToast('필수 약관에 동의해주세요.'); return;
             }
-            document.getElementById('success-name').textContent = name;
-            document.getElementById('successOverlay').classList.add('show');
 
-            setTimeout(() => {
-                e.target.submit(); 
-            }, 2000);
+            const formData = new FormData(document.getElementById('signup'));
+
+            try {
+                const res = await fetch('/user/signup', {
+                    method: 'POST',
+                    body: formData,
+                    redirect: 'follow'
+                });
+
+                if (res.ok || res.redirected) {
+                    // 서버 응답 성공 확인 후 오버레이 띄움
+                    const name = document.getElementById('name').value;
+                    document.getElementById('success-name').textContent = name;
+                    document.getElementById('successOverlay').classList.add('show');
+                    setTimeout(() => { location.href = '/'; }, 2000);
+                } else {
+                    showToast('회원가입에 실패했습니다. 입력값을 확인해주세요.');
+                }
+            } catch (err) {
+                showToast('서버 오류가 발생했습니다.');
+            }
         }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // 해야될거 이메일 중복확인
     </script>
 </body>
 </html>
