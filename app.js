@@ -34,7 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/user', userRouter);
-app.use('/Oauth', authRouter);
+app.use('/auth', authRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
