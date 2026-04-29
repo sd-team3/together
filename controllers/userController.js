@@ -110,11 +110,13 @@ const postEditProfile = async (req, res, next) => {
 
 
 
-    const { name, state, city, road, currentPassword, newPassword } = req.body;
+    const { name, age,tel, state, city, road, currentPassword, newPassword } = req.body;
 
     try {
         await userService.updateUser(req.user.id, {
             name,
+            age,
+            tel,
             address: {
                 state,
                 city,
