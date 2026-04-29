@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>SPORTMATCH - 회원가입</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/layouts/auth1-layout.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Bebas+Neue&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-visual">
+            <div class="logo">
+                SPORTMATCH <div class="logo-dot"></div>
+            </div>
+            <div class="visual-content">
+                <h1 class="visual-title">Join the<br>Match.</h1>
+                <p class="visual-desc">스포츠로 연결되는 새로운 즐거움,<br>오늘도 최고의 매치를 찾아보세요.</p>
+            </div>
+            <div style="font-size: 12px; opacity: 0.6;">© 2026 SPORTMATCH. All rights reserved.</div>
+        </div>
+
+        <div class="auth-form-side">
+            <div class="form-header">
+                <h2 class="form-title">회원가입</h2>
+                <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
+            </div>
+            <form action="/user/signup" method="post" id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label class="label">이름 <span class="req">*</span></label>
+                    <input type="text" class="input" name="name" id="name" required />
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="label">나이 <span class="req">*</span></label>
+                        <input type="number" class="input" name="age" id="age" min="14" max="99" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="label">전화번호 <span class="req">*</span></label>
+                        <input type="tel" class="input" name="tel" id="phone" oninput="formatPhone(this)" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">이메일 <span class="req">*</span></label>
+                    <div class="email-input-group">
+                        <input type="email" class="input" name="email" id="email" required />
+                        <button type="button" id="emailCheckBtn" onclick="">중복확인</button>
+                    </div>
+                    <div id="emailFeedBack"></div>
+                    <% if(errors.email) { %>
+						<div class="form-text text-danger"><%= errors.email %></div>
+					<%}%>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">비밀번호 <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <input type="password" class="input" name="password" id="pw" placeholder="영문, 숫자, 특수문자 조합 8자 이상" oninput="checkPwStrength(this.value)" required />
+                        <button type="button" class="input-eye" onclick="togglePw('pw', this)" tabindex="-1">👁</button>
+                    </div>
+                    <div class="pw-strength">
+                        <div class="pw-bars">
+                            <div class="pw-bar" id="bar1"></div>
+                            <div class="pw-bar" id="bar2"></div>
+                            <div class="pw-bar" id="bar3"></div>
+                            <div class="pw-bar" id="bar4"></div>
+                        </div>
+                        <div class="pw-label" id="pw-label">비밀번호를 입력하세요</div>
+                        <% if(errors.password) { %>
+						    <div class="form-text text-danger"><%= errors.password %></div>
+					    <%}%>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="label">비밀번호 확인 <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <input type="password" class="input" name="pw2" id="pw2" placeholder="비밀번호 확인" required />
+                        <button type="button" class="input-eye" onclick="togglePw('pw2', this)" tabindex="-1">👁</button>
+                    </div>
+                    <% if(errors.password2) { %>
+                        <div class="form-text text-danger"><%= errors.password2 %></div>
+                    <%}%>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">주소 <span class="req">*</span></label>
+                    <div class="address-wrap">
+                        <input type="text" class="input" id="zipcode" placeholder="우편번호" readonly required />
+                        <button type="button" class="btn-search" onclick="searchAddress()">주소 검색</button>
+                    </div>
+                    <input type="text" class="input" name="address" id="address" placeholder="기본 주소" style="margin-bottom:8px" readonly required />
+                    <input type="hidden" name="state" id="state" />
+                    <input type="hidden" name="city" id="city" />
+                    <input type="hidden" name="road" id="road" />
+                    <input type="text" class="input" name="addressDetail" id="addressDetail" placeholder="상세 주소 입력" required />
+                </div>
+
+                <div class="agree-section">
+                    <label class="agree-all">
+                        <input type="checkbox" id="agreeAll" onchange="toggleAll(this)">
+                        전체 동의합니다
+                    </label>
+                    <label class="agree-item">
+                        <input type="checkbox" id="agree1" class="agree-check">
+                        <span>[필수] 서비스 이용약관 동의</span>
+                        <a href="#" onclick="return false">보기</a>
+                    </label>
+                    <label class="agree-item">
+                        <input type="checkbox" id="agree2" class="agree-check">
+                        <span>[필수] 개인정보 수집·이용 동의</span>
+                        <a href="#" onclick="return false">보기</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">회원가입 완료</button>
+            </form>
+
+            <div class="form-footer">
+                이미 계정이 있으신가요? <a href="/user/login" class="link">로그인 하기</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-box">
+            <div class="success-icon" style="font-size: 40px; margin-bottom: 10px;">🎉</div>
+            <div class="success-title" style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">가입 완료!</div>
+            <div class="success-msg" style="margin-bottom: 25px;"><span id="success-name" style="font-weight:700">홍길동</span>님 환영합니다!</div>
+            <button class="btn btn-primary" onclick="location.href='/'">매칭 찾으러 가기 →</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+        }
+
+        function formatPhone(inp) {
+            let v = inp.value.replace(/\D/g,'');
+            if (v.length >= 11) v = v.slice(0,11);
+            if (v.length >= 8) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
+            else if (v.length >= 4) v = v.slice(0,3) + '-' + v.slice(3);
+            inp.value = v;
+        }
+
+        function checkPwStrength(pw) {
+            const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3'), document.getElementById('bar4')];
+            const label = document.getElementById('pw-label');
+            bars.forEach(b => { b.className = 'pw-bar'; });
+            if (!pw) { label.textContent = '비밀번호를 입력하세요'; return; }
+            let score = Math.min(pw.length / 3, 4);
+            const levels = ['weak','weak','medium','strong','strong'];
+            for (let i = 0; i < score; i++) bars[i].classList.add(levels[Math.floor(score)]);
+            label.textContent = score > 3 ? '매우 강함' : score > 2 ? '보통' : '약함';
+        }
+
+        function toggleAll(cb) {
+            document.querySelectorAll('.agree-check').forEach(c => c.checked = cb.checked);
+        }
+
+        function searchAddress() {
+            const fullAddress = '서울특별시 강남구 테헤란로 212';
+            const addrParts = fullAddress.split(' ');
+            document.getElementById('zipcode').value = '06134';
+            document.getElementById('address').value = fullAddress;
+
+            document.getElementById('state').value = addrParts[0]; // 서울특별시
+            document.getElementById('city').value = addrParts[1];  // 강남구
+            document.getElementById('road').value = addrParts.slice(2).join(' ');
+            document.getElementById('addressDetail').focus();
+            
+            const t = document.getElementById('toast');
+            t.textContent = "주소가 입력되었습니다. 상세 주소를 작성해주세요.";
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const pw = document.getElementById('pw').value;
+            const pw2 = document.getElementById('pw2').value;
+
+            if (pw !== pw2) {
+                const t = document.getElementById('toast');
+                t.textContent = "비밀번호가 일치하지 않습니다.";
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2000);
+                return;
+            }
+
+            if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
+                const t = document.getElementById('toast');
+                t.textContent = "필수 약관에 동의해주세요.";
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2000);
+                return;
+            }
+            document.getElementById('success-name').textContent = name;
+            document.getElementById('successOverlay').classList.add('show');
+
+            setTimeout(() => {
+                e.target.submit(); 
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

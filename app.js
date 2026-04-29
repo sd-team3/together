@@ -3,10 +3,9 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 const connectDB = require('./config/database');
 const passport = require('passport');
 const session = require('express-session');

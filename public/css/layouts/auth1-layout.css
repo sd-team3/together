@@ -1,0 +1,268 @@
+:root {
+            --primary: #1A5CFF;
+            --primary-dark: #0040CC;
+            --primary-soft: #EEF3FF;
+            --accent: #C8FF00;
+            --bg: #F7F8F5;
+            --surface: #FFFFFF;
+            --text: #111110;
+            --text-soft: #555552;
+            --text-muted: #999994;
+            --border: #E6E8E2;
+            --red: #FF3B30;
+            --green: #00C853;
+            --orange: #FF6B00;
+            --radius: 14px;
+            --shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 15px;
+            /* 페이지 전체 스크롤 허용 (모바일 대응) */
+            overflow-y: auto; 
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 1100px;
+            height: 92vh; 
+            max-height: 820px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--surface);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-visual {
+            background: linear-gradient(135deg, #0f1520 0%, #1A5CFF 55%, #00C8D4 100%);
+            padding: 60px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(200,255,0,0.15), transparent 60%);
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center; gap: 10px;
+            position: relative; z-index: 1;
+        }
+
+        .logo-dot {
+            width: 10px; height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .visual-content { position: relative; z-index: 1; }
+        .visual-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 56px; font-weight: 700; line-height: 1.1;
+            margin-bottom: 24px; text-transform: uppercase;
+        }
+        .visual-desc { font-size: 18px; opacity: 0.8; line-height: 1.6; }
+
+        /* --- 오른쪽 폼 영역 수정 --- */
+        .auth-form-side {
+            padding: 40px 50px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto; /* 내부 스크롤 활성화 */
+            scrollbar-width: thin; /* Firefox 스크롤바 디자인 */
+            scrollbar-color: var(--border) transparent;
+        }
+        
+        /* Chrome, Safari 스크롤바 디자인 */
+        .auth-form-side::-webkit-scrollbar { width: 6px; }
+        .auth-form-side::-webkit-scrollbar-thumb { 
+            background-color: var(--border); 
+            border-radius: 10px; 
+        }
+
+        .form-header { margin-bottom: 25px; }
+        .form-title { font-size: 26px; font-weight: 700; margin-bottom: 5px; }
+        .form-subtitle { color: var(--text-soft); font-size: 13.5px; }
+
+        .form-group { margin-bottom: 16px; position: relative; }
+        .label {
+            display: block; font-size: 12px; font-weight: 600;
+            margin-bottom: 6px; color: var(--text-soft);
+        }
+        .label .req { color: var(--primary); margin-left: 2px; }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .input {
+            width: 100%; padding: 11px 13px;
+            border: 1px solid var(--border); border-radius: 10px;
+            font-size: 13.5px; transition: all 0.2s; outline: none;
+            font-family: inherit;
+        }
+        .input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(26, 92, 255, 0.1);
+        }
+
+        .input-icon-wrap { position: relative; }
+        .input-eye {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: var(--text-muted);
+            font-size: 15px; display: flex; align-items: center; padding: 0;
+        }
+
+        /* Address Search */
+        .address-wrap { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn-search {
+            white-space: nowrap; padding: 0 15px; background: var(--primary-soft);
+            color: var(--primary); border: 1px solid var(--primary);
+            border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .btn-search:hover { background: var(--primary); color: white; }
+
+        /* PW Strength */
+        .pw-strength { margin-top: 6px; }
+        .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
+        .pw-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); }
+        .pw-bar.weak { background: var(--red); }
+        .pw-bar.medium { background: var(--orange); }
+        .pw-bar.strong { background: var(--green); }
+        .pw-label { font-size: 10.5px; color: var(--text-muted); }
+
+        /* Agree Section */
+        .agree-section {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 15px; margin: 10px 0 20px 0;
+        }
+        .agree-all {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12.5px; font-weight: 700; cursor: pointer;
+            padding-bottom: 10px; margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .agree-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11.5px; cursor: pointer; padding: 4px 0; color: var(--text-soft);
+        }
+        .agree-item a { color: var(--primary); font-size: 10.5px; margin-left: auto; text-decoration: none; }
+        input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--text); }
+
+        .btn {
+            width: 100%; padding: 14px;
+            border: none; border-radius: 12px;
+            font-size: 14.5px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--text); color: white; }
+        .btn-primary:hover { background: #222; transform: translateY(-1px); }
+
+        .form-footer {
+            margin-top: 20px; text-align: center;
+            font-size: 12.5px; color: var(--text-soft);
+            padding-bottom: 10px;
+        }
+
+        .link { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+        /* Toast & Overlays */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--text); color: white;
+            padding: 12px 22px; border-radius: 10px;
+            font-size: 14px; font-weight: 600;
+            opacity: 0; transition: all 0.3s; z-index: 9999;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .success-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+        }
+        .success-overlay.show { display: flex; }
+        .success-box {
+            background: var(--surface); border-radius: 24px; padding: 40px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: var(--shadow); animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
+
+        /* 반응형 모바일 최적화 */
+        @media (max-width: 900px) {
+            body { padding: 10px; }
+            .auth-container { height: auto; max-height: none; grid-template-columns: 1fr; border-radius: 20px; }
+            .auth-visual { display: none; }
+            .auth-form-side { padding: 30px 20px; height: auto; overflow-y: visible; }
+        }
+
+        /* 세로가 짧은 노트북 기기 대응 */
+        @media (max-height: 800px) and (min-width: 901px) {
+            .auth-container { height: 96vh; }
+            .visual-title { font-size: 40px; }
+            .auth-form-side { padding: 25px 40px; }
+            .form-header { margin-bottom: 15px; }
+            .form-group { margin-bottom: 10px; }
+        }
+        /* 이메일 입력창과 버튼을 한 줄로 배치 */
+    .email-input-group {
+        display: flex;
+        gap: 8px; /* 입력창과 버튼 사이 간격 */
+        align-items: center;
+    }
+
+    .email-input-group .input {
+        flex: 1; /* 입력창이 남은 공간을 다 차지하도록 설정 */
+        margin-bottom: 0; /* 기존 마진 제거 */
+    }
+
+    /* 중복확인 버튼 스타일 (기본 btn-search 스타일 활용) */
+    #emailCheckBtn {
+        padding: 10px 14px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        color: var(--text-2);
+        cursor: pointer;
+        white-space: nowrap; /* 글자 줄바꿈 방지 */
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        transition: all .2s;
+        flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 고정 */
+        height: 41px; /* 입력창 높이와 통일 (필요시 조정) */
+    }
+
+    #emailCheckBtn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-soft);
+    }
+
+    /* 에러 메시지 마진 조정 */
+    #emailFeedBack, .form-text.text-danger {
+        margin-top: 6px;
+    }
