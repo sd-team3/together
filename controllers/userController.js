@@ -10,13 +10,34 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, address } = req.body;
-        //회원 생성
-        await userService.createUser({ email, password, name, address, uploadFile: req.file });
+        const { email, password, name, age, tel, state, city, road } = req.body;
+
+        await userService.createUser({
+            email,
+            password,
+            name,
+            age,
+            tel,
+            address: {
+                state,
+                city,
+                road
+            },
+            uploadFile: req.file
+        });
+
         res.redirect('/');
     } catch (error) {
-        return next(error);
+        if (error.code === 11000) {
+        return res.render('user/signup', {
+            errors: {
+                email: error.message
+            }
+        });
     }
+
+    return next(error);
+}
 };
 
 // 로그인 페이지
@@ -50,7 +71,9 @@ const getEditProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }//인증되지 않은 사용자가 회원수정 페이지 요청 시 로그인 페이지로 이동
-    res.render('user/edit-profile');
+    res.render('user/edit-profile', {
+        user: req.user  
+    });
 }
 
 //회원 수정 처리
@@ -59,15 +82,30 @@ const postEditProfile = async (req, res, next) => {
         return res.redirect('/user/login');
     }
     //회원정보 수정
-    const { name, age, phone, address, currentPassword, newPassword} = req.body;
+
+
+
+    const { name, state, city, road, currentPassword, newPassword } = req.body;
+
     try {
-        await userService.updateUser(req.user.id, { name, age, phone, address, currentPassword, newPassword, uploadFile : req.file});
+        await userService.updateUser(req.user.id, {
+            name,
+            address: {
+                state,
+                city,
+                road
+            },
+            currentPassword,
+            newPassword,
+            uploadFile: req.file
+        });
+
 
         res.redirect('/user/profile');
     } catch (error) {
         return next(error);
     }
-}
+};
 
 //회원탈퇴 페이지
 const getDelete = (req, res) => {

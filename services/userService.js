@@ -3,7 +3,15 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 //회원가입 서비스(DB에 회원 객체 저장)
-async function createUser({ email, password, name, address, uploadFile }) {
+async function createUser({ email, password, name, address, uploadFile, age, tel }) {
+
+    //이메일 중복 체크
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        const error = new Error('이미 사용중인 이메일입니다');
+        error.status = 400;
+        throw error;
+    };
 
     //비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,6 +24,8 @@ async function createUser({ email, password, name, address, uploadFile }) {
         email,
         password: hashedPassword,
         name,
+        age: age ? Number(age) : null,
+        tel: tel || '',
         address,
         profileImage: profile
     });
@@ -36,7 +46,7 @@ const findUserById = async (id) => {
 }
 
 //회원수정
-async function updateUser(userId, { name, age, phone, address, currentPassword, newPassword ,uploadFile}) {
+async function updateUser(userId, { name, address, uploadFile, currentPassword, newPassword }) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         const error = new Error('사용자를 찾을 수 없습니다');
         error.status = 404;
@@ -44,19 +54,40 @@ async function updateUser(userId, { name, age, phone, address, currentPassword, 
     }
 
     const user = await User.findById(userId);
+
+    if (!user) {
+        const error = new Error('사용자를 찾을 수 없습니다');
+        error.status = 404;
+        throw error;
+    }
+
+    // 기본 정보 수정
+    user.name = name;
+    user.address = address;
+
     if (uploadFile) {
         user.profileImage = uploadFile.filename;
     }
 
-    if (!user) {
-        throw new Error('사용자를 찾을 수 없습니다');
+    //비밀번호 변경 로직 
+    if (newPassword && newPassword.trim() !== '') {
+
+        if (!currentPassword) {
+            const error = new Error('현재 비밀번호를 입력해주세요');
+            error.status = 400;
+            throw error;
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            const error = new Error('현재 비밀번호가 일치하지 않습니다');
+            error.status = 400;
+            throw error;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
     }
-    user.name = name;
-    user.age = age;
-    user.tel = phone;
-    // 주소 변경
-    if (address && address.full) {
-        const { state, city, road } = partAddress(address.full);
 
         user.address = {state, city, road, detail : address.detail};
     }
@@ -84,21 +115,27 @@ async function updateUser(userId, { name, age, phone, address, currentPassword, 
 
 //회원 탈퇴
 async function deleteUser(userId, password) {
-    const user = await User.findById(userId);
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         const error = new Error('사용자를 찾을 수 없습니다');
         error.status = 404;
         throw error;
     }
+    const user = await User.findById(userId);
+
+    if (!user) {
+        const error = new Error('사용자를 찾을 수 없습니다');
+        error.status = 404;
+        throw error;
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
         const error = new Error('비밀번호가 일치하지 않습니다');
         error.status = 400;
         throw error;
     }
-    if (!user) {
-        throw new Error('사용자를 찾을 수 없습니다');
-    }
+   
     await User.findByIdAndDelete(user.id);
 }
 
@@ -109,14 +146,26 @@ async function checkEmail(email) {
 }
 
 // 소셜 회원 DB 저장
-async function createSocialUser({email, name, profileImage, address, provider}) {
+async function createSocialUser({ email, name, profileImage, provider }) {
+
     const newUser = new User({
         email,
         name,
+
+        password: 'SOCIAL_LOGIN',  
+        age: 0,                 
+        tel: 'NONE',               
+
+        address: {                 
+            state: 'NONE',
+            city: 'NONE',
+            road: 'NONE'
+        },
+
         profileImage,
-        address,
         provider
     });
+
     await newUser.save();
     return newUser;
 }
