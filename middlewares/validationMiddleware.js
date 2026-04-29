@@ -19,7 +19,11 @@ const signupValidationRules = [
                 throw new Error('비밀번호가 일치하지 않습니다');
             }
             return true;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-        })
+        }),
+    body('age')
+        .notEmpty().withMessage('나이를 입력하세요.'),
+    body('tel')
+        .notEmpty().withMessage('전화번호를 입력하세요.')
 ];
 
 
