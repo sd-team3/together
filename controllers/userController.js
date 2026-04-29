@@ -10,35 +10,9 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        console.log("REQ BODY:", req.body);
-        const {
-            email,
-            password,
-            name,
-            age,
-            tel,
-            state,
-            city,
-            road,
-            x,
-            y
-        } = req.body;
-
-        await userService.createUser({
-            email,
-            password,
-            name,
-            age: age ? Number(age) : null,
-            tel: tel || '',
-            address: {
-                state,
-                city,
-                road
-               
-            },
-            uploadFile: req.file
-        });
-
+        const { email, password, name, address } = req.body;
+        //회원 생성
+        await userService.createUser({ email, password, name, address, uploadFile: req.file });
         res.redirect('/');
     } catch (error) {
         return next(error);
@@ -68,12 +42,7 @@ const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }//인증되지 않은 사용자가 마이페이지 요청 시 로그인 페이지로 이동
-    
-    //성공메세지 출력 >>> ejs
-    const successMessage = req.session.successMessage;
-    req.session.successMessage = null;
-
-    res.render('user/profile', { successMessage });
+    res.render('user/profile');
 };
 
 //회원 수정 페이지
@@ -81,12 +50,7 @@ const getEditProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }//인증되지 않은 사용자가 회원수정 페이지 요청 시 로그인 페이지로 이동
-    res.render('user/edit-profile', {
-        user: req.user,
-        errorMessage: null,
-        errors: {},
-        oldInput: {}
-    });
+    res.render('user/edit-profile');
 }
 
 //회원 수정 처리
@@ -95,54 +59,16 @@ const postEditProfile = async (req, res, next) => {
         return res.redirect('/user/login');
     }
     //회원정보 수정
-    const {
-        currentPassword,
-        newPassword,
-        name,
-        state,
-        city,
-        road,
-        x,
-        y
-    } = req.body;
-    if (newPassword && newPassword.trim() !== '') {
-        if (!currentPassword) {
-        return res.render('user/edit-profile', {
-            user: req.user,
-            errorMessage: '현재 비밀번호를 입력해주세요',
-            errors: {},
-            oldInput: req.body
-        });
-        }
-    }
+    const { password, name, address } = req.body;
     try {
-        const address = {
-            state: state || req.user.address?.state || '',
-            city: city || req.user.address?.city || '',
-            road: road || req.user.address?.road || ''
-        };
-
-        await userService.updateUser(req.user.id, {
-            currentPassword,
-            newPassword,
-            name,
-            address,
-            uploadFile: req.file
-        });
-        
-        req.session.successMessage = '회원정보가 수정되었습니다';
-   
-        //수정 후 마이페이지로 이동
+        await userService.updateUser(req.user.id, { password, name, address, uploadFile: req.file});
+        //
         res.redirect('/user/profile');
+        //수정 후 마이페이지로 이동
 
     } catch (error) {
-       return res.render('user/edit-profile', {
-            user: req.user,
-            errorMessage: error.message,
-            errors: {},
-            oldInput: req.body
-        });
-}
+        return next(error);
+    }
 }
 
 //회원탈퇴 페이지
@@ -150,9 +76,7 @@ const getDelete = (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
-    res.render('user/delete', {
-    errorMessage: null
-});
+    res.render('user/delete');
 }
 
 //회원탈퇴 처리
@@ -181,8 +105,5 @@ const checkEmail = async (req, res, next) => {
     }
 
 }
-
-//비밀번호 변경
-
 
 module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail };

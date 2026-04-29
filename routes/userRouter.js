@@ -1,18 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { signupValidationRules, editProfileValidationRules, validate } = require('../middlewares/validationMiddleware');
+const {signupValidationRules, validate} = require('../middlewares/validationMiddleware')
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
 const {uploadProfile} = require('../config/upload');
-
-
-
 
 //회원가입 페이지
 router.get('/signup', userController.getSignup);
 
 //회원가입 처리
-router.post('/signup', uploadProfile.single('uploadFile'), signupValidationRules, validate('user/signup'),
+router.post('/signup', uploadProfile.single('uploadFile'), signupValidationRules, validate,
  userController.postSignup);
 
 //로그인 페이지
@@ -35,12 +32,7 @@ router.get('/profile', userController.getProfile);
 router.get('/edit-profile', userController.getEditProfile);
 
 //회원수정 처리
-router.post('/edit-profile',
-  uploadProfile.single('uploadFile'),
-  editProfileValidationRules,
-  validate('user/edit-profile'),
-  userController.postEditProfile
-);
+router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
 
 //회원탈퇴 페이지
 router.get('/delete', userController.getDelete);
@@ -50,9 +42,5 @@ router.post('/delete', userController.postDelete);
 
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
-
-
-
-
 
 module.exports = router;
