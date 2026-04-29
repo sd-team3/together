@@ -105,9 +105,14 @@ const postEditProfile = async (req, res, next) => {
 
         res.redirect('/user/profile');
     } catch (error) {
-    return res.status(error.status || 400).json({
-        message: error.message
-    });
+    if (error.status === 400) {
+        return res.status(400).render('user/edit-profile', {
+            user: req.user,
+            errorMessage: error.message
+        });
+    }
+
+    return next(error);
 }
 };
 
