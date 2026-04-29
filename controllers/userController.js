@@ -81,6 +81,9 @@ const postEditProfile = async (req, res, next) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
+    //회원정보 수정
+
+
 
     const { name, age,tel, state, city, road, currentPassword, newPassword } = req.body;
 
@@ -98,6 +101,7 @@ const postEditProfile = async (req, res, next) => {
             newPassword,
             uploadFile: req.file
         });
+
 
         res.redirect('/user/profile');
     } catch (error) {
