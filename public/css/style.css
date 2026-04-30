@@ -985,12 +985,12 @@ select.input{cursor:pointer}
 .avatar-preview-wrap{position:relative;flex-shrink:0}
 .avatar-preview{
   width:84px;height:84px;border-radius:50%;
-  background:linear-gradient(135deg,var(--primary),var(--cyan));
+  background: none;
   display:flex;align-items:center;justify-content:center;
   font-size:28px;font-weight:700;color:#fff;overflow:hidden;
   border:3px solid var(--border);font-family:'DM Mono',monospace;
 }
-.avatar-preview img{width:100%;height:100%;object-fit:cover;display:none}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;display:block;}
 .avatar-edit-label{
   position:absolute;bottom:0;right:0;
   width:28px;height:28px;border-radius:50%;
@@ -1014,12 +1014,35 @@ select.input{cursor:pointer}
 }
 .avatar-upload-label:hover{background:var(--primary-deep);box-shadow:0 3px 14px rgba(26,92,255,.32)}
 .avatar-remove-btn{
-  padding:8px 16px;background:transparent;color:var(--text-3);
-  border:1px solid var(--border);border-radius:var(--radius-sm);
-  font-size:13px;font-weight:500;cursor:pointer;
-  font-family:'DM Sans',sans-serif;transition:color .2s,border-color .2s;
+  position:absolute;
+  top:-6px;
+  right:-6px;
+
+  width:26px;
+  height:26px;
+  border-radius:50%;
+
+  background:rgba(0,0,0,0.55);
+  color:#fff;
+
+  border:none;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:14px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:0.2s ease;
 }
-.avatar-remove-btn:hover{color:var(--red);border-color:var(--red)}
+
+.avatar-remove-btn:hover{
+  background:rgba(255, 59, 48, 0.9);
+  transform:scale(1.1);
+}
 
 /* 폼 카드 */
 .edit-card{
@@ -1154,4 +1177,80 @@ select.input{cursor:pointer}
 .edit-section-divider{
   border-top:1px solid var(--border);margin-top:14px;padding-top:14px;
   font-size:11.5px;color:var(--text-3);line-height:1.6;
+}
+
+
+/* 모달배경 */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* 모달 박스 */
+.modal-box {
+    width: 340px;
+    max-width: 90%;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+    /* 핵심: hover 영향 안 받게 고정 */
+    pointer-events: auto;
+    opacity: 1;
+    transform: scale(1);
+    animation: popIn 0.2s ease;
+}
+
+/* 메시지 */
+#modal-msg {
+    font-size: 15px;
+    color: #111;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+/* 버튼 */
+.modal-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #1A5CFF;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+
+    /* hover 안정화 */
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+/* hover */
+.modal-box button:hover {
+    background: #0040CC;
+    transform: translateY(-2px);
+}
+
+/* active */
+.modal-box button:active {
+    transform: translateY(0);
+}
+
+/* 등장 애니메이션 */
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

@@ -12,7 +12,7 @@ const makeFileName = (req, file, cb) =>{
 const profileStorage = multer.diskStorage(
     {
         destination: (req, file, cb) => {
-            cb(null, 'public/images/profile');
+            cb(null, 'public/images/user-profile');
         },
         filename: makeFileName
     }
@@ -28,7 +28,7 @@ const boardStorage = multer.diskStorage(
 );
 //이미지 필터
 const imageFilter = (req, file, cb) =>{
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp']
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp','image/jpg']
     //pdf: aplication/pdf
     if(allowedMimeTypes.includes(file.mimetype)){//허용된 파일 형식
         cb(null, true);

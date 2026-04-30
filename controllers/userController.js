@@ -10,7 +10,7 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, age, tel, state, city, road } = req.body;
+        const { email, password, name, age, tel, state, city, road, detail } = req.body;
 
         await userService.createUser({
             email,
@@ -21,7 +21,8 @@ const postSignup = async (req, res, next) => {
             address: {
                 state,
                 city,
-                road
+                road,
+                detail
             },
             uploadFile: req.file
         });
@@ -62,19 +63,25 @@ const logout = (req, res, next) => {
 const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
-    }//인증되지 않은 사용자가 마이페이지 요청 시 로그인 페이지로 이동
-    res.render('user/profile');
+    }
+
+    const user = await userService.findUserById(req.user.id);
+
+    res.render('user/profile', { user });
 };
 
 //회원 수정 페이지
 const getEditProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
-    }//인증되지 않은 사용자가 회원수정 페이지 요청 시 로그인 페이지로 이동
+    }
+
+    const user = await userService.findUserById(req.user.id);
+
     res.render('user/edit-profile', {
-        user: req.user  
+        user
     });
-}
+};
 
 // 회원 수정 전 비밀번호 인증 페이지
 const getVerify = async (req, res) => {
@@ -92,10 +99,10 @@ const postVerify = async (req, res, next) => {
     const { password }= req.body;
     try {
         await userService.verifyPassword(req.user.id, password);
-        res.redirect('/user/edit-prifile');
+        res.redirect('/user/edit-profile');
     } catch (error) {
         if (error.status === 400) {
-            return res.status(400).render('/user/verify-password', {error : error.message});
+            return res.status(400).render('user/verify-password', {error : error.message});
         }
         return next(error);
     }
@@ -104,15 +111,37 @@ const postVerify = async (req, res, next) => {
 //회원 수정 처리
 const postEditProfile = async (req, res, next) => {
     if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
+        return res.status(401).json({ message: "로그인 필요" });
     }
-    //회원정보 수정
 
-
-
-    const { name, age,tel, state, city, road, currentPassword, newPassword } = req.body;
+    const {
+        name,
+        age,
+        tel,
+        state,
+        city,
+        road,
+        detail,
+        currentPassword,
+        newPassword,
+        removeImage
+    } = req.body;
 
     try {
+        const user = await userService.findUserById(req.user.id);
+
+        let profileImage = user.profileImage; // 기본 유지
+
+        // 삭제 요청
+        if (removeImage === "true") {
+            profileImage = null;
+        }
+
+        // 새 업로드
+        if (req.file) {
+            profileImage = req.file.filename;
+        }
+
         await userService.updateUser(req.user.id, {
             name,
             age,
@@ -120,25 +149,30 @@ const postEditProfile = async (req, res, next) => {
             address: {
                 state,
                 city,
-                road
+                road,
+                detail
             },
             currentPassword,
             newPassword,
+            removeImage, 
             uploadFile: req.file
         });
 
+        res.json({ message: "변경 완료" });
 
-        res.redirect('/user/profile');
     } catch (error) {
-    if (error.status === 400) {
-        return res.status(400).render('user/edit-profile', {
-            user: req.user,
-            errorMessage: error.message
+        console.error("에러 위치:", error);
+
+        if (error.status === 400) {
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            message: error.message || "서버 내부 오류"
         });
     }
-
-    return next(error);
-}
 };
 
 //회원탈퇴 페이지
