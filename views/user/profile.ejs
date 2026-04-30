@@ -9,14 +9,14 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-<%- include('partials/navbar') %>
+<%- include('../partials/navbar') %>
 <!-- ═══════ MAIN ═══════ -->
 
 <!-- ═══════ MAIN ═══════ -->
 <div class="main">
 
 <!-- ──────── MY PAGE ──────── -->
-<%- include('partials/head', { title: '👤 마이페이지', pageId: 'page-mypage', active: '' }) %>
+<%- include('../partials/head', { title: '👤 마이페이지', pageId: 'page-mypage', active: '' }) %>
 
   <div class="page-body">
     <div class="mypage-layout">
@@ -25,42 +25,38 @@
         <div class="profile-card">
           <div class="profile-banner"></div>
           <div class="profile-av-wrap">
-            <% if(user.provider === 'local') { %>
+            <% if(user.provider === 'google' || user.provider === 'naver') { %>
                 <img src="<%= user.profileImage %>" class="profile-big-av">
             <% } else { %> 
-                <img src="/public/images/user-profile/<%= user.profileImage %>" class="profile-big-av">
+                <img src="/images/user-profile/<%= user.profileImage %>" class="profile-big-av">
             <% } %>
           </div>
           <div class="profile-info">
             <div class="profile-name"><%= user.name %></div>
             <div class="profile-handle"><%= user.email %></div>
             <div class="profile-badges">
-              <div class="profile-badge">👤 <%= user.age %> 세</div>
+              <div class="profile-badge">🎂 <%= user.age %> 세</div>
               <!-- 젠더는 일단 스키마 수정 전까지 보류 -->
-              <div class="profile-badge">⚥ <%= user.gender %></div> 
+              <div class="profile-badge">👤 <%= user.gender %>여자</div> 
               <div class="profile-badge">🏠 <%= user.address.state %> <%= user.address.city %></div>
-              <div class="profile-badge">💪 <%= user.sports %></div>
+              <div class="profile-badge">⚡ <%= user.sports %>축구</div>
             </div>
           </div>
           <div class="profile-divider"></div>
           <div class="profile-stat-row">
-            <div class="ps-item"><span class="ps-val">47</span><span class="ps-label">경기</span></div>
-            <div class="ps-item"><span class="ps-val">3</span><span class="ps-label">클럽</span></div>
-            <div class="ps-item"><span class="ps-val">12위</span><span class="ps-label">랭킹</span></div>
+            <div class="ps-item"><span class="ps-val"><%= user.matchCount %>10</span><span class="ps-label">참여한 경기</span></div>
+            <div class="ps-item"><span class="ps-val">3</span><span class="ps-label">참여중인 모임</span></div>
+            <div class="ps-item"><span class="ps-val">12</span><span class="ps-label">매너 순위</span></div>
           </div>
           <div class="rank-info-box">
-            <div style="font-size:10px;opacity:.6;font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:3px">RANK</div>
-            <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-2px;line-height:1">12위</div>
-            <div style="font-size:11.5px;margin-top:7px;opacity:.75">성동구 · 이번 달 <span style="color:var(--accent)">↑4</span> 상승</div>
+            <div style="font-size:12px;opacity:.6;letter-spacing:1px;margin-bottom:3px">매너점수</div>
+            <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-2px;line-height:1"><%= user.mannerPoint %>10점</div>
           </div>
         </div>
         <div class="card" style="overflow:hidden">
           <div class="mypage-nav">
-            <button class="mypage-nav-item active"><span>📅</span> 참여 일정</button>
-            <button class="mypage-nav-item"><span>🏅</span> 참여 이력</button>
-            <button class="mypage-nav-item"><span>⭐</span> 작성 후기</button>
-            <button class="mypage-nav-item" onclick="goPage('trade')"><span>🛒</span> 판매 목록</button>
-            <button class="mypage-nav-item" onclick="showModal('⚙️ 프로필 수정','이름, 사진, 소개 등을 수정합니다.')"><span>✏️</span> 프로필 수정</button>
+            <button class="mypage-nav-item"><span>📅</span> 모임 일정</button>
+            <button class="mypage-nav-item"><span>⭐</span> 프로필 수정</button>
           </div>
         </div>
       </div>
@@ -71,14 +67,38 @@
         <div class="mypage-card">
           <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div><div class="mypage-card-action">전체보기</div></div>
           <div class="mypage-card-body">
-            <div class="schedule-item"><div class="sched-time">오늘 20:00</div><div class="sched-dot" style="background:var(--primary)"></div><div class="sched-info"><div class="sched-title">성수 5:5 풋살 매칭</div><div class="sched-sub">📍 성수 실내풋살장</div></div><div class="sched-status" style="color:var(--orange)">D-0</div></div>
+            <div class="schedule-item">
+              <div class="sched-time">화요일 12:30</div>
+              <div class="sched-dot" style="background:var(--primary)"></div>
+              <div class="sched-info">
+                <div class="sched-title">싱글벙글 축구모임</div>
+                <div class="sched-sub">경기도 포천시</div>
+              </div>
+              <!-- <div class="sched-status" style="color:var(--text-3)">매 주 화요일 금요일</div>
+              <div class="sched-status" style="color:var(--text-3)">0 / 0</div> -->
+
+              <div class="sched-meta">
+                <div class="sched-days">
+                    <span class="sched-day-tag">매주 화</span>
+                </div>
+
+                <div class="sched-capacity">
+                  👤
+                  <span class="current">5</span> 
+                  <span class="divider">/</span> 
+                  <span class="total">10</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="schedule-item"><div class="sched-time">목 19:30</div><div class="sched-dot" style="background:var(--green)"></div><div class="sched-info"><div class="sched-title">건대 배드민턴 정기모임</div><div class="sched-sub">📍 건대입구 실내체육관</div></div><div class="sched-status" style="color:var(--text-3)">D-3</div></div>
             <div class="schedule-item"><div class="sched-time">목 19:30</div><div class="sched-dot" style="background:var(--green)"></div><div class="sched-info"><div class="sched-title">건대 배드민턴 정기모임</div><div class="sched-sub">📍 건대입구 실내체육관</div></div><div class="sched-status" style="color:var(--text-3)">D-3</div></div>
             <div class="schedule-item"><div class="sched-time">토 18:00</div><div class="sched-dot" style="background:var(--orange)"></div><div class="sched-info"><div class="sched-title">뚝섬 농구 스크림</div><div class="sched-sub">📍 뚝섬한강공원</div></div><div class="sched-status" style="color:var(--text-3)">D-5</div></div>
             <div class="schedule-item"><div class="sched-time">일 09:30</div><div class="sched-dot" style="background:var(--cyan)"></div><div class="sched-info"><div class="sched-title">왕십리 테니스 브런치</div><div class="sched-sub">📍 왕십리 테니스장</div></div><div class="sched-status" style="color:var(--text-3)">D-6</div></div>
           </div>
         </div>
         <div class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">📅 실시간 모임</div><div class="mypage-card-action">전체보기</div></div>
+          <div class="mypage-card-header"><div class="mypage-card-title">🕒 실시간 모임</div><div class="mypage-card-action">전체보기</div></div>
           <div class="mypage-card-body">
             <div class="schedule-item"><div class="sched-time">오늘 20:00</div><div class="sched-dot" style="background:var(--primary)"></div><div class="sched-info"><div class="sched-title">성수 5:5 풋살 매칭</div><div class="sched-sub">📍 성수 실내풋살장</div></div><div class="sched-status" style="color:var(--orange)">D-0</div></div>
             <div class="schedule-item"><div class="sched-time">목 19:30</div><div class="sched-dot" style="background:var(--green)"></div><div class="sched-info"><div class="sched-title">건대 배드민턴 정기모임</div><div class="sched-sub">📍 건대입구 실내체육관</div></div><div class="sched-status" style="color:var(--text-3)">D-3</div></div>
