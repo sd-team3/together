@@ -24,8 +24,24 @@
 
         <div class="auth-form-side">
             <div class="form-header">
-                <h2 class="form-title">회원가입</h2>
-                <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
+                <div class="form-header-top">
+                    <div>
+                        <h2 class="form-title">회원가입</h2>
+                        <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
+                    </div>
+                    <!-- ✅ 프로필 이미지 -->
+                    <div class="avatar-section">
+                        <div class="avatar-preview-wrap">
+                            <div class="avatar-preview">
+                                <img id="avatar-img" src="/images/user-profile/default-profile-image.jpg" alt="프로필" />
+                            </div>
+                            <button type="button" class="avatar-remove-btn" onclick="resetAvatar()">✕</button>
+                            <label class="avatar-edit-label" for="avatar-file">✏️</label>
+                            <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
+                            <input type="hidden" id="removeImage" name="removeImage" value="false">
+                        </div>
+                    </div>
+                </div>
             </div>
             <form action="/user/signup" method="post" id="signup">
                 <div class="form-group">
@@ -137,6 +153,11 @@
             btn.textContent = inp.type === 'password' ? '👁' : '🙈';
         }
 
+        function setFeedback(el, msg, type) {
+            el.textContent = msg;
+            el.className = 'feedback-text ' + (type === 'success' ? 'success' : 'error');
+        }
+
         function formatPhone(inp) {
             let v = inp.value.replace(/\D/g,'');
             if (v.length >= 11) v = v.slice(0,11);
@@ -196,13 +217,14 @@
             e.preventDefault();
 
             if (!isDuplicate) {
-                emailFeedBack.textContent = '이메일 중복확인을 해주세요.';
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이메일 중복확인을 해주세요.', 'error');
                 return;
             }
-             if (!isChecked) {
-                emailFeedBack.textContent = '이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.';
+            if (!isChecked) {
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.', 'error');
                 return;
-            
             }
 
             const pw = document.getElementById('pw').value;
@@ -250,7 +272,8 @@
         emailCheckBtn.addEventListener('click', async () => {
             const email = emailInput.value.trim();
             if(!email) {
-                emailFeedBack.textContent = '이메일을 입력해주세요.';
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이메일을 입력해주세요', 'error');
                 return;
             }
             try {
@@ -258,25 +281,30 @@
                 const data = await res.json();
                 isDuplicate = true;
                 if(data.available){
-                    emailFeedBack.textContent = '사용 가능한 이메일입니다.';
+                    emailInput.classList.remove('input-error');
+                    emailInput.classList.add('input-success');
+                    setFeedback(emailFeedBack, '사용 가능한 이메일입니다.', 'success');
                     isChecked = true;
                     emailInput.readOnly = true;
-                    emailCheckBtn.disabled = true;
+                    emailCheckBtn.disabled = true;  
                 }else {
-                    emailFeedBack.textContent = '이미 가입된 이메일입니다.';
+                    emailInput.classList.remove('input-success');
+                    emailInput.classList.add('input-error');
+                    setFeedback(emailFeedBack, '이미 가입된 이메일입니다.', 'error');
                     isChecked = false;
                 }
             } catch (error) {
-                console.error('서버 오류 발생');
-                emailFeedBack.textContent = '서버 오류 발생했습니다';
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '서버 오류가 발생했습니다.', 'error');
             }
         });
         emailInput.addEventListener('input', () => {
                 isChecked = false;
                 isDuplicate = false;
-                emailFeedBack.textContent = '';
+                emailInput.classList.remove('input-error', 'input-success');
                 emailInput.readOnly = false;
                 emailCheckBtn.disabled = false;
+                setFeedback(emailFeedBack, '', '');
         });
 
         document.getElementById('phone').addEventListener('input', function() { formatPhone(this); });

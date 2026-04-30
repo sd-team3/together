@@ -145,12 +145,12 @@ async function createSocialUser({ email, name, profileImage, provider }) {
 
         password: 'SOCIAL_LOGIN',  
         age: 0,                 
-        tel: 'NONE',               
+        tel: '',               
 
         address: {                 
-            state: 'NONE',
-            city: 'NONE',
-            road: 'NONE'
+            state: '',
+            city: '',
+            road: ''
         },
 
         profileImage,
