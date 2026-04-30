@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 로그인 필요</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="error-page">
+  <div class="error-bg-number">401</div>
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="error-emoji">🔐</div>
+    <div class="error-code">401 · Unauthorized</div>
+    <div class="error-title">로그인이 필요해요</div>
+    <div class="error-desc">
+      이 페이지는 로그인한 회원만 이용할 수 있어요.<br>
+      SPORTMATCH에 로그인하고 매칭에 참가해 보세요!
+    </div>
+    <div class="error-actions">
+      <button class="btn btn-accent btn-lg" onclick="location.href='/login'">🚀 로그인하기</button>
+      <button class="btn btn-outline" onclick="location.href='/register'">회원가입</button>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

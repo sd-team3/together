@@ -21,6 +21,7 @@
   <div class="page-body-wide" style="flex:1">
     <div class="trade-layout" style="flex:1">
       <div class="trade-filter">
+        <div class="trade-filter-scroll">
         <div class="section-title">카테고리</div>
         <div class="filter-section">
           <div class="filter-item active" onclick="setFilter(this)">🏷️ 전체</div>
@@ -49,7 +50,10 @@
           <div class="filter-item" onclick="setFilter(this)">1~5만원</div>
           <div class="filter-item" onclick="setFilter(this)">5~10만원</div>
           <div class="filter-item" onclick="setFilter(this)">10만원 이상</div>
-          <button class="btn btn-primary" onclick="goPage('trade-sell')">+ 판매 등록</button>
+        </div>
+        </div>
+        <div class="sidenav-footer">
+          <button class="btn btn-primary" onclick="goPage('trade-sell')" style="width:100%">+ 판매 등록</button>
         </div>
       </div>
       <div class="trade-main">

@@ -25,7 +25,7 @@
         <button class="reg-filter-chip" onclick="regFilter(this,'open')">⚡ 참가가능</button>
         <button class="reg-filter-chip" onclick="regFilter(this,'free')">🆓 무료</button>
         <button class="reg-filter-chip" onclick="regFilter(this,'weekend')">📅 주말</button>
-        <button class="btn btn-primary btn-sm" onclick="goPage('regular-create')">+ 모임 만들기</button>
+        <button onclick="goPage('regular-create')" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:8px 16px;background:#111;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">＋ 모임 만들기</button>
       </div>
     <div class="regular-grid">
       <div class="reg-card" data-filter="warn paid weekday" onclick="showModal('🔁 성수 풋살 나이트','📍 성수 실내풋살장<br>📅 매주 화·목 20:00<br>👥 현재 12/16명<br>💰 8,000원/회<br>📊 초중급<br><br>신청하시겠습니까?',()=>showModal('✅ 신청 완료!','모임 참가 신청이 완료되었습니다! 모임장이 수락하면 알림을 드립니다.'))">
@@ -610,11 +610,11 @@ function regFilter(btn, type) {
   document.querySelectorAll('.reg-filter-chip').forEach(c => c.classList.remove('on'));
   btn.classList.add('on');
   document.querySelectorAll('.reg-card').forEach(card => {
-    if (type === 'all') {
-      card.style.display = '';
+    const f = card.dataset.filter || '';
+    if (type === 'all' || f.includes(type) || f.includes('all')) {
+      card.style.display = card.classList.contains('reg-card-create') ? 'flex' : '';
     } else {
-      const f = card.dataset.filter || '';
-      card.style.display = f.includes(type) ? '' : 'none';
+      card.style.display = 'none';
     }
   });
 }
