@@ -148,16 +148,6 @@ if (name !== undefined) {
         throw error;
     }
 
-        password: 'SOCIAL_LOGIN',  
-        age: 0,                 
-        tel: '',               
-
-        address: {                 
-            state: '',
-            city: '',
-            road: ''
-        },
-
     if (!isMatch) {
         const error = new Error('비밀번호가 틀립니다');
         error.status = 400;
