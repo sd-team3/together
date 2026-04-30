@@ -17,20 +17,7 @@
 
 <!-- ──────── RANKING PAGE ──────── -->
 <%- include('partials/head', { title: '🏆 랭킹', pageId: 'page-community', active: '' }) %>
-<div class="page" id="page-ranking" style="display:flex;flex-direction:column;flex:1">
-  <div class="topbar">
-    <div><div class="topbar-title">🏆 랭킹</div><div class="topbar-sub">이번 달 성동구 기준</div></div>
-    <div class="topbar-actions">
-      <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
-        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
-      </span>
-      <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
-        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
-      </span>
-    </div>
-  </div>
+
   <div class="page-body-wide" style="flex:1">
     <div class="ranking-layout" style="flex:1">
       <div class="ranking-main">

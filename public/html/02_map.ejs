@@ -18,11 +18,11 @@
 <!-- ──────── MAP PAGE ──────── -->
 <%- include('partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '' }) %>
 
-  <div class="page-body-wide" style="flex:1;min-height:0">
-    <div class="map-container" style="flex:1">
+  <div class="page-body-wide" style="flex:1;min-height:0;overflow:hidden">
+    <div class="map-container" style="height:100%;overflow:hidden">
       <!-- Map Area (Leaflet) -->
-      <div class="map-area" style="position:relative">
-        <div id="leaflet-map" style="width:100%; height:350px;"></div>
+      <div class="map-area" style="position:relative;flex:1">
+        <div id="leaflet-map" style="width:100%; height:100%;"></div>
         <!-- Filter bar -->
         <div class="map-filter-bar" style="z-index:1000">
           <div class="map-filter-chip on" onclick="leafletFilterToggle(this,'all')">전체</div>
@@ -44,7 +44,7 @@
             <button class="map-sort-tab" onclick="setSortTab(this)">인원순</button>
           </div>
         </div>
-        <div class="map-list-items">
+        <div class="map-list-items" style="flex: 1; overflow-y: auto;">
           <div class="map-item sel" onclick="showMapPopup('강남 풋살파크 5:5','강남구 역삼동','오늘 19:30','6/10명','⚽','중급','10,000원')">
             <div class="mi-top"><div class="mi-sport">⚽</div><div><div class="mi-title">강남 풋살파크 5:5 매칭</div><div class="mi-meta"><span>📍 역삼동 · 1.2km</span></div></div></div>
             <div class="mi-meta"><span>⏰ 오늘 19:30</span><span>👥 6/10명</span><span>💰 10,000원</span></div>
@@ -70,10 +70,19 @@
             <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
             <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
           </div>
+          <div class="map-item" onclick="showMapPopup('왕십리 테니스','성동구 왕십리','일 09:30','3/4명','🎾','초급','15,000원')">
+            <div class="mi-top"><div class="mi-sport">🎾</div><div><div class="mi-title">왕십리 테니스 브런치</div><div class="mi-meta"><span>📍 왕십리 · 1.6km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
+          </div>
+          <div class="map-item" onclick="showMapPopup('왕십리 테니스','성동구 왕십리','일 09:30','3/4명','🎾','초급','15,000원')">
+            <div class="mi-top"><div class="mi-sport">🎾</div><div><div class="mi-title">왕십리 테니스 브런치</div><div class="mi-meta"><span>📍 왕십리 · 1.6km</span></div></div></div>
+            <div class="mi-meta"><span>⏰ 일 09:30</span><span>👥 3/4명</span><span>💰 15,000원</span></div>
+            <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">초급</span></div>
+          </div>
         </div>
-        <div style="padding: 10px; display: flex; justify-content: flex-end; background: #fff; border-top: 1px solid #eee;">
-        <button class="btn btn-primary" onclick="goPage('map_create')" style="padding: 8px 20px; font-size: 14px; border-radius: 8px;">매칭 만들기</button>
-        </div>
+        <div style="padding: 16px; background: #fff; border-top: 1px solid #eee; z-index: 10;">
+          <button class="btn btn-primary" onclick="goPage('map_create')" style="width: 100%; padding: 12px; font-size: 15px; border-radius: 8px; font-weight: 600;">＋ 매칭 만들기</button>
         </div>
       </div>
     </div>

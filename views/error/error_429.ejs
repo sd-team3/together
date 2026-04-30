@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 요청 횟수 초과</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="error-page">
+  <div class="error-bg-number">429</div>
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="error-emoji">⏳</div>
+    <div class="error-code">429 · Too Many Requests</div>
+    <div class="error-title">잠깐만요, 너무 빠르네요!</div>
+    <div class="error-desc">
+      짧은 시간 안에 너무 많은 요청이 들어왔어요.<br>
+      잠시 후 다시 시도해 주세요.
+    </div>
+    <div class="error-actions">
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
+    </div>
+  </div>
+</div>
+<script>
+  const initialSecs = parseInt(document.getElementById('countdown').textContent.trim()) || 60;
+  document.getElementById('countdownBar').style.setProperty('--wait', initialSecs + 's');
+  let secs = initialSecs;
+  const timer = setInterval(() => {
+    secs--;
+    document.getElementById('countdown').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(timer);
+      document.getElementById('countdown').textContent = '0';
+      location.reload();
+    }
+  }, 1000);
+</script>
+</body>
+</html>

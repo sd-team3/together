@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 서버 오류</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="error-page">
+  <div class="error-bg-number">500</div>
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="error-emoji">💥</div>
+    <div class="error-code">500 · Internal Server Error</div>
+    <div class="error-title">서버에서 문제가 생겼어요</div>
+    <div class="error-desc">
+      서버에서 예상치 못한 오류가 발생했어요.<br>
+      잠시 후 다시 시도해 주세요.
+    </div>
+    <div class="error-actions">
+      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
+      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
+    </div>
+
+    <% if (typeof stack !== 'undefined' && stack) { %>
+    <div class="stack-box">
+      <div class="stack-header">
+        <div class="stack-label">Error Stack</div>
+        <div class="stack-dots">
+          <div class="stack-dot" style="background:#FF5F57"></div>
+          <div class="stack-dot" style="background:#FEBC2E"></div>
+          <div class="stack-dot" style="background:#28C840"></div>
+        </div>
+      </div>
+      <div class="stack-pre"><%= stack %></div>
+    </div>
+    <% } %>
+  </div>
+</div>
+</body>
+</html>
