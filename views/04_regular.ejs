@@ -25,13 +25,9 @@
         <button class="reg-filter-chip" onclick="regFilter(this,'open')">⚡ 참가가능</button>
         <button class="reg-filter-chip" onclick="regFilter(this,'free')">🆓 무료</button>
         <button class="reg-filter-chip" onclick="regFilter(this,'weekend')">📅 주말</button>
+        <button onclick="goPage('regular-create')" style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:8px 16px;background:#111;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">＋ 모임 만들기</button>
       </div>
     <div class="regular-grid">
-      <div class="reg-card reg-card-create" data-filter="all open free weekend" onclick="goPage('regular-create')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1.5px dashed #94A3B8;background:var(--bg);transition:background .15s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='var(--bg)'">
-        <div style="width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-2)">＋</div>
-        <div style="font-size:13.5px;font-weight:600;color:var(--text-2)">새 모임 만들기</div>
-        <div style="font-size:12px;color:var(--text-3)">직접 정기모임을 개설해보세요</div>
-      </div>
       <div class="reg-card" data-filter="warn paid weekday" onclick="showModal('🔁 성수 풋살 나이트','📍 성수 실내풋살장<br>📅 매주 화·목 20:00<br>👥 현재 12/16명<br>💰 8,000원/회<br>📊 초중급<br><br>신청하시겠습니까?',()=>showModal('✅ 신청 완료!','모임 참가 신청이 완료되었습니다! 모임장이 수락하면 알림을 드립니다.'))">
         <div class="reg-card-head"><div class="reg-sport-icon">⚽</div><div><div class="reg-card-title">성수 풋살 나이트</div><div class="reg-card-sub">매주 화·목 · 성수구</div></div><span class="pill pill-warn" style="margin-left:auto">마감임박</span></div>
         <div class="reg-card-body">

@@ -25,6 +25,7 @@
     "dotenv": "^17.4.1",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "express-validator": "^7.3.2",
     "module": "^2.0.0",
     "mongoose": "^9.4.1",
