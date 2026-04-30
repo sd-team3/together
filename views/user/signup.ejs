@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label class="label">이메일 <span class="req">*</span></label>
                     <div class="email-input-group">
-                        <input type="email" class="input" name="email" id="email" required />
+                        <input type="email" class="input" name="email" id="emailInput" required />
                         <button type="button" id="emailCheckBtn" onclick="">중복확인</button>
                     </div>
                     <div id="emailFeedBack"></div>
@@ -154,14 +154,29 @@
         }
 
         function checkPwStrength(pw) {
-            const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3'), document.getElementById('bar4')];
+            const bars = [
+                document.getElementById('bar1'),
+                document.getElementById('bar2'),
+                document.getElementById('bar3'),
+                document.getElementById('bar4')
+            ];
             const label = document.getElementById('pw-label');
             bars.forEach(b => { b.className = 'pw-bar'; });
+
             if (!pw) { label.textContent = '비밀번호를 입력하세요'; return; }
-            let score = Math.min(pw.length / 3, 4);
-            const levels = ['weak','weak','medium','strong','strong'];
-            for (let i = 0; i < score; i++) bars[i].classList.add(levels[Math.floor(score)]);
-            label.textContent = score > 3 ? '매우 강함' : score > 2 ? '보통' : '약함';
+
+            // test(): ()안에 있는 패스워드가 []안에 포함된 것이 있는지 확인하는 메서드.
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+            const hasNum = /[0-9]/.test(pw);
+            const hasUpper = /[A-Z]/.test(pw);
+            const strength =
+                pw.length >= 12 && hasSpecial && (hasNum || hasUpper) ? 4 :
+                pw.length >= 10 && (hasSpecial || hasNum) ? 3 :
+                pw.length >= 8 ? 2 : 1;
+
+            const colors = ['weak', 'weak', 'medium', 'strong', 'strong'];
+            for (let i = 0; i < strength; i++) bars[i].classList.add(colors[strength]);
+            label.textContent = strength >= 4 ? '매우 강함' : strength === 3 ? '강함' : strength === 2 ? '보통' : '약함';
         }
 
         function toggleAll(cb) {
@@ -188,6 +203,16 @@
         async function handleSignup(e) {
             e.preventDefault();
 
+            if (!isDuplicate) {
+                emailFeedBack.textContent = '이메일 중복확인을 해주세요.';
+                return;
+            }
+             if (!isChecked) {
+                emailFeedBack.textContent = '이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.';
+                return;
+            
+            }
+
             const pw = document.getElementById('pw').value;
             const pw2 = document.getElementById('pw2').value;
             if (pw !== pw2) { showToast('비밀번호가 일치하지 않습니다.'); return; }
@@ -209,7 +234,6 @@
                     const name = document.getElementById('name').value;
                     document.getElementById('success-name').textContent = name;
                     document.getElementById('successOverlay').classList.add('show');
-                    setTimeout(() => { location.href = '/'; }, 2000);
                 } else {
                     showToast('회원가입에 실패했습니다. 입력값을 확인해주세요.');
                 }
@@ -225,7 +249,44 @@
             setTimeout(() => t.classList.remove('show'), 2000);
         }
 
-        // 해야될거 이메일 중복확인
+        // 이메일 중복확인
+        const emailInput = document.getElementById('emailInput');
+        const emailCheckBtn = document.getElementById('emailCheckBtn');
+        const emailFeedBack = document.getElementById('emailFeedBack');
+        let isChecked = false; 
+        let isDuplicate = false;
+        emailCheckBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if(!email) {
+                emailFeedBack.textContent = '이메일을 입력해주세요.';
+                return;
+            }
+            try {
+                const res = await fetch(`/user/check-email?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+                isDuplicate = true;
+                if(data.available){
+                    emailFeedBack.textContent = '사용 가능한 이메일입니다.';
+                    isChecked = true;
+                    emailInput.readOnly = true;
+                    emailCheckBtn.disabled = true;
+                }else {
+                    emailFeedBack.textContent = '이미 가입된 이메일입니다.';
+                    isChecked = false;
+                }
+            } catch (error) {
+                console.error('서버 오류 발생');
+                emailFeedBack.textContent = '서버 오류 발생했습니다';
+            }
+        });
+        emailInput.addEventListener('input', () => {
+                isChecked = false;
+                isDuplicate = false;
+                emailFeedBack.textContent = '';
+                emailInput.readOnly = false;
+                emailCheckBtn.disabled = false;
+        });
+
     </script>
 </body>
 </html>
