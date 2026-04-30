@@ -148,13 +148,15 @@ if (name !== undefined) {
         throw error;
     }
 
-    if (!currentPassword || currentPassword.trim() === '') {
-        const error = new Error('현재 비밀번호를 입력해주세요');
-        error.status = 400;
-        throw error;
-    }
+        password: 'SOCIAL_LOGIN',  
+        age: 0,                 
+        tel: '',               
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+        address: {                 
+            state: '',
+            city: '',
+            road: ''
+        },
 
     if (!isMatch) {
         const error = new Error('비밀번호가 틀립니다');

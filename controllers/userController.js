@@ -10,7 +10,7 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, age, tel, state, city, road, detail } = req.body;
+        const { email, password, name, age, tel, state, city, road, addressDetail } = req.body;
 
         await userService.createUser({
             email,
@@ -22,7 +22,7 @@ const postSignup = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail
+                detail: addressDetail
             },
             uploadFile: req.file
         });
@@ -37,8 +37,8 @@ const postSignup = async (req, res, next) => {
         });
     }
 
-    return next(error);
-}
+        return next(error);
+    }
 };
 
 // 로그인 페이지
