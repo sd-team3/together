@@ -210,6 +210,7 @@ select.input{cursor:pointer}
   background:linear-gradient(135deg,#0f1520 0%,#1A5CFF 55%,#00C8D4 100%);
   padding:36px 28px 32px;
   position:relative;overflow:hidden;
+  flex-shrink: 0;
 }
 .home-hero::before{
   content:'';position:absolute;inset:0;
