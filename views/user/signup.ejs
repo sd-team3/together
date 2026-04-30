@@ -27,7 +27,7 @@
                 <h2 class="form-title">회원가입</h2>
                 <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
             </div>
-            <form action="/user/signup" method="post" id="signup" onsubmit="handleSignup(event)">
+            <form action="/user/signup" method="post" id="signup">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>
                     <input type="text" class="input" name="name" id="name" required />
@@ -40,7 +40,7 @@
                     </div>
                     <div class="form-group">
                         <label class="label">전화번호 <span class="req">*</span></label>
-                        <input type="tel" class="input" name="tel" id="phone" oninput="formatPhone(this)" required />
+                        <input type="tel" class="input" name="tel" id="phone" required />
                     </div>
                 </div>
 
@@ -51,16 +51,13 @@
                         <button type="button" id="emailCheckBtn" onclick="">중복확인</button>
                     </div>
                     <div id="emailFeedBack"></div>
-                    <% if(errors.email) { %>
-						<div class="form-text text-danger"><%= errors.email %></div>
-					<%}%>
                 </div>
 
                 <div class="form-group">
                     <label class="label">비밀번호 <span class="req">*</span></label>
                     <div class="input-icon-wrap">
-                        <input type="password" class="input" name="password" id="pw" placeholder="영문, 숫자, 특수문자 조합 8자 이상" oninput="checkPwStrength(this.value)" required />
-                        <button type="button" class="input-eye" onclick="togglePw('pw', this)" tabindex="-1">👁</button>
+                        <input type="password" class="input" name="password" id="pw" placeholder="영문, 숫자, 특수문자 조합 8자 이상" required />
+                        <button type="button" class="input-eye"  tabindex="-1">👁</button>
                     </div>
                     <div class="pw-strength">
                         <div class="pw-bars">
@@ -70,9 +67,6 @@
                             <div class="pw-bar" id="bar4"></div>
                         </div>
                         <div class="pw-label" id="pw-label">비밀번호를 입력하세요</div>
-                        <% if(errors.password) { %>
-						    <div class="form-text text-danger"><%= errors.password %></div>
-					    <%}%>
                     </div>
 
                 </div>
@@ -81,18 +75,15 @@
                     <label class="label">비밀번호 확인 <span class="req">*</span></label>
                     <div class="input-icon-wrap">
                         <input type="password" class="input" name="password2" id="pw2" placeholder="비밀번호 확인" required />
-                        <button type="button" class="input-eye" onclick="togglePw('pw2', this)" tabindex="-1">👁</button>
+                        <button type="button" class="input-eye" tabindex="-1">👁</button>
                     </div>
-                    <% if(errors.password2) { %>
-                        <div class="form-text text-danger"><%= errors.password2 %></div>
-                    <%}%>
                 </div>
 
                 <div class="form-group">
                     <label class="label">주소 <span class="req">*</span></label>
                     <div class="address-wrap">
                         <input type="text" class="input" id="zipcode" placeholder="우편번호" readonly required />
-                        <button type="button" class="btn-search" onclick="searchAddress()">주소 검색</button>
+                        <button type="button" class="btn-search" id="addrSearchBtn">주소 검색</button>
                     </div>
                     <input type="text" class="input" name="address" id="address" placeholder="기본 주소" style="margin-bottom:8px" readonly required />
                     <input type="hidden" name="state" id="state" />
@@ -103,7 +94,7 @@
 
                 <div class="agree-section">
                     <label class="agree-all">
-                        <input type="checkbox" id="agreeAll" onchange="toggleAll(this)">
+                        <input type="checkbox" id="agreeAll">
                         전체 동의합니다
                     </label>
                     <label class="agree-item">
@@ -138,7 +129,8 @@
 
     <div class="toast" id="toast"></div>
 
-    <script>
+    <script type="module">
+        import {addrSearch} from '/js/modules/addrSearch.js'
         function togglePw(id, btn) {
             const inp = document.getElementById(id);
             inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -183,21 +175,21 @@
             document.querySelectorAll('.agree-check').forEach(c => c.checked = cb.checked);
         }
 
-        function searchAddress() {
-            const fullAddress = '서울특별시 강남구 테헤란로 212';
-            const addrParts = fullAddress.split(' ');
-            document.getElementById('zipcode').value = '06134';
-            document.getElementById('address').value = fullAddress;
+        async function searchAddress() {
+            try {
+                const data = await addrSearch();
+                document.getElementById('zipcode').value = data.zonecode;        // 우편번호
+                document.getElementById('address').value = data.roadAddress;     // 기본 주소 (도로명)
+                document.getElementById('state').value = data.sido;              // 시/도 ex) 서울특별시
+                document.getElementById('city').value = data.sigungu;            // 시/군/구 ex) 강남구
+                document.getElementById('road').value = data.roadname;           // 도로명 ex) 테헤란로
 
-            document.getElementById('state').value = addrParts[0]; // 서울특별시
-            document.getElementById('city').value = addrParts[1];  // 강남구
-            document.getElementById('road').value = addrParts.slice(2).join(' ');
-            document.getElementById('addressDetail').focus();
-            
-            const t = document.getElementById('toast');
-            t.textContent = "주소가 입력되었습니다. 상세 주소를 작성해주세요.";
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
+                document.getElementById('addressDetail').focus();
+                showToast('주소가 입력되었습니다. 상세 주소를 작성해주세요.');
+            } catch (error) {
+                showToast('주소 검색 중 오류가 발생했습니다.');
+                console.log('에러 발생: ', error);
+            }
         }
 
         async function handleSignup(e) {
@@ -287,6 +279,18 @@
                 emailCheckBtn.disabled = false;
         });
 
+        document.getElementById('phone').addEventListener('input', function() { formatPhone(this); });
+        document.getElementById('pw').addEventListener('input', function() { checkPwStrength(this.value); });
+        document.getElementById('agreeAll').addEventListener('change', function() { toggleAll(this); });
+        document.getElementById('addrSearchBtn').addEventListener('click', searchAddress);
+        document.getElementById('signup').addEventListener('submit', handleSignup);
+
+        document.querySelectorAll('.input-eye').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.closest('.input-icon-wrap').querySelector('input');
+                togglePw(input.id, this);
+            });
+        });
     </script>
 </body>
 </html>
