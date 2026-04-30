@@ -24,9 +24,13 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.1",
     "ejs": "^5.0.2",
+<<<<<<< HEAD
+    "express": "^4.22.1",
+=======
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "module": "^2.0.0",
+>>>>>>> dev-database-api
     "express-session": "^1.19.0",
     "express-validator": "^7.3.2",
     "mongoose": "^9.4.1",

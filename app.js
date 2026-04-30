@@ -17,6 +17,12 @@ app.get('/kakao-map-js-key', (req, res) => {
     res.json({ key: process.env.KAKAO_JS_KEY });
 });
 
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });
