@@ -29,4 +29,6 @@ const postRegularCreate = async (req, res)=>{
     }
 };
 
-const 
+module.exports = {
+    postRegularCreate //기능명세
+};

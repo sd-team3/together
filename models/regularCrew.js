@@ -77,6 +77,10 @@ const regularCrewSchema = new mongoose.Schema(
     }
 );
 
+regularCrewSchema.index({ "address.state": 1, "address.city": 1, createdAt: -1 });
+regularCrewSchema.index({ "address.city": 1, sport: 1 });
+regularCrewSchema.index({ host: 1 });
+
 const regularCrew = mongoose.model('regularCrew', regularCrewSchema);
 
 module.exports = regularCrew;
