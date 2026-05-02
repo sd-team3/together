@@ -5,7 +5,6 @@ const path = require('path');
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.get('/favicon.ico', (req, res) => res.status(204).end());
 const connectDB = require('./config/database');
 const passport = require('passport');
 const session = require('express-session');
@@ -41,14 +40,15 @@ app.get('/', (req, res) => {
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 app.use((err, req, res, next) => {
     console.error('ERROR:', err);
 
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
 
-app.use(notFoundHandler);
-app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
