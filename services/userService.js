@@ -3,7 +3,7 @@
     const bcrypt = require('bcrypt');
 
     //회원가입 서비스(DB에 회원 객체 저장)
-    async function createUser({ email, password, name, address, uploadFile, age, tel }) {
+    async function createUser({ email, password, name, address, uploadFile, age, tel, gender }) {
 
         //이메일 중복 체크
         const existingUser = await User.findOne({ email });
@@ -26,6 +26,7 @@
             name,
             age: age ? Number(age) : null,
             tel: tel || '',
+            gender,
             address,
             profileImage: profile
         });

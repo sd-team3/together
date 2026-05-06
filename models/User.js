@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
             type: addressSchema,
             required: true
         },
+        gender: {
+            type: String,
+            required: true
+        },
         profileImage: {
             type: String, 
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
