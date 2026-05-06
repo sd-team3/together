@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const crewApplimentSchema = new mongoose.Schema(
+const crewApplicationSchema = new mongoose.Schema(
     {
         userId: { 
             type: mongoose.Schema.Types.ObjectId, 
@@ -16,16 +16,21 @@ const crewApplimentSchema = new mongoose.Schema(
             type: String,
             required: true,
             enum: ['RegularCrew', 'instantCrew']
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'accepted', 'rejected'],
+            default: 'pending'
         }
     }, {
         timestamps: true
     }
 );
 
-crewApplimentSchema.index({ crewId: 1, createdAt: -1 });
-crewApplimentSchema.index({ userId: 1, createdAt: -1 });
-crewApplimentSchema.index({ crewId: 1, userId: 1 }, {unique: true});
+crewApplicationSchema.index({ crewId: 1, createdAt: -1 });
+crewApplicationSchema.index({ userId: 1, createdAt: -1 });
+crewApplicationSchema.index({ crewId: 1, userId: 1 }, {unique: true});
 
-const crewAppliment = mongoose.model('crewAppliment', crewApplimentSchema);
+const crewApplication = mongoose.model('crewApplication', crewApplicationSchema);
 
-module.exports = crewAppliment;
+module.exports = crewApplication;

@@ -30,6 +30,10 @@ const findUserByEmail = async (email) => {
     return await User.findOne({ email });
 }
 
+const findUserById_WithoutPW = async (id)=>{
+    return await User.findById(userId).select('-password');
+}
+
 //ID(고유값)로 특정 회원 가져오기
 const findUserById = async (id) => {
     return await User.findById(id);
@@ -133,3 +137,4 @@ function partAddress(fullAddress) {
 
 module.exports = { createUser, findUserByEmail, 
     findUserById, updateUser, deleteUser, checkEmail, createSocialUser };
+    findUserById, updateUser, deleteUser, checkEmail, createSocialUser, findUserById_WithoutPW };

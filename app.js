@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 dotenv.config();
 
@@ -8,7 +10,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+const { initSocket } = require('./config/socket');
 
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
+
+
+app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,5 +32,8 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
+initSocket(io);
+
+httpServer.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });
