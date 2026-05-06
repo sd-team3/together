@@ -4,7 +4,7 @@
 
     //회원가입 서비스(DB에 회원 객체 저장)
     async function createUser({ email, password, name, address, uploadFile, age, tel }) {
-
+      
         //이메일 중복 체크
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -45,6 +45,11 @@
         return await User.findById(id);
     }
 
+    
+    const findUserById_WithoutPW = async (id)=>{
+        return await User.findById(userId).select('-password');
+    }
+    
     // 회원 수정 전 비밀번호 확인
     async function verifyPassword (userId, password) {
         const user = await User.findById(userId);
@@ -228,4 +233,4 @@ if (name !== undefined) {
     }
 
     module.exports = { createUser, findUserByEmail, 
-        findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword };
+        findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword, findUserById_WithoutPW };
