@@ -19,7 +19,7 @@ function loadDaumAddrAPI() {
 
         script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
         
-        script.onload = () => resolve();
+        script.onload = () => resolve(window.daum);
         script.onerror = () => reject(new Error("DAUM_API_ERR"));
         
         document.head.appendChild(script);

@@ -22,19 +22,14 @@
   "homepage": "https://github.com/sd-team3/together#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "connect-flash": "^0.1.1",
     "dotenv": "^17.4.1",
     "ejs": "^5.0.2",
-<<<<<<< HEAD
-    "express": "^4.22.1",
-=======
     "express": "^5.2.1",
-    "express-validator": "^7.3.2",
     "module": "^2.0.0",
->>>>>>> dev-database-api
     "express-session": "^1.19.0",
     "express-validator": "^7.3.2",
     "http": "^0.0.1-security",
-    "module": "^2.0.0",
     "mongoose": "^9.4.1",
     "multer": "^2.1.1",
     "passport": "^0.7.0",
