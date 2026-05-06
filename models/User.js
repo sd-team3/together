@@ -17,7 +17,11 @@ const addressSchema = new mongoose.Schema(
         detail: {
             type: String,
             required: true
-        }
+        },
+        zipcode: {
+        type: String,
+        required: true
+    }
     }, {
         _id: false
     }
@@ -48,6 +52,10 @@ const userSchema = new mongoose.Schema(
         address: {
             type: addressSchema,
             required: true
+        },
+        gender : {
+            type : String,
+            required : true
         },
         profileImage: {
             type: String, 

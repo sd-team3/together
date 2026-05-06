@@ -11,7 +11,7 @@ router.get('/google',
 router.get('/google/callback', 
     passport.authenticate('google', {
         failureRedirect: '/auth/login',
-        successRedirect: '/'
+        successRedirect: '/user/signup'
     })
 );
 
@@ -20,7 +20,7 @@ router.get('/naver', passport.authenticate('naver'));
 router.get('/naver/callback',
     passport.authenticate('naver', {
         failureRedirect: '/auth/login',
-        successRedirect: '/'
+        successRedirect: '/user/signup'
     })
 );
 

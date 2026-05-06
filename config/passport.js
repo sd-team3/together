@@ -29,7 +29,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID, 
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/auth/google/callback'
-}, async(asscessToken, refreshToken, profile, done) =>{
+}, async(accessToken, refreshToken, profile, done) =>{
     try {
         const email = profile.emails[0].value;//인증된 회원의 이메일
         
@@ -39,6 +39,7 @@ passport.use(new GoogleStrategy({
             return done(null, user);
         }
 
+        
         //구글에서 가져온 회원의 정보로 새로운 회원 생성
         const newUser = await userService.createSocialUser(
             {
@@ -62,7 +63,7 @@ passport.use(new NaverStrategy({
     clientID: process.env.NAVER_CLIENT_ID, 
     clientSecret: process.env.NAVER_CLIENT_SECRET,
     callbackURL: '/auth/naver/callback'
-}, async(asscessToken, refreshToken, profile, done) =>{
+}, async(accessToken, refreshToken, profile, done) =>{
     try {
         const email = profile.email;
         

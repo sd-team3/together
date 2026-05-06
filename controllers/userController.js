@@ -10,7 +10,7 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, age, tel, state, city, road, addressDetail } = req.body;
+        const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
 
         await userService.createUser({
             email,
@@ -22,8 +22,10 @@ const postSignup = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail: addressDetail
+                detail: addressDetail,
+                zipcode
             },
+            gender,
             uploadFile: req.file
         });
 
@@ -122,6 +124,8 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
+        zipcode,
+        gender,
         currentPassword,
         newPassword,
         removeImage
@@ -150,8 +154,10 @@ const postEditProfile = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail
+                detail,
+                zipcode
             },
+            gender,
             currentPassword,
             newPassword,
             removeImage, 

@@ -84,21 +84,35 @@ const img =
                value="<%= user.age %>">
       </div>
 
+      <div class="edit-field">
+    <label class="edit-label">성별</label>
+
+    <input 
+        type="text" 
+        class="edit-input readonly-field"
+        value="<%= user.gender === 'male' ? '남성' : user.gender === 'female' ? '여성' : '' %>"
+        readonly
+    >
+
+    
+    <input type="hidden" name="gender" value="<%= user.gender %>">
+</div>
+
       <div class="edit-field field-full">
   <label class="edit-label">전화번호</label>
 
   <div style="display:flex; gap:8px;">
-    <input type="text" name="tel1" class="edit-input" style="width:80px;"
-           maxlength="3"
-           value="<%= user.tel ? user.tel.slice(0,3) : '' %>">
+   <input type="text" name="tel1" class="edit-input" style="width:80px;"
+       maxlength="3"
+       value="<%= user.tel ? user.tel.split('-')[0] : '' %>">
 
-    <input type="text" name="tel2" class="edit-input" style="width:100px;"
-           maxlength="4"
-           value="<%= user.tel ? user.tel.slice(3,7) : '' %>">
+<input type="text" name="tel2" class="edit-input" style="width:100px;"
+       maxlength="4"
+       value="<%= user.tel ? user.tel.split('-')[1] : '' %>">
 
-    <input type="text" name="tel3" class="edit-input" style="width:100px;"
-           maxlength="4"
-           value="<%= user.tel ? user.tel.slice(7) : '' %>">
+<input type="text" name="tel3" class="edit-input" style="width:100px;"
+       maxlength="4"
+       value="<%= user.tel ? user.tel.split('-')[2] : '' %>">
   </div>
 </div>
 
@@ -112,21 +126,34 @@ const img =
 
   <div class="edit-card">
 
-  <!-- 기본 주소 -->
-  <div class="edit-field field-full">
-    <label class="edit-label">주소</label>
-    <input type="text" name="road" class="edit-input"
-       value="<%= user.address?.road || '' %>">
-  </div>
+    <!-- 우편번호 -->
+    <div class="edit-field field-full">
+      <label class="edit-label">우편번호</label>
 
-  <!-- 상세 주소 -->
-  <div class="edit-field field-full">
-    <label class="edit-label">상세 주소</label>
-    <input type="text" name="detail" class="edit-input"
-       value="<%= user.address?.detail || '' %>">
-  </div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="zipcode" name="zonecode" value="<%= user.address?.zipcode || '' %>" class="edit-input" readonly>
 
-</div>
+        <button type="button" id="addr-btn">🔍 검색</button>
+      </div>
+    </div>
+
+    <!-- 기본 주소 -->
+    <div class="edit-field field-full">
+      <label class="edit-label">기본 주소</label>
+      <input type="text" id="road" name="road" class="edit-input"
+        value="<%= user.address?.road || '' %>"
+        readonly>
+    </div>
+
+    <!-- 상세 주소 -->
+    <div class="edit-field field-full">
+      <label class="edit-label">상세 주소</label>
+      <input type="text" name="detail" class="edit-input"
+        value="<%= user.address?.detail || '' %>">
+    </div>
+
+
+  </div>
 </div>
 
 <!-- ④ 비밀번호 -->
@@ -428,6 +455,32 @@ if (errors.length > 0) {
 
     } catch (err) {
         openModal("서버 오류 발생");
+    }
+});
+</script>
+<script type="module">
+import { addrSearch } from "/js/modules/addrSearch.js";
+import kakaoMap from "/js/modules/mapLoader.js";
+
+const btn = document.getElementById("addr-btn");
+
+btn?.addEventListener("click", async () => {
+    try {
+        console.log("클릭됨");
+
+        const data = await addrSearch();
+        const road = data.roadAddress;
+        const zipcode = data.zipcode;
+
+        document.getElementById("zipcode").value = zipcode;
+        document.getElementById("road").value = road;
+        document.querySelector("input[name='detail']").focus();
+
+        await kakaoMap.loadMapByADDR(road);
+
+    } catch (err) {
+        console.error(err);
+        alert("주소 검색 실패");
     }
 });
 </script>
