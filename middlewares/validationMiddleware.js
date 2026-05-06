@@ -28,7 +28,7 @@ const signupValidationRules = [
 
     body('tel')
     .notEmpty().withMessage('전화번호는 필수입니다')
-    .matches(/^01[016789]-?\d{3,4}-?\d{4}$/)
+    .matches(/^010-\d{4}-\d{4}$/)
     .withMessage('올바른 전화번호를 입력하세요'),
     body('gender')
         .notEmpty().withMessage('성별을 선택해주세요')
