@@ -23,6 +23,7 @@ const postSignup = async (req, res, next) => {
             name,
             age,
             tel,
+            gender,
             address: {
                 state,
                 city,
@@ -216,7 +217,6 @@ const checkEmail = async (req, res, next) => {
     const { email } = req.query;
     try {
         const available = await userService.checkEmail(email);
-        console.log(available);
         res.json({ available });//DB에 해당 email이 있으면 false, 없으면 true
     } catch (error) {
         next(error);

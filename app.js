@@ -11,15 +11,18 @@ const connectDB = require('./config/database');
 const passport = require('passport');
 const session = require('express-session');
 
-
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
+// 웹소켓
+const chatRouter = require('./routes/chatRouter');
+const {initSocket} = require('./config/socket');
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
 
 connectDB();
 
 app.use(express.json());
-const { initSocket } = require('./config/socket');
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({
@@ -37,9 +40,6 @@ app.use((req, res, next) => {
 });
 
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
-
 
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -53,7 +53,7 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
-
+app.use('/chat', chatRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

@@ -28,6 +28,7 @@
             name,
             age: age ? Number(age) : null,
             tel: tel || '',
+            gender,
             address,
             gender,
             profileImage: profile
@@ -208,7 +209,6 @@ if (name !== undefined) {
     }
 
     async function checkEmail(email) {
-        console.log(email);
         const user = await User.findOne({ email });
         return !user;
     }

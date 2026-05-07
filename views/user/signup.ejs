@@ -54,18 +54,20 @@
                 <div class="input-row">
                     <div class="form-group">
                         <label class="label">나이 <span class="req">*</span></label>
-                        <input type="number" class="input" name="age" id="age" min="14" max="99" required />
+                        <input type="number" class="input" name="age" id="age" />
+                        <div id="ageFeedBack"></div>
                     </div>
                     <div class="form-group">
                         <label class="label">전화번호 <span class="req">*</span></label>
-                        <input type="tel" class="input" name="tel" id="phone" required />
+                        <input type="tel" class="input" name="tel" id="tel" value="010-"  />
+                        <div id="telFeedBack"></div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="label">성별 <span class="req">*</span></label>
                     <div class="gender-group">
                         <label class="gender-item">
-                            <input type="radio" name="gender" value="male" required />
+                            <input type="radio" name="gender" value="male"  />
                             <span>남성</span>
                         </label>
                         <label class="gender-item">
@@ -73,6 +75,7 @@
                             <span>여성</span>
                         </label>
                     </div>
+                    <div id="genderFeedBack"></div>
                 </div>
                 <div class="form-group">
                     <label class="label">이메일 <span class="req">*</span></label>
@@ -97,7 +100,7 @@
                             id="pw"
                             autocomplete="new-password"
                             placeholder="영문, 숫자, 특수문자 조합 8자 이상"
-                            required
+                            
                         />
                         <button type="button" class="input-eye" tabindex="-1">👁</button>
                     </div>
@@ -114,7 +117,6 @@
                             비밀번호를 입력하세요
                         </div>
                     </div>
-
                     <div id="pwFeedBack"></div>
                 </div>
 
@@ -122,17 +124,9 @@
                     <label class="label">비밀번호 확인 <span class="req">*</span></label>
 
                     <div class="input-icon-wrap">
-                        <input
-                            type="password"
-                            class="input"
-                            name="password2"
-                            id="pw2"
-                            placeholder="비밀번호 확인"
-                            required
-                        />
+                        <input type="password" class="input" name="password2" id="pw2" placeholder="비밀번호 확인"  />
                         <button type="button" class="input-eye" tabindex="-1">👁</button>
                     </div>
-
                     <div id="pw2FeedBack"></div>
                 </div>
                 <% } %>
@@ -140,14 +134,15 @@
                 <div class="form-group">
                     <label class="label">주소 <span class="req">*</span></label>
                     <div class="address-wrap">
-                        <input type="text" class="input" name="zipcode" id="zipcode" placeholder="우편번호" readonly required />
+                        <input type="text" class="input" name="zipcode" id="zipcode" placeholder="우편번호" readonly />
                         <button type="button" class="btn-search" id="addrSearchBtn">주소 검색</button>
                     </div>
-                    <input type="text" class="input" name="address" id="address" placeholder="기본 주소" style="margin-bottom:8px" readonly required />
+                    <input type="text" class="input" name="address" id="address" placeholder="기본 주소" style="margin-bottom:8px" readonly  />
                     <input type="hidden" name="state" id="state" />
                     <input type="hidden" name="city" id="city" />
                     <input type="hidden" name="road" id="road" />
-                    <input type="text" class="input" name="addressDetail" id="addressDetail" placeholder="상세 주소 입력" required />
+                    <input type="text" class="input" name="addressDetail" id="addressDetail" placeholder="상세 주소 입력(선택)" >
+                    <div id="addrFeedBack"></div>
                 </div>
 
                 <div class="agree-section">
@@ -202,6 +197,7 @@
 
         function formatPhone(inp) {
             let v = inp.value.replace(/\D/g,'');
+            if(!v.startsWith('010')) v = '010' + v.replace(/^010/, '');
             if (v.length >= 11) v = v.slice(0,11);
             if (v.length >= 8) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
             else if (v.length >= 4) v = v.slice(0,3) + '-' + v.slice(3);
@@ -246,7 +242,9 @@
                 document.getElementById('state').value = data.sido;              // 시/도 ex) 서울특별시
                 document.getElementById('city').value = data.sigungu;            // 시/군/구 ex) 강남구
                 document.getElementById('road').value = data.roadname;           // 도로명 ex) 테헤란로
-
+                
+                setFeedback(document.getElementById('addrFeedBack'), '', '');
+                
                 document.getElementById('addressDetail').focus();
                 showToast('주소가 입력되었습니다. 상세 주소를 작성해주세요.');
             } catch (error) {
@@ -257,6 +255,8 @@
 
         async function handleSignup(e) {
             e.preventDefault();
+
+            // 이름
             const nameInput = document.getElementById('name');
             const nameFeedBack = document.getElementById('nameFeedBack');
             const nameVal = nameInput.value.trim();
@@ -273,6 +273,61 @@
                 setFeedback(nameFeedBack, '', 'success');
             }
 
+            // 나이
+            const ageInput = document.getElementById('age');
+            const ageFeedBack = document.getElementById('ageFeedBack');
+            const ageVal = parseInt(ageInput.value);
+            if(!ageInput.value) {
+                ageInput.classList.add('input-error');
+                ageInput.classList.remove('input-success');
+                setFeedback(ageFeedBack, '나이를 입력해주세요', 'error');
+                ageInput.focus();
+                return;
+            }else if(isNaN(ageVal) || ageVal < 14 || ageVal > 99) {
+                ageInput.classList.add('input-error');
+                ageInput.classList.remove('input-success');
+                setFeedback(ageFeedBack, '올바른 나이를 입력해주세요', 'error');
+                ageInput.focus();
+                return;
+            }else {
+                ageInput.classList.remove('input-error');
+                ageInput.classList.add('input-success');
+                setFeedback(ageFeedBack, '', 'success');
+            }
+
+            // 전화번호
+            const telInput = document.getElementById('tel');
+            const telFeedBack = document.getElementById('telFeedBack');
+            const telVal = telInput.value.replace(/\D/g, '');
+            if(!telInput.value || telVal.length != 11) {
+                telInput.classList.add('input-error');
+                telInput.classList.remove('input-success');
+                setFeedback(telFeedBack, '전화번호를 입력해주세요', 'error');
+                telInput.focus();
+                return;
+            }else{
+                telInput.classList.remove('input-error');
+                telInput.classList.add('input-success');
+                setFeedback(telFeedBack, '', 'success');
+            }
+
+            // 성별
+            const genderFeedBack = document.getElementById('genderFeedBack');
+            const genderChecked = document.querySelector('input[name="gender"]:checked');
+            if(!genderChecked) {
+                setFeedback(genderFeedBack, '성별을 선택해주세요', 'error');
+                return;
+            }else{
+                setFeedback(genderFeedBack, '', '');
+            }
+
+            if (!emailInput.value.trim()) {
+                emailInput.classList.add('input-error');
+                emailInput.classList.remove('input-success');
+                setFeedback(emailFeedBack, '이메일을 입력해주세요.', 'error');
+                emailInput.focus();
+                return;
+            }
             if (!isDuplicate) {
                 emailInput.classList.add('input-error');
                 setFeedback(emailFeedBack, '이메일 중복확인을 해주세요.', 'error');
@@ -329,8 +384,8 @@
                 showToast('필수 약관에 동의해주세요.'); return;
             }
 
+            // 서버 전송
             const formData = new FormData(document.getElementById('signup'));
-
             try {
                 const res = await fetch('/user/signup', {
                     method: 'POST',
@@ -402,7 +457,32 @@
                 setFeedback(emailFeedBack, '', '');
         });
 
-        document.getElementById('phone').addEventListener('input', function() { formatPhone(this); });
+        document.getElementById('tel').addEventListener('input', function() {
+            if (!this.value.startsWith('010')) this.value = '010-';
+            formatPhone(this);
+            if (!this.value) {
+                this.classList.remove('input-error', 'input-success');
+                setFeedback(document.getElementById('telFeedBack'), '', '');
+                return;
+            }
+            const telVal = this.value.replace(/\D/g, '');
+            if (telVal.length === 11) {
+                this.classList.remove('input-error');
+                this.classList.add('input-success');
+                setFeedback(document.getElementById('telFeedBack'), '', '');
+            } else {
+                this.classList.remove('input-success');
+                this.classList.add('input-error');
+                setFeedback(document.getElementById('telFeedBack'), '전화번호를 올바르게 입력해주세요', 'error');
+            }
+        });
+
+        document.querySelectorAll('input[name="gender"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                setFeedback(document.getElementById('genderFeedBack'), '', '');
+            })
+        })
+
         document.getElementById('pw').addEventListener('input', function() { 
             checkPwStrength(this.value);
             this.classList.remove('input-error', 'input-success');
@@ -437,8 +517,40 @@
             });
         });
         document.getElementById('name').addEventListener('input', function() {
-            this.classList.remove('input-error', 'input-success');
-            setFeedback(document.getElementById('nameFeedBack'), '', '');
+            if (!this.value) {  // 비어있으면 그냥 초기화
+                this.classList.remove('input-error', 'input-success');
+                setFeedback(document.getElementById('nameFeedBack'), '', '');
+                return;
+            }
+            // 값이 있을 때만 실시간 검사
+            const nameRegex = /^[가-힣]{2,5}$/;
+            if (nameRegex.test(this.value.trim())) {
+                this.classList.remove('input-error');
+                this.classList.add('input-success');
+                setFeedback(document.getElementById('nameFeedBack'), '', '');
+            } else {
+                this.classList.remove('input-success');
+                this.classList.add('input-error');
+                setFeedback(document.getElementById('nameFeedBack'), '이름은 2~5자로 한글로 입력해주세요.', 'error');
+            }
+        });
+
+        document.getElementById('age').addEventListener('input', function() {
+            if (!this.value) {
+                this.classList.remove('input-error', 'input-success');
+                setFeedback(document.getElementById('ageFeedBack'), '', '');
+                return;
+            }
+            const val = parseInt(this.value);
+            if (!isNaN(val) && val >= 14 && val <= 99) {
+                this.classList.remove('input-error');
+                this.classList.add('input-success');
+                setFeedback(document.getElementById('ageFeedBack'), '', '');
+            } else {
+                this.classList.remove('input-success');
+                this.classList.add('input-error');
+                setFeedback(document.getElementById('ageFeedBack'), '나이를 올바르게 입력해주세요. (14~99세)', 'error');
+            }
         });
     </script>
 </body>

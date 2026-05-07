@@ -349,3 +349,14 @@
     justify-content: center;
     line-height: 1;
 }
+.gender-group {
+    display: flex;
+    gap: 12px;
+}
+
+.gender-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
