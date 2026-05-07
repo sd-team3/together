@@ -42,7 +42,8 @@ const postSignup = async (req, res, next) => {
         return res.render('user/signup', {
             errors: {
                 email: error.message
-            }
+            },
+            socialUser: req.session.socialUser || null
         });
     }
 
