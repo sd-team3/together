@@ -210,6 +210,7 @@ select.input{cursor:pointer}
   background:linear-gradient(135deg,#0f1520 0%,#1A5CFF 55%,#00C8D4 100%);
   padding:36px 28px 32px;
   position:relative;overflow:hidden;
+  flex-shrink: 0;
 }
 .home-hero::before{
   content:'';position:absolute;inset:0;
@@ -484,37 +485,52 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    NOTIFICATIONS PAGE
 ═══════════════════════════════════════ */
+#notif-list{
+  border:2px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 .notif-item{
   display:flex;align-items:flex-start;gap:12px;
-  padding:14px 16px;background:var(--surface);
+  padding:25px 16px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);
   cursor:pointer;transition:all .15s;position:relative;
 }
 .notif-item:hover{border-color:var(--border-strong);box-shadow:var(--shadow)}
-.notif-item.unread{background:#FAFFFE;border-color:#C8FFD4}
 .notif-icon{
   width:40px;height:40px;border-radius:10px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:18px;
 }
 .notif-body{flex:1;min-width:0}
-.notif-title{font-size:13.5px;line-height:1.5;margin-bottom:4px;color:var(--text)}
+.notif-title{font-size:16.5px;line-height:1.5;margin-bottom:4px;color:var(--text)}
 .notif-meta{font-size:12px;color:var(--text-3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.notif-time{font-size:11px;color:var(--text-3);font-family:'DM Mono',monospace}
+.notif-time{font-size:13px;color:var(--text-3);font-family:'DM Mono',monospace}
 .notif-dot{
   width:8px;height:8px;border-radius:50%;background:var(--green);
   flex-shrink:0;margin-top:4px;
 }
-.notif-date-divider{
-  font-size:11px;font-weight:700;color:var(--text-3);
-  text-transform:uppercase;letter-spacing:1px;
-  padding:8px 4px 4px;font-family:'DM Mono',monospace;
+#notif-popup{
+  display:none;
+  position:absolute;
+  top:60px;
+  right:16px;
+  width:400px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  z-index:999;
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
 }
 
 /* ═══════════════════════════════════════
    COMMUNITY PAGE
 ═══════════════════════════════════════ */
 .community-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;padding:22px}
-.comm-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--bg);margin-bottom:16px}
+.comm-tabs{display:flex;gap:0;border:2px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--bg);margin-bottom:16px}
 .comm-tab{flex:1;padding:13px 24px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;color:var(--text-3);border:none;background:transparent;font-family:'DM Sans',sans-serif;white-space:nowrap}
 .comm-tab.active{background:var(--text);color:var(--bg)}
 .post-item{
@@ -592,19 +608,13 @@ select.input{cursor:pointer}
   font-size:24px;font-weight:700;font-family:'DM Mono',monospace;
   border:3px solid var(--surface);
 }
-.profile-info{padding:0px 20px}
+.profile-info{padding:10px 18px 16px}
 .profile-name{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:2px}
 .profile-handle{font-size:11.5px;color:var(--text-3);font-family:'DM Mono',monospace;margin-bottom:8px}
-.profile-badges {display:flex;flex-direction:column; gap: 6px;align-items:flex-start;}
-.profile-badge {
-  display:inline-flex;align-items:center;padding:4px 10px;width: 100%;
-  border-radius:15px;font-size:11px;font-weight:500;background:var(--bg);
-  border:1px solid var(--border);color:#444;
-}
-
-/* 아이콘과 글자 사이 간격 */
-.profile-badge i, .profile-badge span {
-  margin-right: 4px;
+.profile-badges{display:flex;gap:6px;flex-wrap:wrap}
+.profile-badge{
+  padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:600;
+  background:var(--bg);border:1px solid var(--border);font-family:'DM Mono',monospace;
 }
 .profile-divider{height:1px;background:var(--border);margin:14px 18px}
 .profile-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0 14px 16px}
@@ -619,7 +629,7 @@ select.input{cursor:pointer}
 .rank-info-label{font-size:11px;opacity:.6;margin-bottom:2px}
 .rank-info-sub{font-size:12px;margin-top:8px;opacity:.75}
 .rank-accent{color:var(--accent)}
-.mypage-nav{display:flex;flex-direction:column;gap:4px;padding: 10px 10px 10px}
+.mypage-nav{display:flex;flex-direction:column;gap:2px;padding:0 10px 14px}
 .mypage-nav-item{
   display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-sm);
   font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .15s;
@@ -660,38 +670,7 @@ select.input{cursor:pointer}
 .sched-info{flex:1}
 .sched-title{font-size:12.5px;font-weight:600;margin-bottom:1px}
 .sched-sub{font-size:11px;color:var(--text-3)}
-.sched-status{font-size:10px;font-weight:700;flex-shrink:0}
-
-.sched-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0px;
-}
-.sched-day-tag {
-  background-color: var(--bg-soft, #f1f3f5); /* 연한 회색 배경 */
-  color: var(--text-2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid var(--border-light, #e9ecef);
-}
-.sched-capacity {
-  font-size: 10px;
-  color: var(--text-3);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.sched-capacity .current {
-  color: var(--primary); 
-  font-weight: 700;
-}
-.sched-capacity .divider {
-  opacity: 0.4;
-  font-size: 11px;
-}
+.sched-status{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
 
 /* ═══════════════════════════════════════
    CHAT PAGE
@@ -1323,81 +1302,6 @@ select.input{cursor:pointer}
   font-size:11.5px;color:var(--text-3);line-height:1.6;
 }
 
-
-/* 모달배경 */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-/* 모달 박스 */
-.modal-box {
-    width: 340px;
-    max-width: 90%;
-    background: #fff;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-
-    /* 핵심: hover 영향 안 받게 고정 */
-    pointer-events: auto;
-    opacity: 1;
-    transform: scale(1);
-    animation: popIn 0.2s ease;
-}
-
-/* 메시지 */
-#modal-msg {
-    font-size: 15px;
-    color: #111;
-    margin-bottom: 16px;
-    line-height: 1.5;
-    white-space: pre-line;
-}
-
-/* 버튼 */
-.modal-box button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: #1A5CFF;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-
-    /* hover 안정화 */
-    transition: background 0.2s ease, transform 0.15s ease;
-}
-
-/* hover */
-.modal-box button:hover {
-    background: #0040CC;
-    transform: translateY(-2px);
-}
-
-/* active */
-.modal-box button:active {
-    transform: translateY(0);
-}
-
-/* 등장 애니메이션 */
-@keyframes popIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
 .settings-wrap {
   max-width: 720px;
   margin: 0 auto;

@@ -67,7 +67,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['local', 'google', 'naver'],
             default: 'local'
-        }
+        },
+        crews: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'regularCrew'
+        }]
     }, {
         timestamps: true
     }
