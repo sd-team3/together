@@ -10,8 +10,8 @@ const memberSchema = new mongoose.Schema(
             max: [50, 'MEMBER_CAPACITY_MAX_ERROR']
         },
         memberList: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            joinedAt: { type: Date, default: Date.now }
         }]
     }, {
         _id: false
@@ -20,14 +20,8 @@ const memberSchema = new mongoose.Schema(
 
 const addressSchema = new mongoose.Schema(
     {
-        state: {
-            type: String,
-            required: true
-        },
-        city: {
-            type: String,
-            required: true
-        }
+        state: { type: String, required: true },
+        city: { type: String, required: true }
     }, {
         _id: false
     }
@@ -35,22 +29,15 @@ const addressSchema = new mongoose.Schema(
 
 const regularCrewSchema = new mongoose.Schema(
     {
-        title: {
-            type: String,
-            required: true
-        },
-        intro: {
-            type: String
-        },
+        title: { type: String, required: true },
+        intro: { type: String },
         host: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
         },
-        member: {
-            type: memberSchema,
-            required: true
-        },
+        member: { type: memberSchema, required: true },
+        isAutoAccept: { type: Boolean, default: true },
         period: {
             type: String,
             enum: ['week', '2week', 'month'],
@@ -58,43 +45,41 @@ const regularCrewSchema = new mongoose.Schema(
         },
         day: {
             type: [String], 
-            enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none']
+            enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none'],
+            default: ['none']
         },
         ageRange: {
             type: [String],
-            enum: ['10s', '20s', '30s', '40s', '50s', '60+'],
+            enum: ['all', '10s', '20s', '30s', '40s', '50s', '60+'],
             default: ['all']
         },
-        address: {
-            type: addressSchema,
-            required: true
-        },
+        address: { type: addressSchema, required: true },
         sport: {
             type: String,
             required: true,
             enum: SPORTS_EN
         },
-        fee: {
-            type: Number,
-            default: 0
-        },
+        fee: { type: Number, default: 0 },
         rating: {
             type: Number,
             default: 0,
             min: [0, 'REGULAR_CREW_RATING_MIN_ERROR']
         },
-        reputation: {
-            type: Number,
-            default: 0
-        },
+        reputation: { type: Number, default: 0 },
         profileImage: {
             type: String, 
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
             //폴더나 파일 명은 적절하다고 생각하는 한도에서 사용 
             default: 'default-crew-profile.jpg'
         }
+    }, {
+        timestamps: true
     }
 );
+
+regularCrewSchema.index({ "address.state": 1, "address.city": 1, createdAt: -1 });
+regularCrewSchema.index({ "address.city": 1, sport: 1 });
+regularCrewSchema.index({ host: 1 });
 
 const regularCrew = mongoose.model('regularCrew', regularCrewSchema);
 

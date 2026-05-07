@@ -17,7 +17,11 @@ const addressSchema = new mongoose.Schema(
         detail: {
             type: String,
             required: true
-        }
+        },
+        zipcode: {
+        type: String,
+        required: true
+    }
     }, {
         _id: false
     }
@@ -49,6 +53,10 @@ const userSchema = new mongoose.Schema(
             type: addressSchema,
             required: true
         },
+        gender : {
+            type : String,
+            required : true
+        },
         profileImage: {
             type: String, 
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
@@ -59,7 +67,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ['local', 'google', 'naver'],
             default: 'local'
-        }
+        },
+        crews: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'regularCrew'
+        }]
     }, {
         timestamps: true
     }

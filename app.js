@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 dotenv.config();
 const app = express();
@@ -24,6 +26,7 @@ const io = new Server(httpServer);
 connectDB();
 
 app.use(express.json());
+const { initSocket } = require('./config/socket');
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({
@@ -34,13 +37,18 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-// 전역 변수 추가
+//소셜
 app.use((req, res, next) => {
-    res.locals.user = req.user || null; // 모든 ejs에서 user 변수 사용 가능
+    res.locals.user = req.user || null;
     next();
 });
 
+
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
+
+
+app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));

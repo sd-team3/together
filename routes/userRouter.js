@@ -6,7 +6,19 @@ const passport = require('../config/passport');
 const {uploadProfile} = require('../config/upload');
 
 //회원가입 페이지
-router.get('/signup', userController.getSignup);
+router.get('/signup', (req, res) => {
+
+    // 소셜회원 객체 가져오기
+    const socialUser = req.session.socialUser || null;
+
+    // 새로고침시 초기화 
+    delete req.session.socialUser;
+    delete req.session.socialSignup;
+
+    res.render('user/signup', {
+        socialUser
+    });
+});
 
 router.post(
   '/signup',

@@ -4,6 +4,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const NaverStrategy = require('passport-naver-v2').Strategy;
 const bcrypt = require('bcrypt');
 const userService = require('../services/userService');
+const crypto = require('crypto');
+
 
 passport.use(new localStrategy({
     usernameField: 'email',
@@ -14,7 +16,15 @@ passport.use(new localStrategy({
         if(!user) {
             return done(null, false, {message: '이메일 또는 비밀번호가 일치하지 않습니다.'});
         }
+
+        if (user.provider !== 'local') {
+            return done(null, false, {
+                message: '소셜 로그인을 이용해주세요.'
+            });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
+        
         if(!isMatch) {
             return done(null, false, {message: '비밀번호가 일치하지 않습니다.'});
         }
@@ -28,8 +38,9 @@ passport.use(new localStrategy({
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID, 
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
-}, async(asscessToken, refreshToken, profile, done) =>{
+    callbackURL: '/auth/google/callback',
+    passReqToCallback: true
+}, async(req, accessToken, refreshToken, profile, done) =>{
     try {
         const email = profile.emails[0].value;//인증된 회원의 이메일
         
@@ -39,18 +50,23 @@ passport.use(new GoogleStrategy({
             return done(null, user);
         }
 
+        
         //구글에서 가져온 회원의 정보로 새로운 회원 생성
-        const newUser = await userService.createSocialUser(
-            {
-                email,
-                name: profile.displayName,  //구글에서 제공하는 이름
-                profileImage: profile.photos[0].value,  //구글에서 제공하는 프로필 사진
-                address: '',
-                provider: 'google'
-            }
-        );
+        req.session.socialUser = {
+        email,
+        name: profile.displayName,
+        profileImage: profile.photos[0].value,
+        provider: 'google'
+    };
         // 로그인
-        return done(null, newUser);
+        return done(null, {
+            isSocialNewUser: true,
+            email,
+            name: profile.displayName,
+            profileImage: profile.photos[0].value,
+            provider: 'google',
+            password: crypto.randomBytes(32).toString('hex')
+        });
 
     } catch (error) {
         return done(error);
@@ -61,8 +77,9 @@ passport.use(new GoogleStrategy({
 passport.use(new NaverStrategy({
     clientID: process.env.NAVER_CLIENT_ID, 
     clientSecret: process.env.NAVER_CLIENT_SECRET,
-    callbackURL: '/auth/naver/callback'
-}, async(asscessToken, refreshToken, profile, done) =>{
+    callbackURL: '/auth/naver/callback',
+    passReqToCallback: true
+}, async(req, accessToken, refreshToken, profile, done) =>{
     try {
         const email = profile.email;
         
@@ -73,17 +90,21 @@ passport.use(new NaverStrategy({
         }
 
         //네이버에서 가져온 회원의 정보로 새로운 회원 생성
-        const newUser = await userService.createSocialUser(
-            {
-                email,
-                name: profile.name,  //네이버에서 제공하는 이름
-                profileImage: profile.profileImage,  //네이버에서 제공하는 프로필 사진
-                address: '',
-                provider: 'naver'
-            }
-        );
+       req.session.socialUser = {
+        email,
+        name: profile.name,
+        profileImage: profile.profileImage,
+        provider: 'naver'
+    };
         // 로그인
-        return done(null, newUser);
+        return done(null, {
+            isSocialNewUser: true,
+            email,
+            name: profile.name,
+            profileImage: profile.profileImage,
+            provider: 'naver',
+            password: crypto.randomBytes(32).toString('hex')
+        });
 
     } catch (error) {
         return done(error);

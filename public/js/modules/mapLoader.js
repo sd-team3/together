@@ -50,7 +50,7 @@ const kakaoMap = {
         });
     },
 
-    ADDRtoLatLng(address) {
+    async ADDRtoLatLng(address) {
         await loadKakaoMapAPI();
 
         const geocoder = new kakao.maps.services.Geocoder();

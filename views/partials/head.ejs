@@ -1,14 +1,171 @@
+<link rel="stylesheet" href="/css/style.css"/>
+
 <div class="page <%= typeof active !== 'undefined' ? active : '' %>" id="<%= pageId %>" style="display:flex;flex-direction:column;flex:1">
-<div class="topbar">
+  
+  <div class="topbar">
+    
     <div><div class="topbar-title"><%= typeof title !== 'undefined' ? title : '타이틀 없음' %></div></div>
+    
     <div class="topbar-actions">
+
       <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleNotifPopup()">🔔</button>
+        <button class="btn btn-outline btn-sm" onclick="openAuthModal('login')">로그인</button>
         <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
       </span>
+
       <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleNotifPopup()">🔔</button>
+        <button class="btn btn-outline btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
         <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
       </span>
+
+      <div id="notif-popup">
+        
+        <!-- 게스트 -->
+        <div id="notif-guest">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <strong>알림</strong>
+          </div>
+          <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
+            🔔 로그인을 해주세요
+          </div>
+        </div>
+
+        <!-- 로그인 -->
+        <div id="notif-user" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <strong>알림</strong>
+            <button class="btn btn-outline btn-sm" onclick="removeNoti()">모두 삭제</button>
+          </div>
+
+          <div id="notif-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto">
+            <!-- 알림 목록 -->
+            <div id="notif-list">
+
+              <div class="notif-item" data-type="match" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#1A5CFF,#00C8D4)">⚽</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>성수 5:5 풋살 매칭</strong> 참가 신청이 수락됐습니다.</div>
+                  <!-- <div class="notif-meta">📍 성수 실내풋살장 · 오늘 20:00</div> -->
+                  <div class="notif-time">5분 전</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="meeting" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#00C853,#00C8D4)">🔁</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>건대 배드민턴 믹스</strong> 이번 주 목요일 모임이 확정됐습니다.</div>
+                  <!-- <div class="notif-meta">📍 건대입구 실내체육관 · 목 19:30</div> -->
+                  <div class="notif-time">23분 전</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="community" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#FF6B00,#FF3B30)">💬</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>홍다인</strong>님이 내 게시글에 댓글을 달았습니다.</div>
+                  <!-- <div class="notif-meta">"배드민턴 초보인데 라켓 뭐 사면 좋을까요?"</div> -->
+                  <div class="notif-time">1시간 전</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="trade" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#FF6B00,#FF9500)">🛒</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>나이키 풋살화 250</strong> 구매 문의가 들어왔습니다.</div>
+                  <!-- <div class="notif-meta">판매가 45,000원</div> -->
+                  <div class="notif-time">2시간 전</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="match" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#FF6B00,#FF3B30)">🏀</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>뚝섬 3on3 농구</strong> 매칭이 1시간 후 시작됩니다.</div>
+                  <!-- <div class="notif-meta">📍 뚝섬한강공원 농구코트</div> -->
+                  <div class="notif-time">어제 17:00</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="community" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">👍</div>
+                <div class="notif-body">
+                  <div class="notif-title">내 게시글이 <strong>좋아요 50개</strong>를 달성했습니다.</div>
+                  <!-- <div class="notif-meta">"비 오는 날 러닝 팁 — 신발 관리부터 코스 선택까지"</div> -->
+                  <div class="notif-time">어제 14:22</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="meeting" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#00C853,#00C8D4)">🔁</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>왕십리 테니스 브런치</strong> 정기모임 신청이 수락됐습니다.</div>
+                  <!-- <div class="notif-meta">📍 왕십리 테니스장 · 매주 일 09:30</div> -->
+                  <div class="notif-time">어제 10:05</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="match" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#1A5CFF,#00C8D4)">⚽</div>
+                <div class="notif-body">
+                  <div class="notif-title"><strong>성수 5:5 풋살 매칭</strong>에 새 참가자가 들어왔습니다.</div>
+                  <!-- <div class="notif-meta">현재 8/10명 · 마감임박</div> -->
+                  <div class="notif-time">2일 전 20:14</div>
+                </div>
+              </div>
+
+              <div class="notif-item" data-type="trade" onclick="removeNoti(this)">
+                <div class="notif-icon" style="background:linear-gradient(135deg,#FF6B00,#FF9500)">🛒</div>
+                <div class="notif-body">
+                  <div class="notif-title">관심 상품 <strong>요넥스 배드민턴 라켓</strong> 가격이 내렸습니다.</div>
+                  <!-- <div class="notif-meta">50,000원 → 32,000원</div> -->
+                  <div class="notif-time">2일 전 11:30</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function toggleNotifPopup() {
+          const popup = document.getElementById('notif-popup');
+          const isOpen = popup.style.display === 'block';
+          popup.style.display = isOpen ? 'none' : 'block';
+
+          if (!isOpen) {
+            if (isLoggedIn) {
+              document.getElementById('notif-guest').style.display = 'none';
+              document.getElementById('notif-user').style.display = 'block';
+            } else {
+              document.getElementById('notif-guest').style.display = 'block';
+              document.getElementById('notif-user').style.display = 'none';
+            }
+          }
+        }
+
+        document.addEventListener('click', function(e) {
+          const popup = document.getElementById('notif-popup');
+          if (!popup) return;
+          if (!popup.contains(e.target) && !e.target.closest('[onclick="toggleNotifPopup()"]')) {
+            popup.style.display = 'none';
+          }
+        });
+
+        // 모두 삭제 버튼과 알림을 따로 클릭했을 때 알림을 없애고 메세지 출력
+        function removeNoti(el) {
+          if (el) {
+            el.remove();
+          } else {
+            document.querySelectorAll('#notif-list .notif-item').forEach(el => el.remove());
+          }
+          if (document.querySelectorAll('#notif-list .notif-item').length === 0) {
+            document.getElementById('notif-list').innerHTML = 
+              '<div style="text-align:center;padding:48px 0;color:var(--text-3)">🔔 새로운 알림이 없습니다</div>';
+          }
+        }
+      </script>
+
     </div>
   </div>
