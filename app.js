@@ -30,6 +30,12 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+//소셜
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    next();
+});
+
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
