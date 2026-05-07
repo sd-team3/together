@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>SPORTMATCH - 회원가입</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="/css/layouts/auth1-layout.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Bebas+Neue&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-visual">
+            <div class="logo">
+                SPORTMATCH <div class="logo-dot"></div>
+            </div>
+            <div class="visual-content">
+                <h1 class="visual-title">Join the<br>Match.</h1>
+                <p class="visual-desc">스포츠로 연결되는 새로운 즐거움,<br>오늘도 최고의 매치를 찾아보세요.</p>
+            </div>
+            <div style="font-size: 12px; opacity: 0.6;">© 2026 SPORTMATCH. All rights reserved.</div>
+        </div>
+
+        <div class="auth-form-side">
+            <div class="form-header">
+                <div class="form-header-top">
+                    <div>
+                        <h2 class="form-title">회원가입</h2>
+                        <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
+                    </div>
+                    <!-- ✅ 프로필 이미지 -->
+                    <div class="avatar-section">
+                        <div class="avatar-preview-wrap">
+                            <div class="avatar-preview">
+                                <img id="avatar-img" src="/images/user-profile/default-profile-image.jpg" alt="프로필" />
+                            </div>
+                            <button type="button" class="avatar-remove-btn" onclick="resetAvatar()">✕</button>
+                            <label class="avatar-edit-label" for="avatar-file">✏️</label>
+                            <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
+                            <input type="hidden" id="removeImage" name="removeImage" value="false">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form action="/user/signup" method="post" id="signup">
+                <div class="form-group">
+                    <label class="label">이름 <span class="req">*</span></label>
+                    <input type="text" class="input" name="name" id="name" required />
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="label">나이 <span class="req">*</span></label>
+                        <input type="number" class="input" name="age" id="age" min="14" max="99" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="label">전화번호 <span class="req">*</span></label>
+                        <input type="tel" class="input" name="tel" id="phone" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">이메일 <span class="req">*</span></label>
+                    <div class="email-input-group">
+                        <input type="email" class="input" name="email" id="emailInput" required />
+                        <button type="button" id="emailCheckBtn" onclick="">중복확인</button>
+                    </div>
+                    <div id="emailFeedBack"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">비밀번호 <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <input type="password" class="input" name="password" id="pw" placeholder="영문, 숫자, 특수문자 조합 8자 이상" required />
+                        <button type="button" class="input-eye"  tabindex="-1">👁</button>
+                    </div>
+                    <div class="pw-strength">
+                        <div class="pw-bars">
+                            <div class="pw-bar" id="bar1"></div>
+                            <div class="pw-bar" id="bar2"></div>
+                            <div class="pw-bar" id="bar3"></div>
+                            <div class="pw-bar" id="bar4"></div>
+                        </div>
+                        <div class="pw-label" id="pw-label">비밀번호를 입력하세요</div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="label">비밀번호 확인 <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <input type="password" class="input" name="password2" id="pw2" placeholder="비밀번호 확인" required />
+                        <button type="button" class="input-eye" tabindex="-1">👁</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">주소 <span class="req">*</span></label>
+                    <div class="address-wrap">
+                        <input type="text" class="input" id="zipcode" placeholder="우편번호" readonly required />
+                        <button type="button" class="btn-search" id="addrSearchBtn">주소 검색</button>
+                    </div>
+                    <input type="text" class="input" name="address" id="address" placeholder="기본 주소" style="margin-bottom:8px" readonly required />
+                    <input type="hidden" name="state" id="state" />
+                    <input type="hidden" name="city" id="city" />
+                    <input type="hidden" name="road" id="road" />
+                    <input type="text" class="input" name="addressDetail" id="addressDetail" placeholder="상세 주소 입력" required />
+                </div>
+
+                <div class="agree-section">
+                    <label class="agree-all">
+                        <input type="checkbox" id="agreeAll">
+                        전체 동의합니다
+                    </label>
+                    <label class="agree-item">
+                        <input type="checkbox" id="agree1" class="agree-check">
+                        <span>[필수] 서비스 이용약관 동의</span>
+                        <a href="#" onclick="return false">보기</a>
+                    </label>
+                    <label class="agree-item">
+                        <input type="checkbox" id="agree2" class="agree-check">
+                        <span>[필수] 개인정보 수집·이용 동의</span>
+                        <a href="#" onclick="return false">보기</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">회원가입 완료</button>
+            </form>
+
+            <div class="form-footer">
+                이미 계정이 있으신가요? <a href="/user/login" class="link">로그인 하기</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-box">
+            <div class="success-icon" style="font-size: 40px; margin-bottom: 10px;">🎉</div>
+            <div class="success-title" style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">가입 완료!</div>
+            <div class="success-msg" style="margin-bottom: 25px;"><span id="success-name" style="font-weight:700"></span>님 환영합니다!</div>
+            <button class="btn btn-primary" onclick="location.href='/'">매칭 찾으러 가기 →</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import {addrSearch} from '/js/modules/addrSearch.js'
+        function togglePw(id, btn) {
+            const inp = document.getElementById(id);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+        }
+
+        function setFeedback(el, msg, type) {
+            el.textContent = msg;
+            el.className = 'feedback-text ' + (type === 'success' ? 'success' : 'error');
+        }
+
+        function formatPhone(inp) {
+            let v = inp.value.replace(/\D/g,'');
+            if (v.length >= 11) v = v.slice(0,11);
+            if (v.length >= 8) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
+            else if (v.length >= 4) v = v.slice(0,3) + '-' + v.slice(3);
+            inp.value = v;
+        }
+
+        function checkPwStrength(pw) {
+            const bars = [
+                document.getElementById('bar1'),
+                document.getElementById('bar2'),
+                document.getElementById('bar3'),
+                document.getElementById('bar4')
+            ];
+            const label = document.getElementById('pw-label');
+            bars.forEach(b => { b.className = 'pw-bar'; });
+
+            if (!pw) { label.textContent = '비밀번호를 입력하세요'; return; }
+
+            // test(): ()안에 있는 패스워드가 []안에 포함된 것이 있는지 확인하는 메서드.
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+            const hasNum = /[0-9]/.test(pw);
+            const hasUpper = /[A-Z]/.test(pw);
+            const strength =
+                pw.length >= 12 && hasSpecial && (hasNum || hasUpper) ? 4 :
+                pw.length >= 10 && (hasSpecial || hasNum) ? 3 :
+                pw.length >= 8 ? 2 : 1;
+
+            const colors = ['weak', 'weak', 'medium', 'strong', 'strong'];
+            for (let i = 0; i < strength; i++) bars[i].classList.add(colors[strength]);
+            label.textContent = strength >= 4 ? '매우 강함' : strength === 3 ? '강함' : strength === 2 ? '보통' : '약함';
+        }
+
+        function toggleAll(cb) {
+            document.querySelectorAll('.agree-check').forEach(c => c.checked = cb.checked);
+        }
+
+        async function searchAddress() {
+            try {
+                const data = await addrSearch();
+                document.getElementById('zipcode').value = data.zonecode;        // 우편번호
+                document.getElementById('address').value = data.roadAddress;     // 기본 주소 (도로명)
+                document.getElementById('state').value = data.sido;              // 시/도 ex) 서울특별시
+                document.getElementById('city').value = data.sigungu;            // 시/군/구 ex) 강남구
+                document.getElementById('road').value = data.roadname;           // 도로명 ex) 테헤란로
+
+                document.getElementById('addressDetail').focus();
+                showToast('주소가 입력되었습니다. 상세 주소를 작성해주세요.');
+            } catch (error) {
+                showToast('주소 검색 중 오류가 발생했습니다.');
+                console.log('에러 발생: ', error);
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+
+            if (!isDuplicate) {
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이메일 중복확인을 해주세요.', 'error');
+                return;
+            }
+            if (!isChecked) {
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.', 'error');
+                return;
+            }
+
+            const pw = document.getElementById('pw').value;
+            const pw2 = document.getElementById('pw2').value;
+            if (pw !== pw2) { showToast('비밀번호가 일치하지 않습니다.'); return; }
+            if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
+                showToast('필수 약관에 동의해주세요.'); return;
+            }
+
+            const formData = new FormData(document.getElementById('signup'));
+
+            try {
+                const res = await fetch('/user/signup', {
+                    method: 'POST',
+                    body: formData,
+                    redirect: 'follow'
+                });
+
+                if (res.ok || res.redirected) {
+                    // 서버 응답 성공 확인 후 오버레이 띄움
+                    const name = document.getElementById('name').value;
+                    document.getElementById('success-name').textContent = name;
+                    document.getElementById('successOverlay').classList.add('show');
+                } else {
+                    showToast('회원가입에 실패했습니다. 입력값을 확인해주세요.');
+                }
+            } catch (err) {
+                showToast('서버 오류가 발생했습니다.');
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // 이메일 중복확인
+        const emailInput = document.getElementById('emailInput');
+        const emailCheckBtn = document.getElementById('emailCheckBtn');
+        const emailFeedBack = document.getElementById('emailFeedBack');
+        let isChecked = false; 
+        let isDuplicate = false;
+        emailCheckBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if(!email) {
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '이메일을 입력해주세요', 'error');
+                return;
+            }
+            try {
+                const res = await fetch(`/user/check-email?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+                isDuplicate = true;
+                if(data.available){
+                    emailInput.classList.remove('input-error');
+                    emailInput.classList.add('input-success');
+                    setFeedback(emailFeedBack, '사용 가능한 이메일입니다.', 'success');
+                    isChecked = true;
+                    emailInput.readOnly = true;
+                    emailCheckBtn.disabled = true;  
+                }else {
+                    emailInput.classList.remove('input-success');
+                    emailInput.classList.add('input-error');
+                    setFeedback(emailFeedBack, '이미 가입된 이메일입니다.', 'error');
+                    isChecked = false;
+                }
+            } catch (error) {
+                emailInput.classList.add('input-error');
+                setFeedback(emailFeedBack, '서버 오류가 발생했습니다.', 'error');
+            }
+        });
+        emailInput.addEventListener('input', () => {
+                isChecked = false;
+                isDuplicate = false;
+                emailInput.classList.remove('input-error', 'input-success');
+                emailInput.readOnly = false;
+                emailCheckBtn.disabled = false;
+                setFeedback(emailFeedBack, '', '');
+        });
+
+        document.getElementById('phone').addEventListener('input', function() { formatPhone(this); });
+        document.getElementById('pw').addEventListener('input', function() { checkPwStrength(this.value); });
+        document.getElementById('agreeAll').addEventListener('change', function() { toggleAll(this); });
+        document.getElementById('addrSearchBtn').addEventListener('click', searchAddress);
+        document.getElementById('signup').addEventListener('submit', handleSignup);
+
+        document.querySelectorAll('.input-eye').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.closest('.input-icon-wrap').querySelector('input');
+                togglePw(input.id, this);
+            });
+        });
+    </script>
+</body>
+</html>
