@@ -255,21 +255,6 @@
 
         async function handleSignup(e) {
             e.preventDefault();
-            const nameInput = document.getElementById('name');
-            const nameFeedBack = document.getElementById('nameFeedBack');
-            const nameVal = nameInput.value.trim();
-            const nameRegex = /^[가-힣]{2,5}$/;
-            if(!nameRegex.test(nameVal)) {
-                nameInput.classList.add('input-error');
-                nameInput.classList.remove('input-success');
-                setFeedback(nameFeedBack, '이름은 2~5자로 한글로 입력해주세요.', 'error');
-                nameInput.focus();
-                return;
-            }else{
-                nameInput.classList.remove('input-error');
-                nameInput.classList.add('input-success');
-                setFeedback(nameFeedBack, '', 'success');
-            }
 
             // 이름
             const nameInput = document.getElementById('name');
