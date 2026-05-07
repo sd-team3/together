@@ -396,7 +396,6 @@
             }
 
             // 서버 전송
-            console.log('fetch 실행');
             const formData = new FormData(document.getElementById('signup'));
             try {
                 const res = await fetch('/user/signup', {
