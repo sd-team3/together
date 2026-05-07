@@ -12,7 +12,6 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-
         const socialUser = req.session.socialUser || null;
 
         const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
