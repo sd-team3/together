@@ -57,8 +57,6 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
 
-
-app.listen(PORT, () => {
 initSocket(io);
 
 httpServer.listen(PORT, () => {
