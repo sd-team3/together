@@ -252,4 +252,4 @@ if (name !== undefined) {
     }
 
     module.exports = { createUser, findUserByEmail, 
-        findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword, findUserById_WithoutPW };
+        findUserById, updateUser, deleteUser, checkEmail,  verifyPassword, findUserById_WithoutPW };
