@@ -464,7 +464,7 @@ select.input{cursor:pointer}
 .filter-item:hover{background:var(--bg);color:var(--text)}
 .filter-item.active{background:var(--bg);color:var(--text);font-weight:600}
 .trade-main{padding:22px;overflow-y:auto}
-.trade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+#trade-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .trade-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .18s;
