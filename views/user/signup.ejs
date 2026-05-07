@@ -183,375 +183,199 @@
     <div class="toast" id="toast"></div>
 
     <script type="module">
-        import {addrSearch} from '/js/modules/addrSearch.js'
-        function togglePw(id, btn) {
-            const inp = document.getElementById(id);
-            inp.type = inp.type === 'password' ? 'text' : 'password';
-            btn.textContent = inp.type === 'password' ? '👁' : '🙈';
-        }
+import { addrSearch } from '/js/modules/addrSearch.js';
 
-        function setFeedback(el, msg, type) {
-            el.textContent = msg;
-            el.className = 'feedback-text ' + (type === 'success' ? 'success' : 'error');
-        }
+function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    if (!inp) return;
 
-        function formatPhone(inp) {
-            let v = inp.value.replace(/\D/g,'');
-            if(!v.startsWith('010')) v = '010' + v.replace(/^010/, '');
-            if (v.length >= 11) v = v.slice(0,11);
-            if (v.length >= 8) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
-            else if (v.length >= 4) v = v.slice(0,3) + '-' + v.slice(3);
-            inp.value = v;
-        }
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
 
-        function checkPwStrength(pw) {
-            const bars = [
-                document.getElementById('bar1'),
-                document.getElementById('bar2'),
-                document.getElementById('bar3'),
-                document.getElementById('bar4')
-            ];
-            const label = document.getElementById('pw-label');
-            bars.forEach(b => { b.className = 'pw-bar'; });
+function setFeedback(el, msg, type) {
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'feedback-text ' + (type === 'success' ? 'success' : 'error');
+}
 
-            if (!pw) { label.textContent = '비밀번호를 입력하세요'; return; }
+function formatPhone(inp) {
+    if (!inp) return;
 
-            // test(): ()안에 있는 패스워드가 []안에 포함된 것이 있는지 확인하는 메서드.
-            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
-            const hasNum = /[0-9]/.test(pw);
-            const hasUpper = /[A-Z]/.test(pw);
-            const strength =
-                pw.length >= 12 && hasSpecial && (hasNum || hasUpper) ? 4 :
-                pw.length >= 10 && (hasSpecial || hasNum) ? 3 :
-                pw.length >= 8 ? 2 : 1;
+    let v = inp.value.replace(/\D/g, '');
+    if (!v.startsWith('010')) v = '010' + v.replace(/^010/, '');
+    if (v.length >= 11) v = v.slice(0, 11);
+    if (v.length >= 8) v = v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7);
+    else if (v.length >= 4) v = v.slice(0, 3) + '-' + v.slice(3);
 
-            const colors = ['weak', 'weak', 'medium', 'strong', 'strong'];
-            for (let i = 0; i < strength; i++) bars[i].classList.add(colors[strength]);
-            label.textContent = strength >= 4 ? '매우 강함' : strength === 3 ? '강함' : strength === 2 ? '보통' : '약함';
-        }
+    inp.value = v;
+}
 
-        function toggleAll(cb) {
-            document.querySelectorAll('.agree-check').forEach(c => c.checked = cb.checked);
-        }
+function checkPwStrength(pw) {
+    const bars = [
+        document.getElementById('bar1'),
+        document.getElementById('bar2'),
+        document.getElementById('bar3'),
+        document.getElementById('bar4')
+    ];
 
-        async function searchAddress() {
-            try {
-                const data = await addrSearch();
-                document.getElementById('zipcode').value = data.zonecode;        // 우편번호
-                document.getElementById('address').value = data.roadAddress;     // 기본 주소 (도로명)
-                document.getElementById('state').value = data.sido;              // 시/도 ex) 서울특별시
-                document.getElementById('city').value = data.sigungu;            // 시/군/구 ex) 강남구
-                document.getElementById('road').value = data.roadname;           // 도로명 ex) 테헤란로
-                
-                setFeedback(document.getElementById('addrFeedBack'), '', '');
-                
-                document.getElementById('addressDetail').focus();
-                showToast('주소가 입력되었습니다. 상세 주소를 작성해주세요.');
-            } catch (error) {
-                showToast('주소 검색 중 오류가 발생했습니다.');
-                console.log('에러 발생: ', error);
-            }
-        }
+    const label = document.getElementById('pw-label');
 
-        async function handleSignup(e) {
-            e.preventDefault();
+    if (!label || bars.includes(null)) return;
 
-            // 이름
-            const nameInput = document.getElementById('name');
-            const nameFeedBack = document.getElementById('nameFeedBack');
-            const nameVal = nameInput.value.trim();
-            const nameRegex = /^[가-힣]{2,5}$/;
-            if(!nameRegex.test(nameVal)) {
-                nameInput.classList.add('input-error');
-                nameInput.classList.remove('input-success');
-                setFeedback(nameFeedBack, '이름은 2~5자로 한글로 입력해주세요.', 'error');
-                nameInput.focus();
-                return;
-            }else{
-                nameInput.classList.remove('input-error');
-                nameInput.classList.add('input-success');
-                setFeedback(nameFeedBack, '', 'success');
-            }
+    bars.forEach(b => b.className = 'pw-bar');
 
-            // 나이
-            const ageInput = document.getElementById('age');
-            const ageFeedBack = document.getElementById('ageFeedBack');
-            const ageVal = parseInt(ageInput.value);
-            if(!ageInput.value) {
-                ageInput.classList.add('input-error');
-                ageInput.classList.remove('input-success');
-                setFeedback(ageFeedBack, '나이를 입력해주세요', 'error');
-                ageInput.focus();
-                return;
-            }else if(isNaN(ageVal) || ageVal < 14 || ageVal > 99) {
-                ageInput.classList.add('input-error');
-                ageInput.classList.remove('input-success');
-                setFeedback(ageFeedBack, '올바른 나이를 입력해주세요', 'error');
-                ageInput.focus();
-                return;
-            }else {
-                ageInput.classList.remove('input-error');
-                ageInput.classList.add('input-success');
-                setFeedback(ageFeedBack, '', 'success');
-            }
+    if (!pw) {
+        label.textContent = '비밀번호를 입력하세요';
+        return;
+    }
 
-            // 전화번호
-            const telInput = document.getElementById('tel');
-            const telFeedBack = document.getElementById('telFeedBack');
-            const telVal = telInput.value.replace(/\D/g, '');
-            if(!telInput.value || telVal.length != 11) {
-                telInput.classList.add('input-error');
-                telInput.classList.remove('input-success');
-                setFeedback(telFeedBack, '전화번호를 입력해주세요', 'error');
-                telInput.focus();
-                return;
-            }else{
-                telInput.classList.remove('input-error');
-                telInput.classList.add('input-success');
-                setFeedback(telFeedBack, '', 'success');
-            }
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+    const hasNum = /[0-9]/.test(pw);
+    const hasUpper = /[A-Z]/.test(pw);
 
-            // 성별
-            const genderFeedBack = document.getElementById('genderFeedBack');
-            const genderChecked = document.querySelector('input[name="gender"]:checked');
-            if(!genderChecked) {
-                setFeedback(genderFeedBack, '성별을 선택해주세요', 'error');
-                return;
-            }else{
-                setFeedback(genderFeedBack, '', '');
-            }
+    const strength =
+        pw.length >= 12 && hasSpecial && (hasNum || hasUpper) ? 4 :
+        pw.length >= 10 && (hasSpecial || hasNum) ? 3 :
+        pw.length >= 8 ? 2 : 1;
 
-            if (!emailInput.value.trim()) {
-                emailInput.classList.add('input-error');
-                emailInput.classList.remove('input-success');
-                setFeedback(emailFeedBack, '이메일을 입력해주세요.', 'error');
-                emailInput.focus();
-                return;
-            }
-            if (!isDuplicate) {
-                emailInput.classList.add('input-error');
-                setFeedback(emailFeedBack, '이메일 중복확인을 해주세요.', 'error');
-                return;
-            }
-            if (!isChecked) {
-                emailInput.classList.add('input-error');
-                setFeedback(emailFeedBack, '이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.', 'error');
-                return;
-            }
+    const colors = ['weak', 'weak', 'medium', 'strong', 'strong'];
 
-            const pwInput = document.getElementById('pw');
-            const pw2Input = document.getElementById('pw2');
-            const pwFeedBack = document.getElementById('pwFeedBack');
-            const pw2FeedBack = document.getElementById('pw2FeedBack');
+    for (let i = 0; i < strength; i++) {
+        if (bars[i]) bars[i].classList.add(colors[strength]);
+    }
 
-            let pw = '';
-            let pw2 = '';
+    label.textContent =
+        strength >= 4 ? '매우 강함' :
+        strength === 3 ? '강함' :
+        strength === 2 ? '보통' : '약함';
+}
 
-            const isSocialLogin = !pwInput; // 핵심
+function toggleAll(cb) {
+    document.querySelectorAll('.agree-check')
+        .forEach(c => c.checked = cb.checked);
+}
 
-            if (!isSocialLogin) {
+async function searchAddress() {
+    try {
+        const data = await addrSearch();
 
-                pw = pwInput.value;
-                pw2 = pw2Input.value;
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress;
+        document.getElementById('state').value = data.sido;
+        document.getElementById('city').value = data.sigungu;
+        document.getElementById('road').value = data.roadname;
 
-                const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        setFeedback(document.getElementById('addrFeedBack'), '', '');
+        document.getElementById('addressDetail').focus();
 
-                if (!pwRegex.test(pw)) {
-                    pwInput.classList.add('input-error');
-                    pwInput.classList.remove('input-success');
-                    setFeedback(pwFeedBack, '영문, 숫자, 특수문자 조합 8자 이상이어야 합니다.', 'error');
-                    pwInput.focus();
-                    return;
-                } else {
-                    pwInput.classList.remove('input-error');
-                    pwInput.classList.add('input-success');
-                    setFeedback(pwFeedBack, '', 'success');
-                }
+        showToast('주소가 입력되었습니다. 상세 주소를 작성해주세요.');
+    } catch (error) {
+        showToast('주소 검색 중 오류가 발생했습니다.');
+        console.log(error);
+    }
+}
 
-                if (pw !== pw2) {
-                    pw2Input.classList.add('input-error');
-                    pw2Input.classList.remove('input-success');
-                    setFeedback(pw2FeedBack, '비밀번호가 일치하지 않습니다', 'error');
-                    pw2Input.focus();
-                    return;
-                } else {
-                    pw2Input.classList.remove('input-error');
-                    pw2Input.classList.add('input-success');
-                    setFeedback(pw2FeedBack, '', 'success');
-                }
-            }
-            if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
-                showToast('필수 약관에 동의해주세요.'); return;
-            }
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
 
-            // 서버 전송
-            const formData = new FormData(document.getElementById('signup'));
-            try {
-                const res = await fetch('/user/signup', {
-                    method: 'POST',
-                    body: formData,
-                    redirect: 'follow'
-                });
+    t.textContent = msg;
+    t.classList.add('show');
 
-                if (res.ok || res.redirected) {
-                    // 서버 응답 성공 확인 후 오버레이 띄움
-                    const name = document.getElementById('name').value;
-                    document.getElementById('success-name').textContent = name;
-                    document.getElementById('successOverlay').classList.add('show');
-                } else {
-                    showToast('회원가입에 실패했습니다. 입력값을 확인해주세요.');
-                }
-            } catch (err) {
-                showToast('서버 오류가 발생했습니다.');
-            }
-        }
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
-        }
+/* =========================
+   EMAIL
+========================= */
+const emailInput = document.getElementById('emailInput');
+const emailCheckBtn = document.getElementById('emailCheckBtn');
+const emailFeedBack = document.getElementById('emailFeedBack');
 
-        // 이메일 중복확인
-        const emailInput = document.getElementById('emailInput');
-        const emailCheckBtn = document.getElementById('emailCheckBtn');
-        const emailFeedBack = document.getElementById('emailFeedBack');
-        let isChecked = false; 
-        let isDuplicate = false;
-        emailCheckBtn.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            if(!email) {
-                emailInput.classList.add('input-error');
-                setFeedback(emailFeedBack, '이메일을 입력해주세요', 'error');
-                return;
-            }
-            try {
-                const res = await fetch(`/user/check-email?email=${encodeURIComponent(email)}`);
-                const data = await res.json();
-                isDuplicate = true;
-                if(data.available){
-                    emailInput.classList.remove('input-error');
-                    emailInput.classList.add('input-success');
-                    setFeedback(emailFeedBack, '사용 가능한 이메일입니다.', 'success');
-                    isChecked = true;
-                    emailInput.readOnly = true;
-                    emailCheckBtn.disabled = true;  
-                }else {
-                    emailInput.classList.remove('input-success');
-                    emailInput.classList.add('input-error');
-                    setFeedback(emailFeedBack, '이미 가입된 이메일입니다.', 'error');
-                    isChecked = false;
-                }
-            } catch (error) {
-                emailInput.classList.add('input-error');
-                setFeedback(emailFeedBack, '서버 오류가 발생했습니다.', 'error');
-            }
-        });
-        emailInput.addEventListener('input', () => {
-                isChecked = false;
-                isDuplicate = false;
-                emailInput.classList.remove('input-error', 'input-success');
-                emailInput.readOnly = false;
-                emailCheckBtn.disabled = false;
-                setFeedback(emailFeedBack, '', '');
-        });
+let isChecked = false;
+let isDuplicate = false;
 
-        document.getElementById('tel').addEventListener('input', function() {
-            if (!this.value.startsWith('010')) this.value = '010-';
-            formatPhone(this);
-            if (!this.value) {
-                this.classList.remove('input-error', 'input-success');
-                setFeedback(document.getElementById('telFeedBack'), '', '');
-                return;
-            }
-            const telVal = this.value.replace(/\D/g, '');
-            if (telVal.length === 11) {
-                this.classList.remove('input-error');
-                this.classList.add('input-success');
-                setFeedback(document.getElementById('telFeedBack'), '', '');
-            } else {
-                this.classList.remove('input-success');
-                this.classList.add('input-error');
-                setFeedback(document.getElementById('telFeedBack'), '전화번호를 올바르게 입력해주세요', 'error');
-            }
-        });
+/* =========================
+   PASSWORD (핵심 수정 부분)
+========================= */
+const pwInput = document.getElementById('pw');
+const pw2Input = document.getElementById('pw2');
+const pwFeedBack = document.getElementById('pwFeedBack');
+const pw2FeedBack = document.getElementById('pw2FeedBack');
 
-        document.querySelectorAll('input[name="gender"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                setFeedback(document.getElementById('genderFeedBack'), '', '');
-            })
-        })
+/* ====== PW 이벤트 (안전하게만 실행) ====== */
+if (pwInput) {
+    pwInput.addEventListener('input', function () {
+        checkPwStrength(this.value);
+        this.classList.remove('input-error', 'input-success');
+        setFeedback(pwFeedBack, '', '');
+    });
+}
 
-        document.getElementById('pw').addEventListener('input', function() { 
-            checkPwStrength(this.value);
+if (pw2Input) {
+    pw2Input.addEventListener('input', function () {
+        const pw = pwInput ? pwInput.value : '';
+
+        if (!this.value) {
             this.classList.remove('input-error', 'input-success');
-            setFeedback(document.getElementById('pwFeedBack'), '', '');
-        });
-        document.getElementById('pw2').addEventListener('input', function() {
-            const pw = document.getElementById('pw').value;
-            const pw2FeedBack = document.getElementById('pw2FeedBack');
-            if (!this.value) {
-                this.classList.remove('input-error', 'input-success');
-                setFeedback(pw2FeedBack, '', '');
-                return;
-            }
-            if (this.value === pw) {
-                this.classList.remove('input-error');
-                this.classList.add('input-success');
-                setFeedback(pw2FeedBack, '비밀번호가 일치합니다', 'success');
-            } else {
-                this.classList.remove('input-success');
-                this.classList.add('input-error');
-                setFeedback(pw2FeedBack, '비밀번호가 일치하지 않습니다', 'error');
-            }
-        });
-        document.getElementById('agreeAll').addEventListener('change', function() { toggleAll(this); });
-        document.getElementById('addrSearchBtn').addEventListener('click', searchAddress);
-        document.getElementById('signup').addEventListener('submit', handleSignup);
+            setFeedback(pw2FeedBack, '', '');
+            return;
+        }
 
-        document.querySelectorAll('.input-eye').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const input = this.closest('.input-icon-wrap').querySelector('input');
-                togglePw(input.id, this);
-            });
-        });
-        document.getElementById('name').addEventListener('input', function() {
-            if (!this.value) {  // 비어있으면 그냥 초기화
-                this.classList.remove('input-error', 'input-success');
-                setFeedback(document.getElementById('nameFeedBack'), '', '');
-                return;
-            }
-            // 값이 있을 때만 실시간 검사
-            const nameRegex = /^[가-힣]{2,5}$/;
-            if (nameRegex.test(this.value.trim())) {
-                this.classList.remove('input-error');
-                this.classList.add('input-success');
-                setFeedback(document.getElementById('nameFeedBack'), '', '');
-            } else {
-                this.classList.remove('input-success');
-                this.classList.add('input-error');
-                setFeedback(document.getElementById('nameFeedBack'), '이름은 2~5자로 한글로 입력해주세요.', 'error');
-            }
-        });
+        if (this.value === pw) {
+            this.classList.add('input-success');
+            this.classList.remove('input-error');
+            setFeedback(pw2FeedBack, '비밀번호가 일치합니다', 'success');
+        } else {
+            this.classList.add('input-error');
+            this.classList.remove('input-success');
+            setFeedback(pw2FeedBack, '비밀번호가 일치하지 않습니다', 'error');
+        }
+    });
+}
 
-        document.getElementById('age').addEventListener('input', function() {
-            if (!this.value) {
-                this.classList.remove('input-error', 'input-success');
-                setFeedback(document.getElementById('ageFeedBack'), '', '');
-                return;
-            }
-            const val = parseInt(this.value);
-            if (!isNaN(val) && val >= 14 && val <= 99) {
-                this.classList.remove('input-error');
-                this.classList.add('input-success');
-                setFeedback(document.getElementById('ageFeedBack'), '', '');
-            } else {
-                this.classList.remove('input-success');
-                this.classList.add('input-error');
-                setFeedback(document.getElementById('ageFeedBack'), '나이를 올바르게 입력해주세요. (14~99세)', 'error');
-            }
-        });
-    </script>
+/* =========================
+   TEL
+========================= */
+const telInput = document.getElementById('tel');
+const telFeedBack = document.getElementById('telFeedBack');
+
+if (telInput) {
+    telInput.addEventListener('input', function () {
+        if (!this.value.startsWith('010')) this.value = '010-';
+
+        formatPhone(this);
+
+        const telVal = this.value.replace(/\D/g, '');
+
+        if (telVal.length === 11) {
+            this.classList.add('input-success');
+            this.classList.remove('input-error');
+            setFeedback(telFeedBack, '', '');
+        } else {
+            this.classList.add('input-error');
+            this.classList.remove('input-success');
+            setFeedback(telFeedBack, '전화번호를 올바르게 입력해주세요', 'error');
+        }
+    });
+}
+
+/* =========================
+   EVENTS (나머지)
+========================= */
+document.getElementById('addrSearchBtn')?.addEventListener('click', searchAddress);
+document.getElementById('agreeAll')?.addEventListener('change', function () { toggleAll(this); });
+
+document.querySelectorAll('.input-eye').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const input = this.closest('.input-icon-wrap')?.querySelector('input');
+        if (input) togglePw(input.id, this);
+    });
+});
+
+document.getElementById('signup')?.addEventListener('submit', handleSignup);
+
+</script>
 </body>
 </html>

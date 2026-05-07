@@ -12,6 +12,7 @@ const getSignup = (req, res) => {
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
+        console.log(req.body);
 
         const socialUser = req.session.socialUser || null;
 
