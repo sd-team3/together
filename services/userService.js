@@ -207,32 +207,32 @@ if (name !== undefined) {
     }
 
     // 소셜 회원 DB 저장
-    async function createSocialUser({ email, name,gender, profileImage, provider }) {
+//     async function createSocialUser({ email, name,gender, profileImage, provider }) {
 
-        const newUser = new User({
-        email,
-        name,
+//         const newUser = new User({
+//         email,
+//         name,
 
-        password: 'SOCIAL_LOGIN',
-        age: 0,
-        tel: 'NONE',
+//         password: 'SOCIAL_LOGIN',
+//         age: 0,
+//         tel: 'NONE',
 
-        address: {
-        zipcode: 'SOCIAL',
-        state: 'SOCIAL',
-        city: 'SOCIAL',
-        road: 'SOCIAL',
-        detail: 'SOCIAL'
-},
+//         address: {
+//         zipcode: 'SOCIAL',
+//         state: 'SOCIAL',
+//         city: 'SOCIAL',
+//         road: 'SOCIAL',
+//         detail: 'SOCIAL'
+// },
 
-    gender: gender || 'unknown',
-    profileImage: profileImage || '/images/default-profile-image.jpg',
-    provider
-});
+//     gender: gender || 'unknown',
+//     profileImage: profileImage || '/images/default-profile-image.jpg',
+//     provider
+// });
 
-        await newUser.save();
-        return newUser;
-    }
+//         await newUser.save();
+//         return newUser;
+//     }
 
     // 주소 나누는 함수
     function partAddress(fullAddress) {
@@ -245,4 +245,4 @@ if (name !== undefined) {
     }
 
     module.exports = { createUser, findUserByEmail, 
-        findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword };
+        findUserById, updateUser, deleteUser, checkEmail, verifyPassword };
