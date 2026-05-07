@@ -10,9 +10,6 @@ const PORT = process.env.PORT || 3000;
 const connectDB = require('./config/database');
 const passport = require('passport');
 const session = require('express-session');
-const http = require('http'); // node.js 자체 모듈-, http 통해 서버 만들기
-const {Server} = require('socket.io'); // 웹소켓 올리는 서버
-
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
@@ -26,7 +23,6 @@ const io = new Server(httpServer);
 connectDB();
 
 app.use(express.json());
-const { initSocket } = require('./config/socket');
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({
@@ -43,9 +39,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
 
 
 app.use(express.json());
