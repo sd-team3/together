@@ -3,13 +3,10 @@
     const bcrypt = require('bcrypt');
 
     //회원가입 서비스(DB에 회원 객체 저장)
-<<<<<<< HEAD
+
     async function createUser({ email, password, name, address,gender, uploadFile, age, tel }) {
 
-=======
-    async function createUser({ email, password, name, address, uploadFile, age, tel }) {
-      
->>>>>>> dev
+    
         //이메일 중복 체크
         const existingUser = await User.findOne({ email });
         if (existingUser) {
