@@ -16,7 +16,7 @@ const addressSchema = new mongoose.Schema(
         },
         detail: {
             type: String,
-            required: true
+          default: null
         },
         zipcode: {
         type: String,
@@ -53,9 +53,9 @@ const userSchema = new mongoose.Schema(
             type: addressSchema,
             required: true
         },
-        gender : {
-            type : String,
-            required : true
+        gender: {
+            type: String,
+            required: true
         },
         profileImage: {
             type: String, 
