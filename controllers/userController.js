@@ -3,18 +3,23 @@ const userService = require('../services/userService');
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
     res.render('user/signup', {
-        errors: {}
+        errors: {},
+        socialUser: req.session.socialUser || null
     });
 };
+
 
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, age, tel, state, city, road, addressDetail, gender } = req.body;
+
+        const socialUser = req.session.socialUser || null;
+
+        const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
 
         await userService.createUser({
             email,
-            password,
+            password: socialUser ? socialUser.password : password,
             name,
             age,
             tel,
@@ -23,10 +28,14 @@ const postSignup = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail: addressDetail
+                detail: addressDetail,
+                zipcode
             },
+            gender,
             uploadFile: req.file
         });
+        // 소셜회원가입 임시 세션 제거
+        delete req.session.socialUser;
 
         res.redirect('/');
     } catch (error) {
@@ -123,6 +132,8 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
+        zipcode,
+        gender,
         currentPassword,
         newPassword,
         removeImage
@@ -151,8 +162,10 @@ const postEditProfile = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail
+                detail,
+                zipcode
             },
+            gender,
             currentPassword,
             newPassword,
             removeImage, 

@@ -3,8 +3,10 @@
     const bcrypt = require('bcrypt');
 
     //회원가입 서비스(DB에 회원 객체 저장)
-    async function createUser({ email, password, name, address, uploadFile, age, tel, gender }) {
 
+    async function createUser({ email, password, name, address,gender, uploadFile, age, tel }) {
+
+    
         //이메일 중복 체크
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -28,6 +30,7 @@
             tel: tel || '',
             gender,
             address,
+            gender,
             profileImage: profile
         });
 
@@ -46,6 +49,11 @@
         return await User.findById(id);
     }
 
+    
+    const findUserById_WithoutPW = async (id)=>{
+        return await User.findById(userId).select('-password');
+    }
+    
     // 회원 수정 전 비밀번호 확인
     async function verifyPassword (userId, password) {
         const user = await User.findById(userId);
@@ -137,10 +145,28 @@ if (name !== undefined) {
         if (address) {
         if (address.road !== undefined) user.address.road = address.road;
         if (address.detail !== undefined) user.address.detail = address.detail;
+        if (address.zipcode !== undefined) user.address.zipcode = address.zipcode;
     }
         // 비밀번호 변경 (새 비밀번호에 값이 있을 때만)
-      if (newPassword && newPassword.trim() !== '') {
+    if (newPassword && newPassword.trim() !== '') {
 
+    // 1. 현재 비밀번호 입력 체크
+    if (!currentPassword) {
+        const error = new Error('현재 비밀번호를 입력하세요');
+        error.status = 400;
+        throw error;
+    }
+
+    // 2. 현재 비밀번호 검증
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+        const error = new Error('현재 비밀번호가 틀립니다');
+        error.status = 400;
+        throw error;
+    }
+
+    // 3. 새 비밀번호 유효성 검사
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\-]).{8,}$/;
 
     if (!passwordRegex.test(newPassword)) {
@@ -149,12 +175,7 @@ if (name !== undefined) {
         throw error;
     }
 
-    if (!isMatch) {
-        const error = new Error('비밀번호가 틀립니다');
-        error.status = 400;
-        throw error;
-    }
-
+    // 4. 해싱 후 저장
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
 }
@@ -193,29 +214,32 @@ if (name !== undefined) {
     }
 
     // 소셜 회원 DB 저장
-    async function createSocialUser({ email, name, profileImage, provider }) {
+//     async function createSocialUser({ email, name,gender, profileImage, provider }) {
 
-        const newUser = new User({
-            email,
-            name,
+//         const newUser = new User({
+//         email,
+//         name,
 
-            password: 'SOCIAL_LOGIN',  
-            age: 0,                 
-            tel: 'NONE',               
+//         password: 'SOCIAL_LOGIN',
+//         age: 0,
+//         tel: 'NONE',
 
-            address: {                 
-                state: 'NONE',
-                city: 'NONE',
-                road: 'NONE'
-            },
+//         address: {
+//         zipcode: 'SOCIAL',
+//         state: 'SOCIAL',
+//         city: 'SOCIAL',
+//         road: 'SOCIAL',
+//         detail: 'SOCIAL'
+// },
 
-            profileImage,
-            provider
-        });
+//     gender: gender || 'unknown',
+//     profileImage: profileImage || '/images/default-profile-image.jpg',
+//     provider
+// });
 
-        await newUser.save();
-        return newUser;
-    }
+//         await newUser.save();
+//         return newUser;
+//     }
 
     // 주소 나누는 함수
     function partAddress(fullAddress) {
@@ -228,4 +252,4 @@ if (name !== undefined) {
     }
 
     module.exports = { createUser, findUserByEmail, 
-        findUserById, updateUser, deleteUser, checkEmail, createSocialUser, verifyPassword };
+        findUserById, updateUser, deleteUser, checkEmail,  verifyPassword, findUserById_WithoutPW };

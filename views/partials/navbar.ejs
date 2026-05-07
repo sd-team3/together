@@ -1,3 +1,24 @@
+<style>
+.user-av{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+}
+
+.user-av img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+</style>
+
 <nav class="sidenav">
   <div class="sidenav-logo">
     <div>
@@ -42,23 +63,65 @@
     </button>
   </div>
   <div class="sidenav-footer">
-    <!-- 비로그인 상태 -->
-    <div class="user-chip" id="nav-guest" onclick="openAuthModal('login')" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div class="user-av" style="background:linear-gradient(135deg,var(--border-strong),var(--text-3));font-size:18px">👤</div>
-      <div>
-        <div class="user-name" style="color:var(--text-2);font-size:12.5px">로그인이 필요합니다</div>
-        <div class="user-level" style="color:var(--primary);font-weight:600">탭하여 로그인 →</div>
-      </div>
-    </div>
-    <!-- 로그인 상태 (숨김) -->
-    <div id="nav-user" style="display:none">
-      <div class="user-chip" onclick="goPage('mypage')">
-        <div class="user-av">JH</div>
-        <div>
-          <div class="user-name">이준혁</div>
-          <div class="user-level">⭐ 중급 · 47경기</div>
-        </div>
-      </div>
+
+<% if (user) { %>
+
+<%
+const profileImg =
+  user?.profileImage &&
+  user.profileImage !== 'undefined' &&
+  user.profileImage !== 'null' &&
+  user.profileImage !== null
+    ? `/images/user-profile/${user.profileImage}`
+    : '/images/user-profile/default-profile-image.jpg';
+%>
+
+<!-- 로그인 상태 -->
+<div class="user-chip" onclick="location.href='/user/profile'">
+
+  <div class="user-av">
+    <img src="<%= profileImg %>" alt="profile">
+  </div>
+
+  <div>
+    <div class="user-name"><%= user.name %></div>
+
+    <div class="user-level">
+      📍 
+      <%= 
+        user.address && user.address.state && user.address.city
+        ? `${user.address.state} ${user.address.city}`
+        : '지역 미설정'
+      %>
     </div>
   </div>
+
+</div>
+
+<% } else { %>
+
+<!-- 비로그인 상태 -->
+<div class="user-chip"
+     onclick="openAuthModal('login')"
+     style="background:var(--bg);border:1px solid var(--border);">
+
+  <div class="user-av"
+       style="background:linear-gradient(135deg,var(--border-strong),var(--text-3));font-size:18px">
+    👤
+  </div>
+
+  <div>
+    <div class="user-name" style="color:var(--text-2);font-size:12.5px">
+      로그인이 필요합니다
+    </div>
+    <div class="user-level" style="color:var(--primary);font-weight:600">
+      탭하여 로그인 →
+    </div>
+  </div>
+
+</div>
+
+<% } %>
+
+</div>
 </nav>

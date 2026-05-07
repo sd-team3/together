@@ -43,10 +43,11 @@
                     </div>
                 </div>
             </div>
+            <% const isSocialLogin = !!socialUser; %>
             <form action="/user/signup" method="post" id="signup">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>
-                    <input type="text" class="input" name="name" id="name" />
+                    <input type="text" class="input" name="name" id="name" value="<%= socialUser?.name || '' %>" required />
                     <div id="nameFeedBack"></div>
                 </div>
 
@@ -79,18 +80,31 @@
                 <div class="form-group">
                     <label class="label">이메일 <span class="req">*</span></label>
                     <div class="email-input-group">
-                        <input type="email" class="input" name="email" id="emailInput"  />
-                        <button type="button" id="emailCheckBtn" onclick="">중복확인</button>
+                        <input type="email" class="input" name="email" id="emailInput" autocomplete="new-password" value="<%= socialUser?.email || '' %>" <%= socialUser ? 'readonly' : '' %> required />
+                        <% if (!isSocialLogin) { %>
+                        <button type="button" id="emailCheckBtn">중복확인</button>
+                        <% } %>
                     </div>
                     <div id="emailFeedBack"></div>
                 </div>
 
+                <% if (!socialUser) { %>
                 <div class="form-group">
                     <label class="label">비밀번호 <span class="req">*</span></label>
+
                     <div class="input-icon-wrap">
-                        <input type="password" class="input" name="password" id="pw" placeholder="영문, 숫자, 특수문자 조합 8자 이상"  />
-                        <button type="button" class="input-eye"  tabindex="-1">👁</button>
+                        <input
+                            type="password"
+                            class="input"
+                            name="password"
+                            id="pw"
+                            autocomplete="new-password"
+                            placeholder="영문, 숫자, 특수문자 조합 8자 이상"
+                            
+                        />
+                        <button type="button" class="input-eye" tabindex="-1">👁</button>
                     </div>
+
                     <div class="pw-strength">
                         <div class="pw-bars">
                             <div class="pw-bar" id="bar1"></div>
@@ -98,19 +112,24 @@
                             <div class="pw-bar" id="bar3"></div>
                             <div class="pw-bar" id="bar4"></div>
                         </div>
-                        <div class="pw-label" id="pw-label">비밀번호를 입력하세요</div>
+
+                        <div class="pw-label" id="pw-label">
+                            비밀번호를 입력하세요
+                        </div>
                     </div>
                     <div id="pwFeedBack"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="label">비밀번호 확인 <span class="req">*</span></label>
+
                     <div class="input-icon-wrap">
                         <input type="password" class="input" name="password2" id="pw2" placeholder="비밀번호 확인"  />
                         <button type="button" class="input-eye" tabindex="-1">👁</button>
                     </div>
                     <div id="pw2FeedBack"></div>
                 </div>
+                <% } %>
 
                 <div class="form-group">
                     <label class="label">주소 <span class="req">*</span></label>
@@ -236,6 +255,21 @@
 
         async function handleSignup(e) {
             e.preventDefault();
+            const nameInput = document.getElementById('name');
+            const nameFeedBack = document.getElementById('nameFeedBack');
+            const nameVal = nameInput.value.trim();
+            const nameRegex = /^[가-힣]{2,5}$/;
+            if(!nameRegex.test(nameVal)) {
+                nameInput.classList.add('input-error');
+                nameInput.classList.remove('input-success');
+                setFeedback(nameFeedBack, '이름은 2~5자로 한글로 입력해주세요.', 'error');
+                nameInput.focus();
+                return;
+            }else{
+                nameInput.classList.remove('input-error');
+                nameInput.classList.add('input-success');
+                setFeedback(nameFeedBack, '', 'success');
+            }
 
             // 이름
             const nameInput = document.getElementById('name');
@@ -320,51 +354,47 @@
                 return;
             }
 
-            // 비밀번호
-            const pw = document.getElementById('pw').value;
             const pwInput = document.getElementById('pw');
-            const pwFeedBack = document.getElementById('pwFeedBack');
-            
-            const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if(!pwRegex.test(pw)) {
-                pwInput.classList.add('input-error');
-                pwInput.classList.remove('input-success');
-                setFeedback(pwFeedBack, '영문, 숫자, 특수문자 조합 8자 이상이어야 합니다.', 'error');
-                pwInput.focus();
-                return;
-            } else {
-                pwInput.classList.remove('input-error');
-                pwInput.classList.add('input-success');
-                setFeedback(pwFeedBack, '', 'success');
-            }
-
-            // 비밀번호 확인
-            const pw2 = document.getElementById('pw2').value;
             const pw2Input = document.getElementById('pw2');
+            const pwFeedBack = document.getElementById('pwFeedBack');
             const pw2FeedBack = document.getElementById('pw2FeedBack');
-            if(pw !== pw2) {
-                pw2Input.classList.add('input-error');
-                pw2Input.classList.remove('input-success');
-                setFeedback(pw2FeedBack, '비밀번호가 일치하지 않습니다', 'error');
-                pw2Input.focus();
-                return;
-            } else{
-                pw2Input.classList.remove('input-error');
-                pw2Input.classList.add('input-success');
-                setFeedback(pw2FeedBack, '', 'success');
-            }
 
-            // 주소
-            const addrFeedBack = document.getElementById('addrFeedBack');
-            const zipcodeVal = document.getElementById('zipcode').value;
-            if(!zipcodeVal) {
-                setFeedback(addrFeedBack, '주소 검색을 통해 주소를 입력해주세요', 'error');
-                return;
-            }else {
-                setFeedback(addrFeedBack, '', '');
-            }
+            let pw = '';
+            let pw2 = '';
 
-            // 약관 동의
+            const isSocialLogin = !pwInput; // 핵심
+
+            if (!isSocialLogin) {
+
+                pw = pwInput.value;
+                pw2 = pw2Input.value;
+
+                const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+                if (!pwRegex.test(pw)) {
+                    pwInput.classList.add('input-error');
+                    pwInput.classList.remove('input-success');
+                    setFeedback(pwFeedBack, '영문, 숫자, 특수문자 조합 8자 이상이어야 합니다.', 'error');
+                    pwInput.focus();
+                    return;
+                } else {
+                    pwInput.classList.remove('input-error');
+                    pwInput.classList.add('input-success');
+                    setFeedback(pwFeedBack, '', 'success');
+                }
+
+                if (pw !== pw2) {
+                    pw2Input.classList.add('input-error');
+                    pw2Input.classList.remove('input-success');
+                    setFeedback(pw2FeedBack, '비밀번호가 일치하지 않습니다', 'error');
+                    pw2Input.focus();
+                    return;
+                } else {
+                    pw2Input.classList.remove('input-error');
+                    pw2Input.classList.add('input-success');
+                    setFeedback(pw2FeedBack, '', 'success');
+                }
+            }
             if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
                 showToast('필수 약관에 동의해주세요.'); return;
             }
