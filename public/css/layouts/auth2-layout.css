@@ -1,0 +1,257 @@
+:root {
+    --primary: #1A5CFF;
+    --primary-dark: #0040CC;
+    --accent: #C8FF00;
+    --bg: #F7F8F5;
+    --surface: #FFFFFF;
+    --text: #111110;
+    --text-soft: #555552;
+    --border: #E6E8E2;
+    --radius: 14px;
+    --shadow: 0 12px 40px rgba(0,0,0,0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--surface);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    min-height: 640px;
+}
+
+.auth-visual {
+    background: linear-gradient(135deg, #0f1520 0%, #1A5CFF 55%, #00C8D4 100%);
+    padding: 60px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(200,255,0,0.15), transparent 60%);
+}
+
+.logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+}
+
+.visual-content {
+    position: relative;
+    z-index: 1;
+}
+
+.visual-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+}
+
+.visual-desc {
+    font-size: 18px;
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+.auth-form-side {
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    margin-bottom: 40px;
+}
+
+.form-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: var(--text-soft);
+    font-size: 15px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-soft);
+}
+
+.input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(26, 92, 255, 0.1);
+}
+
+.btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background: var(--text);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #222;
+    transform: translateY(-2px);
+}
+
+.form-footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-soft);
+}
+
+.link {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.social-login {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.social-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none; /* 밑줄 제거 */
+    transition: 0.2s;
+}
+
+/* hover */
+.social-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Google */
+.social-btn.google {
+    border: 1px solid #dadce0;
+    background: #fff;
+    color: #3c4043;
+}
+.social-btn.google:hover {
+    background: #f8f9fa;
+}
+.social-btn.google i {
+    color: #4285F4; /* Google Blue */
+    font-size: 20px;
+}
+
+/* Naver */
+.social-btn.naver {
+    border: 1px solid #03C75A;
+    color: #03C75A;
+}
+
+/* N 아이콘 */
+.naver-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+}
+
+@media (max-width: 900px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-visual {
+        display: none;
+    }
+
+    .auth-form-side {
+        padding: 40px 20px;
+    }
+}

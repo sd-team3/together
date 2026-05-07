@@ -8,9 +8,13 @@ const {uploadProfile} = require('../config/upload');
 //회원가입 페이지
 router.get('/signup', userController.getSignup);
 
-//회원가입 처리
-router.post('/signup', uploadProfile.single('uploadFile'), signupValidationRules, validate,
- userController.postSignup);
+router.post(
+  '/signup',
+  uploadProfile.single('uploadFile'),
+  signupValidationRules,
+  validate('user/signup'), 
+  userController.postSignup
+);
 
 //로그인 페이지
 router.get('/login', userController.getLogin);
@@ -30,6 +34,12 @@ router.get('/profile', userController.getProfile);
 
 //회원수정 페이지
 router.get('/edit-profile', userController.getEditProfile);
+
+// 회원수정 전 비밀번호 인증 페이지
+router.get('/verify-password', userController.getVerify);
+
+// 비밀번호 인증 처리
+router.post('/verify-password', userController.postVerify);
 
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);

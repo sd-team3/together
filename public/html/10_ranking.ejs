@@ -7,106 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 </head>
-
 <body>
-<!-- ═══════ SIDEBAR ═══════ -->
-<nav class="sidenav">
-  <div class="sidenav-logo">
-    <div>
-      <div class="logo-mark">SPORTMATCH <span style="display:inline-block;vertical-align:middle;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:3px;margin-bottom:2px"></span></div>
-      <div class="logo-sub">생활 스포츠 매칭</div>
-    </div>
-  </div>
-  <div class="sidenav-menu">
-    <div class="nav-section-label">홈</div>
-    <button class="nav-item active" data-page="home" onclick="goPage('home')">
-      <span class="nav-icon">🏠</span> 홈 피드
-      <span class="nav-live"></span>
-    </button>
-
-    <div class="nav-section-label">매칭</div>
-    <button class="nav-item" data-page="map" onclick="goPage('map')">
-      <span class="nav-icon">📍</span> 지도 매칭
-    </button>
-    <button class="nav-item" data-page="regular" onclick="goPage('regular')">
-      <span class="nav-icon">🔁</span> 정기 모임
-    </button>
-
-    <div class="nav-section-label">커뮤니티</div>
-    <button class="nav-item" data-page="community" onclick="goPage('community')">
-      <span class="nav-icon">💬</span> 커뮤니티
-      <span class="nav-badge">3</span>
-    </button>
-    <button class="nav-item" data-page="ranking" onclick="goPage('ranking')">
-      <span class="nav-icon">🏆</span> 랭킹
-    </button>
-
-    <div class="nav-section-label">기타</div>
-    <button class="nav-item" data-page="notifications" onclick="goPage('notifications')">
-      <span class="nav-icon">🔔</span> 알림
-      <span class="nav-badge" id="notif-badge">4</span>
-    </button>
-    <button class="nav-item" data-page="trade" onclick="goPage('trade')">
-      <span class="nav-icon">🛒</span> 중고 거래
-    </button>
-    <button class="nav-item" data-page="chat" onclick="goPage('chat')">
-      <span class="nav-icon">✉️</span> 채팅
-      <span class="nav-badge">5</span>
-    </button>
-    <button class="nav-item" onclick="showModal('⚙️ 설정','알림, 개인정보, 보안 설정 등을 변경합니다.')">
-      <span class="nav-icon">⚙️</span> 설정
-    </button>
-  </div>
-  <div class="sidenav-footer">
-    <!-- 비로그인 상태 -->
-    <div class="user-chip" id="nav-guest" onclick="openAuthModal('login')" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div class="user-av" style="background:linear-gradient(135deg,var(--border-strong),var(--text-3));font-size:18px">👤</div>
-      <div>
-        <div class="user-name" style="color:var(--text-2);font-size:12.5px">로그인이 필요합니다</div>
-        <div class="user-level" style="color:var(--primary);font-weight:600">탭하여 로그인 →</div>
-      </div>
-    </div>
-    <!-- 로그인 상태 (숨김) -->
-    <div id="nav-user" style="display:none">
-      <div class="user-chip" onclick="goPage('mypage')">
-        <div class="user-av">JH</div>
-        <div>
-          <div class="user-name">이준혁</div>
-          <div class="user-level">⭐ 중급 · 47경기</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
+<%- include('partials/navbar') %>
 <!-- ═══════ MAIN ═══════ -->
 
 <!-- ═══════ MAIN ═══════ -->
 <div class="main">
 
 <!-- ──────── RANKING PAGE ──────── -->
-<div class="page" id="page-ranking" style="display:flex;flex-direction:column;flex:1">
-  <div class="topbar">
-    <div><div class="topbar-title">🏆 랭킹</div><div class="topbar-sub">이번 달 성동구 기준</div></div>
-    <div class="topbar-actions">
-      <span class="auth-state-btns" data-state="guest">
-        <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">로그인</button>
-        <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">회원가입</button>
-      </span>
-      <span class="auth-state-btns" data-state="user" style="display:none">
-        <button class="btn btn-ghost btn-sm" onclick="goPage('mypage')">👤 마이페이지</button>
-        <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
-      </span>
-      <div class="chip-group">
-        <div class="chip on" onclick="singleChip(this)">종합</div>
-        <div class="chip" onclick="singleChip(this)">⚽ 풋살</div>
-        <div class="chip" onclick="singleChip(this)">🏀 농구</div>
-        <div class="chip" onclick="singleChip(this)">🏸 배드민턴</div>
-      </div>
-    </div>
-  </div>
+<%- include('partials/head', { title: '🏆 랭킹', pageId: 'page-community', active: '' }) %>
+
   <div class="page-body-wide" style="flex:1">
     <div class="ranking-layout" style="flex:1">
       <div class="ranking-main">
@@ -162,13 +73,13 @@
           <div class="sport-bar"><div class="sport-bar-top"><span class="sport-bar-label">🏃 러닝</span><span class="sport-bar-level">22위</span></div><div class="sport-bar-track"><div class="sport-bar-fill" style="width:38%"></div></div></div>
         </div>
         <div class="divider"></div>
-        <div class="section-title">획득 뱃지</div>
+        <div class="section-title">종목별 랭킹</div>
         <div class="chip-group">
-          <div class="chip on">🏅 47경기</div>
-          <div class="chip on">⭐ 매너왕</div>
-          <div class="chip on">🔥 연속출전</div>
-          <div class="chip">🏆 대회입상</div>
-        </div>
+        <div class="chip on" onclick="singleChip(this)">종합</div>
+        <div class="chip" onclick="singleChip(this)">⚽ 풋살</div>
+        <div class="chip" onclick="singleChip(this)">🏀 농구</div>
+        <div class="chip" onclick="singleChip(this)">🏸 배드민턴</div>
+      </div>
       </div>
     </div>
   </div>

@@ -13,11 +13,11 @@ const errorHandler = (err, req, res, next) => {
     const message = err.message || '서버 오류가 발생했습니다';
 
     if(statusCode === 404){
-        return res.status(404).render('error/404', {statusCode, message});
+        return res.status(404).render('error/error_404', {statusCode, message});
     }
     if(statusCode === 400){
-        return res.status(400).render('error/400', {statusCode, message});
+        return res.status(400).render('error/error_400', {statusCode, message});
     }
-    return res.status(500).render('error/500', { statusCode, message });
+    return res.status(500).render('error/error_500', { statusCode, message });
 }
 module.exports = {notFoundHandler, errorHandler};
