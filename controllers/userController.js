@@ -8,17 +8,30 @@ const getSignup = (req, res) => {
     });
 };
 
-
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        console.log(req.body);
+        
 
         const socialUser = req.session.socialUser || null;
 
-        const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
+        const {
+            email,
+            password,
+            name,
+            age,
+            tel,
+            state,
+            city,
+            road,
+            addressDetail,
+            zipcode,
+            gender
+        } = req.body;
 
-        await userService.createUser({
+      
+
+        const result = await userService.createUser({
             email,
             password: socialUser ? socialUser.password : password,
             name,
@@ -32,22 +45,27 @@ const postSignup = async (req, res, next) => {
                 detail: addressDetail,
                 zipcode
             },
-            gender,
             uploadFile: req.file
         });
-        // 소셜회원가입 임시 세션 제거
+
+
         delete req.session.socialUser;
 
-        res.redirect('/');
+        return res.json({
+    success: true,
+    message: '회원가입 완료'
+});
+
     } catch (error) {
+        
         if (error.code === 11000) {
-        return res.render('user/signup', {
-            errors: {
-                email: error.message
-            },
-            socialUser: req.session.socialUser || null
-        });
-    }
+            return res.render('user/signup', {
+                errors: {
+                    email: error.message
+                },
+                socialUser: req.session.socialUser || null
+            });
+        }
 
         return next(error);
     }
