@@ -165,9 +165,11 @@
                 <button type="submit" class="btn btn-primary">회원가입 완료</button>
 
                 <% if (socialUser) { %>
-                    <a href="/user/signup/cancel-social" class="btn btn-secondary">
-                        소셜 가입 취소
+                <div class="social-cancel-wrap">
+                    <a href="/user/signup/cancel-social" class="social-cancel-btn">
+                        소셜 회원가입 취소
                     </a>
+                </div>
                 <% } %>
             </form>
 
