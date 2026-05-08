@@ -24,7 +24,7 @@
 <div class="page-body" style="overflow-y:auto">
 <div class="edit-wrap">
 
-<form id="editForm" action="/user/edit-profile" method="POST" enctype="multipart/form-data">
+<form id="editForm" action="/user/edit-profile" method="POST" enctype="multipart/form-data"  autocomplete="off">
 
 <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
   <div class="error-box" style="color:red; margin-bottom:10px;">
@@ -98,22 +98,20 @@ const img =
     <input type="hidden" name="gender" value="<%= user.gender %>">
 </div>
 
-      <div class="edit-field field-full">
+    <div class="edit-field field-full">
   <label class="edit-label">전화번호</label>
 
-  <div style="display:flex; gap:8px;">
-   <input type="text" name="tel1" class="edit-input" style="width:80px;"
-       maxlength="3"
-       value="<%= user.tel ? user.tel.split('-')[0] : '' %>">
+  <input
+  type="tel"
+  name="tel"
+  id="tel"
+  class="edit-input"
+  maxlength="13"
+  value="<%= user.tel || '' %>"
+  placeholder="010-0000-0000"
+/>
 
-<input type="text" name="tel2" class="edit-input" style="width:100px;"
-       maxlength="4"
-       value="<%= user.tel ? user.tel.split('-')[1] : '' %>">
-
-<input type="text" name="tel3" class="edit-input" style="width:100px;"
-       maxlength="4"
-       value="<%= user.tel ? user.tel.split('-')[2] : '' %>">
-  </div>
+  <div id="telFeedBack"></div>
 </div>
 
     </div>
@@ -149,12 +147,15 @@ const img =
     <div class="edit-field field-full">
       <label class="edit-label">상세 주소</label>
       <input type="text" name="detail" class="edit-input"
-        value="<%= user.address?.detail || '' %>">
+        value="<%= user.address?.detail || '' %>" readonly
+       onfocus="this.removeAttribute('readonly');">
     </div>
 
 
   </div>
 </div>
+
+<% if (user.provider === 'local') { %>
 
 <!-- ④ 비밀번호 -->
 <div>
@@ -164,18 +165,24 @@ const img =
 
     <div class="edit-field field-full">
       <label class="edit-label">현재 비밀번호</label>
-      <input type="password" name="currentPassword" class="edit-input">
+      <input type="password" name="currentPassword" class="edit-input" readonly
+       onfocus="this.removeAttribute('readonly');">
     </div>
+
     <div id="pw-error" class="error-box" style="display:none; color:red; margin-top:8px;">
-    비밀번호가 같습니다
-</div>
+      비밀번호가 같습니다
+    </div>
+
     <div class="edit-field">
       <label class="edit-label">새 비밀번호</label>
-      <input type="password" name="newPassword" class="edit-input">
+      <input type="password" name="newPassword" class="edit-input" readonly
+       onfocus="this.removeAttribute('readonly');">
     </div>
 
   </div>
 </div>
+
+<% } %>
 
 <!-- ⑤ 저장 -->
 <div class="edit-actions">
@@ -282,17 +289,9 @@ function getChangedFields(form) {
         changes.push("나이");
     }
 
-    const tel =
-        norm(form.tel1.value) +
-        norm(form.tel2.value) +
-        norm(form.tel3.value);
-
-    const currentTel = norm(tel);
-    const originalTel = originalUser.tel;
-
-    if (currentTel && currentTel !== originalTel) {
-        changes.push("전화번호");
-    }
+    if (norm(form.tel.value) !== norm(originalUser.tel)) {
+    changes.push("전화번호");
+}
 
     if (norm(form.road.value) !== originalUser.road) {
         changes.push("주소");
@@ -302,7 +301,7 @@ function getChangedFields(form) {
         changes.push("상세주소");
     }
 
-    if (norm(form.newPassword.value) !== "") {
+    if (norm(form.newPassword?.value) !== "") {
         changes.push("비밀번호");
     }
 
@@ -316,8 +315,11 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 
     const form = e.target;
 
-    const currentPassword = form.currentPassword.value.trim();
-    const newPassword = form.newPassword.value.trim();
+    const currentPassword =
+    form.currentPassword?.value?.trim() || "";
+
+    const newPassword =
+    form.newPassword?.value?.trim() || "";
 
 // 비밀번호 유효성 검사
     let errors = [];
@@ -325,7 +327,9 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 const pwErrorBox = document.getElementById("pw-error");
 
 // 기본 숨김
-pwErrorBox.style.display = "none";
+if (pwErrorBox) {
+    pwErrorBox.style.display = "none";
+}
 
 // 비밀번호
 if (currentPassword && !newPassword) {
@@ -338,7 +342,9 @@ if (!currentPassword && newPassword) {
 
 // 같은 비밀번호 체크
 if (currentPassword && newPassword && currentPassword === newPassword) {
+    if (pwErrorBox) {
     pwErrorBox.style.display = "block";
+}
     errors.push("비밀번호 동일");
 }
 
@@ -379,32 +385,11 @@ if (age !== "") {
 }
 
 // 전화번호 
-const tel1 = form.tel1.value.trim();
-const tel2 = form.tel2.value.trim();
-const tel3 = form.tel3.value.trim();
 
-let tel = "";
+const tel = form.tel.value.trim();
 
-// 하나라도 입력했으면 검사
-if (tel1 || tel2 || tel3) {
-
-    // 010 고정
-    if (tel1 !== "010") {
-        errors.push("전화번호는 010으로 시작해야 합니다");
-    }
-
-    // 중간자리 (4자리)
-    if (!/^\d{4}$/.test(tel2)) {
-        errors.push("전화번호 가운데 자리는 4자리 숫자입니다");
-    }
-
-    // 마지막 자리 (4자리)
-    if (!/^\d{4}$/.test(tel3)) {
-        errors.push("전화번호 마지막 자리는 4자리 숫자입니다");
-    }
-
-    // 검증 통과 시만 조합
-    tel = tel1 + tel2 + tel3;
+if (!/^010-\d{4}-\d{4}$/.test(tel)) {
+    errors.push("전화번호는 010-0000-0000 형식입니다");
 }
 //주소
 const road = form.road.value.trim();
@@ -412,12 +397,11 @@ if (road === "") {
     errors.push("주소를 입력하세요");
 }
 
+
 //상세주소
 const detail = form.detail.value.trim();
 
-if (detail === "") {
-    errors.push("상세주소를 입력하세요");
-}
+
 
 // 에러 한 번에 출력
 if (errors.length > 0) {
@@ -469,8 +453,9 @@ btn?.addEventListener("click", async () => {
         console.log("클릭됨");
 
         const data = await addrSearch();
+        
         const road = data.roadAddress;
-        const zipcode = data.zipcode;
+        const zipcode = data.zonecode;
 
         document.getElementById("zipcode").value = zipcode;
         document.getElementById("road").value = road;
@@ -482,6 +467,42 @@ btn?.addEventListener("click", async () => {
         console.error(err);
         alert("주소 검색 실패");
     }
+});
+// 전화번호 자동 하이픈
+const telInput = document.getElementById('tel');
+
+function formatPhone(inp) {
+
+    let v = inp.value.replace(/\D/g, '');
+
+    if (!v.startsWith('010')) {
+        v = '010' + v.replace(/^010/, '');
+    }
+
+    if (v.length > 11) {
+        v = v.slice(0, 11);
+    }
+
+    if (v.length >= 8) {
+        v =
+            v.slice(0, 3) +
+            '-' +
+            v.slice(3, 7) +
+            '-' +
+            v.slice(7);
+    }
+    else if (v.length >= 4) {
+        v =
+            v.slice(0, 3) +
+            '-' +
+            v.slice(3);
+    }
+
+    inp.value = v;
+}
+
+telInput?.addEventListener('input', function () {
+    formatPhone(this);
 });
 </script>
 
