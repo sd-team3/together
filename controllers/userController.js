@@ -45,17 +45,25 @@ const postSignup = async (req, res, next) => {
                 detail: addressDetail,
                 zipcode
             },
+            provider: socialUser ? socialUser.provider : 'local',
             uploadFile: req.file
         });
 
 
         delete req.session.socialUser;
 
-        return res.json({
-    success: true,
-    message: '회원가입 완료'
-});
+req.login(result, (err) => {
 
+            if (err) {
+                return next(err);
+            }
+
+            return res.json({
+                success: true,
+                message: '회원가입 완료'
+            });
+
+        });
     } catch (error) {
         
         if (error.code === 11000) {

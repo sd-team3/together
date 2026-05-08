@@ -3,7 +3,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 //회원가입 서비스(DB에 회원 객체 저장)
-async function createUser({ email, password, name, address, gender, uploadFile, age, tel }) {
+async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
 
 
 
@@ -34,7 +34,8 @@ async function createUser({ email, password, name, address, gender, uploadFile, 
         tel: tel || '',
         gender, 
         address,
-        profileImage: profile
+        profileImage: profile,
+        provider: provider || 'local'
     });
 
 
@@ -109,8 +110,8 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
     }
 
     if (tel) {
-        user.tel = tel.replace(/-/g, '').trim();
-    }
+    user.tel = tel.trim();
+}
 
     if (address) {
         if (address.road !== undefined) user.address.road = address.road;
