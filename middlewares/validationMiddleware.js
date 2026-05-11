@@ -17,7 +17,7 @@ const signupValidationRules = (req, res, next) => {
 
         body('age')
             .notEmpty().withMessage('나이는 필수입니다')
-            .isInt({ min: 1, max: 120 }),
+            .isInt({ min: 14, max: 99 }),
 
         body('tel')
             .notEmpty()
