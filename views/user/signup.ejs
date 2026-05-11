@@ -188,9 +188,6 @@
     <script type="module">
         import { addrSearch } from '/js/modules/addrSearch.js';
 
-        /* =====================
-           유틸 함수
-        ===================== */
         function togglePw(id, btn) {
             const inp = document.getElementById(id);
             inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -263,18 +260,12 @@
             }
         }
 
-        /* =====================
-           이메일 중복확인 상태
-        ===================== */
         const emailInput = document.getElementById('emailInput');
         const emailCheckBtn = document.getElementById('emailCheckBtn');
         const emailFeedBack = document.getElementById('emailFeedBack');
         let isChecked = false;
         let isDuplicate = false;
 
-        /* =====================
-           handleSignup
-        ===================== */
         async function handleSignup(e) {
             e.preventDefault();
             const isSocialLogin = !document.getElementById('pw');
@@ -436,9 +427,6 @@
             }
         }
 
-        /* =====================
-           이메일 중복확인 이벤트
-        ===================== */
         if (emailCheckBtn) {
             emailCheckBtn.addEventListener('click', async () => {
                 const email = emailInput.value.trim();
@@ -481,11 +469,7 @@
                 setFeedback(emailFeedBack, '', '');
             });
         }
-
-        /* =====================
-           실시간 유효성 검사 이벤트
-        ===================== */
-
+        // 실시간 유효성 검사 이벤트
         // 이름
         document.getElementById('name').addEventListener('input', function () {
             if (!this.value) {
