@@ -163,6 +163,14 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">회원가입 완료</button>
+
+                <% if (socialUser) { %>
+                <div class="social-cancel-wrap">
+                    <a href="/user/signup/cancel-social" class="social-cancel-btn">
+                        소셜 회원가입 취소
+                    </a>
+                </div>
+                <% } %>
             </form>
 
             <div class="form-footer">
@@ -384,12 +392,125 @@
             const addrFeedBack = document.getElementById('addrFeedBack');
             const zipcodeVal = document.getElementById('zipcode').value;
 
-            if (!zipcodeVal) {
-                setFeedback(addrFeedBack, '주소 검색을 통해 주소를 입력해주세요.', 'error');
-                return;
-            } else {
-                setFeedback(addrFeedBack, '', '');
-            }
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+async function handleSignup(e) {
+    e.preventDefault();
+
+    const isSocial = <%- JSON.stringify(isSocialLogin) %>;
+
+    const form = e.target;
+
+    // =========================
+    // email (서버: notEmpty + isEmail)
+    // =========================
+    const email = form.email.value.trim();
+    if (!email) {
+        showToast('이메일은 필수입니다.');
+        return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+        showToast('유효한 이메일을 입력하세요.');
+        return;
+    }
+
+    // =========================
+    // name (서버 동일)
+    // =========================
+    const name = form.name.value.trim();
+    if (!/^[가-힣]{2,5}$/.test(name)) {
+        showToast('이름은 2~5자 한글로 입력하세요.');
+        return;
+    }
+
+    // =========================
+    // age
+    // =========================
+    const age = Number(form.age.value);
+    if (!age || age < 1 || age > 120) {
+        showToast('올바른 나이를 입력하세요.');
+        return;
+    }
+
+    // =========================
+    // tel (서버 기준: 010-0000-0000)
+    // =========================
+    const tel = form.tel.value.trim();
+    if (!/^010-\d{4}-\d{4}$/.test(tel)) {
+        showToast('전화번호는 010-0000-0000 형식입니다.');
+        return;
+    }
+
+    // =========================
+    // gender
+    // =========================
+    const gender = form.gender.value;
+    if (!['male', 'female'].includes(gender)) {
+        showToast('성별을 선택해주세요.');
+        return;
+    }
+
+    // =========================
+    // 일반회원만 password 검사
+    // =========================
+    if (!isSocial) {
+        const pw = form.password.value;
+        const pw2 = form.password2.value;
+
+        const pwRegex =
+            /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!pwRegex.test(pw)) {
+            showToast('비밀번호는 영문, 숫자, 특수문자 포함 8자 이상입니다.');
+            return;
+        }
+
+        if (pw !== pw2) {
+            showToast('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+    }
+
+    // =========================
+    // 주소
+    // =========================
+    if (!form.zipcode.value) {
+        showToast('주소를 입력해주세요.');
+        return;
+    }
+
+    // =========================
+    // 약관
+    // =========================
+    if (!agree1.checked || !agree2.checked) {
+        showToast('약관에 동의해주세요.');
+        return;
+    }
+
+    // =========================
+    // 서버 전송 (그대로 유지)
+    // =========================
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        });
+
+        if (!response.ok) {
+            const msg = await response.text();
+            console.error(msg);
+            showToast('회원가입 실패');
+            return;
+        }
+
+        document.getElementById('success-name').textContent = name;
+        document.getElementById('successOverlay').classList.add('show');
+
+    } catch (err) {
+        console.error(err);
+        showToast('서버 연결 실패');
+    }
+}
 
             if (!document.getElementById('agree1').checked || !document.getElementById('agree2').checked) {
                 showToast('필수 약관에 동의해주세요.'); return;
@@ -415,7 +536,7 @@
             } catch (err) {
                 showToast('서버 오류가 발생했습니다.');
             }
-        }
+        
 
         function showToast(msg) {
             const t = document.getElementById('toast');
