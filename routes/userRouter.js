@@ -70,4 +70,9 @@ router.post('/delete', userController.postDelete);
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
 
+// 번개모임 페이지
+router.get('/map_create', (req, res) => {
+    res.render('user/map_create');
+});
+
 module.exports = router;
