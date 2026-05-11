@@ -29,7 +29,6 @@
                         <h2 class="form-title">회원가입</h2>
                         <p class="form-subtitle">SPORTMATCH의 멤버가 되어보세요.</p>
                     </div>
-                    <!-- ✅ 프로필 이미지 -->
                     <div class="avatar-section">
                         <div class="avatar-preview-wrap">
                             <div class="avatar-preview">
@@ -430,9 +429,11 @@
         if (emailCheckBtn) {
             emailCheckBtn.addEventListener('click', async () => {
                 const email = emailInput.value.trim();
-                if (!email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
                     emailInput.classList.add('input-error');
-                    setFeedback(emailFeedBack, '이메일을 입력해주세요', 'error');
+                    emailInput.classList.remove('input-success');
+                    setFeedback(emailFeedBack, '유효한 이메일 주소를 입력해주세요.', 'error');
                     return;
                 }
                 try {
