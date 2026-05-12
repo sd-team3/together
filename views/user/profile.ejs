@@ -67,23 +67,26 @@
           <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div><div class="mypage-card-action">전체보기</div></div>
           <div class="mypage-card-body">
 
-
+            <% regCrew.forEach(crew => { %>
               <div class="schedule-item">
                   <div class="sched-time">화요일 12:30</div>
                   <div class="sched-dot" style="background:var(--primary)"></div>
 
                   <div class="sched-info">
                       <div class="sched-title-row">
-                          <span class="sched-title">싱글벙글 축구모임</span>
-                          <span class="sched-owner">👑 김철수</span>
+                          <span class="sched-title"><%= crew.title %></span>
+                          <span class="sched-owner">👑 <%= crew.host.name %></span>
                       </div>
-                      <div class="sched-sub">📌 경기도 포천시</div>
+                      <div class="sched-sub">📌 <%= crew.address.state %> <%= crew.address.city %> </div>
                   </div>
-
                   <div class="sched-manage">
                       <div class="manage-top">
-                          <span class="sched-days">매주 화, 금</span>
-                          <span class="sched-count">👤 5/10</span>
+                          <% if( crew.day === 'none' ) {%>
+                            <span class="sched-days">미정</span>
+                          <% } else { %> 
+                            <span class="sched-days">매주 <% crew.day.forEach(d => { %><%=d%> <% });%></span>
+                          <% } %>
+                          <span class="sched-count">👤 <%= crew.member.memberList.length %>/<%= crew.member.capacity %></span>
                       </div>
                       <div class="manage-bottom">
                           <span class="sched-joined">참여 중</span>
@@ -91,33 +94,11 @@
                       </div>
                   </div>
               </div>
-
-              <div class="schedule-item">
-                  <div class="sched-time">수요일 12:30</div>
-                  <div class="sched-dot" style="background:var(--primary)"></div>
-
-                  <div class="sched-info">
-                      <div class="sched-title-row">
-                          <span class="sched-title">싱글벙글 족구모임</span>
-                          <span class="sched-owner">👑 김민수</span>
-                      </div>
-                      <div class="sched-sub">📌 경기도 구리시</div>
-                  </div>
-
-                  <div class="sched-manage">
-                      <div class="manage-top">
-                          <span class="sched-days">매주 토</span>
-                          <span class="sched-count">👤 9/10</span>
-                      </div>
-                      <div class="manage-bottom">
-                          <span class="sched-joined">참여 중</span>
-                          <button class="btn-leave">탈퇴</button>
-                      </div>
-                  </div>
-              </div>
-
+              <% }); %>
           </div>
         </div>
+
+        <!-- ----------------------------------------------------------------------------- -->
         <div class="mypage-card">
           <div class="mypage-card-header"><div class="mypage-card-title">🕒 실시간 모임</div><div class="mypage-card-action">전체보기</div></div>
           <div class="mypage-card-body">
@@ -131,28 +112,6 @@
                         <span class="sched-owner">👑 감비아</span>
                     </div>
                     <div class="sched-sub">📌 성수 실내풋살장</div>
-                </div>
-
-                <div class="sched-manage">
-                    <div class="manage-top">
-                        <span class="sched-days">D-10</span>
-                        <span class="sched-count">👤 5/10</span>
-                    </div>
-                    <div class="manage-action">
-                        <button class="btn-leave">탈퇴</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="schedule-item">
-                <div class="sched-time">오늘 20:00</div>
-                <div class="sched-dot" style="background:var(--red)"></div>
-                <div class="sched-info">
-                    <div class="sched-title-row">
-                        <span class="sched-title">성수 5:5 풋살 매칭</span>
-                        <span class="sched-owner">👑 감비아</span>
-                    </div>
-                    <div class="sched-sub">📍 성수 실내풋살장</div>
                 </div>
 
                 <div class="sched-manage">
