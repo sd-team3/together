@@ -1,34 +1,49 @@
-const getRegularCreate = (req, res)=>{
-    res.render('crew/regular_create');
+const { authenticate } = require('passport');
+const { CONSTANTS } = require('../../config/constants');
+const regCrewService = require('../../services/crew/regCrewService');
+
+const getRegCreate = (req, res)=>{
+    res.render('crew/regCreate', { CONSTANTS: CONSTANTS });
 }
 
-const postRegularCreate = async (req, res)=>{
+const postRegCreate = async (req, res)=>{
     try {
-        const sport = document.querySelector('.chip.on').dataset.value;
+        if(!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+
         const host = req.user._id;
-        const { title, intro, capacity, period, day, ageRange, address, fee, profileImage } = req.body;
+        const data = req.body;
+        const profileFile = req.file;
+
+        if (!data.day) {
+            data.day = ['none']; 
+        } else if (!Array.isArray(data.day)) {
+            data.day = [day];
+        }
+
+        if (!data.ageRange) {
+            data.ageRange = ['all']; 
+        } else if (!Array.isArray(data.ageRange)) {
+            data.ageRange = [data.ageRange];
+        }
+
+        data.isAutoAccept = (data.isAutoAccept === 'enable');
+
+        const result = await regCrewService.createRegCrew(data, profileFile, host);
         
-        if (!day) {
-            day = ['none']; 
-        } else if (!Array.isArray(day)) {
-            day = [day];
+        if (result.success) {
+            return res.redirect('/crew/reg-list');
+        } else {
+            return res.status(400).send();
         }
-
-        if (!ageRange) {
-            ageRange = ['all']; 
-        } else if (!Array.isArray(ageRange)) {
-            ageRange = [ageRange];
-        }
-
-        const crew = { title, intro, host, capacity, period, day, ageRange, address, sport, fee, profileImage };
-
-        await regCrewService.createCrew(crew);
-        res.redirect('crew/regular');
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).send('서버 오류가 발생했습니다.');
     }
 };
 
 module.exports = {
-    postRegularCreate //기능명세
+    getRegCreate,
+    postRegCreate //기능명세
 };

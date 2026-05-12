@@ -1,29 +1,47 @@
 const mongoose = require('mongoose');
 const regularCrew = require('../../models/regularCrew');
-const User = require('../../models/User');
+const path = require('path');
+const fs = require('fs');
 
-async function createCrew(crew) {
-    const { title, intro, capacity, period, day, ageRange, address, sport, fee, profileImage } = crew || {};
-    const addrSplit = address.split(' ');
-    const profile = uploadFile ? uploadFile.filename : 'default-crew-profile.png';
+async function createRegCrew(data, profileFile, host) {
+    const { removeImage, sport, title, intro, 
+        period, day, state, city, detail, fee, 
+        level, capacity, ageRange, isAutoAccept } = data;    
 
-    const newRegCrew = new regularCrew({
+    if (removeImage && removeImage !== "false" && removeImage !== "default-profile-image.jpg") {
+        const deleteFilePath = path.join(__dirname, '../../public/images/reg-crew/profile/', removeImage);
+            
+        if (fs.existsSync(deleteFilePath)) {
+            fs.unlinkSync(deleteFilePath);
+            console.log(`[파일 삭제 성공]: ${removeImage}`);
+        }
+    }
+
+    let profileImage = '/images/reg-crew/profile/default-profile-image.jpg';
+    if (profileFile) {
+        profileImage = `/images/reg-crew/profile/${profileFile.filename}`;
+    }
+
+    const regCrew = new regularCrew({
         title, intro, host,
-        member: { capacity, memberList: [host] },
-        isAutoAccept, period, day, ageRange,
-        address: { state: addrSplit[0], city: addrSplit[1] },
-        sport, fee, profileImage
+        member: {
+            capacity: Number(capacity),
+            memberList: [{ user: host }]
+        },
+        isAutoAccept, period, day, schedule: [], ageRange,
+        address: { state, city, detail: detail || null },
+        sport, fee: Number(fee) || 0, 
+        level: level || 'none', profileImage
     });
 
     try {
-        await newRegCrew.save();
-        return newRegCrew;
+        await regCrew.save();
+        return { success: true, data: regCrew };
     } catch (error) {
-        
+        console.error(error);
+        throw error;
     }
 }
-
-
 
 async function findCrewsByUserId(userId) {
     const user = await User.findById(userId).populate({
@@ -35,5 +53,4 @@ async function findCrewsByUserId(userId) {
     const crew = user.crews;
     return crew;
 }
-
-module.exports = { findCrewsByUserId };
+module.exports = { createRegCrew, findCrewsByUserId };
