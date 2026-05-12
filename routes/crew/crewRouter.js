@@ -8,6 +8,6 @@ router.post('/reg-create',
     uploadRegCrewProfile.single('uploadFile'),
     regCrewController.postRegCreate
 );
-router.get('/my', regCrewController.getMyCrews);
+router.get('/my-crews', regCrewController.getMyCrews);
 
 module.exports = router;

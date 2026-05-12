@@ -45,9 +45,11 @@ const postRegCreate = async (req, res)=>{
 
 const getMyCrews = async (req, res) => {
     try {
+        if (!req.user) return res.redirect('/user/login');
+        
         const userId = req.user._id;
         const crews = await regCrewService.getMyCrews(userId);
-        res.render('my-crews', { crews });
+        res.render('crew/my-crews', { crews });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');

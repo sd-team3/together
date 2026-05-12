@@ -9,17 +9,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const connectDB = require('./config/database');
 const passport = require('passport');
+require('./config/passport');  
 const session = require('express-session');
-
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
+const crewRouter = require('./routes/crew/crewRouter');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
+// 웹소켓
+const chatRouter = require('./routes/chatRouter');
+const {initSocket} = require('./config/socket');
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
 
 connectDB();
 
 app.use(express.json());
-const { initSocket } = require('./config/socket');
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({
@@ -37,14 +42,12 @@ app.use((req, res, next) => {
 });
 
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
-
 
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -52,7 +55,9 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
+app.use('/crew', crewRouter);
 
+app.use('/chat', chatRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
