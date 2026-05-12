@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const regularCrew = require('../../models/regularCrew');
+const User = require('../../models/User');
 const path = require('path');
 const fs = require('fs');
+
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
