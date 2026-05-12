@@ -88,4 +88,4 @@ async function getMyCrews(userId) {
     });
 }
 
-module.exports = {createRegCrew, findCrewsByUserId, getMyCrews};
+module.exports = { createRegCrew, findCrewsByUserId, getMyCrews };

@@ -59,5 +59,5 @@ const getMyCrews = async (req, res) => {
 module.exports = {
     getRegCreate,
     postRegCreate, //기능명세
-    getMyCrews 
+    getMyCrews
 };
