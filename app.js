@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const connectDB = require('./config/database');
 const passport = require('passport');
+require('./config/passport');  
 const session = require('express-session');
 
 const userRouter = require('./routes/userRouter');
