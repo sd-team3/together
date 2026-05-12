@@ -1,4 +1,5 @@
 const userService = require('../services/userService');
+const regCrewService = require('../services/crew/regCrewService')
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -8,21 +9,34 @@ const getSignup = (req, res) => {
     });
 };
 
-
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-
         const socialUser = req.session.socialUser || null;
 
-        const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
+        const {
+            email,
+            password,
+            name,
+            age,
+            tel,
+            state,
+            city,
+            road,
+            addressDetail,
+            zipcode,
+            gender
+        } = req.body;
 
-        await userService.createUser({
+      
+
+        const result = await userService.createUser({
             email,
             password: socialUser ? socialUser.password : password,
             name,
             age,
             tel,
+            gender,
             address: {
                 state,
                 city,
@@ -30,21 +44,35 @@ const postSignup = async (req, res, next) => {
                 detail: addressDetail,
                 zipcode
             },
-            gender,
+            provider: socialUser ? socialUser.provider : 'local',
             uploadFile: req.file
         });
-        // 소셜회원가입 임시 세션 제거
+
+
         delete req.session.socialUser;
 
-        res.redirect('/');
-    } catch (error) {
-        if (error.code === 11000) {
-        return res.render('user/signup', {
-            errors: {
-                email: error.message
+req.login(result, (err) => {
+
+            if (err) {
+                return next(err);
             }
+
+            return res.json({
+                success: true,
+                message: '회원가입 완료'
+            });
+
         });
-    }
+    } catch (error) {
+        
+        if (error.code === 11000) {
+            return res.render('user/signup', {
+                errors: {
+                    email: error.message
+                },
+                socialUser: req.session.socialUser || null
+            });
+        }
 
         return next(error);
     }
@@ -73,11 +101,15 @@ const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
-
-    const user = await userService.findUserById(req.user.id);
-
-    res.render('user/profile', { user });
+    const user = await userService.findUserById(req.session.user.id);
+    const regCrew = await regCrewService.findCrewsByUserId(req.session.user.id);
+    const dayMap = { 'mon' : '월', 'tue' : '화', 'wed' : '수', 'thu' : '목', 'fri' : '금', 'sat' : '토', 'sun' : '일', 'none' : '미정'};
+    regCrew.forEach(crew => {
+        crew.day = crew.day.map(d => dayMap[d] || d);
+    });
+    res.render('user/profile', { user, regCrew });
 };
+
 
 //회원 수정 페이지
 const getEditProfile = async (req, res) => {
@@ -215,7 +247,6 @@ const checkEmail = async (req, res, next) => {
     const { email } = req.query;
     try {
         const available = await userService.checkEmail(email);
-        console.log(available);
         res.json({ available });//DB에 해당 email이 있으면 false, 없으면 true
     } catch (error) {
         next(error);
