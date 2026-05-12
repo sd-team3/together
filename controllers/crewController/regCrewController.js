@@ -38,6 +38,7 @@ const postRegCreate = async (req, res)=>{
             return res.status(400).send();
         }
     } catch (error) {
+        console.error(error);
         return res.status(500).send('서버 오류가 발생했습니다.');
     }
 };

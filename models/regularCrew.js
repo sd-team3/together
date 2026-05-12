@@ -65,7 +65,7 @@ const regularCrewSchema = new mongoose.Schema(
             enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none'],
             default: ['none']
         },
-        schedule: { type: scheduleSchema, default: [] },
+        schedule: [scheduleSchema],
         ageRange: {
             type: [String],
             enum: ['all', '10s', '20s', '30s', '40s', '50s', '60+'],
