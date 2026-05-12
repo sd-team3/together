@@ -3,39 +3,75 @@ const userService = require('../services/userService');
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
     res.render('user/signup', {
-        errors: {}
+        errors: {},
+        socialUser: req.session.socialUser || null
     });
 };
 
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-        const { email, password, name, age, tel, state, city, road, addressDetail } = req.body;
+        const socialUser = req.session.socialUser || null;
 
-        await userService.createUser({
+        const {
             email,
             password,
             name,
             age,
             tel,
+            state,
+            city,
+            road,
+            addressDetail,
+            zipcode,
+            gender
+        } = req.body;
+
+      
+
+        const result = await userService.createUser({
+            email,
+            password: socialUser ? socialUser.password : password,
+            name,
+            age,
+            tel,
+            gender,
             address: {
                 state,
                 city,
                 road,
-                detail: addressDetail
+                detail: addressDetail,
+                zipcode
             },
+            provider: socialUser ? socialUser.provider : 'local',
             uploadFile: req.file
         });
 
-        res.redirect('/');
-    } catch (error) {
-        if (error.code === 11000) {
-        return res.render('user/signup', {
-            errors: {
-                email: error.message
+
+        delete req.session.socialUser;
+
+req.login(result, (err) => {
+
+            if (err) {
+                return next(err);
             }
+
+            return res.json({
+                success: true,
+                message: '회원가입 완료'
+            });
+
         });
-    }
+    } catch (error) {
+        
+        if (error.code === 11000) {
+            return res.render('user/signup', {
+                errors: {
+                    email: error.message
+                },
+                socialUser: req.session.socialUser || null
+            });
+        }
 
         return next(error);
     }
@@ -122,6 +158,8 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
+        zipcode,
+        gender,
         currentPassword,
         newPassword,
         removeImage
@@ -150,8 +188,10 @@ const postEditProfile = async (req, res, next) => {
                 state,
                 city,
                 road,
-                detail
+                detail,
+                zipcode
             },
+            gender,
             currentPassword,
             newPassword,
             removeImage, 
@@ -202,7 +242,6 @@ const checkEmail = async (req, res, next) => {
     const { email } = req.query;
     try {
         const available = await userService.checkEmail(email);
-        console.log(available);
         res.json({ available });//DB에 해당 email이 있으면 false, 없으면 true
     } catch (error) {
         next(error);
