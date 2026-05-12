@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { SPORTS_EN } = require('../config/constants');
+const { CONSTANTS } = require('../config/constants');
 
 const memberSchema = new mongoose.Schema(
     {
@@ -21,7 +21,24 @@ const memberSchema = new mongoose.Schema(
 const addressSchema = new mongoose.Schema(
     {
         state: { type: String, required: true },
-        city: { type: String, required: true }
+        city: { type: String, required: true },
+        detail: { type: String, default: null }
+    }, {
+        _id: false
+    }
+);
+
+const scheduleSchema = new mongoose.Schema(
+    {
+        title: { type: String, default: "정기 모임" },
+        date: { type: Date, required: true },
+        address: { type: addressSchema, required: true },
+        participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        status: {
+            type: String, 
+            enum: ['모집', '마감', '종료', '취소'], 
+            default: '모집' 
+        }
     }, {
         _id: false
     }
@@ -48,6 +65,7 @@ const regularCrewSchema = new mongoose.Schema(
             enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none'],
             default: ['none']
         },
+        schedule: [scheduleSchema],
         ageRange: {
             type: [String],
             enum: ['all', '10s', '20s', '30s', '40s', '50s', '60+'],
@@ -57,9 +75,14 @@ const regularCrewSchema = new mongoose.Schema(
         sport: {
             type: String,
             required: true,
-            enum: SPORTS_EN
+            enum: Object.keys(CONSTANTS.SPORTS)
         },
         fee: { type: Number, default: 0 },
+        level: {
+            type: String,
+            enum: ['low', 'mid', 'high', 'none'],
+            default: 'none'
+        },
         rating: {
             type: Number,
             default: 0,
