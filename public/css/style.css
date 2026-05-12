@@ -761,13 +761,48 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    MODAL & POPUPS
 ═══════════════════════════════════════ */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.3);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+/* 기존 코드 삭제하고 아래로 교체 */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);align-items:center;justify-content:center}
 .modal-overlay.show{display:flex;animation:pageIn .2s ease}
-.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;max-width:380px;width:92%;box-shadow:var(--shadow-lg);text-align:center}
-.modal-icon{font-size:38px;margin-bottom:10px}
-.modal-title{font-size:19px;font-weight:700;letter-spacing:-.3px;margin-bottom:5px}
-.modal-msg{font-size:13.5px;color:var(--text-2);line-height:1.65;margin-bottom:22px}
-.modal-btns{display:flex;gap:8px}
+
+.modal-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:36px 32px 28px;
+  max-width:380px;
+  width:92%;
+  box-shadow:var(--shadow-lg);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.modal-icon{font-size:40px;margin-bottom:12px}
+.modal-title{font-size:19px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+.modal-msg{font-size:13.5px;color:var(--text-2);line-height:1.65;margin-bottom:0;white-space:pre-line}
+.modal-btns{display:flex;gap:8px;width:100%}
+
+/* 모달 확인 버튼 */
+.modal-box > button{
+  margin-top:24px;
+  width:100%;
+  padding:12px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-size:14px;
+  font-weight:700;
+  font-family:'DM Sans',sans-serif;
+  cursor:pointer;
+  transition:background .2s, box-shadow .2s;
+  box-shadow:0 2px 10px rgba(26,92,255,.22);
+}
+.modal-box > button:hover{
+  background:var(--primary-deep);
+  box-shadow:0 4px 16px rgba(26,92,255,.32);
+}
 
 .map-popup-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.2);backdrop-filter:blur(4px);align-items:center;justify-content:center}
 .map-popup-overlay.show{display:flex;animation:pageIn .2s ease}
@@ -1525,6 +1560,20 @@ select.input{cursor:pointer}
   color: rgba(255,59,48,0.6);
 }
 
+/* 에러메세지 */
+.feedback-text {
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.feedback-text.error {
+    color: #e53e3e;
+}
+
+.feedback-text.success {
+    color: #38a169;
+}
 /* ── VERSION FOOTER ── */
 .settings-footer {
   text-align: center;
