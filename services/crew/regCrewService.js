@@ -43,4 +43,14 @@ async function createRegCrew(data, profileFile, host) {
     }
 }
 
-module.exports = { createRegCrew };
+async function findCrewsByUserId(userId) {
+    const user = await User.findById(userId).populate({
+        path: 'crews',
+        populate: { path: 'host', select: 'name' }
+    }).lean();
+
+    const user1 = await User.findById(userId).populate('crews').lean();
+    const crew = user.crews;
+    return crew;
+}
+module.exports = { createRegCrew, findCrewsByUserId };

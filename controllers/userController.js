@@ -1,4 +1,5 @@
 const userService = require('../services/userService');
+const regCrewService = require('../services/crew/regCrewService')
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -100,11 +101,15 @@ const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
-
-    const user = await userService.findUserById(req.user.id);
-
-    res.render('user/profile', { user });
+    const user = await userService.findUserById(req.session.user.id);
+    const regCrew = await regCrewService.findCrewsByUserId(req.session.user.id);
+    const dayMap = { 'mon' : '월', 'tue' : '화', 'wed' : '수', 'thu' : '목', 'fri' : '금', 'sat' : '토', 'sun' : '일', 'none' : '미정'};
+    regCrew.forEach(crew => {
+        crew.day = crew.day.map(d => dayMap[d] || d);
+    });
+    res.render('user/profile', { user, regCrew });
 };
+
 
 //회원 수정 페이지
 const getEditProfile = async (req, res) => {
