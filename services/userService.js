@@ -124,8 +124,11 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
         const isMatch = await bcrypt.compare(currentPassword, user.password);
 
         if (!isMatch) {
-            throw new Error('현재 비밀번호가 틀립니다');
-        }
+        const error = new Error('현재 비밀번호가 틀립니다');
+        error.status = 400;
+        error.field = 'currentPassword';  
+        throw error;
+}
 
         user.password = await bcrypt.hash(newPassword, 10);
     }
