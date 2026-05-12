@@ -65,9 +65,9 @@ async function getMyCrews(userId) {
 
     const day_Kor = {
         mon : '월', tue : '화', wed : '수', thu : '목', fri : '금', sat : '토', sun : '일', none : '-'
-    };
+    }; // 한글 변환
 
-    const period_Kor = {week : '매주', '2Week' : '격주', month: '매달'};
+    const period_Kor = {week : '매주', '2Week' : '격주', month: '매달'}; // 한글 변환
 
     return crews.map(crew => {
         const obj = crew.toObject(); // JS 객체로 변환함

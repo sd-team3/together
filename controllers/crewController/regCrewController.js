@@ -19,7 +19,7 @@ const postRegCreate = async (req, res)=>{
         if (!data.day) {
             data.day = ['none']; 
         } else if (!Array.isArray(data.day)) {
-            data.day = [day];
+            data.day = [data.day];
         }
 
         if (!data.ageRange) {
@@ -45,7 +45,7 @@ const postRegCreate = async (req, res)=>{
 
 const getMyCrews = async (req, res) => {
     try {
-        if (!req.user) return res.redirect('/user/login');
+        if (!req.user) return res.redirect('/user/login'); // 로그인해야 보임
         
         const userId = req.user._id;
         const crews = await regCrewService.getMyCrews(userId);
