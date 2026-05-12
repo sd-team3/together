@@ -18,7 +18,7 @@ async function createRegCrew(data, profileFile, host) {
     }
 
     let profileImage = '/images/reg-crew/profile/default-profile-image.jpg';
-    if (file) {
+    if (profileFile) {
         profileImage = `/images/reg-crew/profile/${profileFile.filename}`;
     }
 
@@ -26,7 +26,7 @@ async function createRegCrew(data, profileFile, host) {
         title, intro, host,
         member: {
             capacity: Number(capacity),
-            memberList: [{ user: userId }]
+            memberList: [{ user: host }]
         },
         isAutoAccept, period, day, schedule: [], ageRange,
         address: { state, city, detail: detail || null },
@@ -38,6 +38,7 @@ async function createRegCrew(data, profileFile, host) {
         await regCrew.save();
         return { success: true, data: regCrew };
     } catch (error) {
+        console.error(error);
         throw error;
     }
 }
