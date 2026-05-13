@@ -56,6 +56,7 @@ const initSocket = (io) => {
                 chat : `${userName}님이 퇴장하셨습니다`,
             });
         });
+    });
 
     notification.on('connection', async (socket)=>{
         const { userId } = socket.handshake.auth;
@@ -68,7 +69,7 @@ const initSocket = (io) => {
             const user = await userService.findUserById_WithoutPW(userId);
             if (!user) return socket.disconnect();
             socket.data.user = user;
-            socket.join(`notification:${user._id}`);
+            socket.join(`user:${user._id}`);
 
             const noti = await notiService.findUnReadNotiByUserId(user._id);
             socket.emit('UNREAD_NOTIFICATION', noti);
@@ -76,7 +77,7 @@ const initSocket = (io) => {
             socket.disconnect();
         }
     });
-    })};
+};
 
 
 module.exports = { initSocket };
