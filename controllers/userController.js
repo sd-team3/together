@@ -248,5 +248,12 @@ const checkEmail = async (req, res, next) => {
     }
 
 }
+// 설정 페이지
+const getSetting = (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/user/login');
+  }
+  res.render('user/setting', { user: req.user });
+};
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail, getVerify, postVerify };
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail, getVerify, postVerify,getSetting };
