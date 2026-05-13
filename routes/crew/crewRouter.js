@@ -10,6 +10,10 @@ router.post('/reg-create',
     regCrewController.postRegCreate
 );
 
+// 번개모임 페이지
+router.get('/instant', instantCrewController.getInstant);
+
+//번개모입 만들기
 router.get('/instant-create', instantCrewController.getInstantCreate);
 router.post('/instant-create', instantCrewController.postInstantCreate);
 module.exports = router;
