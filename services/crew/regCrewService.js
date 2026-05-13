@@ -67,7 +67,7 @@ async function getMyCrews(userId) {
         mon : '월', tue : '화', wed : '수', thu : '목', fri : '금', sat : '토', sun : '일', none : '-'
     }; // 한글 변환
 
-    const period_Kor = {week : '매주', '2Week' : '격주', month: '매달'}; // 한글 변환
+    const period_Kor = {week : '매주', '2week' : '격주', month: '매달'}; // 한글 변환
 
     return crews.map(crew => {
         const obj = crew.toObject(); // JS 객체로 변환함
@@ -83,9 +83,14 @@ async function getMyCrews(userId) {
             ...obj,
             role,
             dayLabel, // obj(크루 데이터) 펼치고, role과 dayLabel을 추가
-            periodLabel : period_Kor[obj.period] || obj.period // period 한글 변환
+            periodLabel : period_Kor[obj.period] || obj.period, // period 한글 변환
+            pct: Math.round(obj.member.memberList.length / obj.member.capacity * 100) + '%' // 인원 수를 퍼센트로 계산해서 게이지로 표현
         };
     });
 }
 
-module.exports = { createRegCrew, findCrewsByUserId, getMyCrews };
+async function deleteMyCrew(regularCrewId) {
+    await regularCrew.findByIdAndDelete(regularCrewId);
+}
+
+module.exports = { createRegCrew, findCrewsByUserId, getMyCrews, deleteMyCrew };

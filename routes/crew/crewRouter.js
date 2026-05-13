@@ -9,5 +9,7 @@ router.post('/reg-create',
     regCrewController.postRegCreate
 );
 router.get('/my-crews', regCrewController.getMyCrews);
+router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
+router.get('/crew-detail', regCrewController.getDetail);
 
 module.exports = router;

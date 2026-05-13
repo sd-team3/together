@@ -45,7 +45,9 @@ const postRegCreate = async (req, res)=>{
 
 const getMyCrews = async (req, res) => {
     try {
-        if (!req.user) return res.redirect('/user/login'); // 로그인해야 보임
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        } // 로그인해야 보임
         
         const userId = req.user._id;
         const crews = await regCrewService.getMyCrews(userId);
@@ -56,8 +58,28 @@ const getMyCrews = async (req, res) => {
     }
 }
 
+const postMyCrewDelete = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        await regCrewService.deleteMyCrew(req.params.regularCrewId);
+        res.redirect('/crew/my-crews');
+    } catch (error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
+const getDetail = (req, res) => {
+    res.render('crew/crew-detail');
+}
+
 module.exports = {
     getRegCreate,
     postRegCreate, //기능명세
-    getMyCrews
+    getMyCrews, // 불러오기
+    postMyCrewDelete,
+    getDetail
+
 };

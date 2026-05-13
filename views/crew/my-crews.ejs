@@ -38,7 +38,7 @@
 
             <!-- 카드 헤더 -->
             <div class="reg-card-head">
-              <div class="reg-sport-icon"><%= crew.sportEmoji %></div>
+              <img src="<%= crew.profileImage %>" class="reg-sport-icon" alt="크루 프사">
               <div>
                 <div class="reg-card-title"><%= crew.title %></div>
                 <div class="reg-card-sub">
@@ -61,7 +61,7 @@
                 <span>📅 <%= crew.periodLabel %></span>
               </div>
               <div class="reg-progress">
-                <div class="reg-progress-fill" data-pct="<%= Math.round(crew.member.memberList.length / crew.member.capacity * 100) %>"></div>
+                <div class="reg-progress-fill" style="width: <%= crew.pct %>"></div> <!-- < 충돌은 EJS 문법을 HTML로 잘못 인식해서 생김. 실제 실행하면 오류 X -->
               </div>
               <div class="reg-progress-label">
                 <span><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</span>
@@ -72,11 +72,13 @@
               <div class="reg-card-actions">
                 <% if (crew.role === 'host') { %>
                   <!-- 호스트 -->
-                  <button class="action-btn primary">상세보기</button>
-                  <button class="action-btn danger">해산</button>
+                  <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
+                  <form action="/crew/delete/<%= crew._id %>" method="POST" style="flex:1">
+                    <button class="action-btn danger" type="submit" style="width:100%">해산</button>
+                  </form>
                 <% } else { %>
                   <!-- 크루원 -->
-                  <button class="action-btn primary">상세보기</button>
+                  <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
                   <button class="action-btn danger">탈퇴</button>
                 <% } %>
               </div>
@@ -89,12 +91,5 @@
 
   </div>
 </div>
-
-<script>
-// .reg-progress-fill 클래스를 가지면서 data-pct 속성이 있는 요소를 페이지에서 전부 찾음.
-document.querySelectorAll('.reg-progress-fill[data-pct]').forEach(el => {
-  el.style.width = el.dataset.pct + '%';
-});
-</script>
 </body>
 </html>
