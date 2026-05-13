@@ -61,9 +61,6 @@ router.post('/verify-password', userController.postVerify);
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
 
-//회원탈퇴 페이지
-router.get('/delete', userController.getDelete);
-
 //회원탈퇴 처리
 router.post('/delete', userController.postDelete);
 
