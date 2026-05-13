@@ -1867,6 +1867,8 @@ select.input{cursor:pointer}
     border: 1.5px solid var(--border);
     background: transparent;
     color: var(--text-1);
+    text-decoration: none;
+    text-align: center;
   }
 
   .action-btn:hover {
@@ -2136,6 +2138,7 @@ select.input{cursor:pointer}
     cursor: pointer;
     margin-bottom: 4px;
     transition: color .15s;
+    text-decoration: none;
   }
 
   .back-btn:hover { color: var(--text-1); }
