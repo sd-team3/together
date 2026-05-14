@@ -109,10 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 셀렉트
   document.getElementById('priv-profile').addEventListener('change', function () { saveSetting('priv-profile', this.value); });
-  document.getElementById('app-lang').addEventListener('change', function () { saveSetting('app-lang', this.value); });
+  
 
   // 계정 관리
-  document.getElementById('btn-edit-profile').addEventListener('click', () => {
+document.getElementById('btn-edit-profile')
+  .addEventListener('click', () => {
     window.location.href = '/user/edit-profile';
   });
 
