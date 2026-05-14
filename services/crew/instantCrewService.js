@@ -2,7 +2,7 @@ const instantCrew = require('../../models/instantCrew');
 
 async function getInstantCrew() {
     return await instantCrew.find()
-        .populate('host', 'nickname')
+        .populate('host', 'name')
         .sort({ createdAt: -1 });
 }
 

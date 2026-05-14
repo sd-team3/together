@@ -17,7 +17,7 @@
   <div class="form-page">
     <div class="form-max">
 
-      <form method="POST" action="/crew/instant-create">
+      <form method="POST" action="/crew/instant-create" id="create-form">
 
         <div class="form-section">
           <div class="form-section-title">기본 정보</div>
@@ -26,14 +26,13 @@
           <div class="field">
             <label class="label">종목</label>
             <div class="chip-group">
-              <div class="chip on" data-chip data-value="futsal">⚽ 풋살</div>
-              <div class="chip" data-chip data-value="basketball">🏀 농구</div>
-              <div class="chip" data-chip data-value="badminton">🏸 배드민턴</div>
-              <div class="chip" data-chip data-value="running">🏃 러닝</div>
-              <div class="chip" data-chip data-value="tennis">🎾 테니스</div>
-              <div class="chip" data-chip data-value="etc">💪 기타</div>
+              <% Object.entries(CONSTANTS.SPORTS).forEach(([key, val], i) => { %>
+                <div class="chip <%= i === 0 ? 'on' : '' %>" data-chip data-value="<%= key %>">
+                  <%= val.kr %>
+                </div>
+              <% }) %>
             </div>
-            <input type="hidden" name="sport" id="sport-input" value="futsal">
+              <input type="hidden" name="sport" id="sport-input" value="<%= Object.keys(CONSTANTS.SPORTS)[0] %>">
           </div>
 
           <div class="field">
@@ -50,15 +49,38 @@
         <div class="form-section">
           <div class="form-section-title">장소 & 조건</div>
 
-          <div class="input-row mb-12">
-            <div class="field" style="margin-bottom:0">
-              <label class="label">시/도</label>
-              <input class="input" name="state" placeholder="예: 서울특별시" required>
+            <div class="field">
+              <label class="label">활동 지역</label>
+              <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                <!-- 시/도 선택 -->
+                <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas="<%- JSON.stringify(CONSTANTS.AREAS)%>" required>
+                  <option value="">시/도 선택</option>
+                  <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
+                    <option value="<%= state %>"><%= state %></option>
+                  <% }); %>
+                </select>
+
+                <!-- 시/군/구 선택 -->
+                <select id="citySelect" name="city" class="input" style="flex: 1;" required>
+                  <option value="">시/군/구 선택</option>
+                </select>
+              </div>
+
+              <!-- 상세 주소 입력 (선택사항 또는 카카오맵 검색용) -->
+              <input type="text" id="detail-addr" name="detail" class="input" placeholder="상세 장소 (예: 역삼 공원, OO 풋살장)" style="margin-top: 8px;">
             </div>
-            <div class="field" style="margin-bottom:0">
-              <label class="label">구/동</label>
-              <input class="input" name="city" placeholder="예: 강남구 역삼동" required>
+
+            <div class="field">
+              <button type="button" class="btn btn-outline" id="btn-find-addr" style="width:100%; margin-bottom:10px;">
+                📍 위치 확인 (지도 표시)
+              </button>
+              <div id="map" style="width:100%; height:220px; border-radius:10px; border:1px solid var(--border); display:none;"></div>
+              <div id="addr-result" style="font-size:13px; color:var(--primary); margin-top:6px; display:none;"></div>
             </div>
+
+            <!-- 좌표 저장을 위한 hidden input -->
+            <input type="hidden" name="lat" id="lat-input">
+            <input type="hidden" name="lng" id="lng-input">
           </div>
 
           <!-- 지도 클릭으로 좌표 입력 (hidden) -->
@@ -94,10 +116,12 @@
 
 </div><!-- /main -->
 
-<script>
+<script type="module">
+import kakaoMap from '/js/modules/mapLoader.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── 종목 chip 선택 → hidden input 업데이트 ──
+  // ── 종목 chip ──
   document.querySelectorAll('[data-chip]').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('[data-chip]').forEach(c => c.classList.remove('on'));
@@ -106,13 +130,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── 자동/수동 수락 선택 → hidden input 업데이트 ──
+  // ── 자동/수동 수락 ──
   document.querySelectorAll('[data-accept]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-accept]').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
       document.getElementById('accept-input').value = btn.dataset.value;
     });
+  });
+
+  // ── 주소 → 좌표 변환 + 지도 표시 ──
+  document.getElementById('btn-find-addr').addEventListener('click', async () => {
+    const state = document.getElementById('state-input').value.trim();
+    const city  = document.getElementById('city-input').value.trim();
+
+    if (!state || !city) {
+      alert('시/도와 구/동을 먼저 입력해주세요.');
+      return;
+    }
+
+    const address = state + ' ' + city;
+
+    try {
+      const { lat, lng } = await kakaoMap.ADDRtoLatLng(address);
+
+      // hidden input에 좌표 저장
+      document.getElementById('lat-input').value = lat;
+      document.getElementById('lng-input').value = lng;
+
+      // 지도 표시
+      const mapEl = document.getElementById('map');
+      mapEl.style.display = 'block';
+      await kakaoMap.loadMapByADDR(address);
+
+      // 결과 텍스트
+      const resultEl = document.getElementById('addr-result');
+      resultEl.style.display = 'block';
+      resultEl.textContent = `✅ 위치 확인 완료: ${address} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
+
+    } catch (err) {
+      alert('주소를 찾을 수 없습니다. 다시 확인해주세요.');
+      console.error(err);
+    }
+  });
+
+  // ── 제출 전 lat/lng 검증 ──
+  document.getElementById('create-form').addEventListener('submit', (e) => {
+    if (!document.getElementById('lat-input').value) {
+      e.preventDefault();
+      alert('위치 확인 버튼을 눌러 장소를 지정해주세요.');
+    }
   });
 
 });

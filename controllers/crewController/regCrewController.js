@@ -19,7 +19,7 @@ const postRegCreate = async (req, res)=>{
         if (!data.day) {
             data.day = ['none']; 
         } else if (!Array.isArray(data.day)) {
-            data.day = [day];
+            data.day = [data.day];
         }
 
         if (!data.ageRange) {
