@@ -88,10 +88,7 @@ function setFilter(el) {
   el.classList.add('active');
 }
 
-function filterSport(el) {
-  document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-}
+
 
 function regFilter(type) {
   document.querySelectorAll('.reg-card').forEach(card => {
@@ -274,7 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
     emptyEl.textContent = '조건에 맞는 모임이 없어요 🥲';
     document.querySelector('.regular-grid')?.appendChild(emptyEl);
   }
-  const visible = document.querySelectorAll('.reg-card:not([style*="none"])').length;
+  const visible = [...document.querySelectorAll('.reg-card')]
+  .filter(card => card.style.display !== 'none').length;
   emptyEl.style.display = visible === 0 ? '' : 'none';
 }
 
