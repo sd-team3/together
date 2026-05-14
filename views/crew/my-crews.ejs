@@ -6,6 +6,7 @@
 <title>SPORTMATCH — 내 정기모임</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
+<script src="/js/deleteConfirm.js"></script>
 </head>
 <body>
 <%- include('../partials/navbar') %>
@@ -61,7 +62,7 @@
                 <span>📅 <%= crew.periodLabel %></span>
               </div>
               <div class="reg-progress">
-                <div class="reg-progress-fill" style="width: <%= crew.pct %>"></div> <!-- < 충돌은 EJS 문법을 HTML로 잘못 인식해서 생김. 실제 실행하면 오류 X -->
+                <div class="reg-progress-fill" style="width: <%= crew.pct %>"></div> <!-- '<'' 충돌은 EJS 문법을 HTML로 잘못 인식해서 생김. 실제 실행하면 오류 X -->
               </div>
               <div class="reg-progress-label">
                 <span><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</span>
@@ -72,9 +73,7 @@
                 <% if (crew.crewRole === 'host') { %>
                   <!-- 호스트 -->
                   <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
-                  <form action="/crew/delete/<%= crew._id %>" method="POST" style="flex:1">
-                    <button class="action-btn danger" type="submit" style="width:100%">해산</button>
-                  </form>
+                  <button class="action-btn danger" style="flex:1" type="button" onclick="confirmDelete('<%= crew._id %>')">해산</button>
                 <% } else { %>
                   <!-- 크루원 -->
                   <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
@@ -88,6 +87,20 @@
       </div>
     <% } %>
 
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">돌이킬 수 없어요.</div>
+    <div class="modal-msg">정말 진행하시겠습니까?</div>
+    <div class="modal-btn" style="display:flex; gap:8px; width:100%; margin-top:24px">
+      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="deleteModal()">취소</button>
+      <form id="delete-form" method="POST" style="flex:1;display:flex">
+        <button type="submit" class="btn-yes">해산하기</button>
+      </form>
+    </div>
   </div>
 </div>
 </body>
