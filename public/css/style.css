@@ -772,10 +772,7 @@ select.input{cursor:pointer}
 .pos-tag:hover{border-color:var(--border-strong);color:var(--text)}
 .pos-tag.on{background:var(--text);color:var(--bg);border-color:var(--text)}
 
-/* ═══════════════════════════════════════
-   MODAL & POPUPS
-═══════════════════════════════════════ */
-/* 기존 코드 삭제하고 아래로 교체 */
+/* 모달 */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);align-items:center;justify-content:center}
 .modal-overlay.show{display:flex;animation:pageIn .2s ease}
 

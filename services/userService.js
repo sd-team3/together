@@ -140,20 +140,19 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
 
 //회원 탈퇴
 async function deleteUser(userId, password) {
-
-
-
     const user = await User.findById(userId);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        throw new Error('비밀번호가 일치하지 않습니다');
+    // 소셜 사용자는 비번 검증 스킵
+    if (user.provider === 'local') {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            const error = new Error('비밀번호가 일치하지 않습니다');
+            error.status = 400;
+            throw error;
+        }
     }
 
     await User.findByIdAndDelete(user.id);
-
-
 }
 
 async function checkEmail(email) {
