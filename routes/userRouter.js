@@ -75,4 +75,6 @@ router.get('/map_create', (req, res) => {
 //설정 페이지
 router.get('/setting', userController.getSetting);
 
+
+
 module.exports = router;
