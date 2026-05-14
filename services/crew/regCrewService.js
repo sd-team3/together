@@ -56,12 +56,22 @@ async function findCrewsByUserId(userId) {
     return crew;
 }
 
-async function getMyCrews(userId) {
-    const crews = await regularCrew.find({
-        $or : [
-            {host : userId}, {'member.memberList.user' : userId}
-        ]
-    }).populate('host', 'name').sort({createdAt : -1});
+async function getMyCrews(userId, role) {
+    let tab;
+
+    if(role === 'host') {
+        tab = { host : userId };
+    } else if(role === 'member') {
+        tab = { 'member.memberList.user' : userId, host : { $ne : userId } }; // $ne : 몽고DB 연산자. not equal의 줄임말
+    } else {
+        tab = {
+            $or: [ // $or : 똑같이 몽고DB 연산자
+                {host : userId}, {'member.memberList.user' : userId}
+            ]
+        };
+    } //
+
+    const crews = await regularCrew.find(tab).populate('host', 'name').sort({createdAt : -1});
 
     const day_Kor = {
         mon : '월', tue : '화', wed : '수', thu : '목', fri : '금', sat : '토', sun : '일', none : '-'
@@ -72,7 +82,7 @@ async function getMyCrews(userId) {
     return crews.map(crew => {
         const obj = crew.toObject(); // JS 객체로 변환함
 
-        const role = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member'; // 크루장인지 크루원인지 구분
+        const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member'; // 크루장인지 크루원인지 구분
 
         const dayLabel = obj.day
             .filter(day => day !== 'none') // none이 아닌 것만 남김
@@ -81,7 +91,7 @@ async function getMyCrews(userId) {
         
         return {
             ...obj,
-            role,
+            crewRole,
             dayLabel, // obj(크루 데이터) 펼치고, role과 dayLabel을 추가
             periodLabel : period_Kor[obj.period] || obj.period, // period 한글 변환
             pct: Math.round(obj.member.memberList.length / obj.member.capacity * 100) + '%' // 인원 수를 퍼센트로 계산해서 게이지로 표현

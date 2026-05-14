@@ -17,9 +17,9 @@
 
     <!-- 탭 (호스트 / 크루원) -->
     <div class="my-crew-tabs">
-      <button class="my-crew-tab active">전체</button>
-      <button class="my-crew-tab">👑 내가 만든 모임</button>
-      <button class="my-crew-tab">🙋 참여 중인 모임</button>
+      <a href="/crew/my-crews" class="my-crew-tab <%= !role || role === 'all' ? 'active' : '' %>">전체</a>
+      <a href="/crew/my-crews?role=host" class="my-crew-tab <%= role === 'host' ? 'active' : '' %>">👑 내가 만든 모임</a>
+      <a href="/crew/my-crews?role=member" class="my-crew-tab <%= role === 'member' ? 'active' : '' %>">🙋 참여 중인 모임</a>
     </div>
 
     <!-- 크루 목록 -->
@@ -34,7 +34,7 @@
     <% } else { %>
       <div class="regular-grid" id="crew-grid">
         <% crews.forEach(crew => { %>
-          <div class="reg-card" data-role="<%= crew.role %>">
+          <div class="reg-card" data-role="<%= crew.crewRole %>">
 
             <!-- 카드 헤더 -->
             <div class="reg-card-head">
@@ -46,7 +46,7 @@
                 </div>
               </div>
               <!-- 역할 뱃지 -->
-              <% if (crew.role === 'host') { %>
+              <% if (crew.crewRole === 'host') { %>
                 <span class="role-badge host">👑 모임장</span>
               <% } else { %>
                 <span class="role-badge member">🙋 크루원</span>
@@ -69,7 +69,7 @@
               </div>
 
               <div class="reg-card-actions">
-                <% if (crew.role === 'host') { %>
+                <% if (crew.crewRole === 'host') { %>
                   <!-- 호스트 -->
                   <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
                   <form action="/crew/delete/<%= crew._id %>" method="POST" style="flex:1">

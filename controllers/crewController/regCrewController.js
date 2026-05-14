@@ -50,8 +50,9 @@ const getMyCrews = async (req, res) => {
         } // 로그인해야 보임
         
         const userId = req.user._id;
-        const crews = await regCrewService.getMyCrews(userId);
-        res.render('crew/my-crews', { crews });
+        const role = req.query.role || 'all'; // 디폴트 설정
+        const crews = await regCrewService.getMyCrews(userId, role);
+        res.render('crew/my-crews', { crews, role });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
