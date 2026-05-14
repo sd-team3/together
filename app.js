@@ -9,17 +9,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const connectDB = require('./config/database');
 const passport = require('passport');
+require('./config/passport');  
 const session = require('express-session');
-
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
+const crewRouter = require('./routes/crew/crewRouter');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
+// 웹소켓
+const chatRouter = require('./routes/chatRouter');
+const {initSocket} = require('./config/socket');
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
 
 connectDB();
 
 app.use(express.json());
-const { initSocket } = require('./config/socket');
 app.use(express.urlencoded({extended : true}));
 
 app.use(session({
@@ -30,9 +35,12 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+//소셜
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    next();
+});
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer);
 
 
 app.use(express.json());
@@ -47,7 +55,9 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
+app.use('/crew', crewRouter);
 
+app.use('/chat', chatRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
@@ -57,8 +67,6 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
 
-
-app.listen(PORT, () => {
 initSocket(io);
 
 httpServer.listen(PORT, () => {

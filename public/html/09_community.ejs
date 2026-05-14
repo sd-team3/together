@@ -24,15 +24,16 @@
         <!-- 카테고리 탭 (후기 제거) -->
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:0">
           <div class="comm-tabs" style="margin-bottom:0">
-            <button class="comm-tab active" onclick="filterCommTab(this,'all')">전체</button>
-            <button class="comm-tab" onclick="filterCommTab(this,'question')">질문</button>
-            <button class="comm-tab" onclick="filterCommTab(this,'tip')">팁/정보</button>
-            <button class="comm-tab" onclick="filterCommTab(this,'free')">자유</button>
+            <button class="comm-tab active" onclick="filterComm(this,'all')">전체</button>
+            <button class="comm-tab" onclick="filterComm(this,'question')">질문</button>
+            <button class="comm-tab" onclick="filterComm(this,'tip')">팁/정보</button>
+            <button class="comm-tab" onclick="filterComm(this,'free')">자유</button>
           </div>
           <!-- 기간 필터 -->
           <div style="display:flex;gap:5px;align-items:center">
             <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.5px;text-transform:uppercase">인기</span>
-            <button class="comm-period-btn active" onclick="filterCommPeriod(this,'daily')">일별</button>
+            <button class="comm-period-btn active" onclick="filterCommPeriod(this,'all')">전체</button>
+            <button class="comm-period-btn" onclick="filterCommPeriod(this,'daily')">일별</button>
             <button class="comm-period-btn" onclick="filterCommPeriod(this,'weekly')">주간</button>
             <button class="comm-period-btn" onclick="filterCommPeriod(this,'monthly')">월별</button>
           </div>
@@ -41,61 +42,61 @@
         <!-- 기간 필터 레이블 -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px">
           <div id="comm-period-label" style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">📅 오늘의 인기글</div>
-          <button class="btn btn-primary btn-sm" onclick="showModal('✏️ 게시글 작성','게시글 작성 페이지로 이동합니다.')">+ 글쓰기</button>
+          <button class="btn btn-primary btn-sm" onclick="">+ 글쓰기</button>
         </div>
         <div id="comm-posts">
-        <div class="post-item" data-cat="question" data-likes="11">
+        <div class="post-item" data-type="question" data-likes="11">
           <div class="post-sport-av">🏸</div>
           <div>
             <div class="post-title">배드민턴 초보인데 라켓 뭐 사면 좋을까요?</div>
             <div class="post-meta"><span>질문</span><span>🏸 배드민턴</span><span>홍다인</span><span>3시간 전</span></div>
             <div class="post-excerpt">이번에 건대 배드민턴 모임에 들어가게 됐는데 라켓을 처음 구매하려고 합니다. 예산은 5만원 이하로...</div>
-            <div class="post-footer"><div class="post-stat">👍 11</div><div class="post-stat">💬 15</div><div class="post-stat">👁️ 187</div></div>
+            <div class="post-footer"><div class="post-stat">👍 11</div><div class="post-stat">💬 15</div></div>
           </div>
         </div>
-        <div class="post-item" data-cat="tip" data-likes="52">
+        <div class="post-item" data-type="tip" data-likes="52">
           <div class="post-sport-av">🏃</div>
           <div>
             <div class="post-title">비 오는 날 러닝 팁 — 신발 관리부터 코스 선택까지</div>
             <div class="post-meta"><span>팁/정보</span><span>🏃 러닝</span><span>박수아</span><span>어제</span></div>
             <div class="post-excerpt">장마철에도 포기 안 하는 러너를 위한 실전 팁입니다. 우선 양말부터 방수 제품으로 바꾸세요...</div>
-            <div class="post-footer"><div class="post-stat">👍 52</div><div class="post-stat">💬 19</div><div class="post-stat">👁️ 743</div></div>
+            <div class="post-footer"><div class="post-stat">👍 52</div><div class="post-stat">💬 19</div></div>
           </div>
         </div>
-        <div class="post-item" data-cat="free" data-likes="31">
+        <div class="post-item" data-type="free" data-likes="31">
           <div class="post-sport-av">🏀</div>
           <div>
             <div class="post-title">뚝섬 3on3 같이 하실 분 구해요 👋</div>
             <div class="post-meta"><span>자유</span><span>🏀 농구</span><span>이현</span><span>어제</span></div>
             <div class="post-excerpt">매주 주말마다 뚝섬에서 3on3 하는데 같이 하실 분 찾습니다. 실력 불문 환영이에요!</div>
-            <div class="post-footer"><div class="post-stat">👍 31</div><div class="post-stat">💬 6</div><div class="post-stat">👁️ 201</div></div>
+            <div class="post-footer"><div class="post-stat">👍 31</div><div class="post-stat">💬 6</div></div>
           </div>
         </div>
-        <div class="post-item" data-cat="tip" data-likes="87">
+        <div class="post-item" data-type="tip" data-likes="87">
           <div class="post-sport-av">🎾</div>
           <div>
             <div class="post-title">테니스 서브 폼 교정 — 6개월 만에 150km/h 달성한 방법</div>
             <div class="post-meta"><span>팁/정보</span><span>🎾 테니스</span><span>정다은</span><span>2일 전</span></div>
             <div class="post-excerpt">독학으로 서브 교정하면서 겪은 시행착오와 효과적이었던 드릴을 공유합니다...</div>
-            <div class="post-footer"><div class="post-stat">👍 87</div><div class="post-stat">💬 34</div><div class="post-stat">👁️ 1.2K</div></div>
+            <div class="post-footer"><div class="post-stat">👍 87</div><div class="post-stat">💬 34</div></div>
           </div>
         </div>
-        <div class="post-item" data-cat="free" data-likes="19">
+        <div class="post-item" data-type="free" data-likes="19">
           <div class="post-sport-av">⚽</div>
           <div>
             <div class="post-title">성수 풋살장 이번 달 예약 꿀팁 🔥</div>
             <div class="post-meta"><span>자유</span><span>⚽ 풋살</span><span>김민준</span><span>1시간 전</span></div>
             <div class="post-excerpt">새벽 6시에 예약 열리는데 미리 알람 맞춰두면 주말도 거뜬합니다. 제가 쓰는 방법 공유해요...</div>
-            <div class="post-footer"><div class="post-stat">👍 19</div><div class="post-stat">💬 8</div><div class="post-stat">👁️ 312</div></div>
+            <div class="post-footer"><div class="post-stat">👍 19</div><div class="post-stat">💬 8</div></div>
           </div>
         </div>
-        <div class="post-item" data-cat="question" data-likes="7">
+        <div class="post-item" data-type="question" data-likes="7">
           <div class="post-sport-av">🏊</div>
           <div>
             <div class="post-title">한강 수영 크루 참가하려는데 준비물 뭐 챙겨야 하나요?</div>
             <div class="post-meta"><span>질문</span><span>🏊 수영</span><span>박지현</span><span>4시간 전</span></div>
             <div class="post-excerpt">이번 주 처음 참가하는데 뭘 준비해야 할지 모르겠어요. 웻슈트 필수인지도 궁금하고...</div>
-            <div class="post-footer"><div class="post-stat">👍 7</div><div class="post-stat">💬 11</div><div class="post-stat">👁️ 98</div></div>
+            <div class="post-footer"><div class="post-stat">👍 7</div><div class="post-stat">💬 11</div></div>
           </div>
         </div>
         </div>
@@ -127,106 +128,15 @@
   </div>
 </div>
 
-
-</div><!-- /main -->
-
-<div class="map-popup-overlay" id="map-popup" onclick="if(event.target===this)closeMapPopup()">
-  <div class="map-popup">
-    <button class="popup-close" onclick="closeMapPopup()">✕</button>
-    <div class="popup-sport" id="pp-sport">⚽</div>
-    <div class="popup-title" id="pp-title">강남 풋살파크 5:5 매칭</div>
-    <div class="popup-meta">
-      <span id="pp-loc">📍 강남구 역삼동</span>
-      <span id="pp-time">⏰ 오늘 19:30</span>
-      <span id="pp-members">👥 6/10명</span>
-      <span>💰 <span id="pp-price">10,000원</span></span>
-    </div>
-    <div class="flex gap-6 mb-16">
-      <span class="tag tag-outline" id="pp-level">중급</span>
-      <span class="tag tag-green">실내</span>
-    </div>
-    <div class="popup-host">
-      <div class="popup-host-av">K</div>
-      <div><div class="popup-host-name">강남킬러 <span style="color:var(--text-3);font-weight:400">⭐ 4.9</span></div><div class="popup-host-sub">47경기 · 매너 우수</div></div>
-    </div>
-    <div class="popup-btns">
-      <button class="btn btn-primary flex-1" onclick="closeMapPopup();showModal('🎉 참가 신청 완료!','매칭에 참가 신청이 완료되었습니다!<br>당일 30분 전 알림을 드립니다.',null)">참가 신청</button>
-      <button class="btn btn-outline" onclick="closeMapPopup()">공유 🔗</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════ AUTH MODALS ═══════ -->
-<!-- Login Modal -->
-<div class="auth-modal-overlay" id="modal-login" onclick="if(event.target===this)closeAuthModal('login')">
-  <div class="auth-modal-box">
-    <button class="auth-close" onclick="closeAuthModal('login')">✕</button>
-    <div class="auth-header">
-      <div class="auth-title">다시 만나서 반가워요! 👋</div>
-      <div class="auth-sub">SPORTMATCH에 오신 것을 환영합니다.</div>
-    </div>
-    <div class="social-login">
-      <button class="social-btn kakao" onclick="handleAuthSuccess('로그인')">💬 카카오로 시작하기</button>
-      <button class="social-btn" onclick="handleAuthSuccess('로그인')">🌐 구글로 시작하기</button>
-    </div>
-    <div class="field">
-      <label class="label">이메일</label>
-      <input type="email" class="input" placeholder="example@sportmatch.com">
-    </div>
-    <div class="field">
-      <label class="label">비밀번호</label>
-      <input type="password" class="input" placeholder="••••••••">
-    </div>
-    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('로그인')">로그인</button>
-    <div class="auth-footer">
-      아직 회원이 아니신가요? <span class="auth-link" onclick="switchAuthModal('login', 'signup')">회원가입</span>
-    </div>
-  </div>
-</div>
-
-<!-- Signup Modal -->
-<div class="auth-modal-overlay" id="modal-signup" onclick="if(event.target===this)closeAuthModal('signup')">
-  <div class="auth-modal-box">
-    <button class="auth-close" onclick="closeAuthModal('signup')">✕</button>
-    <div class="auth-header">
-      <div class="auth-title">환영합니다! 🏅</div>
-      <div class="auth-sub">지금 가입하고 내 주변 매칭을 찾아보세요.</div>
-    </div>
-    <div class="social-login">
-      <button class="social-btn kakao" onclick="handleAuthSuccess('회원가입')">💬 카카오로 시작하기</button>
-      <button class="social-btn" onclick="handleAuthSuccess('회원가입')">🌐 구글로 시작하기</button>
-    </div>
-    <div class="field">
-      <label class="label">이름</label>
-      <input type="text" class="input" placeholder="홍길동">
-    </div>
-    <div class="field">
-      <label class="label">이메일</label>
-      <input type="email" class="input" placeholder="example@sportmatch.com">
-    </div>
-    <div class="field">
-      <label class="label">비밀번호</label>
-      <input type="password" class="input" placeholder="8자 이상 입력해주세요">
-    </div>
-    <button class="btn btn-primary btn-full btn-lg" style="margin-top:10px" onclick="handleAuthSuccess('회원가입')">회원가입 완료</button>
-    <div class="auth-footer">
-      이미 계정이 있으신가요? <span class="auth-link" onclick="switchAuthModal('signup', 'login')">로그인</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════ MODAL ═══════ -->
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <div class="modal-icon" id="modal-icon">🎉</div>
-    <div class="modal-title" id="modal-title">완료!</div>
-    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
-    <div class="modal-btns">
-      <button class="btn btn-outline flex-1" onclick="closeModal()">닫기</button>
-      <button class="btn btn-primary flex-1" id="modal-ok" onclick="closeModal()">확인</button>
-    </div>
-  </div>
-</div>
+<script>
+  function filterComm(btn, type) {
+    btn.closest('.comm-tabs').querySelectorAll('.comm-tab').forEach(tab => tab.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#comm-posts .post-item').forEach(el => {
+      el.style.display = (type === 'all' || el.dataset.type === type) ? '' : 'none';
+    });
+  }
+</script>
 
 </body>
 </html>
