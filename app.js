@@ -49,6 +49,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/kakao-map-js-key', (req, res) => {
+    res.json({ key: process.env.KAKAO_JS_KEY});
+})
 
 //index
 app.use('/', indexRouter);

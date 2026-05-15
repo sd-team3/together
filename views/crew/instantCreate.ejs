@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<div class="main">
+
+<%- include('../partials/head', { title: '📍 새 매칭 만들기', pageId: 'page-map-create', active: '' }) %>
+
+  <div class="form-page">
+    <div class="form-max">
+
+      <form method="POST" action="/crew/instant-create" id="create-form">
+
+        <div class="form-section">
+          <div class="form-section-title">기본 정보</div>
+
+          <!-- 종목: chip 선택 → hidden input에 값 저장 -->
+          <div class="field">
+            <label class="label">종목</label>
+            <div class="chip-group">
+              <% Object.entries(CONSTANTS.SPORTS).forEach(([key, val], i) => { %>
+                <div class="chip <%= i === 0 ? 'on' : '' %>" data-chip data-value="<%= key %>">
+                  <%= val.kr %>
+                </div>
+              <% }) %>
+            </div>
+              <input type="hidden" name="sport" id="sport-input" value="<%= Object.keys(CONSTANTS.SPORTS)[0] %>">
+          </div>
+
+          <div class="field">
+            <label class="label">매칭 제목</label>
+            <input class="input" name="title" placeholder="예: 강남 5:5 풋살 나이트 매칭" required>
+          </div>
+
+          <div class="field">
+            <label class="label">상세 내용</label>
+            <textarea class="input" name="intro" placeholder="매칭에 대한 추가 설명, 준비물, 주의사항 등을 입력하세요"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">장소</div>
+
+            <div class="field">
+              <label class="label">활동 지역</label>
+              <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                <!-- 시/도 선택 -->
+                <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas='<%- JSON.stringify(CONSTANTS.AREAS)%>' required>
+                  <option value="">시/도 선택</option>
+                  <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
+                    <option value="<%= state %>"><%= state %></option>
+                  <% }); %>
+                </select>
+
+                <!-- 시/군/구 선택 -->
+                <select id="citySelect" name="city" class="input" style="flex: 1;" required>
+                  <option value="">시/군/구 선택</option>
+                </select>
+              </div>
+
+              <!-- 상세 주소 입력 (선택사항 또는 카카오맵 검색용) -->
+              <input type="text" id="detail-addr" name="detail" class="input" placeholder="상세 장소 (예: 역삼 공원, OO 풋살장)" style="margin-top: 8px;">
+            </div>
+
+            <div class="field">
+              <button type="button" class="btn btn-outline" id="btn-find-addr" style="width:100%; margin-bottom:10px;">
+                📍 위치 확인 (지도 표시)
+              </button>
+              <div id="map" style="width:100%; height:220px; border-radius:10px; border:1px solid var(--border); display:none;"></div>
+              <div id="addr-result" style="font-size:13px; color:var(--primary); margin-top:6px; display:none;"></div>
+            </div>
+
+            <!-- 좌표 저장을 위한 hidden input -->
+            <input type="hidden" name="lat" id="lat-input">
+            <input type="hidden" name="lng" id="lng-input">
+          </div>
+
+          <div class="field mb-12">
+            <label class="label">모집 인원</label>
+            <input class="input" name="capacity" type="number" placeholder="10" min="2" required>
+          </div>
+
+          <!-- 자동 수락 여부 -->
+          <div class="field mb-12">
+            <label class="label">참가 신청 방식</label>
+            <div class="level-row">
+              <div class="lv-btn on" data-accept data-value="enable">자동 수락</div>
+              <div class="lv-btn" data-accept data-value="disable">수동 수락</div>
+            </div>
+            <input type="hidden" name="isAutoAccept" id="accept-input" value="enable">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <a href="/crew/instant" class="btn btn-outline">취소</a>
+          <button type="submit" class="btn btn-primary btn-lg">매칭 등록하기</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script type="module" src="/js/handlers/icCreateHandler.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<div class="main">
+
+<%- include('../partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '' }) %>
+
+  <div class="page-body-wide" style="flex:1;min-height:0;overflow:hidden">
+    <div class="map-container" style="height:100%;overflow:hidden">
+
+      <!-- Map Area -->
+        <div class="map-area" style="position:relative;flex:1">
+          <div id="leaflet-map" style="width:100%; height:100%;"></div>
+          <!-- Filter bar -->
+          <div class="map-filter-bar" style="z-index:1000">
+            <div class="map-filter-chip on" data-filter="all">전체</div>
+            <div class="map-filter-chip" data-filter="soccer">축구</div>
+            <div class="map-filter-chip" data-filter="basketball">농구</div>
+            <div class="map-filter-chip" data-filter="badminton">배드민턴</div>
+            <div class="map-filter-chip" data-filter="running">러닝</div>
+            <div class="map-filter-chip" data-filter="tennis">테니스</div>
+          </div>
+        </div>
+
+        <!-- List Panel -->
+        <div class="map-list">
+          <div class="map-list-header">
+            <div class="map-list-title"><%= crews.length %>개의 매칭</div>
+            <div class="map-sort-tabs">
+              <button class="map-sort-tab">시간순</button>
+              <button class="map-sort-tab">인원순</button>
+            </div>
+          </div>
+
+          <div class="map-list-items" style="flex:1;overflow-y:auto;">
+
+            <% if(crews.length === 0 ) { %>
+              <div style="padding:40px;text-align:center;color:#999;">
+                <div style="font-size:32px;margin-bottom:12px">📭</div>
+                <div>아직 등록된 매칭이 없어요</div>
+                <div style="font-size:13px;margin-top:6px">첫 번째 매칭을 만들어보세요!</div>
+              </div>
+            <% } %>
+
+            <% crews.forEach(crew => { %>
+              <%
+                const sportEmojiMap = {
+                  soccer:'⚽', baseball:'⚾', basketball:'🏀', bowling:'🎳',
+                  tennis:'🎾', badminton:'🏸', tabletennis:'🏓'
+                };
+                const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
+                const sportEmoji = sportEmojiMap[crew.sport] || '🏅';
+                const current = crew.member.memberList.length;
+                const capacity = crew.member.capacity;
+                const isFull = current >= capacity;
+                const isAlmostFull = !isFull && (current / capacity) >= 0.8;
+              %>
+              <div class="map-item"
+                data-id="<%= crew._id %>"
+                data-sport="<%= crew.sport %>"
+                data-title="<%= crew.title%>" 
+                data-loc="<%= crew.address.state%> <%= crew.address.city%>"
+                data-members="<%= current %>/<%= capacity%>명" 
+                data-host="<%= crew.host.nickname || '익명' %>">
+                <div class="mi-top">
+                  <div class="mi-sport"><%= sportEmoji  %></div>
+                  <div>
+                    <div class="mi-title"><%= crew.title%></div>
+                    <div class="mi-meta">
+                      <span>📍 <%= crew.address.state%> <%= crew.address.city%></span>
+                    </div>
+                  </div>
+                </div>
+                  <!-- <div class="mi-meta"><span>⏰ 오늘 19:30</span><span>👥 6/10명</span><span>💰 10,000원</span></div>
+                  <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">중급</span></div> -->
+                  <div class="mi-meta">
+                    <span>👥 <%= current %>/<%= capacity %>명</span>
+                    <span>🙋 <%= crew.host.name || '익명' %></span>
+                    <span><%= crew.isAutoAccept ? '⚡ 자동수락' : '✋ 수동수락' %></span>
+                  </div>
+
+                  <div class="mi-bottom">
+                    <% if (isFull) { %>
+                      <span class="pill pill-closed">마감</span>
+                    <% } else if (isAlmostFull) { %>
+                      <span class="pill pill-warn">마감임박</span>
+                    <% } else { %>
+                      <span class="pill pill-open">참가가능</span>
+                    <% } %>
+                    <span class="tag tag-outline"><%= sportKr %></span>
+                  </div>
+                </div>
+            <% })%>
+          </div>
+
+          <div style="padding:16px;background:#fff;border-top:1px solid #eee;z-index:10;">
+            <button class="btn btn-primary" id="btn-create-match"
+              style="width:100%;padding:12px;font-size:15px;border-radius:8px;font-weight:600;">
+              ＋ 매칭 만들기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /main -->
+
+<!-- Map Popup -->
+  <div class="map-popup-overlay" id="map-popup">
+    <div class="map-popup">
+      <button class="popup-close" id="popup-close-btn">✕</button>
+
+      <!-- 종목 + 상태 뱃지 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div class="popup-sport" id="pp-sport"></div>
+        <span id="pp-status"></span>
+        <span id="pp-accept"></span>
+      </div>
+
+      <!-- 제목 -->
+      <div class="popup-title" id="pp-title"></div>
+
+      <!-- 소개글 -->
+      <div id="pp-intro" style="font-size:13px;color:#666;margin:8px 0 12px;line-height:1.5;"></div>
+
+      <!-- 메타 정보 -->
+      <div class="popup-meta">
+        <span id="pp-loc"></span>
+        <span id="pp-members"></span>
+      </div>
+
+      <!-- 호스트 -->
+      <div class="popup-host" style="margin:12px 0">
+        <div class="popup-host-av" id="pp-host-av"></div>
+        <div>
+          <div class="popup-host-name" id="pp-host"></div>
+          <div class="popup-host-sub" id="pp-reputation"></div>
+        </div>
+      </div>
+
+      <!-- 등록 시간 -->
+      <div style="font-size:12px;color:#aaa;margin-bottom:16px" id="pp-time"></div>
+
+      <div class="popup-btns">
+        <button class="btn btn-primary flex-1" id="popup-apply-btn">참가 신청</button>
+        <button class="btn btn-outline" id="popup-share-btn">공유 🔗</button>
+      </div>
+    </div>
+  </div>
+
+  <script id="page-data" type="application/json"> <%- JSON.stringify(pageData)%></script>
+  <script src="/js/handlers/icHandler.js"></script> 
+</body>
+</html>
