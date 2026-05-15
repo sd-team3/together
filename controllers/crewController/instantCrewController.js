@@ -60,4 +60,24 @@ const postInstantCreate = async (req, res) => {
         return res.status(500).send('서버 오류가 발생했습니다.');
     }
 };
- module.exports = {getInstantCreate, postInstantCreate, getInstant};
+
+const postApplyInstantCrew = async (req, res) => {
+    try {
+         console.log('isAuthenticated:', req.isAuthenticated());
+        console.log('req.user:', req.user);
+        console.log('session:', req.session);
+        if(!req.isAuthenticated()){
+            return res.status(401).json({success: false, message: '로그인이 필요합니다.'});
+        }
+        const { crewId } = req.params;
+        const userId = req.user._id;
+
+        const result = await instantCrewService.applyInstantCrew(crewId, userId);
+        return res.json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+    }
+};
+
+ module.exports = {getInstantCreate, postInstantCreate, getInstant, postApplyInstantCrew};

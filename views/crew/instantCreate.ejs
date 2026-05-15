@@ -47,13 +47,13 @@
         </div>
 
         <div class="form-section">
-          <div class="form-section-title">장소 & 조건</div>
+          <div class="form-section-title">장소</div>
 
             <div class="field">
               <label class="label">활동 지역</label>
               <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                 <!-- 시/도 선택 -->
-                <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas="<%- JSON.stringify(CONSTANTS.AREAS)%>" required>
+                <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas='<%- JSON.stringify(CONSTANTS.AREAS)%>' required>
                   <option value="">시/도 선택</option>
                   <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
                     <option value="<%= state %>"><%= state %></option>
@@ -82,10 +82,6 @@
             <input type="hidden" name="lat" id="lat-input">
             <input type="hidden" name="lng" id="lng-input">
           </div>
-
-          <!-- 지도 클릭으로 좌표 입력 (hidden) -->
-          <input type="hidden" name="lat" id="lat-input" value="">
-          <input type="hidden" name="lng" id="lng-input" value="">
 
           <div class="field mb-12">
             <label class="label">모집 인원</label>
@@ -116,73 +112,6 @@
 
 </div><!-- /main -->
 
-<script type="module">
-import kakaoMap from '/js/modules/mapLoader.js';
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  // ── 종목 chip ──
-  document.querySelectorAll('[data-chip]').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('[data-chip]').forEach(c => c.classList.remove('on'));
-      chip.classList.add('on');
-      document.getElementById('sport-input').value = chip.dataset.value;
-    });
-  });
-
-  // ── 자동/수동 수락 ──
-  document.querySelectorAll('[data-accept]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-accept]').forEach(b => b.classList.remove('on'));
-      btn.classList.add('on');
-      document.getElementById('accept-input').value = btn.dataset.value;
-    });
-  });
-
-  // ── 주소 → 좌표 변환 + 지도 표시 ──
-  document.getElementById('btn-find-addr').addEventListener('click', async () => {
-    const state = document.getElementById('state-input').value.trim();
-    const city  = document.getElementById('city-input').value.trim();
-
-    if (!state || !city) {
-      alert('시/도와 구/동을 먼저 입력해주세요.');
-      return;
-    }
-
-    const address = state + ' ' + city;
-
-    try {
-      const { lat, lng } = await kakaoMap.ADDRtoLatLng(address);
-
-      // hidden input에 좌표 저장
-      document.getElementById('lat-input').value = lat;
-      document.getElementById('lng-input').value = lng;
-
-      // 지도 표시
-      const mapEl = document.getElementById('map');
-      mapEl.style.display = 'block';
-      await kakaoMap.loadMapByADDR(address);
-
-      // 결과 텍스트
-      const resultEl = document.getElementById('addr-result');
-      resultEl.style.display = 'block';
-      resultEl.textContent = `✅ 위치 확인 완료: ${address} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
-
-    } catch (err) {
-      alert('주소를 찾을 수 없습니다. 다시 확인해주세요.');
-      console.error(err);
-    }
-  });
-
-  // ── 제출 전 lat/lng 검증 ──
-  document.getElementById('create-form').addEventListener('submit', (e) => {
-    if (!document.getElementById('lat-input').value) {
-      e.preventDefault();
-      alert('위치 확인 버튼을 눌러 장소를 지정해주세요.');
-    }
-  });
-
-});
-</script>
+<script type="module" src="/js/handlers/icCreateHandler.js"></script>
 </body>
 </html>
