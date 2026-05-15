@@ -63,9 +63,6 @@ const postInstantCreate = async (req, res) => {
 
 const postApplyInstantCrew = async (req, res) => {
     try {
-         console.log('isAuthenticated:', req.isAuthenticated());
-        console.log('req.user:', req.user);
-        console.log('session:', req.session);
         if(!req.isAuthenticated()){
             return res.status(401).json({success: false, message: '로그인이 필요합니다.'});
         }
