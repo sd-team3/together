@@ -75,10 +75,13 @@ const getRegularMeetings = async () => {
             })
             : '미정';
 
+        const PERIOD_MAP = { week: '매주', '2week': '격주', month: '매월' };
+        const periodLabel = PERIOD_MAP[crew.period] || '매주';
+
         return {
             emoji: meta.emoji,
             title: crew.title,
-            schedule: `매주 ${dayLabel}`,
+            schedule: `${periodLabel} ${dayLabel}`,
             district: crew.address?.city || '지역 미정',
 
             filterTags: [
@@ -115,7 +118,7 @@ const getRegularMeetings = async () => {
 
             modalBody:
                 `📍 ${crew.address?.city || ''} ${crew.address?.detail || ''} / ` +
-                `매주 ${dayLabel} ${timeLabel} / ` +
+                `${periodLabel} ${dayLabel} ${timeLabel} / ` +
                 `${current}/${total}명 / ` +
                 `${crew.fee > 0
                     ? crew.fee.toLocaleString() + '원/회'
@@ -270,11 +273,9 @@ const getMyStats = async (userId) => {
 
 // 플랫폼 통계
 const getStats = async () => {
-    const now     = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [weeklyMatches, activeClubs] = await Promise.all([
-        InstantCrew.countDocuments({ createdAt: { $gte: weekAgo } }),
+        InstantCrew.countDocuments(),
         RegularCrew.countDocuments()
     ]);
 
