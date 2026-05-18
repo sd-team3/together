@@ -218,11 +218,14 @@ function leafletFilterToggle(type) {
     if (!show && leafletMap.hasLayer(marker)) leafletMap.removeLayer(marker);
   });
 }
+//번개모임
 
 // ── DOMContentLoaded ──────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
   goPage('home');
+
+  setText('stat-instant-count', leafletMatches.length);
 
   // data-href: 실제 페이지 이동 (서버 라우트)
   document.addEventListener('click', e => {
@@ -236,20 +239,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 종목 칩
-  document.querySelectorAll('.sport-chip').forEach(chip => {
-    chip.addEventListener('click', () => filterSport(chip));
+ document.querySelectorAll('.sport-chip').forEach(chip => {
+  chip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filterSport(chip);
   });
+});
 
   // 정기모임 카드 클릭 → 모달
   document.querySelectorAll('.reg-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const title = card.dataset.modalTitle || '';
-      const body  = card.dataset.modalBody  || '';
-      showModal(title, body, () =>
-        showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
-      );
-    });
+  card.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const title = card.dataset.modalTitle || '';
+    const body  = card.dataset.modalBody  || '';
+    showModal(title, body, () =>
+      showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
+    );
   });
+});
   
   function filterSport(el) {
   document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));

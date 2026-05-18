@@ -253,6 +253,10 @@ select.input{cursor:pointer}
 .sport-chips{
   display:flex;gap:8px;padding:0 28px 4px;overflow-x:auto;
   scrollbar-width:none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
 }
 .sport-chips::-webkit-scrollbar{display:none}
 .sport-chip{
@@ -2305,9 +2309,3 @@ select.input{cursor:pointer}
   color: var(--text-3);
 }
 
-.sport-chips{
-  position: sticky;
-  top: 0;
-  z-index: 9999;
-  background: rgba(255,255,255,0.0);
-}
