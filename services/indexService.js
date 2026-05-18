@@ -39,7 +39,7 @@ const calcDday = (date) => {
 const getRegularMeetings = async () => {
     const crews = await RegularCrew.find()
         .sort({ createdAt: -1 })
-        .limit(6);
+        .limit(12);
 
     return crews.map(crew => {
 
@@ -57,9 +57,13 @@ const getRegularMeetings = async () => {
             color: '#999'
         };
 
-        const dayLabel = (crew.day || [])
-            .map(d => DAY_MAP[d] || d)
-            .join('·');
+        const ALL_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+        const dayLabel = ALL_DAYS.every(d => (crew.day || []).includes(d))
+            ? '매일'
+            : (crew.day || []).every(d => d === 'none')
+                ? '비정기'
+                : (crew.day || []).map(d => DAY_MAP[d] || d).join('·');
 
         const isFull = current >= total;
         const isAlmost = fillPct >= 75;
@@ -81,8 +85,9 @@ const getRegularMeetings = async () => {
         return {
             emoji: meta.emoji,
             title: crew.title,
-            schedule: `${periodLabel} ${dayLabel}`,
-            district: crew.address?.city || '지역 미정',
+            schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
+            district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
+            
 
             filterTags: [
                 crew.fee > 0 ? 'paid' : 'free',
@@ -273,13 +278,22 @@ const getMyStats = async (userId) => {
 
 // 플랫폼 통계
 const getStats = async () => {
+    const [weeklyMatches, activeClubs, regularMembers, instantMembers] = await Promise.all([
+    InstantCrew.countDocuments(),
+    RegularCrew.countDocuments(),
+    RegularCrew.aggregate([
+        { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
+    ]),
+    InstantCrew.aggregate([
+        { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
+    ])
+]);
 
-    const [weeklyMatches, activeClubs] = await Promise.all([
-        InstantCrew.countDocuments(),
-        RegularCrew.countDocuments()
-    ]);
-
-    return { weeklyMatches, activeClubs, avgManner: 0 };
+return {
+    weeklyMatches,
+    activeClubs,
+    totalMembers: (regularMembers[0]?.total || 0) + (instantMembers[0]?.total || 0)
+};
 };
 
 // 종목 칩
