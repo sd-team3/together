@@ -154,32 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('popup-close-btn')?.addEventListener('click', closeMapPopup);
   document.getElementById('popup-close-btn2')?.addEventListener('click', closeMapPopup);
 
-  // // 참가 신청 버튼 (추후 실제 API 연결)
-  // document.getElementById('popup-apply-btn')?.addEventListener('click', async () => {
-  //   if(!isLoggedIn) {
-  //     window.location.href = '/user/login';
-  //     return;
-  //   }
-  //   const crewId = document.getElementById('popup-apply-btn').dataset.crewId;
-  //   if(!crewId) return;
-
-  //   try {
-  //     const res = await fetch(`/crew/instant/${crewId}/apply`, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json'}
-  //     });
-  //     const result = await res.json();
-  //     console.log(result.message); // 일단 콘솔에 명시, 추후에 바꿀 예정
-  //     if(result.success){
-  //       closeMapPopup();
-  //       location.reload();
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     res.status(500).send('서버 오류가 발생했습니다.');
-  //   }
-  // });
-
   document.getElementById('btn-create-match')?.addEventListener('click', () => {
     if(!isLoggedIn) {
       window.location.href = "/user/login";
