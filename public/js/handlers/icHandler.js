@@ -40,8 +40,7 @@ function showMapPopup(data) {
   // 호스트
   document.getElementById('pp-host-av').textContent = data.host.charAt(0);
   document.getElementById('pp-host').textContent = data.host;
-  document.getElementById('pp-reputation').textContent =
-    data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
+  document.getElementById('pp-reputation').textContent = data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
 
   // 등록 시간
   document.getElementById('pp-time').textContent = '🕐 ' + timeAgo(data.createdAt);
@@ -96,17 +95,17 @@ function initLeafletMap() {
 
   L.control.zoom({ position: 'topright' }).addTo(leafletMap);
 
-  // lat/lng 있는 crew만 마커 표시
-  crewsData.forEach(c => {
-    if (!c.lat || !c.lng) return;
-    const emoji = c.sportKr || c.sport;
-    const color = sportColor[c.sport] || '#999';
-    const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(emoji, color) })
-      .addTo(leafletMap);
-    marker._crewData = c;
-    marker.on('click', () => showMapPopup(c));
-    leafletMarkers.push(marker);
-  });
+  // // lat/lng 있는 crew만 마커 표시
+  // crewsData.forEach(c => {
+  //   if (!c.lat || !c.lng) return;
+  //   const emoji = c.sportKr || c.sport;
+  //   const color = sportColor[c.sport] || '#999';
+  //   const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(emoji, color) })
+  //     .addTo(leafletMap);
+  //   marker._crewData = c;
+  //   marker.on('click', () => showMapPopup(c));
+  //   leafletMarkers.push(marker);
+  // });
 }
 
 // ── 지도 필터 ──
