@@ -229,39 +229,123 @@ const getRelativeTime = (date) => {
 
 // 내 이번 주 일정
 const getMySchedule = async (userId) => {
-    const now       = new Date();
-    const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const crews = await RegularCrew.find({
-        'member.memberList.user': userId,
-        'schedule.date': { $gte: now, $lte: weekLater }
-    });
+    const now = new Date();
+    const dow = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+    monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
 
-    const schedules = [];
+    const DAY_KEY_MAP = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
+
     const SPORT_COLORS = Object.fromEntries(
         Object.entries(SPORTS_META).map(([k, v]) => [k, v.color])
     );
 
-    crews.forEach(crew => {
-        crew.schedule
-            .filter(s => new Date(s.date) >= now && new Date(s.date) <= weekLater)
-            .forEach(s => {
-                const date    = new Date(s.date);
-                const dDay    = calcDday(date);
-                const isToday = dDay === 'D-0';
+    const schedules = [];
 
-                schedules.push({
-                    time:   `${isToday ? '오늘' : date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })} ${date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`,
-                    color:  SPORT_COLORS[crew.sport] || 'var(--primary)',
-                    title:  s.title || crew.title,
-                    place:  `${s.address.city} ${s.address.detail || ''}`.trim(),
-                    dDay,
-                    dColor: dDay === 'D-0' ? 'var(--orange)' : dDay.startsWith('D+') ? 'var(--text-3)' : 'var(--primary)'
-                });
+    // ── 정기모임 ────────────────────────────────
+    const regularCrews = await RegularCrew.find({
+        $or: [
+            { host: new mongoose.Types.ObjectId(userId) },
+            { 'member.memberList.user': new mongoose.Types.ObjectId(userId) }
+        ]
+    }).lean();
+
+    for (const crew of regularCrews) {
+        const meta = SPORTS_META[crew.sport] || { emoji: '🏃', color: '#999' };
+        const days = (crew.day || []).filter(d => d !== 'none');
+        if (!days.length) continue;
+
+        const meetDates = [];
+
+        if (crew.period === 'week') {
+            days.forEach(dayKey => {
+                const targetDow = DAY_KEY_MAP[dayKey];
+                if (targetDow === undefined) return;
+
+                const meetDate = new Date(monday);
+                meetDate.setDate(monday.getDate() + (targetDow === 0 ? 6 : targetDow - 1));
+                meetDates.push(meetDate);
             });
+
+        } else if (crew.period === '2week') {
+            const lastDate = (crew.schedule || [])
+                .map(s => new Date(s.date))
+                .sort((a, b) => b - a)[0];
+
+            if (!lastDate) continue;
+
+            days.forEach(dayKey => {
+                const targetDow = DAY_KEY_MAP[dayKey];
+                if (targetDow === undefined) return;
+
+                let cursor = new Date(lastDate);
+                while (cursor < monday) cursor.setDate(cursor.getDate() + 14);
+                if (cursor <= sunday && cursor.getDay() === targetDow) {
+                    meetDates.push(new Date(cursor));
+                }
+            });
+
+        } else if (crew.period === 'month') {
+            (crew.schedule || []).forEach(s => {
+                const d = new Date(s.date);
+                if (d >= monday && d <= sunday) meetDates.push(d);
+            });
+        }
+
+        const latestSchedule = (crew.schedule || [])
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+
+        meetDates.forEach(meetDate => {
+            if (meetDate < now) return; // ✅ 지난 날짜 제외
+
+            const dDay = calcDday(meetDate);
+            const isToday = meetDate.toDateString() === now.toDateString();
+
+            schedules.push({
+                date:   meetDate,
+                time:   `${isToday ? '오늘' : meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' })}`,
+                emoji:  meta.emoji,
+                title:  crew.title,
+                place:  `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '장소 미정',
+                dDay,
+                dColor: dDay === 'D-0' ? 'var(--orange)' : 'var(--primary)',
+                type:   'regular'
+            });
+        });
+    }
+
+    // 번개모임
+    const instantCrews = await InstantCrew.find({
+        'member.memberList.user': userId,
+        meetingAt: { $gte: now, $lte: sunday } 
+    }).lean();
+
+    // 번개모임
+    instantCrews.forEach(crew => {
+        const meta     = SPORTS_META[crew.sport] || { emoji: '🏃', color: '#999' };
+        const meetDate = new Date(crew.meetingAt);
+        const dDay     = calcDday(meetDate);
+
+        schedules.push({
+            date:   meetDate,
+            // ✅ isToday 분기 없이 항상 날짜+시간 표시
+            time: meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' }),
+            emoji:  meta.emoji,
+            title:  `⚡ ${crew.title}`,
+            place:  `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '장소 미정',
+            dDay,
+            dColor: dDay === 'D-0' ? 'var(--orange)' : 'var(--primary)',
+            type:   'instant'
+        });
     });
 
-    return schedules.sort((a, b) => a.dDay.localeCompare(b.dDay));
+    return schedules.sort((a, b) => a.date - b.date);
 };
 
 // 내 활동 요약

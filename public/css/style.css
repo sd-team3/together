@@ -2309,3 +2309,9 @@ select.input{cursor:pointer}
   color: var(--text-3);
 }
 
+.sched-emoji {
+    font-size: 20px;
+    width: 32px;
+    text-align: center;
+    flex-shrink: 0;
+}
