@@ -19,6 +19,7 @@ const getInstant = async (req, res) => {
             capacity: c.member.capacity,
             host:     c.host.name || '익명',
             isAutoAccept: c.isAutoAccept,
+            meetAt: c.meetAt,
             createdAt: c.createdAt,
             avgReputation: c.avgReputation || 0
         }));
