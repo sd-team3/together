@@ -685,6 +685,11 @@ select.input{cursor:pointer}
 .sched-title{font-size:12.5px;font-weight:600;margin-bottom:1px}
 .sched-sub{font-size:11px;color:var(--text-3)}
 .sched-status{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.no-data-container{display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; text-align: center; background: #f9f9f9; border-radius: 12px; border:1px solid var(--border);}
+.no-data-item{font-size:40; margin-bottom: 10px;}
+.no-data-item:first-child{font-size:50px;}
+.no-data-button{padding: 8px 20px; background: var(--primary); color: white; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: bold; transition: opacity 0.2s;}
+
 
 /* ═══════════════════════════════════════
    CHAT PAGE
