@@ -114,6 +114,8 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
 }
 
     if (address) {
+        if (address.state !== undefined) user.address.state = address.state;
+        if (address.city !== undefined) user.address.city = address.city;
         if (address.road !== undefined) user.address.road = address.road;
         if (address.detail !== undefined) user.address.detail = address.detail;
         if (address.zipcode !== undefined) user.address.zipcode = address.zipcode;

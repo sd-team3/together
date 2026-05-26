@@ -13,7 +13,7 @@ exports.getHome = async (req, res, next) => {
     ]);
 
         const mySchedule = req.user
-            ? await homeService.getMySchedule(req.user.id)
+            ? await homeService.getMySchedule(req.user._id)
             : [];
 
         const myStats = req.user
