@@ -15,6 +15,7 @@ const session = require('express-session');
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
 const crewRouter = require('./routes/crew/crewRouter');
+const indexRouter = require('./routes/indexRouter.js');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
 // 웹소켓
 const chatRouter = require('./routes/chatRouter');
@@ -48,10 +49,13 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/kakao-map-js-key', (req, res) => {
+    res.json({ key: process.env.KAKAO_JS_KEY});
+})
 
-app.get('/', (req, res) => {
-    res.render('index');
-});
+//index
+app.use('/', indexRouter);
+
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
