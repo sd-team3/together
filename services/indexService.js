@@ -77,7 +77,7 @@ const getRegularMeetings = async () => {
                 hour: '2-digit',
                 minute: '2-digit'
             })
-            : '미정';
+            : '';
 
         const PERIOD_MAP = { week: '매주', '2week': '격주', month: '매월' };
         const periodLabel = PERIOD_MAP[crew.period] || '매주';
@@ -230,8 +230,8 @@ const getRelativeTime = (date) => {
 // 내 이번 주 일정
 const getMySchedule = async (userId) => {
 
-    const now = new Date();
-    const dow = now.getDay();
+    const now    = new Date();
+    const dow    = now.getDay();
     const monday = new Date(now);
     monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
     monday.setHours(0, 0, 0, 0);
@@ -240,18 +240,16 @@ const getMySchedule = async (userId) => {
     sunday.setHours(23, 59, 59, 999);
 
     const DAY_KEY_MAP = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
+    const objectId    = new mongoose.Types.ObjectId(userId);
+    const schedules   = [];
 
-    const SPORT_COLORS = Object.fromEntries(
-        Object.entries(SPORTS_META).map(([k, v]) => [k, v.color])
-    );
+    // ── 정기모임: user.crews 기준으로 조회 ──────
+    const user = await User.findById(objectId).lean();
 
-    const schedules = [];
-
-    // ── 정기모임 ────────────────────────────────
     const regularCrews = await RegularCrew.find({
         $or: [
-            { host: new mongoose.Types.ObjectId(userId) },
-            { 'member.memberList.user': new mongoose.Types.ObjectId(userId) }
+            { _id: { $in: user?.crews || [] } }, // ✅ user.crews 기준
+            { host: objectId }
         ]
     }).lean();
 
@@ -266,7 +264,6 @@ const getMySchedule = async (userId) => {
             days.forEach(dayKey => {
                 const targetDow = DAY_KEY_MAP[dayKey];
                 if (targetDow === undefined) return;
-
                 const meetDate = new Date(monday);
                 meetDate.setDate(monday.getDate() + (targetDow === 0 ? 6 : targetDow - 1));
                 meetDates.push(meetDate);
@@ -282,7 +279,6 @@ const getMySchedule = async (userId) => {
             days.forEach(dayKey => {
                 const targetDow = DAY_KEY_MAP[dayKey];
                 if (targetDow === undefined) return;
-
                 let cursor = new Date(lastDate);
                 while (cursor < monday) cursor.setDate(cursor.getDate() + 14);
                 if (cursor <= sunday && cursor.getDay() === targetDow) {
@@ -297,19 +293,16 @@ const getMySchedule = async (userId) => {
             });
         }
 
-        const latestSchedule = (crew.schedule || [])
-            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-
         meetDates.forEach(meetDate => {
-            if (meetDate < now) return; // ✅ 지난 날짜 제외
-
-            const dDay = calcDday(meetDate);
+            if (meetDate < now) return;
+            const dDay    = calcDday(meetDate);
             const isToday = meetDate.toDateString() === now.toDateString();
 
             schedules.push({
                 date:   meetDate,
-                time:   `${isToday ? '오늘' : meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' })}`,
+                time:   isToday
+                    ? '오늘'
+                    : meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' }),
                 emoji:  meta.emoji,
                 title:  crew.title,
                 place:  `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '장소 미정',
@@ -320,22 +313,22 @@ const getMySchedule = async (userId) => {
         });
     }
 
-    // 번개모임
+    // ── 번개모임 ────────────────────────────────
     const instantCrews = await InstantCrew.find({
-        'member.memberList.user': userId,
-        meetingAt: { $gte: now, $lte: sunday } 
+        $and: [
+            { 'member.memberList.user': objectId },  // ✅ ObjectId 변환
+            { meetAt: { $gte: now, $lte: sunday } }  // ✅ meetAt
+        ]
     }).lean();
 
-    // 번개모임
     instantCrews.forEach(crew => {
         const meta     = SPORTS_META[crew.sport] || { emoji: '🏃', color: '#999' };
-        const meetDate = new Date(crew.meetingAt);
+        const meetDate = new Date(crew.meetAt);      // ✅ meetAt
         const dDay     = calcDday(meetDate);
 
         schedules.push({
             date:   meetDate,
-            // ✅ isToday 분기 없이 항상 날짜+시간 표시
-            time: meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' }),
+            time:   meetDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' }),
             emoji:  meta.emoji,
             title:  `⚡ ${crew.title}`,
             place:  `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '장소 미정',

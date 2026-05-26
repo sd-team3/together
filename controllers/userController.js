@@ -163,7 +163,7 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
-        zipcode,
+        zonecode: zipcode,
         gender,
         currentPassword,
         newPassword,
