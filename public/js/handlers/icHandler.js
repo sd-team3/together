@@ -40,11 +40,11 @@ function showMapPopup(data) {
   // 호스트
   document.getElementById('pp-host-av').textContent = data.host.charAt(0);
   document.getElementById('pp-host').textContent = data.host;
-  document.getElementById('pp-reputation').textContent =
-    data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
+  document.getElementById('pp-reputation').textContent = data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
 
   // 등록 시간
-  document.getElementById('pp-time').textContent = '🕐 ' + timeAgo(data.createdAt);
+  document.getElementById('pp-time').textContent =  '⏰ ' + (data.meetAt ? new Date(data.meetAt).toLocaleString('ko-KR') : '미정')
+  + '  🕐 ' + timeAgo(data.createdAt);
 
   document.getElementById('map-popup').classList.add('show');
 
@@ -64,9 +64,30 @@ function closeMapPopup() {
 }
 
 // ── SORT TABS ──
-function setSortTab(el) {
+function setSortTab(el, type) {
   el.closest('.map-sort-tabs').querySelectorAll('.map-sort-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+
+  const container = document.querySelector('.map-list-items');
+  const items = [...container.querySelectorAll('.map-item')];
+
+  if (type === '시간순') {
+    items.sort((a, b) => {
+      const aCrew = crewsData.find(c => String(c.id) === a.dataset.id);
+      const bCrew = crewsData.find(c => String(c.id) === b.dataset.id);
+      return new Date(bCrew.createdAt) - new Date(aCrew.createdAt);
+    });
+  } else if (type === '인원순') {
+
+    items.sort((a, b) => {
+      const parse = str => str.replace('명', '').split('/').map(Number);
+      const [aCur] = parse(a.dataset.members);
+      const [bCur] = parse(b.dataset.members);
+      return bCur - aCur;
+    });
+  }
+
+  items.forEach(item => container.appendChild(item));
 }
 
 // ── LEAFLET MAP ──
@@ -96,17 +117,17 @@ function initLeafletMap() {
 
   L.control.zoom({ position: 'topright' }).addTo(leafletMap);
 
-  // lat/lng 있는 crew만 마커 표시
-  crewsData.forEach(c => {
-    if (!c.lat || !c.lng) return;
-    const emoji = c.sportKr || c.sport;
-    const color = sportColor[c.sport] || '#999';
-    const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(emoji, color) })
-      .addTo(leafletMap);
-    marker._crewData = c;
-    marker.on('click', () => showMapPopup(c));
-    leafletMarkers.push(marker);
-  });
+  // // lat/lng 있는 crew만 마커 표시
+  // crewsData.forEach(c => {
+  //   if (!c.lat || !c.lng) return;
+  //   const emoji = c.sportKr || c.sport;
+  //   const color = sportColor[c.sport] || '#999';
+  //   const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(emoji, color) })
+  //     .addTo(leafletMap);
+  //   marker._crewData = c;
+  //   marker.on('click', () => showMapPopup(c));
+  //   leafletMarkers.push(marker);
+  // });
 }
 
 // ── 지도 필터 ──
@@ -146,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 정렬 탭
   document.querySelectorAll('.map-sort-tab').forEach(tab => {
-    tab.addEventListener('click', () => setSortTab(tab));
+    tab.addEventListener('click', () => setSortTab(tab, tab.textContent.trim()));
   });
 
   // 맵 팝업 닫기
@@ -154,32 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mapPopupEl) mapPopupEl.addEventListener('click', e => { if (e.target === mapPopupEl) closeMapPopup(); });
   document.getElementById('popup-close-btn')?.addEventListener('click', closeMapPopup);
   document.getElementById('popup-close-btn2')?.addEventListener('click', closeMapPopup);
-
-  // 참가 신청 버튼 (추후 실제 API 연결)
-  document.getElementById('popup-apply-btn')?.addEventListener('click', async () => {
-    if(!isLoggedIn) {
-      window.location.href = '/user/login';
-      return;
-    }
-    const crewId = document.getElementById('popup-apply-btn').dataset.crewId;
-    if(!crewId) return;
-
-    try {
-      const res = await fetch(`/crew/instant/${crewId}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'}
-      });
-      const result = await res.json();
-      console.log(result.message); // 일단 콘솔에 명시, 추후에 바꿀 예정
-      if(result.success){
-        closeMapPopup();
-        location.reload();
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('서버 오류가 발생했습니다.');
-    }
-  });
 
   document.getElementById('btn-create-match')?.addEventListener('click', () => {
     if(!isLoggedIn) {

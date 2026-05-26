@@ -37,6 +37,10 @@ const instantCrewSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
         intro: { type: String },
+        meetAt: {
+            type: Date,
+            required: true
+        },
         host: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

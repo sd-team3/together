@@ -72,7 +72,9 @@
                 data-title="<%= crew.title%>" 
                 data-loc="<%= crew.address.state%> <%= crew.address.city%>"
                 data-members="<%= current %>/<%= capacity%>명" 
-                data-host="<%= crew.host.nickname || '익명' %>">
+                data-host="<%= crew.host.nickname || '익명' %>"
+                data-meet-at="<%= crew.meetAt %>">
+                
                 <div class="mi-top">
                   <div class="mi-sport"><%= sportEmoji  %></div>
                   <div>
@@ -85,6 +87,7 @@
                   <!-- <div class="mi-meta"><span>⏰ 오늘 19:30</span><span>👥 6/10명</span><span>💰 10,000원</span></div>
                   <div class="mi-bottom"><span class="pill pill-warn">마감임박</span><span class="tag tag-outline">중급</span></div> -->
                   <div class="mi-meta">
+                    <span>⏰ <%= crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '미정' %></span>
                     <span>👥 <%= current %>/<%= capacity %>명</span>
                     <span>🙋 <%= crew.host.name || '익명' %></span>
                     <span><%= crew.isAutoAccept ? '⚡ 자동수락' : '✋ 수동수락' %></span>
