@@ -6,8 +6,6 @@
 <title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <%- include('../partials/navbar') %>
@@ -21,7 +19,7 @@
 
       <!-- Map Area -->
         <div class="map-area" style="position:relative;flex:1">
-          <div id="leaflet-map" style="width:100%; height:100%;"></div>
+          <div id="map" style="width:100%; height:100%;"></div>
           <!-- Filter bar -->
           <div class="map-filter-bar" style="z-index:1000">
             <div class="map-filter-chip on" data-filter="all">전체</div>
@@ -164,6 +162,6 @@
   </div>
 
   <script id="page-data" type="application/json"> <%- JSON.stringify(pageData)%></script>
-  <script src="/js/handlers/icHandler.js"></script> 
+  <script type="module" src="/js/handlers/icHandler.js"></script> 
 </body>
 </html>

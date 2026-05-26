@@ -1,5 +1,7 @@
 window.MAP = null;
 const MAP_ID = 'map';
+let openedInfoWindow = null;
+let KakaoMarkers = [];
 
 async function loadKakaoMapAPI() {
     return new Promise(async (resolve, reject)=>{
@@ -120,29 +122,34 @@ const kakaoMap = {
 
     async loadMarker(crews) {
         try {
-            const markers = crews.map(crew => {
+            KakaoMarkers = crews.map(crew => {
                 const position = new kakao.maps.LatLng(crew.lat, crew.lng);
                 const marker = new kakao.maps.Marker({
                     map: window.MAP,
                     position: position,
                     title: crew.title
                 });
-
+                marker._crewData = crew;
                 const infoWindow = new kakao.maps.InfoWindow({
                     content: `<div>${crew.title} 크루</div>`
                 });
 
                 kakao.maps.event.addListener(marker, 'click', ()=>{
+                    if(openedInfoWindow) openedInfoWindow.close();
                     infoWindow.open(window.MAP, marker);
+                    openedInfoWindow = infoWindow;
                 });
 
                 return marker;
             });
 
-            return markers;
+            return KakaoMarkers;
         } catch (error) {
             return error.message;
         }
+    },
+    getMarkers() {
+        return KakaoMarkers;
     }
 }
 
