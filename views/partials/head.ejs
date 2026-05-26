@@ -1,7 +1,9 @@
 <link rel="stylesheet" href="/css/style.css"/>
+
 <head>
-  <script src="/js/handlers/headerHandler.js" defer></script>
-  <script src="/js/handlers/notiHandler.js" defer></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/handlers/headerHandler.js" defer></script>
+  <script type="module" src="/js/handlers/notiHandler.js" defer></script>
 </head>
 <div class="page <%= typeof active !== 'undefined' ? active : '' %>" id="<%= pageId %>" style="display:flex;flex-direction:column;flex:1">
   
@@ -10,95 +12,146 @@
     <div><div class="topbar-title"><%= typeof title !== 'undefined' ? title : '타이틀 없음' %></div></div>
     
     <div class="topbar-actions">
+
       <span class="auth-state-btns">
         <button class="btn btn-ghost btn-sm" id="noti-btn">알림</button>
-      <%
-        if(user) {
-          %><div id="login" style="display: none;">true</div>
-            <button class="btn btn-outline btn-sm" id="mypage-btn">마이페이지</button>
-            <button class="btn btn-outline btn-sm" id="logout-btn">로그아웃</button><%
-        } else {
-          %><div id="login" style="display: none;">false</div>
-            <button class="btn btn-outline btn-sm" id="login-btn">로그인</button>
-            <button class="btn btn-outline btn-sm" id="signup-btn">회원가입</button><%
-        }
-      %>
+        <% if(user) { %>
+          <div id="login" style="display: none;">true</div>
+          <button class="btn btn-outline btn-sm" id="mypage-btn">마이페이지</button>
+          <button class="btn btn-outline btn-sm" id="logout-btn">로그아웃</button>
+        <% } else { %>
+          <div id="login" style="display: none;">false</div>
+          <button class="btn btn-outline btn-sm" id="login-btn">로그인</button>
+          <button class="btn btn-outline btn-sm" id="signup-btn">회원가입</button>
+        <% } %>
       </span>
+
       <div id="noti-popup">
-        <%
-          if(user) { 
-            %><div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                  <strong>알림</strong>
-                  <button class="btn btn-outline btn-sm" id="removeNoti">모두 삭제</button>
-                </div>
+        <% if(user) { %>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <strong>알림</strong>
+              <div>
+                <button class="btn btn-outline btn-sm read-noti">읽은 알림</button>
+                <button class="btn btn-outline btn-sm unread-noti" style="display: none;">신규 알림</button>
+                <button class="btn btn-outline btn-sm read-all">모두 읽기</button>
+              </div>
+            </div>
 
-                <div id="noti-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto">
-                  <div id="noti-list">
-                    <div class="noti-item" id="noti-${noti._id}">
-                      <div class="noti-body">
-                        <div class="noti-title"><strong>${noti.title}</strong></div>
-                        <div class="noti-meta">${noti.content} · 오늘 20:00</div>
-                        <div class="noti-time">${notiTime}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div id="noti-list" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto">
 
-              </div><%
-          } else {
-            %><div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                  <strong>알림</strong>
-                </div>
-                <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
-                  로그인을 해주세요
-                </div>
-              </div><%
-          } 
-        %>
+            </div>
+          </div>
+
+        <% } else { %>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <strong>알림</strong>
+            </div>
+            <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
+              로그인을 해주세요
+            </div>
+          </div>
+        <% } %>
       </div>
+      <div id="toast-container"></div>
+      <style>
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* 여러 알림이 뜰 경우 간격 */
+        }
 
-      
-      <script>
-        // function togglenotiPopup() {
-        //   const popup = document.getElementById('noti-popup');
-        //   const isOpen = popup.style.display === 'block';
-        //   popup.style.display = isOpen ? 'none' : 'block';
+        .toast {
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-align: center;
+            font-size: 14px;
+            
+            /* 애니메이션 설정 */
+            animation: slideUp 0.5s, fadeOut 0.5s 2.5s forwards;
+        }
 
-        //   if (!isOpen) {
-        //     if (isLoggedIn) {
-        //       document.getElementById('noti-guest').style.display = 'none';
-        //       document.getElementById('noti-user').style.display = 'block';
-        //     } else {
-        //       document.getElementById('noti-guest').style.display = 'block';
-        //       document.getElementById('noti-user').style.display = 'none';
-        //     }
-        //   }
-        // }
+        @keyframes slideUp {
+            from { bottom: -50px; opacity: 0; }
+            to { bottom: 0; opacity: 1; }
+        }
 
-        // document.addEventListener('click', function(e) {
-        //   const popup = document.getElementById('noti-popup');
-        //   if (!popup) return;
-        //   if (!popup.contains(e.target) && !e.target.closest('[onclick="togglenotiPopup()"]')) {
-        //     popup.style.display = 'none';
-        //   }
-        // });
-
-        // // 모두 삭제 버튼과 알림을 따로 클릭했을 때 알림을 없애고 메세지 출력
-        // function removeNoti(el) {
-        //   if (el) {
-        //     el.remove();
-        //   } else {
-        //     document.querySelectorAll('#noti-list .noti-item').forEach(el => el.remove());
-        //   }
-        //   if (document.querySelectorAll('#noti-list .noti-item').length === 0) {
-        //     document.getElementById('noti-list').innerHTML = 
-        //       '<div style="text-align:center;padding:48px 0;color:var(--text-3)">🔔 새로운 알림이 없습니다</div>';
-        //   }
-        // }
-      </script>
-
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+      </style>
     </div>
   </div>
-</div>
+  <% if(user) { %>
+    <script type="module">
+      // 1. 모듈에서 함수를 가져옵니다.
+      import { initNotiSocket } from '/js/handlers/notiHandler.js';
+
+      // 2. 서버에서 넘겨준 user 데이터를 안전하게 JS 객체로 변환
+      const userData = <%- JSON.stringify(user) %>;
+
+      // 3. 페이지 로드 후 실행 (DOM이 다 그려진 뒤)
+      window.addEventListener('DOMContentLoaded', () => {
+        if (typeof initNotiSocket === 'function') {
+          initNotiSocket(userData);
+          console.log('✅ 알림 소켓 연결 시도:', userData._id);
+        } else {
+          console.error('❌ initNotiSocket 함수를 찾을 수 없습니다. export 확인 필요!');
+        }
+      });
+    </script>
+  <% } %>
+
+
+
+  
+
+      <!-- <script>
+        function togglenotiPopup() {
+          const popup = document.getElementById('noti-popup');
+          const isOpen = popup.style.display === 'block';
+          popup.style.display = isOpen ? 'none' : 'block';
+
+          if (!isOpen) {
+            if (isLoggedIn) {
+              document.getElementById('noti-guest').style.display = 'none';
+              document.getElementById('noti-user').style.display = 'block';
+            } else {
+              document.getElementById('noti-guest').style.display = 'block';
+              document.getElementById('noti-user').style.display = 'none';
+            }
+          }
+        }
+
+        document.addEventListener('click', function(e) {
+          const popup = document.getElementById('noti-popup');
+          if (!popup) return;
+          if (!popup.contains(e.target) && !e.target.closest('[onclick="togglenotiPopup()"]')) {
+            popup.style.display = 'none';
+          }
+        });
+
+        // 모두 삭제 버튼과 알림을 따로 클릭했을 때 알림을 없애고 메세지 출력
+        function removeNoti(el) {
+          if (el) {
+            el.remove();
+          } else {
+            document.querySelectorAll('#noti-list .noti-item').forEach(el => el.remove());
+          }
+          if (document.querySelectorAll('#noti-list .noti-item').length === 0) {
+            document.getElementById('noti-list').innerHTML = 
+              '<div style="text-align:center;padding:48px 0;color:var(--text-3)">🔔 새로운 알림이 없습니다</div>';
+          }
+        }
+      </script> -->

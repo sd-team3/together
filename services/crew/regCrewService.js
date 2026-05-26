@@ -43,4 +43,9 @@ async function createRegCrew(data, profileFile, host) {
     }
 }
 
-module.exports = { createRegCrew };
+const findHostByCrewId = async (crewId)=>{
+    const crew = await regularCrew.findById(crewId).select('host');
+    return crew ? crew.host : null;
+}
+
+module.exports = { createRegCrew, findHostByCrewId };

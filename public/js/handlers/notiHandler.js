@@ -1,46 +1,81 @@
+import { renderUnreadNoti, renderReadNoti, renderNoti } from '../modules/notiRender.js';
+
 let socket = null;
-
 const notiList = document.getElementById('noti-list');
+const notiBtn = document.getElementById('noti-btn');
 
-function timesAgo(createdAt) {
-    const now = new Date();
-    const timesAgo = Math.floor((now - new Date(createdAt)) / 1000);
+const notiAllRead = document.querySelector('#read-all');
+const readNoti = document.querySelector('#read-noti');
+const unreadNoti = document.querySelector('#unread-noti');
 
-    const minute = Math.floor(timesAgo / 60);
-    const hour = Math.floor(minute / 60);
-    const day = Math.floor(hour / 60);
+if(notiAllRead) {
+    notiAllRead.addEventListener('click', async ()=>{
+        try {
+            const response = await fetch('/noti/read-all', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-    if(timesAgo < 60) return `방금 전`;
-    if(minute < 60) return `${minute}분 전`;
-    if(hour < 24) return `${hour}시간 전`;
-    if(day < 7) return `${day}일 전`;
-    return new Date(date).toLocaleDateString();
+            if (response.ok) {
+                notiList.innerHTML = `
+                    <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
+                        새로운 알림이 없습니다.
+                    </div>
+                `;
+            } else {
+                throw new Error('readAllFail');
+            }
+        } catch (error) {
+                
+        }
+    });
+}
+if(readNoti && unreadNoti) {
+    readNoti.addEventListener('click', async ()=>{ 
+        const response = await fetch('/noti/read');
+        const notis = await response.json();
+
+        renderReadNoti(notis, notiList);
+
+        unreadNoti.style.display = 'inline-flex';
+        readNoti.style.display = 'none';
+    });
+        
+    unreadNoti.addEventListener('click', async ()=>{ 
+        const response = await fetch('/noti/unread');
+        const notis = await response.json();
+
+        renderUnreadNoti(notis, notiList);
+
+        readNoti.style.display = 'inline-flex';
+        unreadNoti.style.display = 'none';
+    });
 }
 
-function initNotiSocket(user) {
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+export function initNotiSocket(user) {
     if (!user || !user._id) {
         return;
     }
 
+    if (socket) return;
+
     socket = io('/noti', { auth: { userId: user._id } });
 
-    socket.on('UNREAD_NOTIFICATION', (notis) => {
-        
-
-        notis.forEach(noti => {
-            const notiTime = timesAgo(noti.createdAt);
-            const notiHTML = `
-                <div class="noti-item" id="noti-${noti._id}">
-                    <div class="noti-body">
-                        <div class="noti-title"><strong>${noti.title}</strong></div>
-                        <div class="noti-meta">${noti.content} · 오늘 20:00</div>
-                        <div class="noti-time">${notiTime}</div>
-                    </div>
-                </div>
-            `;
-
-            notiList.innerHTML += notiHTML;
-        });
+    socket.on('CREW_APPLICATION', (noti)=>{
+        showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
 }
                   

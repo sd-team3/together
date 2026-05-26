@@ -2,12 +2,11 @@ const User = require('../../models/User');
 const crewAppliment = require('../../models/crewApplication');
 const notification = require('../../models/notification')
 
-async function createAppliment(userId, crewId, crewType) {
+async function createApplication(userId, crewId, crewType, options = {}) {
     const newAppliment = new crewAppliment({ userId, crewId, crewType });
-
-
+    return await newAppliment.save({ session: options.session });
 }
 
 module.exports = {
-    createAppliment //기능명세
+    createApplication //기능명세
 }

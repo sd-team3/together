@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regCrewService = require('../../services/crew/regCrewService');
