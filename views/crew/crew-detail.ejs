@@ -26,7 +26,7 @@
         <img src="<%= crew.profileImage %>" class="detail-sport-icon">
         <div class="detail-header-info">
           <div class="detail-title"><%= crew.title %></div>
-          <div class="detail-sub"><%= crew.dayLabel %> · <%= crew.address.city %></div>
+          <div class="detail-sub"><%= crew.address.state %> · <%= crew.address.city %></div>
         </div>
         <!-- 좋아요 버튼 -->
         <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="toggleLike()">
