@@ -10,6 +10,10 @@ router.post('/reg-create',
     regCrewController.postRegCreate
 );
 router.get('/my-crews', regCrewController.getMyCrews);
+router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
+router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);
+router.get('/:regularCrewId', regCrewController.getCrewDetail);
+router.post('/:regularCrewId/like', regCrewController.postCrewLike);
 
 // 번개모임 페이지
 router.get('/instant', instantCrewController.getInstant);

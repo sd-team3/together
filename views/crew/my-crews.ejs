@@ -6,6 +6,7 @@
 <title>SPORTMATCH — 내 정기모임</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
+<script src="/js/deleteConfirm.js"></script>
 </head>
 <body>
 <%- include('../partials/navbar') %>
@@ -17,9 +18,9 @@
 
     <!-- 탭 (호스트 / 크루원) -->
     <div class="my-crew-tabs">
-      <button class="my-crew-tab active">전체</button>
-      <button class="my-crew-tab">👑 내가 만든 모임</button>
-      <button class="my-crew-tab">🙋 참여 중인 모임</button>
+      <a href="/crew/my-crews" class="my-crew-tab <%= !role || role === 'all' ? 'active' : '' %>">전체</a>
+      <a href="/crew/my-crews?role=host" class="my-crew-tab <%= role === 'host' ? 'active' : '' %>">👑 내가 만든 모임</a>
+      <a href="/crew/my-crews?role=member" class="my-crew-tab <%= role === 'member' ? 'active' : '' %>">🙋 참여 중인 모임</a>
     </div>
 
     <!-- 크루 목록 -->
@@ -29,16 +30,16 @@
         <div class="empty-state-icon">🏃</div>
         <div class="empty-state-title">참여 중인 모임이 없어요</div>
         <div class="empty-state-sub">정기모임에 참가하거나 직접 만들어보세요!<br>같은 스포츠를 즐기는 사람들을 만날 수 있어요.</div>
-        <button class="empty-state-btn" onclick="location.href='/4'">모임 둘러보기</button>
+        <button class="empty-state-btn" onclick="location.href='/regular'">모임 둘러보기</button>
       </div>
     <% } else { %>
       <div class="regular-grid" id="crew-grid">
         <% crews.forEach(crew => { %>
-          <div class="reg-card" data-role="<%= crew.role %>">
+          <div class="reg-card" data-role="<%= crew.crewRole %>">
 
             <!-- 카드 헤더 -->
             <div class="reg-card-head">
-              <div class="reg-sport-icon"><%= crew.sportEmoji %></div>
+              <img src="<%= crew.profileImage %>" class="reg-sport-icon" alt="크루 프사">
               <div>
                 <div class="reg-card-title"><%= crew.title %></div>
                 <div class="reg-card-sub">
@@ -46,10 +47,12 @@
                 </div>
               </div>
               <!-- 역할 뱃지 -->
-              <% if (crew.role === 'host') { %>
+              <% if (crew.crewRole === 'host') { %>
                 <span class="role-badge host">👑 모임장</span>
+                <span class="like-font">❤️ <%= crew.reputation %></span>
               <% } else { %>
                 <span class="role-badge member">🙋 크루원</span>
+                <span class="like-font">❤️ <%= crew.reputation %></span>
               <% } %>
             </div>
 
@@ -61,23 +64,22 @@
                 <span>📅 <%= crew.periodLabel %></span>
               </div>
               <div class="reg-progress">
-                <div class="reg-progress-fill" data-pct="<%= Math.round(crew.member.memberList.length / crew.member.capacity * 100) %>"></div>
+                <div class="reg-progress-fill" style="width: <%= crew.pct %>"></div> <!-- '<'' 충돌은 EJS 문법을 HTML로 잘못 인식해서 생김. 실제 실행하면 오류 X -->
               </div>
               <div class="reg-progress-label">
                 <span><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</span>
                 <span><%= crew.member.capacity - crew.member.memberList.length %>자리 남음</span>
               </div>
 
-              <!-- 액션 버튼 - role에 따라 분기 -->
               <div class="reg-card-actions">
-                <% if (crew.role === 'host') { %>
+                <% if (crew.crewRole === 'host') { %>
                   <!-- 호스트 -->
-                  <button class="action-btn primary">상세보기</button>
-                  <button class="action-btn danger">해산</button>
+                  <a href="/crew/<%= crew._id %>" class="action-btn primary">상세보기</a>
+                  <button class="action-btn danger" style="flex:1" type="button" onclick="confirmDelete('<%= crew._id %>')">해산</button>
                 <% } else { %>
                   <!-- 크루원 -->
-                  <button class="action-btn primary">상세보기</button>
-                  <button class="action-btn danger">탈퇴</button>
+                  <a href="/crew/<%= crew._id %>" class="action-btn primary">상세보기</a>
+                  <button class="action-btn danger" style="flex:1" type="button" onclick="confirmWithdraw('<%= crew._id %>')">탈퇴</button>
                 <% } %>
               </div>
             </div>
@@ -90,11 +92,18 @@
   </div>
 </div>
 
-<script>
-// .reg-progress-fill 클래스를 가지면서 data-pct 속성이 있는 요소를 페이지에서 전부 찾음.
-document.querySelectorAll('.reg-progress-fill[data-pct]').forEach(el => {
-  el.style.width = el.dataset.pct + '%';
-});
-</script>
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">돌이킬 수 없어요.</div>
+    <div class="modal-msg">정말 진행하시겠습니까?</div>
+    <div class="modal-btn" style="display:flex; gap:8px; width:100%; margin-top:24px">
+      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="deleteModal()">취소</button>
+      <form id="delete-form" method="POST" style="flex:1;display:flex">
+        <button type="submit" class="btn-yes">진행하기</button>
+      </form>
+    </div>
+  </div>
+</div>
 </body>
 </html>

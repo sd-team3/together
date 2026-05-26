@@ -1772,6 +1772,7 @@ select.input{cursor:pointer}
     color: var(--text-2);
     cursor: pointer;
     transition: all .15s;
+    text-decoration: none;
   }
 
   .my-crew-tab.active {
@@ -1868,6 +1869,8 @@ select.input{cursor:pointer}
     border: 1.5px solid var(--border);
     background: transparent;
     color: var(--text-1);
+    text-decoration: none;
+    text-align: center;
   }
 
   .action-btn:hover {
@@ -2128,6 +2131,25 @@ select.input{cursor:pointer}
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 8px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: none;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: color .15s;
+    text-decoration: none;
+}
+
+ .back-btn:hover { color: var(--text-1); }
+
+   .goback-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 8px 0;
     font-size: 13.5px;
     font-weight: 600;
@@ -2137,8 +2159,27 @@ select.input{cursor:pointer}
     cursor: pointer;
     margin-bottom: 4px;
     transition: color .15s;
+    text-decoration: none;
   }
 
+  .goback-btn:hover { color: var(--text-1); }
+
+  .btn-yes {
+    flex:1;
+    padding:12px;
+    background:#ef4444;
+    color:#fff;
+    border:none;
+    border-radius:var(--radius-sm);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  
+  .like-font {
+    font-weight:700;
+    font-family:'DM Sans', sans-serif;
+  }
   .back-btn:hover { color: var(--text-1); }
   
   /* hero와 간격 */
