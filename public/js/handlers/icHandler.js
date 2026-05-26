@@ -40,11 +40,11 @@ function showMapPopup(data) {
   // 호스트
   document.getElementById('pp-host-av').textContent = data.host.charAt(0);
   document.getElementById('pp-host').textContent = data.host;
-  document.getElementById('pp-reputation').textContent =
-    data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
+  document.getElementById('pp-reputation').textContent = data.avgReputation > 0 ? '⭐ ' + data.avgReputation.toFixed(1) : '평점 없음';
 
   // 등록 시간
-  document.getElementById('pp-time').textContent = '🕐 ' + timeAgo(data.createdAt);
+  document.getElementById('pp-time').textContent =  '⏰ ' + (data.meetAt ? new Date(data.meetAt).toLocaleString('ko-KR') : '미정')
+  + '  🕐 ' + timeAgo(data.createdAt);
 
   document.getElementById('map-popup').classList.add('show');
 
@@ -64,9 +64,30 @@ function closeMapPopup() {
 }
 
 // ── SORT TABS ──
-function setSortTab(el) {
+function setSortTab(el, type) {
   el.closest('.map-sort-tabs').querySelectorAll('.map-sort-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+
+  const container = document.querySelector('.map-list-items');
+  const items = [...container.querySelectorAll('.map-item')];
+
+  if (type === '시간순') {
+    items.sort((a, b) => {
+      const aCrew = crewsData.find(c => String(c.id) === a.dataset.id);
+      const bCrew = crewsData.find(c => String(c.id) === b.dataset.id);
+      return new Date(bCrew.createdAt) - new Date(aCrew.createdAt);
+    });
+  } else if (type === '인원순') {
+
+    items.sort((a, b) => {
+      const parse = str => str.replace('명', '').split('/').map(Number);
+      const [aCur] = parse(a.dataset.members);
+      const [bCur] = parse(b.dataset.members);
+      return bCur - aCur;
+    });
+  }
+
+  items.forEach(item => container.appendChild(item));
 }
 
 // ── LEAFLET MAP ──
@@ -146,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 정렬 탭
   document.querySelectorAll('.map-sort-tab').forEach(tab => {
-    tab.addEventListener('click', () => setSortTab(tab));
+    tab.addEventListener('click', () => setSortTab(tab, tab.textContent.trim()));
   });
 
   // 맵 팝업 닫기
