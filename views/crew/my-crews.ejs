@@ -49,8 +49,10 @@
               <!-- 역할 뱃지 -->
               <% if (crew.crewRole === 'host') { %>
                 <span class="role-badge host">👑 모임장</span>
+                <span class="like-font">❤️ <%= crew.reputation %></span>
               <% } else { %>
                 <span class="role-badge member">🙋 크루원</span>
+                <span class="like-font">❤️ <%= crew.reputation %></span>
               <% } %>
             </div>
 
@@ -72,12 +74,12 @@
               <div class="reg-card-actions">
                 <% if (crew.crewRole === 'host') { %>
                   <!-- 호스트 -->
-                  <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
+                  <a href="/crew/<%= crew._id %>" class="action-btn primary">상세보기</a>
                   <button class="action-btn danger" style="flex:1" type="button" onclick="confirmDelete('<%= crew._id %>')">해산</button>
                 <% } else { %>
                   <!-- 크루원 -->
-                  <a href="/crew/crew-detail" class="action-btn primary">상세보기</a>
-                  <button class="action-btn danger">탈퇴</button>
+                  <a href="/crew/<%= crew._id %>" class="action-btn primary">상세보기</a>
+                  <button class="action-btn danger" style="flex:1" type="button" onclick="confirmWithdraw('<%= crew._id %>')">탈퇴</button>
                 <% } %>
               </div>
             </div>
@@ -98,7 +100,7 @@
     <div class="modal-btn" style="display:flex; gap:8px; width:100%; margin-top:24px">
       <button class="btn btn-outline" style="flex:1;padding:12px" onclick="deleteModal()">취소</button>
       <form id="delete-form" method="POST" style="flex:1;display:flex">
-        <button type="submit" class="btn-yes">해산하기</button>
+        <button type="submit" class="btn-yes">진행하기</button>
       </form>
     </div>
   </div>

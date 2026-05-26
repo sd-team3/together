@@ -17,21 +17,21 @@
     <div class="detail-wrap">
 
       <!-- 뒤로가기 -->
-      <a href="javascript:history.back()" class="goback-btn">← 목록으로</a>
+      <a href="/crew/my-crews" class="goback-btn">← 목록으로</a>
 
       <div class="detail-group">
 
       <!-- 헤더 -->
       <div class="detail-header">
-        <div class="detail-sport-icon">⚽</div>
+        <img src="<%= crew.profileImage %>" class="detail-sport-icon">
         <div class="detail-header-info">
-          <div class="detail-title">성수 풋살 나이트</div>
-          <div class="detail-sub">화·목 · 성동구 · 매주</div>
+          <div class="detail-title"><%= crew.title %></div>
+          <div class="detail-sub"><%= crew.dayLabel %> · <%= crew.address.city %></div>
         </div>
         <!-- 좋아요 버튼 -->
-        <button class="detail-like-btn" id="like-btn" onclick="toggleLike()">
+        <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="toggleLike()">
           <span class="like-icon">🤍</span>
-          <span class="like-count" id="like-count">24</span>
+          <span class="like-count" id="like-count"><%= crew.reputation %></span>
         </button>
       </div>
 
@@ -39,9 +39,11 @@
       <div class="detail-section">
         <div class="detail-section-title">모임장</div>
         <div class="host-card">
-          <div class="host-avatar">김</div>
+          <div class="host-avatar">
+            <img src="/images/user-profile/<%= crew.host.profileImage %>" alt="호스트 프사">
+          </div>
           <div>
-            <div class="host-name">김성수</div>
+            <div class="host-name"><%= crew.host.name %></div>
           </div>
         </div>
       </div>
@@ -49,11 +51,7 @@
       <!-- 소개글 -->
       <div class="detail-section">
         <div class="detail-section-title">모임 소개</div>
-        <div class="detail-intro">성수동 실내 풋살장에서 매주 화·목요일 저녁 함께 뛰실 분들을 모집합니다!
-
-        초중급 수준으로 즐겁게 운동하는 것을 목표로 하며, 승부보다는 화합을 중시하는 팀입니다. 운동 후 뒷풀이도 자주 합니다 🍺
-
-        실력보다 매너와 성실함을 중요하게 생각합니다. 많은 참여 부탁드립니다!</div>
+        <div class="detail-intro"><%= crew.intro %></div>
       </div>
 
       <!-- 가입 조건 -->
@@ -62,23 +60,31 @@
         <div class="condition-list">
           <div class="condition-item">
             <span class="cond-label">경기 종목</span>
-            <span class="cond-value">축구, 풋살, 농구</span>
+            <span class="cond-value"><%= crew.sportLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">활동 요일</span>
+            <span class="cond-value"><%= crew.dayLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">주기</span>
+            <span class="cond-value"><%= crew.periodLabel %></span>
           </div>
           <div class="condition-item">
             <span class="cond-label">연령대</span>
-            <span class="cond-value">20대 · 30대</span>
+            <span class="cond-value"><%= crew.ageLabel %></span>
           </div>
           <div class="condition-item">
             <span class="cond-label">실력</span>
-            <span class="cond-value">초급 · 중급</span>
+            <span class="cond-value"><%= crew.levelLabel %></span>
           </div>
           <div class="condition-item">
             <span class="cond-label">참가비</span>
-            <span class="cond-value">8,000원/회</span>
+            <span class="cond-value"><%= crew.fee > 0 ? crew.fee.toLocaleString() + '원/회' : '무료' %></span>
           </div>
           <div class="condition-item">
             <span class="cond-label">승인</span>
-            <span class="cond-value">모임장 승인 후 참가 가능</span>
+            <span class="cond-value"><%= crew.acceptLabel %></span>
           </div>
         </div>
       </div>
@@ -88,7 +94,7 @@
         <div class="detail-section-title">멤버 수</div>
         <div class="member-status">
           <div class="member-status-row">
-            <span class="member-count">12 / 16명</span>
+            <span class="member-count">현재 <%= crew.member.memberList.length %>인 / 최대 <%= crew.member.capacity %>인</span>
           </div>
         </div>
       </div>
@@ -103,74 +109,10 @@
   </div>
 </div>
 
-<!-- 가입 확인 모달 -->
-<div class="modal-overlay" id="modal-join" onclick="if(event.target===this)closeJoinModal()">
-  <div class="modal-box">
-    <div class="modal-icon">⚽</div>
-    <div class="modal-title">가입 신청</div>
-    <div class="modal-msg">성수 풋살 나이트에<br>가입 신청하시겠습니까?<br><br>모임장 승인 후 참가가 확정됩니다.</div>
-    <div class="modal-btns">
-      <button class="btn btn-outline flex-1" onclick="closeJoinModal()">취소</button>
-      <button class="btn btn-primary flex-1" onclick="doJoin()">신청하기</button>
-    </div>
-  </div>
-</div>
-
-<!-- 신청 완료 모달 -->
-<div class="modal-overlay" id="modal-done" onclick="if(event.target===this)closeDoneModal()">
-  <div class="modal-box">
-    <div class="modal-icon">✅</div>
-    <div class="modal-title">신청 완료!</div>
-    <div class="modal-msg">가입 신청이 완료되었습니다.<br>모임장이 수락하면 알림을 드립니다.</div>
-    <div class="modal-btns">
-      <button class="btn btn-primary flex-1" onclick="closeDoneModal()">확인</button>
-    </div>
-  </div>
-</div>
-
 <script>
-
-// ── 좋아요 ──
-let liked = false;
-let likeCount = 24;
-
-function toggleLike() {
-  liked = !liked;
-  likeCount += liked ? 1 : -1;
-
-  const btn = document.getElementById('like-btn');
-  const icon = btn.querySelector('.like-icon');
-  const count = document.getElementById('like-count');
-
-  icon.textContent = liked ? '❤️' : '🤍';
-  count.textContent = likeCount;
-  btn.classList.toggle('liked', liked);
-}
-
-// ── 가입 신청 ──
-function confirmJoin() {
-  document.getElementById('modal-join').classList.add('show');
-}
-
-function closeJoinModal() {
-  document.getElementById('modal-join').classList.remove('show');
-}
-
-function doJoin() {
-  closeJoinModal();
-  // 버튼 비활성화
-  const joinBtn = document.getElementById('join-btn');
-  joinBtn.disabled = true;
-  joinBtn.textContent = '신청 완료';
-  // 완료 모달
-  setTimeout(() => {
-    document.getElementById('modal-done').classList.add('show');
-  }, 200);
-}
-
-function closeDoneModal() {
-  document.getElementById('modal-done').classList.remove('show');
-}
+let liked = <%= isLiked %>;
+let likeCount = <%- crew.reputation %>;
 </script>
+<script src="/js/like.js"></script>
 </body>
 </html>

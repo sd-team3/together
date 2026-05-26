@@ -10,6 +10,8 @@ router.post('/reg-create',
 );
 router.get('/my-crews', regCrewController.getMyCrews);
 router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
-router.get('/crew-detail', regCrewController.getDetail);
+router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);
+router.get('/:regularCrewId', regCrewController.getCrewDetail);
+router.post('/:regularCrewId/like', regCrewController.postCrewLike);
 
 module.exports = router;

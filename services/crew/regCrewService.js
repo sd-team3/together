@@ -3,7 +3,7 @@ const regularCrew = require('../../models/regularCrew');
 const User = require('../../models/User');
 const path = require('path');
 const fs = require('fs');
-
+const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -73,20 +73,16 @@ async function getMyCrews(userId, role) {
 
     const crews = await regularCrew.find(tab).populate('host', 'name').sort({createdAt : -1});
 
-    const day_Kor = {
-        mon : '월', tue : '화', wed : '수', thu : '목', fri : '금', sat : '토', sun : '일', none : '-'
-    }; // 한글 변환
-
-    const period_Kor = {week : '매주', '2week' : '격주', month: '매달'}; // 한글 변환
-
     return crews.map(crew => {
         const obj = crew.toObject(); // JS 객체로 변환함
+
+        const period_Kor = { week: '매주', '2week': '격주', month: '매달' }; // 한글 변환
 
         const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member'; // 크루장인지 크루원인지 구분
 
         const dayLabel = obj.day
             .filter(day => day !== 'none') // none이 아닌 것만 남김
-            .map(day => day_Kor[day] || day) // day_Kor의 mon, tue 같은 것들을 한글로 변환함
+            .map(day => CONSTANTS.DAYS[day]?.short || day) // day_Kor의 mon, tue 같은 것들을 한글로 변환함
             .join('·') || '-'; // 배열 이어붙이기 ex)화·목, 월·금, 요일 없으면 -
         
         return {
@@ -103,4 +99,52 @@ async function deleteMyCrew(regularCrewId) {
     await regularCrew.findByIdAndDelete(regularCrewId);
 }
 
-module.exports = { createRegCrew, findCrewsByUserId, getMyCrews, deleteMyCrew };
+async function withdrawMyCrew(regularCrewId, userId) {
+    await regularCrew.findByIdAndUpdate(regularCrewId, {$pull: {'member.memberList': {user: userId}}});
+}
+
+async function getCrewDetail(regularCrewId) {
+    const crew = await regularCrew.findById(regularCrewId).populate('host', 'name profileImage');
+
+    const obj = crew.toObject();
+
+    const period_Kor = { week: '매주', '2week': '격주', month: '매달' };
+    const level_Kor = {none : '무관', low : '초급', mid : '중급', high : '상급'};
+    const accept_Kor = {true : '승인 가입', false : '자동 가입'};
+
+    const dayLabel = obj.day
+            .filter(day => day !== 'none')
+            .map(day => CONSTANTS.DAYS[day]?.short || day)
+            .join(' · ') || '-';
+        
+    const ageLabel = obj.ageRange
+            .map(a => {
+                const found = Object.values(CONSTANTS.AGES).find(age => age.v === a);
+                return found ? found.kr : a;
+            })
+            .join(' · ');
+
+    const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
+    const periodLabel = period_Kor[obj.period] || obj.period;
+    const levelLabel = level_Kor[obj.level] || obj.level;
+    const acceptLabel = accept_Kor[obj.isAutoAccept] || obj.isAutoAccept;
+    return {
+        ...obj,
+        dayLabel,
+        ageLabel,
+        sportLabel,
+        periodLabel,
+        levelLabel,
+        acceptLabel
+    };
+}
+
+async function crewLike(regularCrewId, userId) {
+    const crew = await regularCrew.findById(regularCrewId);
+    const isLiked = crew.likedBy.some(id => id.toString() === userId.toString());
+    await regularCrew.findByIdAndUpdate(regularCrewId,
+        isLiked ? { $pull: {likedBy: userId}, $inc: {reputation: -1} } : { $push: {likedBy: userId}, $inc: {reputation: 1}}
+    ); // $inc : 몽고DB 숫자 필드 증가 연산자
+}
+
+module.exports = { createRegCrew, findCrewsByUserId, getMyCrews, deleteMyCrew, getCrewDetail, withdrawMyCrew, crewLike };

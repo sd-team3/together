@@ -2171,3 +2171,8 @@ select.input{cursor:pointer}
     font-weight:700;
     cursor:pointer;
   }
+  
+  .like-font {
+    font-weight:700;
+    font-family:'DM Sans', sans-serif;
+  }
