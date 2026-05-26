@@ -29,20 +29,20 @@
       </div>
       <div class="hero-cta">
         <button class="btn btn-accent btn-lg" data-href="/crew/instant">🗺️ 지도에서 찾기</button>
-        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/crew/regular">정기모임 보기</button>
+        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/crew/reg-list">정기모임 보기</button>
       </div>
       <div class="hero-stats">
         <div>
           <div class="hero-stat-val" id="stat-instant-count"><%= stats.weeklyMatches %></div>
-          <div class="hero-stat-label">번개모임</div>
+          <div class="hero-stat-label">총 번개모임</div>
         </div>
         <div>
           <div class="hero-stat-val"><%= stats.activeClubs %></div>
-          <div class="hero-stat-label">정기모임</div>
+          <div class="hero-stat-label">총 정기모임</div>
         </div>
         <div>
-          <div class="hero-stat-val"><%= stats.avgManner %>★</div>
-          <div class="hero-stat-label">평균 매너 점수</div>
+          <div class="hero-stat-val"><%= stats.totalMembers %>명</div>
+          <div class="hero-stat-label">누적 참여</div>
         </div>
       </div>
     </div>
@@ -98,7 +98,7 @@
     <div>
       <div class="flex justify-between items-center mb-12">
         <div class="section-title" style="margin-bottom:0">🔁 추천 정기 모임</div>
-        <button class="btn btn-ghost btn-sm" data-href="/user/regular">전체보기 →</button>
+        <button class="btn btn-ghost btn-sm" data-href="/crew/reg-list">전체보기 →</button>
       </div>
       <div class="regular-grid">
         <% regularMeetings.forEach(function(meeting) { %>
@@ -113,15 +113,16 @@
               <div class="reg-sport-icon"><%= meeting.emoji %></div>
               <div>
                 <div class="reg-card-title"><%= meeting.title %></div>
-                <div class="reg-card-sub"><%= meeting.schedule %> · <%= meeting.district %></div>
+                <div class="reg-card-sub"><%= meeting.district %></div>
               </div>
               <span class="pill pill-<%= meeting.pillType %>" style="margin-left:auto">
                 <%= meeting.pillLabel %>
               </span>
             </div>
+
             <div class="reg-card-body">
               <div class="reg-meta-row">
-                <span>⏰ <%= meeting.time %></span>
+                <span>🗓️ <%= meeting.schedule %></span>
                 <span>💰 <%= meeting.fee %></span>
                 <span>📊 <%= meeting.level %></span>
               </div>

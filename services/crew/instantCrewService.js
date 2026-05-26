@@ -38,5 +38,4 @@ async function createInstantCrew(data, host) {
     }
 
 }
-
 module.exports = {createInstantCrew, getInstantCrew};
