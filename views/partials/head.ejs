@@ -97,10 +97,12 @@
     <script type="module">
       // 1. 모듈에서 함수를 가져옵니다.
       import { initNotiSocket } from '/js/handlers/notiHandler.js';
+      import { render } from '/js/handlers/notiHandler.js';
 
       // 2. 서버에서 넘겨준 user 데이터를 안전하게 JS 객체로 변환
       const userData = <%- JSON.stringify(user) %>;
-
+      render('unread');
+      
       // 3. 페이지 로드 후 실행 (DOM이 다 그려진 뒤)
       window.addEventListener('DOMContentLoaded', () => {
         if (typeof initNotiSocket === 'function') {

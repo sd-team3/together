@@ -13,7 +13,7 @@
 <div class="main">
     <%- include('../partials/head', { title: '정기 모임 만들기', pageId: 'page-regular-create', active: '' }) %>
 
-    <form action="/crew/reg-create" method="POST" class="form-page" id="regCreateForm" enctype="multipart/form-data">
+    <form action="/regular/reg-create" method="POST" class="form-page" id="regCreateForm" enctype="multipart/form-data">
         <div class="form-max">
             
             <div class="form-section">
@@ -152,7 +152,7 @@
 
             
             <div style="display:flex; gap:10px; justify-content:flex-end">
-                <button type="button" class="btn btn-outline" onclick="location.href='/crew/regular'">취소</button>
+                <button type="button" class="btn btn-outline" onclick="location.href=''">취소</button>
                 <button type="submit" class="btn btn-primary btn-lg">모임 등록하기</button>
             </div>
         </div>

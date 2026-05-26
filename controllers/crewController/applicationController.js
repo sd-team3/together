@@ -13,6 +13,7 @@ const postApplication = async (req, res)=>{
     try {
         if(crewType === 'regularCrew') {
             host = await regCrewService.findHostByCrewId(crewId);
+            host = host.toString();
         }
         if(crewType === 'instantCrew') {
             //host = await instCrewService.findHostByCrewId(crewId);
@@ -30,7 +31,7 @@ const postApplication = async (req, res)=>{
             const notiData = {
                 sender: userId,
                 receiver: host,
-                title: `${req.user._id}님의 가입 신청`,
+                title: `${req.user.name}님의 가입 신청`,
                 content: '당신의 크루에 가입하고 싶습니다.',
                 event: 'CREW_APPLICATION',
                 route: `/${crewType === 'regularCrew' ? 'regular' : 'instant'}/${crewId}/application`,
@@ -41,7 +42,7 @@ const postApplication = async (req, res)=>{
             await session.commitTransaction();
             session.endSession();
 
-            const io = req.app.get('io'); 
+            const io = req.app.get('io');
             io.of('/noti').to(`user:${host}`).emit('CREW_APPLICATION', newNoti);
 
             return res.status(201).json({ message: "신청이 완료되었습니다.", application: newApp });
@@ -54,13 +55,32 @@ const postApplication = async (req, res)=>{
         console.error(error);
         res.status(500).json({ message: "appController" });
     }
-    
-
-    
-    
-    
 };
 
+const getPendingApplication = async (req, res) => {
+    try {
+        const { crewId } = req.body;
+        const pendingApplications = await applicationService.findPendingApplicationsByCrewId(crewId);
+        res.json(pendingApplications);
+    } catch (error) {
+        res.status(500).json({ message: 'regularRouter' });
+    }
+};
+
+const getAcceptApplication = async (req, res) => {
+    const { appId } = req.body;
+    const currUserId = req.user._id;
+
+    applicationService.acceptApplication(appId, currUserId);
+};
+
+const rejectApplication = async (req, res) => {
+
+}
+
 module.exports = {
-    postApplication //기능명세
+    postApplication,
+    getPendingApplication,
+    getAcceptApplication,
+    rejectApplication
 }

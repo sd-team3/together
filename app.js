@@ -42,6 +42,9 @@ app.use((req, res, next) => {
 });
 
 
+app.set('io', io);
+initSocket(io);
+
 
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -67,9 +70,6 @@ app.use((err, req, res, next) => {
 
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
-
-app.set('io', io);
-initSocket(io);
 
 httpServer.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

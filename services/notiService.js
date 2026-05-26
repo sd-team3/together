@@ -8,7 +8,7 @@ async function createNoti(notiData, options = {}) {
 
 const findUnReadNotiByUserId = async (userId)=>{
     try {
-        return await notification.find({ receiver: user._id, isRead: false });
+        return await notification.find({ receiver: userId, isRead: false });
     } catch (error) {
         console.error('loadUnreadNoti: ', error);
         throw error;
@@ -17,7 +17,7 @@ const findUnReadNotiByUserId = async (userId)=>{
 
 const findReadNotiByUserId = async (userId)=>{
     try {
-        return await notification.find({ receiver: user._id, isRead: true })
+        return await notification.find({ receiver: userId, isRead: true })
                                     .populate('sender', 'name')
                                     .sort({ createdAt: -1 });
     } catch (error) {
@@ -48,7 +48,7 @@ const readNotiByNotiId = async (notiId) => {
 
 const readAllNotiByUserId = async (userId) => {
     try {
-        return await Notification.updateMany(
+        return await notification.updateMany(
             { receiver: userId, isRead: false },
             { isRead: true }
         );

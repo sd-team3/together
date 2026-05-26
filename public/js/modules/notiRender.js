@@ -13,7 +13,26 @@ function timesAgo(createdAt) {
     return new Date(createdAt).toLocaleDateString();
 }
 
+function checkEmpty(notiList, isRead) {
+    if (notiList.children.length === 0) {
+        notiList.innerHTML = `
+            <div class="empty-noti-msg" style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
+                ${isRead ? '읽은' : '새로운'} 알림이 없습니다.
+            </div>
+        `;
+    }         
+}
+
 export function renderNoti(noti, notiList) {
+    if (!noti || !notiList) {
+        return;
+    }
+
+    const emptyMsg = notiList.querySelector('.empty-noti-msg');
+    if (emptyMsg) {
+        emptyMsg.remove();
+    }
+
     const notiTime = timesAgo(noti.createdAt);
     const notiDiv = document.createElement('div');
         
@@ -29,7 +48,7 @@ export function renderNoti(noti, notiList) {
             <div class="noti-time">${notiTime}</div>
         </div>
         <button class="btn btn-outline btn-sm action-btn">${noti.isRead ? '삭제' : '읽음'}</button>
-    `;
+    `;  
 
     notiDiv.querySelector('.action-btn').addEventListener('click', async ()=>{
         try {
@@ -40,53 +59,26 @@ export function renderNoti(noti, notiList) {
 
             if (response.ok) {
                 notiDiv.remove();
+                checkEmpty(notiList, noti.isRead);
             } else {
                 throw new Error(`noti${noti.isRead ? 'Delete' : 'Read'}Fail`);
             }
         } catch (error) {
             
         }
-            
-
-        if (notiList.children.length === 0) {
-            notiList.innerHTML = `
-                <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
-                    ${noti.isRead ? '읽은' : '새로운'} 알림이 없습니다.
-                </div>
-            `;
-        }
     });
-
     notiList.appendChild(notiDiv);
 }
 
 export function renderUnreadNoti(notis, notiList) {
     notiList.innerHTML = '';
-
-    if (!notis || notis.length === 0) {
-        notiList.innerHTML = `
-            <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
-                새로운 알림이 없습니다.
-            </div>
-        `;
-        return;
-    }
-
     notis.forEach(noti => { renderNoti(noti, notiList) });
+    checkEmpty(notiList, false);
 }
 
 export function renderReadNoti(notis, notiList) {
     notiList.innerHTML = '';
-    
-    if (!notis || notis.length === 0) {
-        notiList.innerHTML = `
-            <div style="border:1px solid var(--border);text-align:center;padding:48px 0;color:var(--text-3)">
-                읽은 알림이 없습니다.
-            </div>
-        `;
-        return;
-    }
-
     notis.forEach(noti => { renderNoti(noti, notiList) });
+    checkEmpty(notiList, true);
 }
 

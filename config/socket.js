@@ -10,7 +10,7 @@ const initSocket = (io) => {
     console.log('웹소켓 서버 초기화 완료');
 
     const chat = io.of('/chat');
-    const noti = io.of('/notification');
+    const noti = io.of('/noti');
     
     chat.on('connection', (socket) => {
         console.log('chat 스페이스 접속');

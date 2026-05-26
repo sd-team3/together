@@ -4,9 +4,9 @@ let socket = null;
 const notiList = document.getElementById('noti-list');
 const notiBtn = document.getElementById('noti-btn');
 
-const notiAllRead = document.querySelector('#read-all');
-const readNoti = document.querySelector('#read-noti');
-const unreadNoti = document.querySelector('#unread-noti');
+const notiAllRead = document.querySelector('.read-all');
+const readNoti = document.querySelector('.read-noti');
+const unreadNoti = document.querySelector('.unread-noti');
 
 if(notiAllRead) {
     notiAllRead.addEventListener('click', async ()=>{
@@ -26,30 +26,33 @@ if(notiAllRead) {
                 throw new Error('readAllFail');
             }
         } catch (error) {
-                
+            console.error('Error marking all notifications as read:', error);
         }
     });
 }
+
 if(readNoti && unreadNoti) {
     readNoti.addEventListener('click', async ()=>{ 
-        const response = await fetch('/noti/read');
-        const notis = await response.json();
-
-        renderReadNoti(notis, notiList);
+        render('read');
 
         unreadNoti.style.display = 'inline-flex';
         readNoti.style.display = 'none';
     });
         
     unreadNoti.addEventListener('click', async ()=>{ 
-        const response = await fetch('/noti/unread');
-        const notis = await response.json();
-
-        renderUnreadNoti(notis, notiList);
+        render('unread');
 
         readNoti.style.display = 'inline-flex';
         unreadNoti.style.display = 'none';
     });
+}
+
+
+export async function render(state) {
+    const response = await fetch(`/noti/${state}`);
+    const notis = await response.json();
+
+    state === 'read' ? renderReadNoti(notis, notiList) : renderUnreadNoti(notis, notiList);
 }
 
 function showToast(message) {
@@ -75,6 +78,7 @@ export function initNotiSocket(user) {
     socket = io('/noti', { auth: { userId: user._id } });
 
     socket.on('CREW_APPLICATION', (noti)=>{
+        renderNoti(noti, notiList);
         showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
 }
