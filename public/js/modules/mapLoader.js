@@ -142,6 +142,10 @@ const kakaoMap = {
 
                 return marker;
             });
+            kakao.maps.event.addListener(window.MAP, 'click', () =>{
+                if(openedInfoWindow) openedInfoWindow.close();
+                openedInfoWindow = null;
+            });
 
             return KakaoMarkers;
         } catch (error) {
