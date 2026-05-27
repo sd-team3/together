@@ -647,7 +647,8 @@ select.input{cursor:pointer}
   display:flex;align-items:center;justify-content:space-between;
 }
 .mypage-card-title{font-size:12.5px;font-weight:700}
-.mypage-card-action{font-size:12px;color:var(--text-3);cursor:pointer;transition:color .15s}
+.mypage-card-action{background:none;border:none;padding:0;margin:0;cursor:pointer;outline:none; 
+  font-size:12px;color:var(--text-3);cursor:pointer;transition:color .15s}
 .mypage-card-action:hover{color:var(--text)}
 .mypage-card-body{padding:16px}
 .history-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -682,13 +683,20 @@ select.input{cursor:pointer}
 .btn-leave {font-size: 10px;padding: 1px 5px;background: none;border: 1px solid #ffcfcf;color: #ff6b6b;border-radius: 3px;cursor: pointer;transition: 0.2s;}
 .btn-leave:hover {background: #ff6b6b;color: white;}
 .schedule-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)}
-.schedule-item:last-child{border-bottom:none}
+.schedule-item-last{border-bottom:none}
+.schedule-item-hidden{display: none}
+.schedule-item-hidden.show{display: flex}
 .sched-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);min-width:52px;flex-shrink:0}
 .sched-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .sched-info{flex:1}
 .sched-title{font-size:12.5px;font-weight:600;margin-bottom:1px}
 .sched-sub{font-size:11px;color:var(--text-3)}
 .sched-status{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.no-data-container{display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; text-align: center; background: #f9f9f9; border-radius: 12px; border:1px solid var(--border);}
+.no-data-item{font-size:40; margin-bottom: 10px;}
+.no-data-item:first-child{font-size:50px;}
+.no-data-button{padding: 8px 20px; background: var(--primary); color: white; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: bold; transition: opacity 0.2s;}
+
 
 /* ═══════════════════════════════════════
    CHAT PAGE

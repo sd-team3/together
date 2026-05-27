@@ -103,10 +103,6 @@ const getProfile = async (req, res) => {
     }
     const user = await userService.findUserById(req.user.id);
     const regCrew = await regCrewService.findCrewsByUserId(req.user.id);
-    const dayMap = { 'mon' : '월', 'tue' : '화', 'wed' : '수', 'thu' : '목', 'fri' : '금', 'sat' : '토', 'sun' : '일', 'none' : '미정'};
-    regCrew.forEach(crew => {
-        crew.day = crew.day.map(d => dayMap[d] || d);
-    });
     res.render('user/profile', { user, regCrew });
 };
 
