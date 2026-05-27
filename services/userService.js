@@ -114,6 +114,8 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
 }
 
     if (address) {
+        if (address.state !== undefined) user.address.state = address.state;
+        if (address.city !== undefined) user.address.city = address.city;
         if (address.road !== undefined) user.address.road = address.road;
         if (address.detail !== undefined) user.address.detail = address.detail;
         if (address.zipcode !== undefined) user.address.zipcode = address.zipcode;
@@ -124,8 +126,11 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
         const isMatch = await bcrypt.compare(currentPassword, user.password);
 
         if (!isMatch) {
-            throw new Error('현재 비밀번호가 틀립니다');
-        }
+        const error = new Error('현재 비밀번호가 틀립니다');
+        error.status = 400;
+        error.field = 'currentPassword';  
+        throw error;
+}
 
         user.password = await bcrypt.hash(newPassword, 10);
     }
@@ -137,20 +142,19 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
 
 //회원 탈퇴
 async function deleteUser(userId, password) {
-
-
-
     const user = await User.findById(userId);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        throw new Error('비밀번호가 일치하지 않습니다');
+    // 소셜 사용자는 비번 검증 스킵
+    if (user.provider === 'local') {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            const error = new Error('비밀번호가 일치하지 않습니다');
+            error.status = 400;
+            throw error;
+        }
     }
 
     await User.findByIdAndDelete(user.id);
-
-
 }
 
 async function checkEmail(email) {

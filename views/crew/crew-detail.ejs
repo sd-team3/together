@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 모임 상세</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<div class="main">
+<%- include('../partials/head', { title: '', pageId: 'page-crew-detail', active: '' }) %>
+
+  <div class="page-body">
+    <div class="detail-wrap">
+
+      <!-- 뒤로가기 -->
+      <a href="/crew/my-crews" class="goback-btn">← 목록으로</a>
+
+      <div class="detail-group">
+
+      <!-- 헤더 -->
+      <div class="detail-header">
+        <img src="<%= crew.profileImage %>" class="detail-sport-icon">
+        <div class="detail-header-info">
+          <div class="detail-title"><%= crew.title %></div>
+          <div class="detail-sub"><%= crew.address.state %> · <%= crew.address.city %></div>
+        </div>
+        <!-- 좋아요 버튼 -->
+        <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="toggleLike()">
+          <span class="like-icon">🤍</span>
+          <span class="like-count" id="like-count"><%= crew.reputation %></span>
+        </button>
+      </div>
+
+      <!-- 모임장 -->
+      <div class="detail-section">
+        <div class="detail-section-title">모임장</div>
+        <div class="host-card">
+          <div class="host-avatar">
+            <img src="/images/user-profile/<%= crew.host.profileImage %>" alt="호스트 프사">
+          </div>
+          <div>
+            <div class="host-name"><%= crew.host.name %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 소개글 -->
+      <div class="detail-section">
+        <div class="detail-section-title">모임 소개</div>
+        <div class="detail-intro"><%= crew.intro %></div>
+      </div>
+
+      <!-- 가입 조건 -->
+      <div class="detail-section">
+        <div class="detail-section-title">가입 조건</div>
+        <div class="condition-list">
+          <div class="condition-item">
+            <span class="cond-label">경기 종목</span>
+            <span class="cond-value"><%= crew.sportLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">활동 요일</span>
+            <span class="cond-value"><%= crew.dayLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">주기</span>
+            <span class="cond-value"><%= crew.periodLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">연령대</span>
+            <span class="cond-value"><%= crew.ageLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">실력</span>
+            <span class="cond-value"><%= crew.levelLabel %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">참가비</span>
+            <span class="cond-value"><%= crew.fee > 0 ? crew.fee.toLocaleString() + '원/회' : '무료' %></span>
+          </div>
+          <div class="condition-item">
+            <span class="cond-label">승인</span>
+            <span class="cond-value"><%= crew.acceptLabel %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 멤버 현황 -->
+      <div class="detail-section">
+        <div class="detail-section-title">멤버 수</div>
+        <div class="member-status">
+          <div class="member-status-row">
+            <span class="member-count">현재 <%= crew.member.memberList.length %>인 / 최대 <%= crew.member.capacity %>인</span>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- 하단 가입 버튼 -->
+      <div class="detail-footer">
+        <button class="join-btn" id="join-btn" onclick="confirmJoin()">가입 신청하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let liked = <%= isLiked %>;
+let likeCount = <%- crew.reputation %>;
+</script>
+<script src="/js/like.js"></script>
+</body>
+</html>

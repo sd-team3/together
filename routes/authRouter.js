@@ -76,7 +76,7 @@ router.get('/naver/callback', (req, res, next) => {
             return next(err);
         }
 
-        // 진짜 실패
+        // 실패
         if (!user) {
             return res.redirect('/user/login');
         }

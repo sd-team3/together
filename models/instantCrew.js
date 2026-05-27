@@ -12,6 +12,10 @@ const memberSchema = new mongoose.Schema(
         memberList: [{
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
             joinedAt: { type: Date, default: Date.now }
+        }],
+        pendingList: [{
+            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            requestAt: { type: Date, default: Date.now }
         }]
     }, {
         _id: false
@@ -33,6 +37,10 @@ const instantCrewSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
         intro: { type: String },
+        meetAt: {
+            type: Date,
+            required: true
+        },
         host: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

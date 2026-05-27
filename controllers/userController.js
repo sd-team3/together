@@ -159,7 +159,7 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
-        zipcode,
+        zonecode: zipcode,
         gender,
         currentPassword,
         newPassword,
@@ -216,27 +216,20 @@ const postEditProfile = async (req, res, next) => {
     }
 };
 
-//회원탈퇴 페이지
-const getDelete = (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
-    }
-    res.render('user/delete');
-}
-
-//회원탈퇴 처리
+//회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
-    }
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
     const password = req.body.password;
     try {
         await userService.deleteUser(req.user.id, password);
-        res.redirect('/');
+        req.logout((err) => {
+            if (err) return next(err);
+            res.json({ success: true });
+        });
     } catch (error) {
-        next(error);
+        return res.status(400).json({ success: false, message: error.message });
     }
-}
+};
 
 //중복확인
 const checkEmail = async (req, res, next) => {
@@ -249,5 +242,12 @@ const checkEmail = async (req, res, next) => {
     }
 
 }
+// 설정 페이지
+const getSetting = (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/user/login');
+  }
+  res.render('user/setting', { user: req.user });
+};
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail, getVerify, postVerify };
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting };
