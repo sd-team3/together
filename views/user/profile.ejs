@@ -66,8 +66,8 @@
         <div class="mypage-card">
           <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div>
           <% if(regCrew.length > 4) { %>
-          <button type="button" id="seeAllBtn" class="mypage-card-action">전체보기</div>
-          <button type="button" id="see4Btn" class="mypage-card-action" style="display: none">접기</div>
+          <button type="button" id="seeAllBtn" class="mypage-card-action">전체보기</button>
+          <button type="button" id="see4Btn" class="mypage-card-action" style="display: none">접기</button>
           <% } %>
         </div>
           <div class="mypage-card-body">
@@ -81,23 +81,27 @@
                 </div>
             <% } else { %>
             <% regCrew.forEach((crew, index) => { %>
-              <div class="schedule-item <%= index > 4 ? 'schedule-hidden' : '' %>">
+              <div class="schedule-item 
+                          <%= index === 1 ? 'schedule-item-last' : '' %>
+                          <%= index >= 2 ? 'schedule-item-hidden' : '' %>">
                   <% if(crew.day[0] === '미정') { %>
-                  <div class="sched-time">
-                    <%= crew.day[0] %> --:-- </div>
+                  <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
                   <% } else {%>
-                  <div class="sched-time">
-                    <%= crew.day[0] %> 12:30</div>
+                  <div class="sched-time"> <%= crew.day[0] %> 12:30</div>
                   <% } %>
                   <div class="sched-dot" style="background:var(--primary)"></div>
 
                   <div class="sched-info">
                       <div class="sched-title-row">
                           <span class="sched-title"><%= crew.title %></span>
-                          <span class="sched-owner">👑 <%= crew.host.name %></span>
+                          <span class="sched-owner">
+                            👑 <%= crew.host.name %> 
+                            <%= String(user.id) === String(crew.host._id) ? "(나)" : "" %>
+                          </span>
                       </div>
                       <div class="sched-sub">📌 <%= crew.address.state %> <%= crew.address.city %> </div>
                   </div>
+
                   <div class="sched-manage">
                       <div class="manage-top">
                           <% if (crew.day[0] === '미정') {%> 
@@ -109,7 +113,9 @@
                       </div>
                       <div class="manage-bottom">
                           <span class="sched-joined">참여 중</span>
-                          <button class="btn-leave">탈퇴</button>
+                          <% if(String(user.id) != String(crew.host._id)) { %>
+                              <button type="submit" class="btn-leave">탈퇴</button>
+                          <% } %>
                       </div>
                   </div>
               </div>
@@ -119,7 +125,10 @@
 
         <!-- ----------------------------------------------------------------------------- -->
         <div class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">🕒 실시간 모임</div><div class="mypage-card-action">전체보기</div></div>
+          <div class="mypage-card-header">
+            <div class="mypage-card-title">🕒 실시간 모임</div>
+            <div class="mypage-card-action">전체보기</div>
+          </div>
           <div class="mypage-card-body">
 
             <div class="schedule-item">
@@ -185,23 +194,25 @@
   const seeAllBtn = document.getElementById('seeAllBtn');
   const see4Btn = document.getElementById('see4Btn');
 
-  seeAllBtn.addEventListener('click', () => {
-    seeAllBtn.style.display = 'none';
-    see4Btn.style.display = 'inline-block';
+  seeAllBtn.addEventListener('click', () => seeBtn(true));
+  see4Btn.addEventListener('click', () =>  seeBtn(false));
 
-    const scheduleHidden = document.querySelectorAll('schedule-hidden');
-    schedule-hidden.forEach(item => item.style.display = 'flex');
-  });
-  
-  see4Btn.addEventListener('click', () => {
-    see4Btn.style.display = 'none';
-    seeAllBtn.style.display = 'inline-block';
-    
-    const scheduleHidden = document.querySelectorAll('schedule-hidden');
-    schedule-hidden.forEach(item => item.style.display = 'none');
-  });
+  function seeBtn(bool) {
+    seeAllBtn.style.display = bool ? 'none' : 'inline-block';
+    see4Btn.style.display = !bool ? 'none' : 'inline-block';
 
+    const scheduleItem = document.querySelectorAll('.schedule-item');
+    const scheduleHidden = document.querySelectorAll('.schedule-item-hidden');
 
+    scheduleHidden.forEach(item => item.classList.toggle('show', bool));
+
+    if(scheduleItem[scheduleItem.length]) {
+      scheduleItem[scheduleItem.length].classList.toggle('schedule-item-last', bool);
+    }
+    if(scheduleItem[1]) {
+      scheduleItem[1].classList.toggle('schedule-item-last', !bool);
+    }
+  }
 </script>
 
 </body>
