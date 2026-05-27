@@ -11,7 +11,8 @@ exports.getHome = async (req, res, next) => {
             homeService.getSportChips(),
             homeService.getLiveFeed()
     ]);
-
+        stats.activeCount = req.app.locals.activeUserCount || 0;
+        
         const mySchedule = req.user
             ? await homeService.getMySchedule(req.user._id)
             : [];
