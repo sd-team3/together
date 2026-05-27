@@ -12,8 +12,6 @@ router.post('/reg-create',
 router.get('/my-crews', regCrewController.getMyCrews);
 router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
 router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);
-router.get('/:regularCrewId', regCrewController.getCrewDetail);
-router.post('/:regularCrewId/like', regCrewController.postCrewLike);
 
 // 번개모임 페이지
 router.get('/instant', instantCrewController.getInstant);
@@ -21,4 +19,7 @@ router.get('/instant', instantCrewController.getInstant);
 //번개모입 만들기
 router.get('/instant-create', instantCrewController.getInstantCreate);
 router.post('/instant-create', instantCrewController.postInstantCreate);
+
+router.get('/:regularCrewId', regCrewController.getCrewDetail);
+router.post('/:regularCrewId/like', regCrewController.postCrewLike);
 module.exports = router;
