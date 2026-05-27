@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const regularCrew = require('../../models/regularCrew');
 const User = require('../../models/User');
 const path = require('path');
+const constants = require('../../config/constants');
 const fs = require('fs');
 const { CONSTANTS } = require('../../config/constants');
 
@@ -51,9 +52,30 @@ async function findCrewsByUserId(userId) {
         populate: { path: 'host', select: 'name' }
     }).lean();
 
-    const user1 = await User.findById(userId).populate('crews').lean();
-    const crew = user.crews;
-    return crew;
+    if(!user) return null;
+    
+    const crew = sortCrewByDay(user.crews);
+    return crew.map(c => {
+        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정') };
+    });
+}
+
+
+function sortCrewByDay(crews) {
+    const today = new Date().getDay();
+    const dayMap = {'sun' : 0, 'mon' : 1, 'tue' : 2, 'wed' : 3, 'thu' : 4, 'fri' : 5, 'sat' : 6, 'none' : 7};
+
+    sortDay = (day, today) => {
+        day = dayMap[day];
+        if(day === 7 || day === undefined) return 7; 
+        return day - today >= 0 ? day - today : (day + 7) - today;
+    }
+
+    crews = crews.map(c => {
+        c.day.sort((a, b) => sortDay(a, today) - sortDay(b, today));
+        return { ...c, day : c.day};
+    });
+    return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
 }
 
 async function getMyCrews(userId, role) {
