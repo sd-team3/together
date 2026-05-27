@@ -2356,3 +2356,20 @@ select.input{cursor:pointer}
     text-align: center;
     flex-shrink: 0;
 }
+
+.btn-more {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b9eff;
+    border: none;
+    background: #eef3ff;
+    border-radius: 20px;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.btn-more:hover {
+    background: #dde8ff;
+}

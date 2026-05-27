@@ -130,14 +130,18 @@
     </div>
 
     <div class="edit-field field-full">
-    <label class="edit-label">기본 주소</label>
-    <input type="text" id="road" name="road" class="edit-input"
-      value="<%= (user.address?.state || '') + ' ' + (user.address?.city || '') + ' ' + (user.address?.road || '') %>"
-      readonly>
-    
-    <input type="hidden" id="state" name="state" value="<%= user.address?.state || '' %>">
-    <input type="hidden" id="city"  name="city"  value="<%= user.address?.city  || '' %>">
-  </div>
+  <label class="edit-label">기본 주소</label>
+
+  <!-- 화면 표시용 (전송 안 함, name 없음) -->
+  <input type="text" id="road-display" class="edit-input"
+    value="<%= (user.address?.state || '') + ' ' + (user.address?.city || '') + ' ' + (user.address?.road || '') %>"
+    readonly>
+
+  <!-- 실제 전송용 hidden (road만 저장) -->
+  <input type="hidden" id="road" name="road" value="<%= user.address?.road || '' %>">
+  <input type="hidden" id="state" name="state" value="<%= user.address?.state || '' %>">
+  <input type="hidden" id="city"  name="city"  value="<%= user.address?.city  || '' %>">
+</div>
 
     <div class="edit-field field-full">
       <label class="edit-label">상세 주소</label>
