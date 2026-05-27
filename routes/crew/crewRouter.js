@@ -9,6 +9,7 @@ router.post('/reg-create',
     uploadRegCrewProfile.single('uploadFile'),
     regCrewController.postRegCreate
 );
+
 router.get('/my-crews', regCrewController.getMyCrews);
 router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
 router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);

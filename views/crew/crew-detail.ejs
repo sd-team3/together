@@ -6,12 +6,13 @@
 <title>SPORTMATCH — 모임 상세</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
+<script src="/js/joinConfirm.js"></script>
 </head>
 <body>
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '', pageId: 'page-crew-detail', active: '' }) %>
+<%- include('../partials/head', { title: '🔍 크루 상세보기', pageId: 'page-crew-detail', active: '' }) %>
 
   <div class="page-body">
     <div class="detail-wrap">
@@ -103,8 +104,20 @@
 
       <!-- 하단 가입 버튼 -->
       <div class="detail-footer">
-        <button class="join-btn" id="join-btn" onclick="confirmJoin()">가입 신청하기</button>
+        <button class="join-btn" id="join-btn" data-id="<%= crew._id %>" onclick="confirmJoin()">가입 신청하기</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-join">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-icon">🏃</div>
+    <div class="modal-title">가입 신청</div>
+    <div class="modal-msg">정말 가입 신청하시겠습니까?</div>
+    <div class="modal-btns" style="margin-top:24px; display:flex; gap:8px;">
+      <button class="btn btn-outline" style="flex:1" onclick="closeJoinModal()">취소</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doJoin()">신청하기</button>
     </div>
   </div>
 </div>
