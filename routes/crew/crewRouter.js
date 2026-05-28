@@ -23,8 +23,6 @@ router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);
 router.get('/instant-create', instantCrewController.getInstantCreate);
 router.post('/instant-create', instantCrewController.postInstantCreate);
 
-// 동적 경로
 router.get('/:regularCrewId', regCrewController.getCrewDetail);
 router.post('/:regularCrewId/like', regCrewController.postCrewLike);
-
 module.exports = router;
