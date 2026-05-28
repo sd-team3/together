@@ -338,12 +338,13 @@ try {
 document.getElementById('addr-btn')?.addEventListener('click', async () => {
 try {
     const data = await addrSearch();
-    console.log(data); // sido, sigungu 있는지 확인
+    
     document.getElementById('zipcode').value = data.zonecode;
     document.getElementById('road').value    = data.roadAddress
         .replace(data.sido, '')
         .replace(data.sigungu, '')
-        .trim();                          // ✅ 이 줄만 수정
+        .trim();
+    document.getElementById('road-display').value = data.roadAddress;                         
     document.getElementById('state').value   = data.sido;
     document.getElementById('city').value    = data.sigungu;
     document.querySelector("input[name='detail']").focus();

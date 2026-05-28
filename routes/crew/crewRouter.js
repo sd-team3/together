@@ -4,19 +4,22 @@ const regCrewController = require('../../controllers/crewController/regCrewContr
 const instantCrewController = require('../../controllers/crewController/instantCrewController');
 const { uploadRegCrewProfile } = require('../../config/upload');
 
+// 정기모임
 router.get('/reg-create', regCrewController.getRegCreate);
+router.get('/my-crews', regCrewController.getMyCrews);
+
+// 번개모임
+router.get('/instant', instantCrewController.getInstant);
+
+// 정기모임 페이지 만들기
 router.post('/reg-create',
     uploadRegCrewProfile.single('uploadFile'),
     regCrewController.postRegCreate
 );
-router.get('/my-crews', regCrewController.getMyCrews);
 router.post('/delete/:regularCrewId', regCrewController.postMyCrewDelete);
 router.post('/withdraw/:regularCrewId', regCrewController.postMyCrewWithdraw);
 
-// 번개모임 페이지
-router.get('/instant', instantCrewController.getInstant);
-
-//번개모입 만들기
+// 번개모임 페이지 만들기
 router.get('/instant-create', instantCrewController.getInstantCreate);
 router.post('/instant-create', instantCrewController.postInstantCreate);
 
