@@ -13,7 +13,7 @@ router.get('/google/callback', (req, res, next) => {
     console.log('1. callback 진입');
 
     passport.authenticate('google', {
-        session: false
+        
     }, (err, user, info) => {
 
         console.log('2. authenticate 완료');
@@ -76,7 +76,7 @@ router.get('/naver/callback', (req, res, next) => {
             return next(err);
         }
 
-        // 진짜 실패
+        // 실패
         if (!user) {
             return res.redirect('/user/login');
         }

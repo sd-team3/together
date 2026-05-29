@@ -11,9 +11,7 @@ router.get('/signup', (req, res) => {
     // 소셜회원 객체 가져오기
     const socialUser = req.session.socialUser || null;
 
-    // 새로고침시 초기화 
-    delete req.session.socialUser;
-    delete req.session.socialSignup;
+    
 
     res.render('user/signup', {
         socialUser
@@ -27,6 +25,13 @@ router.post(
   validate('user/signup'), 
   userController.postSignup
 );
+//소셜로그인 취소
+router.get('/signup/cancel-social', (req, res) => {
+    if (req.session.socialUser) {
+        delete req.session.socialUser;
+    }
+    res.redirect('/user/signup'); // 또는 로그인 페이지
+});
 
 //로그인 페이지
 router.get('/login', userController.getLogin);
@@ -56,13 +61,20 @@ router.post('/verify-password', userController.postVerify);
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
 
-//회원탈퇴 페이지
-router.get('/delete', userController.getDelete);
-
 //회원탈퇴 처리
 router.post('/delete', userController.postDelete);
 
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
+
+// 번개모임 페이지
+router.get('/map_create', (req, res) => {
+    res.render('user/map_create');
+});
+
+//설정 페이지
+router.get('/setting', userController.getSetting);
+
+
 
 module.exports = router;

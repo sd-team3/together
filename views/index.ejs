@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+<%- include('partials/navbar') %>
+
+<div class="main">
+
+  <%- include('partials/head', { title: '🏠 홈 피드', pageId: 'page-home', active: '' }) %>
+
+  <!-- Hero Banner -->
+  <div class="home-hero">
+    <div class="home-hero-inner">
+      <div class="hero-eyebrow">
+        <span class="hero-live-dot"></span> 지금 <span id="live-count"><%= stats.activeCount %></span>명 활동 중
+      </div>
+      <div class="hero-title">오늘, 같이 뛸<br><span>팀원</span>을 찾아보세요</div>
+      <div class="hero-subtitle">
+        내 주변 생활 스포츠 매칭·정기모임을 한 곳에서.<br>
+        클럽 가입부터 장비 거래까지 모두 SPORTMATCH에서.
+      </div>
+      <div class="hero-cta">
+        <button class="btn btn-accent btn-lg" data-href="/crew/instant">🗺️ 지도에서 찾기</button>
+        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/crew/reg-list">정기모임 보기</button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val" id="stat-instant-count"><%= stats.weeklyMatches %></div>
+          <div class="hero-stat-label">총 번개모임</div>
+        </div>
+        <div>
+          <div class="hero-stat-val"><%= stats.activeClubs %></div>
+          <div class="hero-stat-label">총 정기모임</div>
+        </div>
+        <div>
+          <div class="hero-stat-val"><%= stats.totalUsers %>명</div>
+          <div class="hero-stat-label">전체 유저 수</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Search -->
+  <div class="search-bar-wrap">
+  <div class="search-bar">
+    <div class="sb-field">
+      <span class="sb-label">종목</span>
+      <select id="qs-sport" class="sb-input">
+        <option value="">전체 종목</option>
+        <option value="⚽">⚽ 풋살</option>
+        <option value="🏀">🏀 농구</option>
+        <option value="⚾">⚾ 야구</option>
+        <option value="🎾">🎾 테니스</option>
+        <option value="🏸">🏸 배드민턴</option>
+        <option value="🏓">🏓 탁구</option>
+        <option value="🎳">🎳 볼링</option>
+      </select>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-field">
+      <span class="sb-label">지역</span>
+      <input id="qs-district" class="sb-input" type="text" placeholder="ex) 성동구">
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-field">
+      <span class="sb-label">키워드</span>
+      <input id="qs-keyword" class="sb-input" type="text" placeholder="모임 이름">
+    </div>
+    <button class="sb-btn" id="qs-search-btn">검색 →</button>
+  </div>
+</div>
+
+  <!-- Sport Filter Chips -->
+  <div class="sport-chips" style="padding:0 28px 16px; margin-bottom:20px;">
+    <button class="sport-chip active" data-sport="">
+        전체
+    </button>
+    <% sportChips.forEach(function(chip) { %>
+      <button class="sport-chip"
+              data-sport="<%= chip.emoji %>">
+        <span class="emoji"><%= chip.emoji %></span> <%= chip.label %>
+      </button>
+    <% }); %>
+  </div>
+
+  <!-- Content Grid -->
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;padding:0 28px 28px">
+
+    <!-- Regular Meetings -->
+    <div>
+      <div class="flex justify-between items-center mb-12">
+        <div class="section-title" style="margin-bottom:0">🔁 추천 정기 모임</div>
+        <button class="btn btn-ghost btn-sm" data-href="/crew/reg-list">전체보기 →</button>
+      </div>
+      <div class="regular-grid">
+        <% regularMeetings.forEach(function(meeting) { %>
+          <div class="reg-card"
+               data-filter="<%= meeting.filterTags %>"
+               data-sport="<%= meeting.emoji %>"
+               data-district="<%= meeting.district %>"
+               data-title="<%= meeting.title %>"
+               data-modal-title="<%= meeting.emoji %> <%= meeting.title %>"
+               data-modal-body="<%= meeting.modalBody %>">
+            <div class="reg-card-head">
+              <div class="reg-sport-icon"><%= meeting.emoji %></div>
+              <div>
+                <div class="reg-card-title"><%= meeting.title %></div>
+                <div class="reg-card-sub"><%= meeting.district %></div>
+              </div>
+              <span class="pill pill-<%= meeting.pillType %>" style="margin-left:auto">
+                <%= meeting.pillLabel %>
+              </span>
+            </div>
+
+            <div class="reg-card-body">
+              <div class="reg-meta-row">
+                <span>🗓️ <%= meeting.schedule %></span>
+                <span>💰 <%= meeting.fee %></span>
+                <span>📊 <%= meeting.level %></span>
+              </div>
+              <div class="reg-progress">
+                <div class="reg-progress-fill" style="width:<%= meeting.fillPct %>%"></div>
+              </div>
+              <div class="reg-progress-label">
+                <span><%= meeting.current %>/<%= meeting.total %>명</span>
+                <span><%= meeting.total - meeting.current %>자리 남음</span>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="btn-more" data-href="/crew/reg-list">모임 더 찾아보기 →</button>
+    </div>
+    </div>
+    
+
+    <!-- Right Panel -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+    <!-- Live Feed -->
+    <div class="live-feed">
+    <div class="live-feed-header">
+        <div class="live-feed-title">
+        <span class="hero-live-dot"></span> 실시간 피드
+        </div>
+        <span class="text-xs text-muted">자동 업데이트</span>
+    </div>
+
+    <div id="liveFeed">
+    <% liveFeed.forEach(feed => { %>
+        <div class="live-feed-item">
+        <div class="live-feed-text">
+            <%= feed.text %>
+        </div>
+
+        <div class="live-feed-time">
+            <%= feed.time %>
+        </div>
+        </div>
+    <% }) %>
+    </div>
+    </div>
+
+      <!-- My Schedule -->
+      <div class="card">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:12.5px;font-weight:700">내 이번 주 일정</div>
+          <button class="btn btn-ghost btn-sm" data-href="/user/profile">전체 →</button>
+        </div>
+        <div style="padding:12px 16px">
+          <% mySchedule.forEach(function(sched) { %>
+            <div class="schedule-item">
+              <div class="sched-emoji"><%= sched.emoji %></div>
+              <div class="sched-info">
+                <div class="sched-title">
+                    <%= sched.title.length > 6 ? sched.title.slice(0, 6) + '...' : sched.title %>
+                </div>
+                <div class="sched-sub"><%= sched.place %></div>
+              </div>
+              <div class="sched-time"><%= sched.time %></div>
+              
+              <div class="sched-status" style="color:<%= sched.dColor %>"><%= sched.dDay %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+<div class="card" style="padding:16px">
+  <div class="section-title">내 활동 요약</div>
+
+  <!-- 1행 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+
+    <!-- 가입 클럽 -->
+    <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">
+      <div class="font-mono fw-700" style="font-size:22px">
+        <%= myStats ? myStats.clubs : 0 %>
+      </div>
+      <div class="text-xs text-muted mt-4">가입 클럽</div>
+    </div>
+
+    <!-- 매너 점수 -->
+    <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);text-align:center">
+      <div class="font-mono fw-700" style="font-size:22px">
+        <%= myStats ? myStats.manner : 0 %>
+      </div>
+      <div class="text-xs text-muted mt-4">매너 점수</div>
+    </div>
+
+  </div>
+
+  <!-- 2행 -->
+  <button
+    id="btn-my-rank"
+    class="btn btn-outline"
+    style="width:100%;justify-content:center"
+  >
+    🏆 내 랭킹은?
+  </button>
+</div>
+
+</div><!-- /main -->
+
+
+
+<!-- 지도 팝업 -->
+<div class="map-popup-overlay" id="map-popup">
+  <div class="map-popup">
+    <button class="popup-close" id="btn-close-map-popup">✕</button>
+    <div class="popup-sport" id="pp-sport"></div>
+    <div class="popup-title" id="pp-title"></div>
+    <div class="popup-meta">
+      <span id="pp-loc"></span>
+      <span id="pp-time"></span>
+      <span id="pp-members"></span>
+      <span>💰 <span id="pp-price"></span></span>
+    </div>
+    <div class="flex gap-6 mb-16">
+      <span class="tag tag-outline" id="pp-level"></span>
+      <span class="tag tag-green">실내</span>
+    </div>
+    <div class="popup-host">
+      <div class="popup-host-av">K</div>
+      <div>
+        <div class="popup-host-name">강남킬러 <span style="color:var(--text-3);font-weight:400">⭐ 4.9</span></div>
+        <div class="popup-host-sub">47경기 · 매너 우수</div>
+      </div>
+    </div>
+    <div class="popup-btns">
+      <button class="btn btn-primary flex-1" id="btn-popup-join">참가 신청</button>
+      <button class="btn btn-outline" id="btn-popup-share">공유 🔗</button>
+    </div>
+  </div>
+</div>
+
+<!-- 공용 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <div class="modal-btns">
+      <button class="btn btn-outline flex-1" id="modal-close-btn">닫기</button>
+      <button class="btn btn-primary flex-1" id="modal-ok-btn">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- leafletMatches 데이터 -->
+<script id="app-data" type="application/json">
+  <%- JSON.stringify(leafletMatches) %>
+</script>
+
+<script src="/js/handlers/index.js"></script>
+
+</body>
+</html>

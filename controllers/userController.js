@@ -1,4 +1,5 @@
 const userService = require('../services/userService');
+const regCrewService = require('../services/crew/regCrewService')
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -8,16 +9,28 @@ const getSignup = (req, res) => {
     });
 };
 
-
 //# 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
-
         const socialUser = req.session.socialUser || null;
 
-        const { email, password, name, age, tel, state, city, road, addressDetail,zipcode,gender } = req.body;
+        const {
+            email,
+            password,
+            name,
+            age,
+            tel,
+            state,
+            city,
+            road,
+            addressDetail,
+            zipcode,
+            gender
+        } = req.body;
 
-        await userService.createUser({
+      
+
+        const result = await userService.createUser({
             email,
             password: socialUser ? socialUser.password : password,
             name,
@@ -31,21 +44,35 @@ const postSignup = async (req, res, next) => {
                 detail: addressDetail,
                 zipcode
             },
-            gender,
+            provider: socialUser ? socialUser.provider : 'local',
             uploadFile: req.file
         });
-        // 소셜회원가입 임시 세션 제거
+
+
         delete req.session.socialUser;
 
-        res.redirect('/');
-    } catch (error) {
-        if (error.code === 11000) {
-        return res.render('user/signup', {
-            errors: {
-                email: error.message
+req.login(result, (err) => {
+
+            if (err) {
+                return next(err);
             }
+
+            return res.json({
+                success: true,
+                message: '회원가입 완료'
+            });
+
         });
-    }
+    } catch (error) {
+        
+        if (error.code === 11000) {
+            return res.render('user/signup', {
+                errors: {
+                    email: error.message
+                },
+                socialUser: req.session.socialUser || null
+            });
+        }
 
         return next(error);
     }
@@ -74,11 +101,11 @@ const getProfile = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect('/user/login');
     }
-
     const user = await userService.findUserById(req.user.id);
-
-    res.render('user/profile', { user });
+    const regCrew = await regCrewService.findCrewsByUserId(req.user.id);
+    res.render('user/profile', { user, regCrew });
 };
+
 
 //회원 수정 페이지
 const getEditProfile = async (req, res) => {
@@ -132,7 +159,7 @@ const postEditProfile = async (req, res, next) => {
         city,
         road,
         detail,
-        zipcode,
+        zonecode: zipcode,
         gender,
         currentPassword,
         newPassword,
@@ -189,27 +216,20 @@ const postEditProfile = async (req, res, next) => {
     }
 };
 
-//회원탈퇴 페이지
-const getDelete = (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
-    }
-    res.render('user/delete');
-}
-
-//회원탈퇴 처리
+//회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
-    }
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
     const password = req.body.password;
     try {
         await userService.deleteUser(req.user.id, password);
-        res.redirect('/');
+        req.logout((err) => {
+            if (err) return next(err);
+            res.json({ success: true });
+        });
     } catch (error) {
-        next(error);
+        return res.status(400).json({ success: false, message: error.message });
     }
-}
+};
 
 //중복확인
 const checkEmail = async (req, res, next) => {
@@ -222,5 +242,12 @@ const checkEmail = async (req, res, next) => {
     }
 
 }
+// 설정 페이지
+const getSetting = (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/user/login');
+  }
+  res.render('user/setting', { user: req.user });
+};
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, getDelete, postDelete, checkEmail, getVerify, postVerify };
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting };
