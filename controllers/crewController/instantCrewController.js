@@ -37,6 +37,9 @@ const getInstant = async (req, res) => {
 
 
 const getInstantCreate = (req, res) => {
+    if(!req.isAuthenticated()){
+        return res.redirect('/user/login');
+    }
     res.render('crew/instantCreate', {CONSTANTS:CONSTANTS});
 }
 
