@@ -12,4 +12,18 @@ router.use((req, res, next) => {
 
 router.get('/', indexController.getHome);
 
+// 정기모임-api
+
+const homeService = require('../services/indexService');
+
+router.get('/api/regular-meetings', async (req, res, next) => {
+  try {
+    const sport = req.query.sport || ''; // 'soccer', 'baseball' 등
+    const meetings = await homeService.getRegularMeetings(sport);
+    res.json({ ok: true, meetings });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

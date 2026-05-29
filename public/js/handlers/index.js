@@ -218,6 +218,95 @@ function leafletFilterToggle(type) {
     if (!show && leafletMap.hasLayer(marker)) leafletMap.removeLayer(marker);
   });
 }
+
+// 카드 HTML 생성 함수 (새로 추가)
+function renderRegCards(meetings) {
+  const grid = document.querySelector('.regular-grid');
+  if (!grid) return;
+
+  grid.innerHTML = ''; // 기존 카드 전부 지우기
+
+  if (meetings.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px 0;
+                  color:var(--text-3);font-size:14px">
+        조건에 맞는 모임이 없어요 🥲
+      </div>`;
+    return;
+  }
+
+  meetings.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'reg-card';
+    // data 속성들 (모달용)
+    card.dataset.modalTitle = `${m.emoji} ${m.title}`;
+    card.dataset.modalBody  = m.modalBody;
+
+    card.innerHTML = `
+      <div class="reg-card-head">
+        <div class="reg-sport-icon">${m.emoji}</div>
+        <div>
+          <div class="reg-card-title">${m.title}</div>
+          <div class="reg-card-sub">${m.district}</div>
+        </div>
+        <span class="pill pill-${m.pillType}" style="margin-left:auto">
+          ${m.pillLabel}
+        </span>
+      </div>
+      <div class="reg-card-body">
+        <div class="reg-meta-row">
+          <span>🗓️ ${m.schedule}</span>
+          <span>💰 ${m.fee}</span>
+          <span>📊 ${m.level}</span>
+        </div>
+        <div class="reg-progress">
+          <div class="reg-progress-fill" style="width:${m.fillPct}%"></div>
+        </div>
+        <div class="reg-progress-label">
+          <span>${m.current}/${m.total}명</span>
+          <span>${m.total - m.current}자리 남음</span>
+        </div>
+      </div>`;
+
+    // 카드 클릭 → 모달
+    card.addEventListener('click', () => {
+      showModal(card.dataset.modalTitle, card.dataset.modalBody, () =>
+        showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
+      );
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// API 호출 함수 (새로 추가)
+async function fetchAndRenderMeetings(sportKey = '') {
+  const grid = document.querySelector('.regular-grid');
+  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오는 중...</div>';
+
+  try {
+    const url = sportKey
+      ? `/api/regular-meetings?sport=${sportKey}`
+      : `/api/regular-meetings`;
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) renderRegCards(data.meetings);
+  } catch (err) {
+    console.error('모임 불러오기 실패:', err);
+    if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오기에 실패했어요 😢</div>';
+  }
+}
+
+// filterSport 함수 교체
+function filterSport(el) {
+  document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+
+  const sportKey = el.dataset.sportKey || ''; // 영문 키 ('soccer' 등), 전체면 ''
+  fetchAndRenderMeetings(sportKey);
+}
 //번개모임
 
 // ── DOMContentLoaded ──────────────────────────
@@ -258,30 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
   
-  function filterSport(el) {
-  document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
 
-  const selected = el.dataset.sport; // 예: "⚽"
-
-  document.querySelectorAll('.reg-card').forEach(card => {
-    const show = !selected || card.dataset.sport === selected;
-    card.style.display = show ? '' : 'none';
-  });
-
-  // 결과 없음 메시지
-  let emptyEl = document.getElementById('reg-empty-msg');
-  if (!emptyEl) {
-    emptyEl = document.createElement('div');
-    emptyEl.id = 'reg-empty-msg';
-    emptyEl.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px 0;color:var(--text-3);font-size:14px';
-    emptyEl.textContent = '조건에 맞는 모임이 없어요 🥲';
-    document.querySelector('.regular-grid')?.appendChild(emptyEl);
-  }
-  const visible = [...document.querySelectorAll('.reg-card')]
-  .filter(card => card.style.display !== 'none').length;
-  emptyEl.style.display = visible === 0 ? '' : 'none';
-}
 
   
 
