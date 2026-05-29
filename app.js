@@ -13,6 +13,8 @@ const session = require('express-session');
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
+const regularRouter = require('./routes/regularRouter');
+
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
 // 웹소켓
 const chatRouter = require('./routes/chatRouter');
@@ -46,6 +48,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/config', express.static(path.join(__dirname, 'config')));
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -54,6 +57,7 @@ app.get('/', (req, res) => {
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/chat', chatRouter);
+app.use('/regular', regularRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
