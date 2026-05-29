@@ -36,8 +36,10 @@ const calcDday = (date) => {
 };
 
 // // ── 정기모임 카드 ──────────────────────────────
-const getRegularMeetings = async () => {
-    const crews = await RegularCrew.find()
+const getRegularMeetings = async (sport = '') => {
+  const query = sport ? { sport } : {};
+
+    const crews = await RegularCrew.find(query)
         .sort({ createdAt: -1 })
         .limit(15);
 
@@ -377,11 +379,12 @@ return {
 
 // 종목 칩
 const getSportChips = () => {
-    return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
-        emoji:  SPORTS_META[key]?.emoji || '🏃',
-        label:  val.kr,
-        active: idx === 0
-    }));
+  return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
+    key,               
+    emoji: SPORTS_META[key]?.emoji || '🏃',
+    label: val.kr,
+    active: idx === 0
+  }));
 };
 
 

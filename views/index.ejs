@@ -84,8 +84,9 @@
         전체
     </button>
     <% sportChips.forEach(function(chip) { %>
-      <button class="sport-chip"
-              data-sport="<%= chip.emoji %>">
+      <button class="sport-chip" 
+        data-sport="<%= chip.emoji %>" 
+        data-sport-key="<%= chip.key %>">
         <span class="emoji"><%= chip.emoji %></span> <%= chip.label %>
       </button>
     <% }); %>
