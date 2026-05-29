@@ -15,8 +15,6 @@ const session = require('express-session');
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
 
-const regularRouter = require('./routes/regularRouter');
-
 const crewRouter = require('./routes/crew/crewRouter');
 const indexRouter = require('./routes/indexRouter.js');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
@@ -64,7 +62,6 @@ app.use('/auth', authRouter);
 app.use('/crew', crewRouter);
 
 app.use('/chat', chatRouter);
-app.use('/regular', regularRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
