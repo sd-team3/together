@@ -14,6 +14,7 @@ const session = require('express-session');
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
+
 const crewRouter = require('./routes/crew/crewRouter');
 const indexRouter = require('./routes/indexRouter.js');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
@@ -47,6 +48,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/config', express.static(path.join(__dirname, 'config')));
 app.get('/kakao-map-js-key', (req, res) => {
     res.json({ key: process.env.KAKAO_JS_KEY});
 })

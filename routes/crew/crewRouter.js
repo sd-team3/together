@@ -7,6 +7,10 @@ const { uploadRegCrewProfile } = require('../../config/upload');
 // 정기모임
 router.get('/reg-create', regCrewController.getRegCreate);
 router.get('/my-crews', regCrewController.getMyCrews);
+// 정기모임 페이지
+router.get('/regular', regCrewController.getRegular);
+// 정기모임 API로 페이지
+router.get('/api', regCrewController.getRegularAPI);
 
 // 번개모임
 router.get('/instant', instantCrewController.getInstant);
