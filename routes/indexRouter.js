@@ -18,7 +18,7 @@ const homeService = require('../services/indexService');
 
 router.get('/api/regular-meetings', async (req, res, next) => {
   try {
-    const sport = req.query.sport || ''; // 'soccer', 'baseball' 등
+    const sport = req.query.sport || ''; 
     const meetings = await homeService.getRegularMeetings(sport);
     res.json({ ok: true, meetings });
   } catch (err) {

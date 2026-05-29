@@ -219,7 +219,7 @@ function leafletFilterToggle(type) {
   });
 }
 
-// 카드 HTML 생성 함수 (새로 추가)
+// 카드 HTML 생성 함수
 function renderRegCards(meetings) {
   const grid = document.querySelector('.regular-grid');
   if (!grid) return;
@@ -236,7 +236,7 @@ function renderRegCards(meetings) {
   }
 
   meetings.forEach(m => {
-    const card = document.createElement('div');
+    const card = document.createElement('div'); // 카드 새로만들기 
     card.className = 'reg-card';
     // data 속성들 (모달용)
     card.dataset.modalTitle = `${m.emoji} ${m.title}`;
@@ -279,7 +279,7 @@ function renderRegCards(meetings) {
   });
 }
 
-// API 호출 함수 (새로 추가)
+// API 호출 함수
 async function fetchAndRenderMeetings(sportKey = '') {
   const grid = document.querySelector('.regular-grid');
   if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오는 중...</div>';
@@ -299,7 +299,7 @@ async function fetchAndRenderMeetings(sportKey = '') {
   }
 }
 
-// filterSport 함수 교체
+// filterSport(api)
 function filterSport(el) {
   document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -307,6 +307,7 @@ function filterSport(el) {
   const sportKey = el.dataset.sportKey || ''; // 영문 키 ('soccer' 등), 전체면 ''
   fetchAndRenderMeetings(sportKey);
 }
+
 //번개모임
 
 // ── DOMContentLoaded ──────────────────────────
