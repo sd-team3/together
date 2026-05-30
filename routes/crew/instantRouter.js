@@ -8,7 +8,7 @@ const { uploadRegularProfile } = require('../../config/upload');
 
 
 router.get('/instant', instantController.getInstant);
-router.get('/instant-create', instantController.getInstantCreate);
-router.post('/instant-create', instantController.postInstantCreate);
+router.get('/create', instantController.getInstantCreate);
+router.post('/create', instantController.postInstantCreate);
 
 module.exports = router;

@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = "/user/login";
       return;
     }
-    window.location.href = "/instant/instant-create";
+    window.location.href = "/instant/create";
   });
   console.log(crewsData.map(c => c.sport));
 });
