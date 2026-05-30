@@ -26,4 +26,17 @@ router.post('/application',
 //     applicationController.postJoinProcess
 // );
 
+router.get('/my-crews', regularController.getMyCrews);
+router.get('/regular', regularController.getRegular);
+
+router.get('/api', regularController.getRegularAPI);
+
+
+router.post('/delete/:regularCrewId', regularController.postMyCrewDelete);
+router.post('/withdraw/:regularCrewId', regularController.postMyCrewWithdraw);
+
+
+router.get('/:regularCrewId', regularController.getCrewDetail);
+router.post('/:regularCrewId/like', regularController.postCrewLike);
+
 module.exports = router;
