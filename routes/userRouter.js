@@ -61,13 +61,20 @@ router.post('/verify-password', userController.postVerify);
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
 
-//회원탈퇴 페이지
-router.get('/delete', userController.getDelete);
-
 //회원탈퇴 처리
 router.post('/delete', userController.postDelete);
 
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
+
+// 번개모임 페이지
+router.get('/map_create', (req, res) => {
+    res.render('user/map_create');
+});
+
+//설정 페이지
+router.get('/setting', userController.getSetting);
+
+
 
 module.exports = router;

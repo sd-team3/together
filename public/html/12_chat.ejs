@@ -27,44 +27,22 @@
           <span class="cr-unread">5</span>
         </div>
         <div class="chat-rooms-list">
-          <div class="chat-room-item active" onclick="openChatRoom('futsal',this)">
-            <div class="cr-av">⚽</div>
-            <div class="cr-info">
-              <div class="cr-top"><div class="cr-name">성수 풋살 나이트</div><div class="cr-time">20:14</div></div>
-              <div class="cr-preview">김민준: 이따 봬요 👋</div>
+          <% if (!chatRooms || chatRooms.length === 0 ) { %>
+            <p>채팅방이 없습니다</p>
+          <% } else { %>
+          <% chatRooms.forEach(room => { %>
+            <div class="chat-room-item" onclick="location.href='/chat/<%= room._id %>'">
+              <div class="cr-av">⚽</div>
+              <div class="cr-info">
+                <div class="cr-top">
+                  <div class="cr-name"><%= room.name %></div>
+                  <div class="cr-time"><%= room.lastMessageAt %></div>
+                </div>
+                <div class="cr-preview"><%= room.lastMessage?.content %></div>
+              </div>
             </div>
-          </div>
-          <div class="chat-room-item" onclick="openChatRoom('badminton',this)">
-            <div class="cr-av">🏸</div>
-            <div class="cr-info">
-              <div class="cr-top"><div class="cr-name">건대 배드민턴 믹스</div><div class="cr-time">11:28</div></div>
-              <div class="cr-preview">주최자: 셔틀콕은 제공됩니다!</div>
-            </div>
-            <div class="cr-unread">2</div>
-          </div>
-          <div class="chat-room-item" onclick="openChatRoom('running',this)">
-            <div class="cr-av">🏃</div>
-            <div class="cr-info">
-              <div class="cr-top"><div class="cr-name">성동 나이트 러닝 크루</div><div class="cr-time">17:35</div></div>
-              <div class="cr-preview">나: 저는 갑니다 💪</div>
-            </div>
-            <div class="cr-unread">1</div>
-          </div>
-          <div class="chat-room-item" onclick="openChatRoom('basketball',this)">
-            <div class="cr-av">🏀</div>
-            <div class="cr-info">
-              <div class="cr-top"><div class="cr-name">뚝섬 농구 스크림</div><div class="cr-time">어제</div></div>
-              <div class="cr-preview">이현: 저도요!</div>
-            </div>
-            <div class="cr-unread">2</div>
-          </div>
-          <div class="chat-room-item" onclick="openChatRoom('training',this)">
-            <div class="cr-av">💪</div>
-            <div class="cr-info">
-              <div class="cr-top"><div class="cr-name">퍼포먼스 트레이닝</div><div class="cr-time">2일전</div></div>
-              <div class="cr-preview">트레이너: 화이팅입니다!</div>
-            </div>
-          </div>
+          <% }) %>
+          <% } %>
         </div>
       </div>
       <!-- Chat Area -->
@@ -81,7 +59,7 @@
           </div>
         </div>
         <div class="chat-msgs" id="chatMessages">
-          <div class="chat-date-divider">오늘</div>
+        <div class="chat-date-divider">오늘</div>
           <div class="msg-row">
             <div class="msg-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">민</div>
             <div class="msg-content">
@@ -127,7 +105,7 @@
           </div>
         </div>
         <div class="chat-input-area">
-          <textarea class="chat-input" id="chatInput" rows="1" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+          <textarea class="chat-input" id="chatInput" rows="2" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
           <button class="chat-send-btn" onclick="sendChatMsg()">↑</button>
         </div>
       </div>

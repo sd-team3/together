@@ -1,0 +1,111 @@
+/* =============================================
+   settings.css — SPORTMATCH 설정 페이지 전용
+   ============================================= */
+
+/* ── 레이아웃 ── */
+.page-body-scroll {
+  overflow-y: auto;
+}
+
+/* ── 섹션 아이콘 배경 ── */
+.icon-privacy {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+}
+
+.icon-app {
+  background: linear-gradient(135deg, #FF6B00, #FF9500);
+}
+
+.icon-account {
+  background: linear-gradient(135deg, #555, #333);
+}
+
+.icon-support {
+  background: linear-gradient(135deg, #00C8D4, #1A5CFF);
+}
+
+.icon-danger {
+  background: linear-gradient(135deg, #FF3B30, #FF6B00);
+}
+
+/* ── 위험 영역 섹션 ── */
+.settings-section--danger {
+  border-color: rgba(255, 59, 48, 0.2);
+}
+
+.settings-section--danger .settings-section-header {
+  border-color: rgba(255, 59, 48, 0.12);
+}
+
+.settings-section-title--danger {
+  color: var(--red, #FF3B30);
+}
+
+.settings-link-arrow--danger {
+  color: var(--red, #FF3B30);
+}
+
+/* ── 모달 ── */
+.modal-box--sm {
+  max-width: 420px;
+  width: 90%;
+}
+
+.modal-box--md {
+  max-width: 460px;
+  width: 90%;
+}
+
+.modal-btns--mt {
+  margin-top: 18px;
+}
+
+/* ── 모달 폼 ── */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.modal-form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.modal-form-control {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-1);
+  outline: none;
+}
+
+.modal-form-control--textarea {
+  resize: vertical;
+}
+
+.modal-form-note {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ── FAQ 목록 ── */
+.faq-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  max-height: 360px;
+  overflow-y: auto;
+}
