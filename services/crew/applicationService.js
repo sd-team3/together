@@ -1,6 +1,8 @@
 const User = require('../../models/User');
 const crewApplication = require('../../models/crewApplication');
 const notification = require('../../models/notification');
+const regularCrew = require('../../models/regularCrew');
+const instantCrew = require('../../models/instantCrew');
 
 async function createApplication(userId, crewId, crewType, options = {}) {
     const newApplication = new crewApplication({ userId, crewId, crewType });
@@ -16,7 +18,11 @@ async function acceptApplication(appId, currUserId) {
             throw new Error('신청 정보를 찾을 수 없습니다.');
         }
 
-        const crew = await regularCrew.findById(app.crewId).session(session);
+        const crew = crewType === 'regularCrew' ?
+            await regularCrew.findById(app.crewId).session(session) :
+            await instantCrew.findById(app.crewId).session(session);
+        
+            
         if (!crew || crew.host.toString() !== currUserId.toString()) {
             throw new Error('권한이 없거나 크루를 찾을 수 없습니다.');
         }

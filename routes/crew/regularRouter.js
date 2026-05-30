@@ -1,29 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const regCrewController = require('../../controllers/crewController/regCrewController');
-const applicationController = require('../../controllers/crewController/applicationController');
+const regularController = require('../../controllers/crew/regularController');
+const applicationController = require('../../controllers/crew/applicationController');
 const applicationService = require('../../services/crew/applicationService');
-const { uploadRegCrewProfile } = require('../../config/upload');
+const crewMiddleware = require('../../middlewares/crewMiddleware');
+const { uploadRegularProfile } = require('../../config/upload');
 
-router.get('/reg-create', regCrewController.getRegCreate);
-router.post('/reg-create',
-    uploadRegCrewProfile.single('uploadFile'),
-    regCrewController.postRegCreate
+router.use((req, res, next)=>{ req.crewType = 'regular'; next(); })
+
+router.get('/create', regularController.getRegCreate);
+router.post('/create',
+    uploadRegularProfile.single('uploadFile'),
+    regularController.postRegCreate
 );
 
-router.get('/test', (req, res)=>{
-    res.render('crew/test');
-});
-router.post('/application', applicationController.postApplication);
+router.post('/application', 
+    crewMiddleware.applicationValidation,
+    applicationController.postApplication
+);
 
-router.post('/pending-application', async (req, res)=>{
-    try {
-        const { crewId } = req.body;
-        const pendingApplications = await applicationService.findPendingApplicationsByCrewId(crewId);
-        res.json(pendingApplications);
-    } catch (error) {
-        res.status(500).json({ message: 'regularRouter' });
-    }
-});
+// router.post('/pending-application', applicationController.getPendingApplication);
+
+// router.post('/join/:crewId/:appUserId/:action',
+//     crewMiddleware.joinProcessValidation,
+//     applicationController.postJoinProcess
+// );
 
 module.exports = router;
