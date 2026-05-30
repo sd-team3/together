@@ -1,5 +1,5 @@
 const { CONSTANTS } = require('../../config/constants');
-const instantCrewService = require('../../services/crew/instantCrewService');
+const instantCrewService = require('../../services/crew/instantService');
 
 const getInstant = async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 const userService = require('../services/userService');
-const regCrewService = require('../services/crew/regCrewService')
+const regularService = require('../services/crew/regularService')
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -102,7 +102,7 @@ const getProfile = async (req, res) => {
         return res.redirect('/user/login');
     }
     const user = await userService.findUserById(req.user.id);
-    const regCrew = await regCrewService.findCrewsByUserId(req.user.id);
+    const regCrew = await regularService.findCrewsByUserId(req.user.id);
     res.render('user/profile', { user, regCrew });
 };
 

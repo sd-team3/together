@@ -13,7 +13,7 @@
 <div class="main">
     <%- include('../partials/head', { title: '정기 모임 만들기', pageId: 'page-regular-create', active: '' }) %>
 
-    <form action="/crew/reg-create" method="POST" class="form-page" id="regCreateForm" enctype="multipart/form-data">
+    <form action="/regular/reg-create" method="POST" class="form-page" id="regCreateForm" enctype="multipart/form-data">
         <div class="form-max">
             
             <div class="form-section">
@@ -152,135 +152,13 @@
 
             
             <div style="display:flex; gap:10px; justify-content:flex-end">
-                <button type="button" class="btn btn-outline" onclick="location.href='/crew/regular'">취소</button>
+                <button type="button" class="btn btn-outline" onclick="location.href=''">취소</button>
                 <button type="submit" class="btn btn-primary btn-lg">모임 등록하기</button>
             </div>
         </div>
     </form>
 </div>
+<script src="/js/handlers/regularCreateHandler.js"></script>
 
-
-</div><!-- /main -->
-
-<!-- ═══════ MODAL ═══════ -->
-<!-- <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <div class="modal-icon" id="modal-icon">🎉</div>
-    <div class="modal-title" id="modal-title">완료!</div>
-    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
-    <div class="modal-btns">
-      <button class="btn btn-outline flex-1" onclick="closeModal()">닫기</button>
-      <button class="btn btn-primary flex-1" id="modal-ok" onclick="closeModal()">확인</button>
-    </div>
-  </div>
-</div> -->
-<script src="/js/handlers/rcCreateHandler.js"></script>
-<script>
-let isLoggedIn = false;
-let currentRoom = null;
-
-// // ── 페이지 네비게이션 ──
-// function goPage(p) {
-//   const authRequired = ['mypage', 'chat', 'notifications'];
-//   if (!isLoggedIn && authRequired.includes(p)) {
-//     openAuthModal('login');
-//     return;
-//   }
-
-//   // 페이지 활성화 토글
-//   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-//   const pg = document.getElementById('page-' + p);
-//   if (pg) pg.classList.add('active');
-
-//   // 네비게이션 아이템 활성화
-//   const pageGroup = { 'map-create':'map', 'regular-create':'regular', 'trade-sell':'trade' };
-//   const activeKey = pageGroup[p] || p;
-//   document.querySelectorAll('.nav-item').forEach(el => {
-//     el.classList.toggle('active', el.dataset.page === activeKey);
-//   });
-
-//   document.querySelector('.main').scrollTo(0, 0);
-
-//   // 지도 페이지 진입 시 초기화
-//   if (p === 'map') {
-//     setTimeout(() => {
-//       initLeafletMap();
-//       if (leafletMap) leafletMap.invalidateSize();
-//     }, 50);
-//   }
-// }
-
-// // ── 공통 모달 시스템 ──
-// let _modalCb = null;
-// function showModal(title, msg, cb) {
-//   const emojiMatch = title.match(/^(\p{Emoji})/u);
-//   const emoji = emojiMatch ? emojiMatch[1] : '💡';
-//   const rest = title.replace(/^(\p{Emoji}\s*)/u, '');
-
-//   document.getElementById('modal-icon').textContent = emoji;
-//   document.getElementById('modal-title').textContent = rest;
-//   document.getElementById('modal-msg').innerHTML = msg;
-  
-//   _modalCb = cb;
-//   const okBtn = document.getElementById('modal-ok');
-//   okBtn.onclick = () => { closeModal(); if(cb) cb(); };
-  
-//   document.getElementById('modal').classList.add('show');
-// }
-
-// function closeModal() {
-//   document.getElementById('modal').classList.remove('show');
-// }
-
-// // ── 인증(로그인/회원가입) 로직 ──
-// function openAuthModal(type) {
-//   document.getElementById('modal-' + type).classList.add('show');
-// }
-
-// function closeAuthModal(type) {
-//   document.getElementById('modal-' + type).classList.remove('show');
-// }
-
-// function handleAuthSuccess(action) {
-//   const type = action === '로그인' ? 'login' : 'signup';
-//   closeAuthModal(type);
-//   isLoggedIn = true;
-//   setLoginState(true);
-//   showModal('🎉 ' + action + ' 완료!', '반갑습니다! 이제 모든 서비스를 이용할 수 있습니다.');
-// }
-
-// function setLoginState(loggedIn) {
-//   document.querySelectorAll('.auth-state-btns[data-state="guest"]').forEach(el => el.style.display = loggedIn ? 'none' : 'inline-flex');
-//   document.querySelectorAll('.auth-state-btns[data-state="user"]').forEach(el => el.style.display = loggedIn ? 'inline-flex' : 'none');
-  
-//   const navGuest = document.getElementById('nav-guest');
-//   const navUser = document.getElementById('nav-user');
-//   if (navGuest) navGuest.style.display = loggedIn ? 'none' : 'flex';
-//   if (navUser) navUser.style.display = loggedIn ? 'block' : 'none';
-// }
-
-// // ── 필터 및 칩 선택 공통 함수 ──
-// function singleChip(el) {
-//   el.closest('.chip-group, .flex').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-//   el.classList.add('on');
-// }
-
-// function singleLv(el) {
-//   el.closest('.level-row').querySelectorAll('.lv-btn').forEach(b => b.classList.remove('on'));
-//   el.classList.add('on');
-// }
-
-// // ── 지도 초기화 (최소 기능) ──
-// let leafletMap = null;
-// function initLeafletMap() {
-//   if (leafletMap) return;
-//   leafletMap = L.map('leaflet-map', { zoomControl: false }).setView([37.5447, 127.0461], 14);
-//   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(leafletMap);
-// }
-
-// // ── 초기 실행 ──
-// document.addEventListener('DOMContentLoaded', () => {
-// });
-</script>
 </body>
 </html>

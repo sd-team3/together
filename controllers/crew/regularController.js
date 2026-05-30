@@ -1,9 +1,10 @@
+const mongoose = require('mongoose');
 const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
-const regCrewService = require('../../services/crew/regCrewService');
+const regularService = require('../../services/crew/regularService');
 
 const getRegCreate = (req, res)=>{
-    res.render('crew/regCreate', { CONSTANTS: CONSTANTS });
+    res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
 }
 
 const postRegCreate = async (req, res)=>{
@@ -30,7 +31,7 @@ const postRegCreate = async (req, res)=>{
 
         data.isAutoAccept = (data.isAutoAccept === 'enable');
 
-        const result = await regCrewService.createRegCrew(data, profileFile, host);
+        const result = await regularService.createRegCrew(data, profileFile, host);
         
         if (result.success) {
             return res.redirect('/crew/reg-list');
@@ -43,7 +44,6 @@ const postRegCreate = async (req, res)=>{
     }
 };
 
-// 렌더링해서 정기모임 페이지 열람
 const getRegular = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     try {
@@ -163,6 +163,6 @@ module.exports = {
     postMyCrewWithdraw,
     getCrewDetail,
     postCrewLike,
-  getRegular,
-  getRegularAPI
+    getRegular,
+    getRegularAPI
 };

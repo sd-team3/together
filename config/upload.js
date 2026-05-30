@@ -29,7 +29,7 @@ const boardStorage = multer.diskStorage(
     }
 );
 
-const regCrewProfileStorage = multer.diskStorage(
+const regularProfileStorage = multer.diskStorage(
     {
         destination: (req, file, cb) => {
             cb(null, 'public/images/reg-crew/profile');
@@ -66,10 +66,10 @@ const uploadBoard = multer({
     fileFilter : imageFilter
 });
 
-const uploadRegCrewProfile = multer({
-    storage : regCrewProfileStorage,
+const uploadRegularProfile = multer({
+    storage : regularProfileStorage,
     limits : {fileSize : 20 * 1024 * 1024},
     fileFilter : imageFilter
 });
 
-module.exports = {uploadProfile, uploadBoard, uploadRegCrewProfile};
+module.exports = {uploadProfile, uploadBoard, uploadRegularProfile};
