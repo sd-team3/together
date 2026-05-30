@@ -3,6 +3,7 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const User = require('../../models/User');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 

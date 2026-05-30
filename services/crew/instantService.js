@@ -38,4 +38,10 @@ async function createInstantCrew(data, host) {
     }
 
 }
-module.exports = {createInstantCrew, getInstantCrew};
+// 내가 만든 번개모임 목록
+async function getMyCrews(userId) {
+    return await InstantCrew.find({ host: userId })
+        .sort({ createdAt: -1 })
+        .lean();
+}
+module.exports = {createInstantCrew, getInstantCrew, getMyCrews};

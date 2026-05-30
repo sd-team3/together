@@ -11,10 +11,25 @@ const memberSchema = new mongoose.Schema(
         },
         memberList: [{
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            role: { 
+                type: String, 
+                enum: ['host', 'member'],
+                default: 'member'
+            },
+            status: {
+                type: String,
+                enum: ['confirmed', 'noshow'],
+                default: 'confirmed'
+            },
             joinedAt: { type: Date, default: Date.now }
         }],
         pendingList: [{
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            status: {
+                type: String,
+                enum: ['pending', 'rejected'],
+                default: 'pending'
+            },
             requestAt: { type: Date, default: Date.now }
         }]
     }, {

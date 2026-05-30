@@ -11,4 +11,5 @@ router.get('/instant', instantController.getInstant);
 router.get('/create', instantController.getInstantCreate);
 router.post('/create', instantController.postInstantCreate);
 
+router.get('/manage', instantController.getMyCrews);
 module.exports = router;

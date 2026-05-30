@@ -43,7 +43,7 @@
                 </div>
             </div>
             <% const isSocialLogin = !!socialUser; %>
-            <form action="/user/signup" method="post" id="signup">
+            <form action="/user/signup" method="post" id="signup" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>
                     <input type="text" class="input" name="name" id="name" value="<%= socialUser?.name || '' %>" />

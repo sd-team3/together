@@ -65,4 +65,15 @@ const postInstantCreate = async (req, res) => {
         return res.status(500).send('서버 오류가 발생했습니다.');
     }
 };
- module.exports = {getInstantCreate, postInstantCreate, getInstant};
+ 
+// 내가 만든 번개모임 목록 페이지
+const getMyCrews = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
+    try {
+        const crews = await instantCrewService.getMyCrews(req.user._id);
+        res.render('/instantManager', { crews, CONSTANTS });
+    } catch (error) {
+        next(error);
+    }
+};
+ module.exports = {getInstantCreate, postInstantCreate, getInstant, getMyCrews};

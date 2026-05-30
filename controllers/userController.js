@@ -57,10 +57,7 @@ req.login(result, (err) => {
                 return next(err);
             }
 
-            return res.json({
-                success: true,
-                message: '회원가입 완료'
-            });
+            return res.redirect('/');
 
         });
     } catch (error) {
