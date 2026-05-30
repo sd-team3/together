@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 const regularCrew = require('../../models/regularCrew');
-const User = require('../../models/User');
+const crewService = require('../../services/crew/crewService');
 const path = require('path');
-const constants = require('../../config/constants');
 const fs = require('fs');
-const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -37,13 +35,29 @@ async function createRegCrew(data, profileFile, host) {
         level: level || 'none', profileImage
     });
 
+    const session = null;
     try {
-        await regCrew.save();
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        const crew = await regCrew.save({ session: session });
+        await crewService.addCrewToUser(host, crew._id, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+        
         return { success: true, data: regCrew };
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error(error);
         throw error;
     }
+}
+
+const findHostByCrewId = async (crewId)=>{
+    const crew = await regularCrew.findById(crewId).select('host');
+    return crew ? crew.host : null;
 }
 
 async function getRegularCrews(page = 1) {
@@ -221,4 +235,15 @@ async function crewLike(regularCrewId, userId) {
     ); // $inc : 몽고DB 숫자 필드 증가 연산자
 }
 
-module.exports = { createRegCrew, findCrewsByUserId, getMyCrews, deleteMyCrew, getCrewDetail, withdrawMyCrew, crewLike ,getRegularCrews, getRegularAPICrews};
+module.exports = { 
+    findHostByCrewId, 
+    createRegCrew, 
+    findCrewsByUserId, 
+    getMyCrews, 
+    deleteMyCrew, 
+    getCrewDetail, 
+    withdrawMyCrew, 
+    crewLike,
+    getRegularCrews, 
+    getRegularAPICrews
+};

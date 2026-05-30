@@ -15,7 +15,7 @@ const crewApplicationSchema = new mongoose.Schema(
         crewType: {
             type: String,
             required: true,
-            enum: ['RegularCrew', 'instantCrew']
+            enum: ['regularCrew', 'instantCrew']
         },
         status: {
             type: String,
