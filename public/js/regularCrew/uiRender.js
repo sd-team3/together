@@ -55,7 +55,7 @@ export function renderRegularCards(regularCrews) {
     const feeText = crew.fee === 0 ? '무료' : `${Number(crew.fee).toLocaleString()}원/회`;
 
     return `
-      <div class="reg-card">
+      <div class="reg-card" data-id="${crew._id}" style="cursor: pointer;">
         <div class="reg-card-head">
           <img class="reg-crew-profile-img" src="/images/crew-profile/${escapeHTML(crew.profileImage || 'default-crew-profile.jpg')}" alt="정기모임 이미지">
           <div>
