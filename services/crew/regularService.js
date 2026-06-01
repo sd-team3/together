@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 const regularCrew = require('../../models/regularCrew');
-const User = require('../../models/User');
+const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
-const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -36,13 +35,81 @@ async function createRegCrew(data, profileFile, host) {
         level: level || 'none', profileImage
     });
 
+    const session = null;
     try {
-        await regCrew.save();
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        const crew = await regCrew.save({ session: session });
+        await crewService.addCrewToUser(host, crew._id, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+        
         return { success: true, data: regCrew };
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error(error);
         throw error;
     }
+}
+
+const findHostByCrewId = async (crewId)=>{
+    const crew = await regularCrew.findById(crewId).select('host');
+    return crew ? crew.host : null;
+}
+
+async function getRegularCrews(page = 1) {
+    const query = {};
+    const limit = 9;
+    const totalRegular = await regularCrew.countDocuments(query);
+    const totalPages = Math.ceil(totalRegular/limit);
+
+    const regularCrews = await regularCrew.find({})
+                        .sort({createdAt : -1})
+                        .limit(limit);
+    return {regularCrews, currentPage: page, totalPages};
+}
+
+async function getRegularAPICrews(filter, page) {
+    const query = {};
+    const limit = 9;
+    const skip = (page-1) * limit;
+    // $in : 몽고 DB에게 여러개의 값을 가져오라는 것 
+    if (filter.day) {
+        query.day = { $in : filter.day };
+    }
+    if (filter.isAutoAccept) {
+        query.isAutoAccept = filter.isAutoAccept  === 'true';
+    }
+    if (filter.sport) {
+        query.sport = { $in : filter.sport };
+    }
+    if (filter.ageRange) {
+        query.ageRange = { $in : filter.ageRange };
+    }
+    if (filter.state) {
+        query['address.state'] = filter.state;
+    }
+    if (filter.city) {
+        query['address.city'] = filter.city;
+    }
+    if (filter.isRecruiting) {
+        // 가져오는 속도를 높이기 위해 memberList.length < capacity를 몽고 DB 언어로 직역한 것이다.
+        query.$expr = { 
+            $lt: [ { $size: "$member.memberList" }, "$member.capacity" ] 
+        };
+    }
+    const totalRegular = await regularCrew.countDocuments(query);
+    const totalPages = Math.ceil(totalRegular/limit);
+    const regularCrews = await regularCrew.find(query)
+                                          .sort ({createdAt : -1 })
+                                          .skip(skip)
+                                          .limit(limit);
+    return {
+        regularCrews, totalPages, currentPage: page
+    }                              
 }
 
 async function findCrewsByUserId(userId) {
@@ -51,9 +118,30 @@ async function findCrewsByUserId(userId) {
         populate: { path: 'host', select: 'name' }
     }).lean();
 
-    const user1 = await User.findById(userId).populate('crews').lean();
-    const crew = user.crews;
-    return crew;
+    if(!user) return null;
+    
+    const crew = sortCrewByDay(user.crews);
+    return crew.map(c => {
+        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정') };
+    });
+}
+
+
+function sortCrewByDay(crews) {
+    const today = new Date().getDay();
+    const dayMap = {'sun' : 0, 'mon' : 1, 'tue' : 2, 'wed' : 3, 'thu' : 4, 'fri' : 5, 'sat' : 6, 'none' : 7};
+
+    sortDay = (day, today) => {
+        day = dayMap[day];
+        if(day === 7 || day === undefined) return 7; 
+        return day - today >= 0 ? day - today : (day + 7) - today;
+    }
+
+    crews = crews.map(c => {
+        c.day.sort((a, b) => sortDay(a, today) - sortDay(b, today));
+        return { ...c, day : c.day};
+    });
+    return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
 }
 
 async function getMyCrews(userId, role) {
@@ -147,4 +235,15 @@ async function crewLike(regularCrewId, userId) {
     ); // $inc : 몽고DB 숫자 필드 증가 연산자
 }
 
-module.exports = { createRegCrew, findCrewsByUserId, getMyCrews, deleteMyCrew, getCrewDetail, withdrawMyCrew, crewLike };
+module.exports = { 
+    findHostByCrewId, 
+    createRegCrew, 
+    findCrewsByUserId, 
+    getMyCrews, 
+    deleteMyCrew, 
+    getCrewDetail, 
+    withdrawMyCrew, 
+    crewLike,
+    getRegularCrews, 
+    getRegularAPICrews
+};

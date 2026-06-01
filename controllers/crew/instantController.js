@@ -1,5 +1,5 @@
 const { CONSTANTS } = require('../../config/constants');
-const instantCrewService = require('../../services/crew/instantCrewService');
+const instantCrewService = require('../../services/crew/instantService');
 
 const getInstant = async (req, res) => {
     try {
@@ -10,6 +10,7 @@ const getInstant = async (req, res) => {
             id:       c._id,
             title:    c.title,
             intro:    c.intro || '',
+            sport:    c.sport,
             sportKr:  CONSTANTS.SPORTS[c.sport]?.kr || c.sport,
             state:    c.address.state,
             city:     c.address.city,

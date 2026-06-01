@@ -36,7 +36,7 @@
             <div class="profile-handle"><%= user.email %></div>
             <div class="profile-badges">
               <div class="profile-badge">🎂 <%= user.age %> 세</div>
-              <div class="profile-badge">👤 <%= user.gender %></div> 
+              <div class="profile-badge">👤 <%= user.gender === 'male' ? '남성' : '여성' %></div> 
               <div class="profile-badge">🏠 <%= user.address.state %> <%= user.address.city %></div>
               <div class="profile-badge">⚡ <%= user.sports %>축구</div>
             </div>
@@ -64,43 +64,71 @@
       <div class="mypage-main">
         <!-- Upcoming Schedule -->
         <div class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div><div class="mypage-card-action">전체보기</div></div>
+          <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div>
+          <% if(regCrew.length > 4) { %>
+          <button type="button" id="seeAllBtn" class="mypage-card-action">전체보기</button>
+          <button type="button" id="see4Btn" class="mypage-card-action" style="display: none">접기</button>
+          <% } %>
+        </div>
           <div class="mypage-card-body">
-
-            <% regCrew.forEach(crew => { %>
-              <div class="schedule-item">
-                  <div class="sched-time">화요일 12:30</div>
+            <% if(regCrew.length === 0 || !regCrew) { %>
+                <div class="no-data-container">
+                  <div class="no-data-item">🔍</div>
+                  <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
+                  <p class="no-data-item">나와 취향이 맞는 정기 모임을 찾아보세요!</p>
+                  <!-- 정기 크루 경로 확인 전까지 보류 -->
+                  <a href="" class="no-data-button">모임 둘러보기</a> 
+                </div>
+            <% } else { %>
+            <% regCrew.forEach((crew, index) => { %>
+              <div class="schedule-item 
+                          <%= index === 1 ? 'schedule-item-last' : '' %>
+                          <%= index >= 2 ? 'schedule-item-hidden' : '' %>">
+                  <% if(crew.day[0] === '미정') { %>
+                  <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
+                  <% } else {%>
+                  <div class="sched-time"> <%= crew.day[0] %> 12:30</div>
+                  <% } %>
                   <div class="sched-dot" style="background:var(--primary)"></div>
 
                   <div class="sched-info">
                       <div class="sched-title-row">
                           <span class="sched-title"><%= crew.title %></span>
-                          <span class="sched-owner">👑 <%= crew.host.name %></span>
+                          <span class="sched-owner">
+                            👑 <%= crew.host.name %> 
+                            <%= String(user.id) === String(crew.host._id) ? "(나)" : "" %>
+                          </span>
                       </div>
                       <div class="sched-sub">📌 <%= crew.address.state %> <%= crew.address.city %> </div>
                   </div>
+
                   <div class="sched-manage">
                       <div class="manage-top">
-                          <% if( crew.day === 'none' ) {%>
-                            <span class="sched-days">미정</span>
-                          <% } else { %> 
-                            <span class="sched-days">매주 <% crew.day.forEach(d => { %><%=d%> <% });%></span>
+                          <% if (crew.day[0] === '미정') {%> 
+                            <span class="sched-days" style="color: red">미정</span>
+                          <% } else { %>
+                            <span class="sched-days">매주 <%= crew.day.join(', ');%></span>
                           <% } %>
                           <span class="sched-count">👤 <%= crew.member.memberList.length %>/<%= crew.member.capacity %></span>
                       </div>
                       <div class="manage-bottom">
                           <span class="sched-joined">참여 중</span>
-                          <button class="btn-leave">탈퇴</button>
+                          <% if(String(user.id) != String(crew.host._id)) { %>
+                              <button type="submit" class="btn-leave">탈퇴</button>
+                          <% } %>
                       </div>
                   </div>
               </div>
-              <% }); %>
+              <% });}%>
           </div>
         </div>
 
         <!-- ----------------------------------------------------------------------------- -->
         <div class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">🕒 실시간 모임</div><div class="mypage-card-action">전체보기</div></div>
+          <div class="mypage-card-header">
+            <div class="mypage-card-title">🕒 실시간 모임</div>
+            <div class="mypage-card-action">전체보기</div>
+          </div>
           <div class="mypage-card-body">
 
             <div class="schedule-item">
@@ -161,6 +189,31 @@
     </div>
   </div>
 </div>
+
+<script>
+  const seeAllBtn = document.getElementById('seeAllBtn');
+  const see4Btn = document.getElementById('see4Btn');
+
+  seeAllBtn.addEventListener('click', () => seeBtn(true));
+  see4Btn.addEventListener('click', () =>  seeBtn(false));
+
+  function seeBtn(bool) {
+    seeAllBtn.style.display = bool ? 'none' : 'inline-block';
+    see4Btn.style.display = !bool ? 'none' : 'inline-block';
+
+    const scheduleItem = document.querySelectorAll('.schedule-item');
+    const scheduleHidden = document.querySelectorAll('.schedule-item-hidden');
+
+    scheduleHidden.forEach(item => item.classList.toggle('show', bool));
+
+    if(scheduleItem[scheduleItem.length]) {
+      scheduleItem[scheduleItem.length].classList.toggle('schedule-item-last', bool);
+    }
+    if(scheduleItem[1]) {
+      scheduleItem[1].classList.toggle('schedule-item-last', !bool);
+    }
+  }
+</script>
 
 </body>
 </html>

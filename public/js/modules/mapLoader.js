@@ -1,5 +1,6 @@
 window.MAP = null;
 const MAP_ID = 'map';
+let KakaoMarkers = [];
 
 async function loadKakaoMapAPI() {
     return new Promise(async (resolve, reject)=>{
@@ -120,29 +121,52 @@ const kakaoMap = {
 
     async loadMarker(crews) {
         try {
-            const markers = crews.map(crew => {
+            KakaoMarkers = crews.map(crew => {
                 const position = new kakao.maps.LatLng(crew.lat, crew.lng);
+                const sportEmoji = {
+                    soccer: '⚽', baseball: '⚾', basketball: '🏀',
+                    badminton: '🏸', bowling: '🎳', tennis: '🎾', tabletennis: '🏓'
+                }[crew.sport] || '🏅';
+
+                const sportColor = {
+                    soccer: '#2ECC71', baseball: '#E74C3C', basketball: '#FF6B00',
+                    badminton: '#00C8D4', bowling: '#9B59B6', tennis: '#F1C40F', tabletennis: '#00C853'
+                };
+
+                // SVG 커스텀 마커
+                const svg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
+                        <path d="M18 0C8 0 0 8 0 18c0 14 18 30 18 30s18-16 18-30C36 8 28 0 18 0z"
+                            fill="${sportColor[crew.sport] || '#9B59B6'}" stroke="white" stroke-width="1.5"/>
+                        <text x="18" y="22" text-anchor="middle" dominant-baseline="middle" font-size="14">${sportEmoji}</text>
+                    </svg>`;
+
+                const markerImage = new kakao.maps.MarkerImage(
+                    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg),
+                    new kakao.maps.Size(36, 48),
+                    { offset: new kakao.maps.Point(18, 48) }
+                );
                 const marker = new kakao.maps.Marker({
                     map: window.MAP,
                     position: position,
+                    image: markerImage,
                     title: crew.title
                 });
-
-                const infoWindow = new kakao.maps.InfoWindow({
-                    content: `<div>${crew.title} 크루</div>`
-                });
+                marker._crewData = crew;
 
                 kakao.maps.event.addListener(marker, 'click', ()=>{
-                    infoWindow.open(window.MAP, marker);
+                    if(crew.onClick) crew.onClick();
                 });
 
                 return marker;
             });
-
-            return markers;
+            return KakaoMarkers;
         } catch (error) {
             return error.message;
         }
+    },
+    getMarkers() {
+        return KakaoMarkers;
     }
 }
 

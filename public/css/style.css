@@ -194,7 +194,7 @@ select.input{cursor:pointer}
 .divider{height:1px;background:var(--border);margin:20px 0}
 
 /* ─── UTILS ─── */
-.flex{display:flex}.flex-col{flex-direction:column}
+.flex{display:flex}.flex-col{display:flex;flex-direction:column}
 .items-center{align-items:center}.justify-between{justify-content:space-between}
 .gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}.gap-16{gap:16px}
 .mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
@@ -489,7 +489,7 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    NOTIFICATIONS PAGE
 ═══════════════════════════════════════ */
-#notif-list{
+#noti-list{
   border:2px solid var(--border);
   border-radius:12px;
   padding:8px;
@@ -497,26 +497,26 @@ select.input{cursor:pointer}
   flex-direction:column;
   gap:8px;
 }
-.notif-item{
+.noti-item{
   display:flex;align-items:flex-start;gap:12px;
   padding:25px 16px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);
   cursor:pointer;transition:all .15s;position:relative;
 }
-.notif-item:hover{border-color:var(--border-strong);box-shadow:var(--shadow)}
-.notif-icon{
+.noti-item:hover{border-color:var(--border-strong);box-shadow:var(--shadow)}
+.noti-icon{
   width:40px;height:40px;border-radius:10px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:18px;
 }
-.notif-body{flex:1;min-width:0}
-.notif-title{font-size:16.5px;line-height:1.5;margin-bottom:4px;color:var(--text)}
-.notif-meta{font-size:12px;color:var(--text-3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.notif-time{font-size:13px;color:var(--text-3);font-family:'DM Mono',monospace}
-.notif-dot{
+.noti-body{flex:1;min-width:0}
+.noti-title{font-size:16.5px;line-height:1.5;margin-bottom:4px;color:var(--text)}
+.noti-meta{font-size:12px;color:var(--text-3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.noti-time{font-size:13px;color:var(--text-3);font-family:'DM Mono',monospace}
+.noti-dot{
   width:8px;height:8px;border-radius:50%;background:var(--green);
   flex-shrink:0;margin-top:4px;
 }
-#notif-popup{
+#noti-popup{
   display:none;
   position:absolute;
   top:60px;
@@ -647,7 +647,8 @@ select.input{cursor:pointer}
   display:flex;align-items:center;justify-content:space-between;
 }
 .mypage-card-title{font-size:12.5px;font-weight:700}
-.mypage-card-action{font-size:12px;color:var(--text-3);cursor:pointer;transition:color .15s}
+.mypage-card-action{background:none;border:none;padding:0;margin:0;cursor:pointer;outline:none; 
+  font-size:12px;color:var(--text-3);cursor:pointer;transition:color .15s}
 .mypage-card-action:hover{color:var(--text)}
 .mypage-card-body{padding:16px}
 .history-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -682,13 +683,20 @@ select.input{cursor:pointer}
 .btn-leave {font-size: 10px;padding: 1px 5px;background: none;border: 1px solid #ffcfcf;color: #ff6b6b;border-radius: 3px;cursor: pointer;transition: 0.2s;}
 .btn-leave:hover {background: #ff6b6b;color: white;}
 .schedule-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)}
-.schedule-item:last-child{border-bottom:none}
+.schedule-item-last{border-bottom:none}
+.schedule-item-hidden{display: none}
+.schedule-item-hidden.show{display: flex}
 .sched-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3);min-width:52px;flex-shrink:0}
 .sched-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .sched-info{flex:1}
 .sched-title{font-size:12.5px;font-weight:600;margin-bottom:1px}
 .sched-sub{font-size:11px;color:var(--text-3)}
 .sched-status{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.no-data-container{display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; text-align: center; background: #f9f9f9; border-radius: 12px; border:1px solid var(--border);}
+.no-data-item{font-size:40; margin-bottom: 10px;}
+.no-data-item:first-child{font-size:50px;}
+.no-data-button{padding: 8px 20px; background: var(--primary); color: white; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: bold; transition: opacity 0.2s;}
+
 
 /* ═══════════════════════════════════════
    CHAT PAGE
@@ -1388,7 +1396,7 @@ select.input{cursor:pointer}
 .settings-section-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-1);
+  color: var(--text);
   letter-spacing: -0.2px;
 }
 .settings-section-sub {
@@ -1422,7 +1430,7 @@ select.input{cursor:pointer}
 .settings-row-label {
   font-size: 13.5px;
   font-weight: 500;
-  color: var(--text-1);
+  color: var(--text);
 }
 .settings-row-desc {
   font-size: 11.5px;
@@ -1480,7 +1488,7 @@ select.input{cursor:pointer}
 .settings-select {
   font-family: inherit;
   font-size: 12.5px;
-  color: var(--text-1);
+  color: var(--text);
   background: var(--bg, #f5f5f5);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1614,7 +1622,7 @@ select.input{cursor:pointer}
   padding:12px 14px;
   font-size:13px;
   font-weight:500;
-  color:var(--text-1);
+  color:var(--text);
 }
 
 .faq-arrow {
@@ -1749,6 +1757,391 @@ select.input{cursor:pointer}
   }
   .login-input:focus { border-color: var(--accent); }
   .login-input::placeholder { color: var(--muted); }
+
+  /* ==============================
+   정기모임 필터 전체 영역
+
+.regular-filter-wrap {
+  margin: 24px 0 32px;
+}
+
+/* 상단 필터 탭 영역 */
+.regular-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 요일 / 운동 / 연령 / 지역 탭 버튼 */
+.filter-tab {
+  min-width: 92px;
+  padding: 11px 18px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.filter-tab:hover {
+  background-color: #f6f6f6;
+  border-color: #aaa;
+}
+
+.filter-tab.active {
+  background-color: #222;
+  border-color: #222;
+  color: #fff;
+}
+
+/* 초기화 버튼 */
+.reset-filter-btn {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background-color: #fff;
+  color: #444;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.reset-filter-btn:hover {
+  background-color: #f6f6f6;
+  border-color: #aaa;
+}
+
+/* ==============================
+   옵션 패널
+
+.filter-option-panel {
+  display: none;
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  background-color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.filter-option-panel.active {
+  display: block;
+}
+
+/* 옵션 제목 */
+.filter-option-title {
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #222;
+}
+
+/* 요일 / 운동 / 연령 옵션 전체 영역 */
+.filter-option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-option-list.is-hidden {
+  display: none;
+}
+
+/* 각 옵션 그룹 */
+.filter-option-group {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-option-group.active {
+  display: flex;
+}
+
+/* 요일 / 운동 / 연령 옵션 버튼 */
+.filter-option-btn {
+  padding: 9px 15px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.filter-option-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #aaa;
+}
+
+.filter-option-btn.active {
+  background-color: #222;
+  border-color: #222;
+  color: #fff;
+}
+
+/* ==============================
+   지역 선택 영역
+
+.area-select-box {
+  display: none;
+}
+
+.area-select-box.active {
+  display: block;
+}
+
+.area-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.area-row:last-child {
+  margin-bottom: 0;
+}
+
+.area-label {
+  width: 54px;
+  flex-shrink: 0;
+  padding-top: 9px;
+  color: #222;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* 시/도 버튼 영역 */
+.city-list {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.city-list::-webkit-scrollbar {
+  height: 5px;
+}
+
+.city-list::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 999px;
+}
+
+/* 시/도 버튼 */
+.city-btn {
+  flex-shrink: 0;
+  padding: 9px 15px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.city-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #aaa;
+}
+
+.city-btn.active {
+  background-color: #222;
+  border-color: #222;
+  color: #fff;
+}
+
+/* 구/군 영역 */
+.district-list {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 구/군 선택 전 안내 */
+.district-guide {
+  margin: 0;
+  padding: 10px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.district-guide.is-hidden {
+  display: none;
+}
+
+/* 시/도별 구/군 그룹 */
+.district-group {
+  display: none;
+}
+
+.district-group.active {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 8px;
+}
+
+/* 구/군 버튼 */
+.district-btn {
+  padding: 9px 8px;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  background-color: #fafafa;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.district-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #bbb;
+}
+
+.district-btn.active {
+  background-color: #222;
+  border-color: #222;
+  color: #fff;
+}
+/* ────────────────────────────────────
+   정기모임 페이지네이션 스타일 
+──────────────────────────────────── */
+
+/* 1. 보기 싫은 검은 점(bullet) 제거 및 가로 정렬 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none; 
+  padding: 0;
+  margin: 30px 0;
+  gap: 8px; /* 버튼 사이의 간격 */
+}
+
+/* 2. 기본 버튼 모양 잡기 */
+.page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  background-color: #ffffff;
+  color: #555555;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease; /* 부드러운 색상 전환 효과 */
+}
+
+/* 3. 버튼에 마우스를 올렸을 때 (Hover) */
+.page-link:hover {
+  background-color: #f5f5f5;
+  color: #111111;
+  border-color: #cccccc;
+}
+
+/* 4. 현재 보고 있는 페이지 번호 (Active) */
+.page-item.active .page-link {
+  background-color: #222222; /* 💡 프로젝트의 메인 컬러(예: 파란색)로 변경하시면 더 예쁩니다! */
+  color: #ffffff;
+  border-color: #222222;
+  cursor: default;
+}
+/* 양끝 정렬을 위한 컨테이너 */
+.filter-header-row {
+  display: flex;
+  justify-content: space-between; /* 왼쪽(필터)과 오른쪽(버튼)을 양 끝으로 밀어냅니다 */
+  align-items: center; /* 세로 높이를 중앙으로 맞춥니다 */
+  margin-bottom: 15px; /* 아래 여백 */
+}
+/* 모임 만들기 버튼 꾸미기 */
+.reg-create-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: #5d5dff; /* 프로젝트 메인 컬러로 변경하세요! */
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+/* 모임 만들기 버튼에 마우스 올렸을 때 */
+.reg-create-btn:hover {
+  background-color: #4b4bee; /* 살짝 더 진한 색으로 */
+  color: #ffffff;
+}
+/* 토글 버튼 기본 스타일 */
+.filter-toggle-btn {
+  padding: 8px 16px;
+  background-color: #f1f1f1;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 버튼이 켜졌을 때 (active) */
+.filter-toggle-btn.active {
+  background-color: #5d5dff; /* 활성화 색상 */
+  color: #fff;
+  border-color: #5d5dff;
+}
+/* 선택된 필터들을 담는 영역 */
+.reg-filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px 0;
+  border-top: 1px dashed #e0e0e0;
+}
+
+/* 개별 칩 디자인 */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #f0f4ff;
+  color: #3b3bff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 칩 안의 X 버튼 */
+.chip-remove-btn {
+  background: none;
+  border: none;
+  color: #3b3bff;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.chip-remove-btn:hover {
+  color: #ff3b3b;
+}
+
   .my-crew-header {
     display: flex;
     align-items: center;
@@ -1868,7 +2261,7 @@ select.input{cursor:pointer}
     transition: all .15s;
     border: 1.5px solid var(--border);
     background: transparent;
-    color: var(--text-1);
+    color: var(--text);
     text-decoration: none;
     text-align: center;
   }
@@ -1935,7 +2328,7 @@ select.input{cursor:pointer}
   .detail-title {
     font-size: 22px;
     font-weight: 700;
-    color: var(--text-1);
+    color: var(--text);
     margin-bottom: 6px;
     line-height: 1.3;
   }
@@ -2029,7 +2422,7 @@ select.input{cursor:pointer}
   .host-name {
     font-size: 14.5px;
     font-weight: 700;
-    color: var(--text-1);
+    color: var(--text);
   }
 
   /* ── 소개글 ── */
@@ -2060,7 +2453,7 @@ select.input{cursor:pointer}
     border-radius: 10px;
     border: 1px solid var(--border);
     font-size: 14px;
-    color: var(--text-1);
+    color: var(--text);
   }
 
   .condition-item .cond-label {
@@ -2092,7 +2485,7 @@ select.input{cursor:pointer}
   .member-count {
     font-size: 15px;
     font-weight: 700;
-    color: var(--text-1);
+    color: var(--text);
   }
 
   /* ── 하단 고정 버튼 ── */
@@ -2144,7 +2537,7 @@ select.input{cursor:pointer}
     text-decoration: none;
 }
 
- .back-btn:hover { color: var(--text-1); }
+ .back-btn:hover { color: var(--text); }
 
    .goback-btn {
     display: inline-flex;
@@ -2162,7 +2555,7 @@ select.input{cursor:pointer}
     text-decoration: none;
   }
 
-  .goback-btn:hover { color: var(--text-1); }
+  .goback-btn:hover { color: var(--text); }
 
   .btn-yes {
     flex:1;
@@ -2180,8 +2573,6 @@ select.input{cursor:pointer}
     font-weight:700;
     font-family:'DM Sans', sans-serif;
   }
-  .back-btn:hover { color: var(--text-1); }
-  
   /* hero와 간격 */
 .search-bar-wrap {
   padding: 24px 28px 20px;  /* 위 24px 추가 */
@@ -2295,7 +2686,7 @@ select.input{cursor:pointer}
 }
 
 .live-feed {
-  background: var(--card);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
   overflow: hidden;
@@ -2340,7 +2731,7 @@ select.input{cursor:pointer}
 .live-feed-text {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-1);
+  color: var(--text);
   line-height: 1.5;
 }
 
@@ -2355,4 +2746,21 @@ select.input{cursor:pointer}
     width: 32px;
     text-align: center;
     flex-shrink: 0;
+}
+
+.btn-more {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b9eff;
+    border: none;
+    background: #eef3ff;
+    border-radius: 20px;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.btn-more:hover {
+    background: #dde8ff;
 }

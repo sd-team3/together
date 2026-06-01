@@ -36,10 +36,12 @@ const calcDday = (date) => {
 };
 
 // // ── 정기모임 카드 ──────────────────────────────
-const getRegularMeetings = async () => {
-    const crews = await RegularCrew.find()
+const getRegularMeetings = async (sport = '') => {
+  const query = sport ? { sport } : {};
+
+    const crews = await RegularCrew.find(query)
         .sort({ createdAt: -1 })
-        .limit(12);
+        .limit(15);
 
     return crews.map(crew => {
 
@@ -355,7 +357,7 @@ const getMyStats = async (userId) => {
 
 // 플랫폼 통계
 const getStats = async () => {
-    const [weeklyMatches, activeClubs, regularMembers, instantMembers] = await Promise.all([
+    const [weeklyMatches, activeClubs, regularMembers, instantMembers,totalUsers] = await Promise.all([
     InstantCrew.countDocuments(),
     RegularCrew.countDocuments(),
     RegularCrew.aggregate([
@@ -363,23 +365,26 @@ const getStats = async () => {
     ]),
     InstantCrew.aggregate([
         { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
-    ])
+    ]),
+    User.countDocuments()
 ]);
 
 return {
     weeklyMatches,
     activeClubs,
-    totalMembers: (regularMembers[0]?.total || 0) + (instantMembers[0]?.total || 0)
+    totalMembers: (regularMembers[0]?.total || 0) + (instantMembers[0]?.total || 0),
+    totalUsers
 };
 };
 
 // 종목 칩
 const getSportChips = () => {
-    return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
-        emoji:  SPORTS_META[key]?.emoji || '🏃',
-        label:  val.kr,
-        active: idx === 0
-    }));
+  return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
+    key,               
+    emoji: SPORTS_META[key]?.emoji || '🏃',
+    label: val.kr,
+    active: idx === 0
+  }));
 };
 
 
