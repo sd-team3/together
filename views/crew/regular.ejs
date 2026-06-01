@@ -33,7 +33,7 @@
         <button type="button" id="btnRecruitingOnly" class="filter-toggle-btn">✅ 모집 중만 보기</button>
       </div>
 
-      <a href="/regular-create" class="reg-create-btn">
+      <a href="/regular/create" class="reg-create-btn">
         ＋ 모임 만들기
       </a>
 
@@ -44,7 +44,7 @@
       </button>
 
       <!-- 옵션 펼침 영역 -->
-      <div class="filter-option-panel" id="filterOptionPanel">
+      <div class="filter-option-panel" id="filterOptionPanel" style="display:none">
 
         <!-- 옵션 제목 -->
         <div class="filter-option-title" id="filterOptionTitle"></div>
@@ -147,7 +147,7 @@
 
     <div class="regular-grid" id="regularCardList">
       <% regularCrews.forEach(crew => { %>
-        <div class="reg-card">
+        <div class="reg-card" data-id="<%= crew._id %>" style="cursor: pointer;">
           <div class="reg-card-head">
             <img 
               class="reg-crew-profile-img"
