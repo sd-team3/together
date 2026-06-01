@@ -16,7 +16,7 @@
   <div class="page-body">
 
     <div class="my-crew-tabs">
-      <a href="/instant/manage" class="my-crew-tab active">전체</a>
+      <a href="/instant/list" class="my-crew-tab active">전체</a>
     </div>
 
     <% if (crews.length === 0) { %>
@@ -80,7 +80,7 @@
               </div>
 
               <div class="reg-card-actions">
-                <a href="/instant/<%= crew._id %>/manage" class="action-btn primary">관리</a>
+                <a href="/instant/list/<%= crew._id %>" class="action-btn primary">관리</a>
                 <button class="action-btn danger" type="button" data-delete-id="<%= crew._id %>">삭제</button>
               </div>
             </div>

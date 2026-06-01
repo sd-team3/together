@@ -16,7 +16,7 @@
   <div class="page-body">
     <div class="detail-wrap">
 
-      <a href="/instant/manage" class="goback-btn">← 내 번개모임 목록</a>
+      <a href="/instant/list" class="goback-btn">← 내 번개모임 목록</a>
 
       <div class="detail-group">
 
@@ -316,7 +316,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
   try {
     const res = await fetch(`/instant/delete/${CREW_ID}`, { method: 'POST' });
     const data = await res.json();
-    if (data.success) location.href = '/instant/manage';
+    if (data.success) location.href = '/instant/list';
     else alert(data.message || '삭제에 실패했습니다');
   } catch (e) { alert('서버 오류가 발생했습니다'); }
   finally { closeModal(); }
