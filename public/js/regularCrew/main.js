@@ -29,6 +29,7 @@ const resetFilterBtn = document.getElementById('resetFilterBtn');
 const pagination = document.getElementById('regularPagination');
 const btnRecruitingOnly = document.getElementById('btnRecruitingOnly');
 const regFilterPanel = document.getElementById('reg-filter-panel');
+const regularCardList = document.getElementById('regularCardList');
 
 if (btnRecruitingOnly) {
   btnRecruitingOnly.addEventListener('click', () => {
@@ -206,3 +207,17 @@ if (pagination) {
     if (targetPage) loadRegularCrews(targetPage);
   });
 }
+
+document.addEventListener('click', function(e) {
+  // 클릭된 요소부터 부모로 거슬러 올라가며 .reg-card 클래스를 가진 요소를 찾음
+  const card = e.target.closest('.reg-card');
+  
+  // 카드가 아닌 다른 곳을 클릭했다면 무시
+  if (!card) return; 
+
+  const regularID = card.dataset.id;
+  console.log("찾아낸 ID:", regularID); // 여기서 정상적인 문자열이 찍히는지 확인!
+  
+  // 페이지 이동 혹은 API 호출
+  window.location.href = `/regular/list/${regularID}`;
+});

@@ -9,7 +9,7 @@ const { uploadRegularProfile } = require('../../config/upload');
 router.use((req, res, next)=>{ req.crewType = 'regular'; next(); })
 
 router.get('/create', regularController.getRegCreate);
-router.post('/create',
+router.post('/reg-create',
     uploadRegularProfile.single('uploadFile'),
     regularController.postRegCreate
 );
@@ -27,7 +27,8 @@ router.post('/application',
 // );
 
 router.get('/my-crews', regularController.getMyCrews);
-router.get('/regular', regularController.getRegular);
+router.get('/list', regularController.getRegular);
+router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 

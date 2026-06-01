@@ -3,6 +3,7 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -68,6 +69,7 @@ async function getRegularCrews(page = 1) {
 
     const regularCrews = await regularCrew.find({})
                         .sort({createdAt : -1})
+                        .skip((page - 1) * limit)
                         .limit(limit);
     return {regularCrews, currentPage: page, totalPages};
 }
