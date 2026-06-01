@@ -71,9 +71,27 @@ const getMyCrews = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const crews = await instantCrewService.getMyCrews(req.user._id);
-        res.render('/instantManager', { crews, CONSTANTS });
+        res.render('crew/instantManager', { crews, CONSTANTS });
     } catch (error) {
         next(error);
     }
 };
- module.exports = {getInstantCreate, postInstantCreate, getInstant, getMyCrews};
+// 특정 모임 상세 관리 페이지
+const getCrewManage = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
+    try {
+        const crew = await instantCrewService.getCrewDetail(req.params.id);
+        if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
+        if (crew.host._id.toString() !== req.user._id.toString()) return res.status(403).send('권한이 없습니다');
+        res.render('crew/instantDetail', { crew, CONSTANTS });
+    } catch (error) {
+        next(error);
+    }
+};
+ module.exports = {
+    getInstantCreate, 
+    postInstantCreate, 
+    getInstant, 
+    getMyCrews,
+    getCrewManage
+};

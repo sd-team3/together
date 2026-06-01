@@ -40,8 +40,22 @@ async function createInstantCrew(data, host) {
 }
 // 내가 만든 번개모임 목록
 async function getMyCrews(userId) {
-    return await InstantCrew.find({ host: userId })
+    return await instantCrew.find({ host: userId })
         .sort({ createdAt: -1 })
         .lean();
 }
-module.exports = {createInstantCrew, getInstantCrew, getMyCrews};
+
+// 특정 모임 상세 (멤버/신청자 populate)
+async function getCrewDetail(crewId) {
+    return await instantCrew.findById(crewId)
+        .populate('host', 'name tel profileImage')
+        .populate('member.memberList.user', 'name tel age gender profileImage')
+        .populate('member.pendingList.user', 'name tel age gender profileImage')
+        .lean();
+}
+module.exports = {
+    createInstantCrew, 
+    getInstantCrew, 
+    getMyCrews,
+    getCrewDetail
+};

@@ -3,451 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<title>SPORTMATCH — 내 번개모임</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
-
 <%- include('../partials/navbar') %>
 
-<%
-  const meetAt = new Date(crew.meetAt);
-  const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
-  const sportEmoji = CONSTANTS.SPORTS[crew.sport]?.emoji || '🏃';
-  const members = crew.member.memberList;
-  const pendings = crew.member.pendingList.filter(p => p.status === 'pending');
-  const confirmedCount = members.filter(m => m.status === 'confirmed').length;
+<div class="main">
+<%- include('../partials/head', { title: '⚡ 내 번개모임', pageId: 'page-instant-manage', active: '' }) %>
 
-  function avColor(name) {
-    const colors = [
-      {bg:'#fff3cd',color:'#b45309'},
-      {bg:'#E1F5EE',color:'#085041'},
-      {bg:'#EEF3FF',color:'#003DB3'},
-      {bg:'#FFF4EC',color:'#CC4500'},
-      {bg:'#E8FAF0',color:'#007A33'},
-      {bg:'#FBEAF0',color:'#72243E'},
-    ];
-    const i = name ? name.charCodeAt(0) % colors.length : 0;
-    return colors[i];
-  }
-%>
+  <div class="page-body">
 
-<div class="main" style="display:block">
-<%- include('../partials/head', { title: '', pageId: 'page-instant-manage', active: '' }) %>
-  <div class="manage-wrap">
-
-    <!-- 헤더 -->
-    <div class="topbar" style="margin-bottom:20px">
-      <div>
-        <a href="/crew/instant/manage" class="goback-btn" style="margin-bottom:6px;display:inline-flex">← 내 번개모임 목록</a>
-        <div class="page-heading"><%= crew.title %></div>
-        <div class="page-subheading" style="margin-bottom:0">
-          <%= sportEmoji %> <%= sportKr %> &nbsp;·&nbsp;
-          <%= crew.address.state %> <%= crew.address.city %> &nbsp;·&nbsp;
-          <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn btn-outline btn-sm" onclick="deleteCrew()">🗑 모임 삭제</button>
-      </div>
+    <div class="my-crew-tabs">
+      <a href="/instant/manage" class="my-crew-tab active">전체</a>
     </div>
 
-    <!-- 통계 -->
-    <div class="stat-row">
-      <div class="stat-block">
-        <div class="stat-block-label">전체 참여자</div>
-        <div class="stat-block-val" id="stat-total"><%= members.length %></div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-block-label">참가 확정</div>
-        <div class="stat-block-val green" id="stat-confirmed"><%= confirmedCount %></div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-block-label">모집 현황</div>
-        <div class="stat-block-val blue"><%= members.length %> / <%= crew.member.capacity %></div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-block-label">신청 대기</div>
-        <div class="stat-block-val orange"><%= pendings.length %></div>
-      </div>
-    </div>
-
-    <!-- 탭 -->
-    <div class="crew-tabs">
-      <button class="crew-tab active" data-tab="members">
-        참여자 목록
-        <span style="font-size:12px;opacity:0.6" id="tab-member-count"><%= members.length %>명</span>
-      </button>
-      <button class="crew-tab" data-tab="apps">
-        신청 대기
-        <% if (pendings.length > 0) { %>
-          <span class="tab-badge"><%= pendings.length %></span>
-        <% } %>
-      </button>
-    </div>
-
-    <!-- 참여자 목록 탭 -->
-    <div class="tab-section active" id="sec-members">
-      <div class="topbar">
-        <div class="filter-chips">
-          <button class="filter-chip on" data-filter="all">전체</button>
-          <button class="filter-chip" data-filter="host">모임장</button>
-          <button class="filter-chip" data-filter="confirmed">참가확정</button>
-          <button class="filter-chip" data-filter="noshow">노쇼</button>
-        </div>
-        <div class="search-wrap">
-          <span style="font-size:14px;color:var(--text-3)">🔍</span>
-          <input type="text" placeholder="이름 검색" id="search-input" />
-        </div>
-      </div>
-
-      <div class="tbl-card">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:200px">멤버</th>
-              <th style="width:60px">역할</th>
-              <th style="width:80px">상태</th>
-              <th style="width:60px">성별</th>
-              <th style="width:60px">나이</th>
-              <th style="width:100px">가입일</th>
-              <th style="width:100px">관리</th>
-            </tr>
-          </thead>
-          <tbody id="member-tbody"></tbody>
-        </table>
-      </div>
-
-      <!-- 상세 패널 -->
-      <div class="detail-panel" id="detail-panel">
-        <div class="dp-header">
-          <div class="dp-av" id="dp-av"></div>
-          <div>
-            <div class="dp-name" id="dp-name"></div>
-            <div class="dp-meta">
-              <span id="dp-role-badge"></span>
-              <span id="dp-status-badge"></span>
-            </div>
-          </div>
-          <button class="dp-close" id="dp-close-btn">✕</button>
-        </div>
-        <div class="dp-grid">
-          <div class="dp-cell"><div class="dp-cell-label">연락처</div><div class="dp-cell-val" id="dp-phone"></div></div>
-          <div class="dp-cell"><div class="dp-cell-label">성별</div><div class="dp-cell-val" id="dp-gender"></div></div>
-          <div class="dp-cell"><div class="dp-cell-label">나이</div><div class="dp-cell-val" id="dp-age"></div></div>
-        </div>
-        <div class="dp-actions">
-          <button class="dp-act-btn danger" id="dp-noshow-btn" style="margin-left:auto">노쇼 처리</button>
-          <button class="dp-act-btn danger" id="dp-kick-btn">강퇴</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 신청 대기 탭 -->
-    <div class="tab-section" id="sec-apps">
-      <% if (pendings.length === 0) { %>
+    <% if (crews.length === 0) { %>
       <div class="empty-state">
-        <div class="empty-state-icon">📭</div>
-        <div class="empty-state-title">신청 대기자가 없어요</div>
+        <div class="empty-state-icon">⚡</div>
+        <div class="empty-state-title">아직 만든 번개모임이 없어요</div>
+        <div class="empty-state-sub">번개모임을 만들고 같이 운동할 사람들을 찾아보세요!</div>
+        <button class="empty-state-btn" onclick="location.href='/instant/create'">번개모임 만들기</button>
       </div>
-      <% } else { %>
-      <div class="app-list" id="app-list">
-        <% pendings.forEach(p => { %>
-        <%
-          const u = p.user;
-          const av = avColor(u?.name);
-        %>
-        <div class="app-card" id="app-<%= u?._id %>">
-          <div class="app-head">
-            <div class="app-av" style="background:<%= av.bg %>;color:<%= av.color %>">
-              <%= u?.name?.slice(0,2) || '??' %>
+    <% } else { %>
+      <div class="regular-grid" id="crew-grid">
+        <% crews.forEach(crew => { %>
+          <%
+            const now = new Date();
+            const meetAt = new Date(crew.meetAt);
+            const diffMs = meetAt - now;
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+            const isPast = diffMs < 0;
+            const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
+            const sportEmoji = CONSTANTS.SPORTS[crew.sport]?.emoji || '🏃';
+            const current = crew.member.memberList.length;
+            const capacity = crew.member.capacity;
+            const pending = crew.member.pendingList.filter(p => p.status === 'pending').length;
+            const isFull = current >= capacity;
+            const pct = Math.round(current / capacity * 100);
+          %>
+          <div class="reg-card">
+            <div class="reg-card-head">
+              <div class="reg-sport-icon"><%= sportEmoji %></div>
+              <div>
+                <div class="reg-card-title"><%= crew.title %></div>
+                <div class="reg-card-sub">
+                  <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %> · <%= crew.address.state %> <%= crew.address.city %>
+                </div>
+              </div>
+              <span class="role-badge host">👑 모임장</span>
             </div>
-            <div>
-              <div class="app-name"><%= u?.name || '알 수 없음' %></div>
-              <div class="app-sport"><%= u?.gender === 'male' ? '남성' : '여성' %> · <%= u?.age %>세</div>
-            </div>
-            <div class="app-time">
-              <%= new Date(p.requestAt).toLocaleDateString('ko-KR') %>
-              <div class="app-phone"><%= u?.tel || '-' %></div>
+
+            <div class="reg-card-body">
+              <div class="reg-meta-row">
+                <span>🏷 <%= sportKr %></span>
+                <span>👥 <%= current %>/<%= capacity %>명</span>
+                <% if (!isPast) { %>
+                  <span style="font-family:'DM Mono',monospace;font-weight:700;color:<%= diffDays <= 1 ? '#FF3B30' : diffDays <= 3 ? '#FF6B00' : '#1A5CFF' %>">
+                    D<%= diffDays === 0 ? '-DAY' : '-' + diffDays %>
+                  </span>
+                <% } else { %>
+                  <span style="color:#999">종료</span>
+                <% } %>
+                <% if (pending > 0) { %>
+                  <span style="color:#CC4500;font-weight:700">신청 <%= pending %>건</span>
+                <% } %>
+              </div>
+
+              <div class="reg-progress">
+                <div class="reg-progress-fill" style="width:<%= pct %>%"></div>
+              </div>
+              <div class="reg-progress-label">
+                <span><%= current %>/<%= capacity %>명</span>
+                <span><%= capacity - current %>자리 남음</span>
+              </div>
+
+              <div class="reg-card-actions">
+                <a href="/instant/<%= crew._id %>/manage" class="action-btn primary">관리</a>
+                <button class="action-btn danger" type="button" onclick="confirmDelete('<%= crew._id %>')">삭제</button>
+              </div>
             </div>
           </div>
-          <div class="app-foot">
-            <button class="app-btn accept" onclick="handleApp('<%= u?._id %>', 'accept')">✓ 수락</button>
-            <button class="app-btn reject" onclick="handleApp('<%= u?._id %>', 'reject')">✕ 거절</button>
-          </div>
-        </div>
         <% }) %>
       </div>
-      <% } %>
-    </div>
+    <% } %>
 
   </div>
 </div>
 
-<!-- 삭제 모달 -->
-<div class="modal-overlay" id="deleteModal">
+<div class="modal-overlay" id="modal-delete">
   <div class="modal-box">
     <div class="modal-icon">⚠️</div>
-    <div class="modal-title">번개모임 삭제</div>
-    <div class="modal-msg">정말 이 모임을 삭제하시겠어요?\n삭제하면 되돌릴 수 없습니다.</div>
-    <div class="modal-btns" style="margin-top:24px">
-      <button class="btn btn-outline flex-1" onclick="closeModal('deleteModal')">취소</button>
-      <button class="btn-yes flex-1" id="confirmDeleteBtn">삭제</button>
+    <div class="modal-title">돌이킬 수 없어요.</div>
+    <div class="modal-msg">정말 이 번개모임을 삭제하시겠어요?</div>
+    <div class="modal-btn" style="display:flex;gap:8px;width:100%;margin-top:24px">
+      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeModal()">취소</button>
+      <button class="btn-yes" id="confirm-delete-btn">삭제하기</button>
     </div>
   </div>
 </div>
 
 <script>
-const CREW_ID = '<%= crew._id %>';
+let targetId = null;
 
-// DB에서 넘어온 멤버 데이터
-const members = <%- JSON.stringify(members.map(m => ({
-  id: m.user?._id?.toString(),
-  name: m.user?.name || '알 수 없음',
-  tel: m.user?.tel || '-',
-  age: m.user?.age || '-',
-  gender: m.user?.gender === 'male' ? '남성' : '여성',
-  role: m.role,
-  status: m.status,
-  joinedAt: new Date(m.joinedAt).toLocaleDateString('ko-KR')
-}))) %>;
-
-let currentFilter = 'all';
-let searchVal = '';
-let selectedId = null;
-
-function avColors(name) {
-  const list = [
-    {bg:'#fff3cd',color:'#b45309'},
-    {bg:'#E1F5EE',color:'#085041'},
-    {bg:'#EEF3FF',color:'#003DB3'},
-    {bg:'#FFF4EC',color:'#CC4500'},
-    {bg:'#E8FAF0',color:'#007A33'},
-    {bg:'#FBEAF0',color:'#72243E'},
-  ];
-  return list[(name?.charCodeAt(0) || 0) % list.length];
+function confirmDelete(id) {
+  targetId = id;
+  document.getElementById('modal-delete').classList.add('show');
 }
 
-function roleClass(r) {
-  return r === 'host' ? 'role-leader' : 'role-member';
-}
-function roleLabel(r) {
-  return r === 'host' ? '모임장' : '멤버';
-}
-function statusClass(s) {
-  return s === 'confirmed' ? 'status-confirmed' : 'status-pending';
-}
-function statusLabel(s) {
-  return s === 'confirmed' ? '참가확정' : '노쇼';
+function closeModal() {
+  targetId = null;
+  document.getElementById('modal-delete').classList.remove('show');
 }
 
-function filtered() {
-  return members.filter(m => {
-    const matchFilter =
-      currentFilter === 'all'       ? true :
-      currentFilter === 'host'      ? m.role === 'host' :
-      currentFilter === 'confirmed' ? m.status === 'confirmed' :
-      currentFilter === 'noshow'    ? m.status === 'noshow' : true;
-    return matchFilter && m.name.includes(searchVal);
-  });
-}
-
-function render() {
-  const list = filtered();
-  const tbody = document.getElementById('member-tbody');
-  if (list.length === 0) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">조건에 맞는 참여자가 없어요</td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map(m => {
-    const av = avColors(m.name);
-    return `
-    <tr class="member-row${selectedId === m.id ? ' selected' : ''}" data-id="${m.id}">
-      <td>
-        <div class="member-cell">
-          <div class="member-av" style="background:${av.bg};color:${av.color}">${m.name.slice(0,2)}</div>
-          <div>
-            <div class="member-name">${m.name}</div>
-            <div class="member-phone">${m.tel}</div>
-          </div>
-        </div>
-      </td>
-      <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
-      <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
-      <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
-      <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
-      <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
-      <td>
-        <div class="action-btns">
-          <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
-          ${m.role !== 'host' ? `<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>` : ''}
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function openDetail(id) {
-  const m = members.find(x => x.id === id);
-  if (!m) return;
-  selectedId = id;
-  const av = avColors(m.name);
-  const dpAv = document.getElementById('dp-av');
-  dpAv.textContent = m.name.slice(0,2);
-  dpAv.style.background = av.bg;
-  dpAv.style.color = av.color;
-  document.getElementById('dp-name').textContent = m.name;
-  document.getElementById('dp-role-badge').innerHTML = `<span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span>`;
-  document.getElementById('dp-status-badge').innerHTML = `<span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span>`;
-  document.getElementById('dp-phone').textContent = m.tel;
-  document.getElementById('dp-gender').textContent = m.gender;
-  document.getElementById('dp-age').textContent = m.age + '세';
-
-  const noshowBtn = document.getElementById('dp-noshow-btn');
-  const kickBtn = document.getElementById('dp-kick-btn');
-
-  if (m.role === 'host') {
-    noshowBtn.style.display = 'none';
-    kickBtn.style.display = 'none';
-  } else {
-    noshowBtn.style.display = '';
-    kickBtn.style.display = '';
-    noshowBtn.textContent = m.status === 'noshow' ? '노쇼 취소' : '노쇼 처리';
-    noshowBtn.onclick = () => handleNoshow(id, m.status === 'noshow');
-    kickBtn.onclick = () => handleKick(id);
-  }
-
-  document.getElementById('detail-panel').classList.add('show');
-  render();
-}
-
-function closeDetail() {
-  selectedId = null;
-  document.getElementById('detail-panel').classList.remove('show');
-  render();
-}
-
-// 노쇼 처리/취소
-async function handleNoshow(userId, isNoshow) {
-  const url = isNoshow
-    ? `/crew/instant/${CREW_ID}/noshow/${userId}/cancel`
-    : `/crew/instant/${CREW_ID}/noshow/${userId}`;
+document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+  if (!targetId) return;
   try {
-    const res = await fetch(url, { method: 'POST' });
+    const res = await fetch(`/instant/${targetId}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) location.reload();
-    else alert(data.message || '처리에 실패했습니다');
+    else alert(data.message || '삭제에 실패했습니다.');
   } catch (e) {
-    alert('서버 오류가 발생했습니다');
-  }
-}
-
-// 강퇴
-async function handleKick(userId) {
-  if (!confirm('정말 강퇴하시겠어요?')) return;
-  try {
-    const res = await fetch(`/crew/instant/${CREW_ID}/kick/${userId}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) location.reload();
-    else alert(data.message || '강퇴에 실패했습니다');
-  } catch (e) {
-    alert('서버 오류가 발생했습니다');
-  }
-}
-
-// 신청 수락/거절
-async function handleApp(userId, action) {
-  const card = document.getElementById('app-' + userId);
-  const url = `/crew/instant/${CREW_ID}/${action}/${userId}`;
-  try {
-    const res = await fetch(url, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      card.classList.add('done');
-      card.querySelectorAll('.app-btn').forEach(b => {
-        b.textContent = action === 'accept' ? '수락 완료' : '거절 완료';
-      });
-    } else {
-      alert(data.message || '처리에 실패했습니다');
-    }
-  } catch (e) {
-    alert('서버 오류가 발생했습니다');
-  }
-}
-
-// 모임 삭제
-function deleteCrew() {
-  document.getElementById('deleteModal').classList.add('show');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('show');
-}
-
-document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-  try {
-    const res = await fetch(`/crew/instant/${CREW_ID}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) location.href = '/crew/instant/manage';
-    else alert(data.message || '삭제에 실패했습니다');
-  } catch (e) {
-    alert('서버 오류가 발생했습니다');
+    alert('서버 오류가 발생했습니다.');
   } finally {
-    closeModal('deleteModal');
+    closeModal();
   }
 });
 
-// 이벤트 바인딩
-document.getElementById('member-tbody').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if (btn) {
-    e.stopPropagation();
-    const id = btn.dataset.id;
-    if (btn.dataset.action === 'detail') openDetail(id);
-    if (btn.dataset.action === 'kick') handleKick(id);
-    return;
-  }
-  const row = e.target.closest('.member-row');
-  if (row) {
-    const id = row.dataset.id;
-    if (selectedId === id) closeDetail();
-    else openDetail(id);
-  }
+document.getElementById('modal-delete').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
 });
-
-document.getElementById('dp-close-btn').addEventListener('click', closeDetail);
-
-document.querySelectorAll('.filter-chip').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
-    currentFilter = btn.dataset.filter;
-    closeDetail();
-    render();
-  });
-});
-
-document.getElementById('search-input').addEventListener('input', e => {
-  searchVal = e.target.value.trim();
-  render();
-});
-
-document.querySelectorAll('.crew-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.crew-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
-    closeDetail();
-  });
-});
-
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal('deleteModal');
-});
-
-render();
 </script>
 </body>
 </html>
