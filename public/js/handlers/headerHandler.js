@@ -3,7 +3,7 @@ const notiPopup = document.getElementById('noti-popup');
 const goPage = (url)=>{ location.href = url };
 
 if(document.getElementById('login').innerText === 'true') {
-    document.getElementById('mypage-btn').addEventListener('click', ()=>{ goPage('/user/mypage') });
+    document.getElementById('mypage-btn').addEventListener('click', ()=>{ goPage('/user/profile') });
     document.getElementById('logout-btn').addEventListener('click', ()=>{ goPage('/user/logout') });
 } else {
     document.getElementById('login-btn').addEventListener('click', ()=>{ goPage('/user/login') });

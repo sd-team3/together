@@ -3,6 +3,8 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const User = require('../../models/User');
+const constants = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -119,11 +121,16 @@ async function findCrewsByUserId(userId) {
     }).lean();
 
     if(!user) return null;
-    
-    const crew = sortCrewByDay(user.crews);
+
+    let crew = user.crews.filter(crew => 
+        crew.schedule?.some(sched => 
+            sched.participants?.some(p => String(p) === String(userId)))
+    );
+
+    crew = sortCrewByDay(crew);
     return crew.map(c => {
-        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정') };
-    });
+        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
+});
 }
 
 
@@ -142,6 +149,19 @@ function sortCrewByDay(crews) {
         return { ...c, day : c.day};
     });
     return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
+}
+
+function sortSchedTime(schedule) {
+    const now = new Date();
+    if(schedule && schedule.length > 0) {
+        schedule.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            if( (dateA < now) === (dateB < now) ) return dateA - dateB
+            return dateA < now ? 1 : -1
+        });
+    }
+    return schedule;
 }
 
 async function getMyCrews(userId, role) {
