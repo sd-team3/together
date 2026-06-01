@@ -24,7 +24,7 @@
         <div class="empty-state-icon">⚡</div>
         <div class="empty-state-title">아직 만든 번개모임이 없어요</div>
         <div class="empty-state-sub">번개모임을 만들고 같이 운동할 사람들을 찾아보세요!</div>
-        <button class="empty-state-btn" onclick="location.href='/instant/create'">번개모임 만들기</button>
+        <button class="empty-state-btn" id="btn-go-create">번개모임 만들기</button>
       </div>
     <% } else { %>
       <div class="regular-grid" id="crew-grid">
@@ -52,7 +52,7 @@
                   <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %> · <%= crew.address.state %> <%= crew.address.city %>
                 </div>
               </div>
-              <span class="role-badge host">👑 모임장</span>
+              <span class="role-badge host">👑모임장</span>
             </div>
 
             <div class="reg-card-body">
@@ -81,7 +81,7 @@
 
               <div class="reg-card-actions">
                 <a href="/instant/<%= crew._id %>/manage" class="action-btn primary">관리</a>
-                <button class="action-btn danger" type="button" onclick="confirmDelete('<%= crew._id %>')">삭제</button>
+                <button class="action-btn danger" type="button" data-delete-id="<%= crew._id %>">삭제</button>
               </div>
             </div>
           </div>
@@ -98,7 +98,8 @@
     <div class="modal-title">돌이킬 수 없어요.</div>
     <div class="modal-msg">정말 이 번개모임을 삭제하시겠어요?</div>
     <div class="modal-btn" style="display:flex;gap:8px;width:100%;margin-top:24px">
-      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeModal()">취소</button>
+      <!-- onclick 제거 -->
+      <button class="btn btn-outline" id="modal-cancel-btn" style="flex:1;padding:12px">취소</button>
       <button class="btn-yes" id="confirm-delete-btn">삭제하기</button>
     </div>
   </div>
@@ -107,20 +108,37 @@
 <script>
 let targetId = null;
 
-function confirmDelete(id) {
-  targetId = id;
-  document.getElementById('modal-delete').classList.add('show');
-}
-
 function closeModal() {
   targetId = null;
   document.getElementById('modal-delete').classList.remove('show');
 }
 
+// 번개모임 만들기 버튼 (empty-state일 때만 존재)
+document.getElementById('btn-go-create')?.addEventListener('click', () => {
+  location.href = '/instant/create';
+});
+
+// 삭제 버튼들 — 이벤트 위임
+document.getElementById('crew-grid')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-delete-id]');
+  if (!btn) return;
+  targetId = btn.dataset.deleteId;
+  document.getElementById('modal-delete').classList.add('show');
+});
+
+// 모달 취소 버튼
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+// 모달 오버레이 클릭
+document.getElementById('modal-delete').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// 삭제 확인
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
   if (!targetId) return;
   try {
-    const res = await fetch(`/instant/${targetId}`, { method: 'DELETE' });
+    const res = await fetch(`/instant/delete/${targetId}`, { method: 'POST' });
     const data = await res.json();
     if (data.success) location.reload();
     else alert(data.message || '삭제에 실패했습니다.');
@@ -129,10 +147,6 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
   } finally {
     closeModal();
   }
-});
-
-document.getElementById('modal-delete').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
 });
 </script>
 </body>

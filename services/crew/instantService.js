@@ -1,9 +1,41 @@
 const instantCrew = require('../../models/instantCrew');
 
-async function getInstantCrew() {
-    return await instantCrew.find()
-        .populate('host', 'name')
-        .sort({ createdAt: -1 });
+async function getInstantCrew(filter = {}, page = 1) {
+    const query = {};
+    const limit = 9;
+    const skip = (page - 1) * limit;
+
+    if (filter.sport) {
+        query.sport = { $in: filter.sport };
+    }
+    if (filter.state) {
+        query['address.state'] = filter.state;
+    }
+    if (filter.city) {
+        query['address.city'] = filter.city;
+    }
+    if (filter.isAutoAccept) {
+        query.isAutoAccept = filter.isAutoAccept === 'true';
+    }
+    if (filter.isRecruiting) {
+        query.$expr = {
+            $lt: [{ $size: '$member.memberList' }, '$member.capacity']
+        };
+    }
+    // 번개모임 특성상 지난 모임 제외
+    if (filter.upcoming) {
+        query.meetAt = { $gte: new Date() };
+    }
+
+    const total = await instantCrew.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+    const crews = await instantCrew.find(query)
+        .sort({ meetAt: 1 })  // 번개는 모임 시간 빠른 순이 자연스러워요
+        .skip(skip)
+        .limit(limit)
+        .populate('host', 'name');
+
+    return { crews, totalPages, currentPage: page };
 }
 
 
@@ -53,9 +85,26 @@ async function getCrewDetail(crewId) {
         .populate('member.pendingList.user', 'name tel age gender profileImage')
         .lean();
 }
+
+async function deleteInstantCrew(crewId, userId){
+    const crew = await instantCrew.findById(crewId);
+
+    if(!crew) return { success: false, status: 404, message: '모임을 찾을 수 없습니다'};
+    if (crew.host.toString() !== userId.toString()) return { success: false, status: 403, message: '권한이 없습니다.' };
+
+    await instantCrew.findByIdAndDelete(crewId);
+
+    return { success: true };
+}
+
+const findHostByCrewId = async (crewId)=>{
+    const crew = await instantCrew.findById(crewId).select('host');
+    return crew ? crew.host : null;
+}
 module.exports = {
     createInstantCrew, 
     getInstantCrew, 
     getMyCrews,
-    getCrewDetail
+    getCrewDetail,
+    deleteInstantCrew
 };

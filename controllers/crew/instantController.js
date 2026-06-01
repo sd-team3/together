@@ -1,9 +1,9 @@
 const { CONSTANTS } = require('../../config/constants');
-const instantCrewService = require('../../services/crew/instantService');
+const instantService = require('../../services/crew/instantService');
 
 const getInstant = async (req, res) => {
     try {
-        const crews = await instantCrewService.getInstantCrew();
+        const { crews } = await instantService.getInstantCrew();
 
         // ── DB에서 넘어온 crews 데이터를 JS에서도 사용 ──
         const crewsJson = crews.map(c => ({
@@ -53,7 +53,7 @@ const postInstantCreate = async (req, res) => {
 
         data.isAutoAccept = (data.isAutoAccept === 'enable');
 
-        const result = await instantCrewService.createInstantCrew(data, host);
+        const result = await instantService.createInstantCrew(data, host);
 
         if(result.success) {
             return res.redirect('/');
@@ -70,7 +70,7 @@ const postInstantCreate = async (req, res) => {
 const getMyCrews = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
-        const crews = await instantCrewService.getMyCrews(req.user._id);
+        const crews = await instantService.getMyCrews(req.user._id);
         res.render('crew/instantManager', { crews, CONSTANTS });
     } catch (error) {
         next(error);
@@ -80,7 +80,7 @@ const getMyCrews = async (req, res, next) => {
 const getCrewManage = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
-        const crew = await instantCrewService.getCrewDetail(req.params.id);
+        const crew = await instantService.getCrewDetail(req.params.id);
         if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
         if (crew.host._id.toString() !== req.user._id.toString()) return res.status(403).send('권한이 없습니다');
         res.render('crew/instantDetail', { crew, CONSTANTS });
@@ -88,10 +88,30 @@ const getCrewManage = async (req, res, next) => {
         next(error);
     }
 };
+
+// 번개 모임 크루 삭제
+const deleteInstantCrew = async(req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
+    try {
+        const crewId = req.params.id;
+        const userId = req.user._id;
+        const result = await instantService.deleteInstantCrew(crewId, userId);
+        
+        if(!result.success) {
+            return res.status(result.status || 400).json({ success: false, message: result.message});
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
  module.exports = {
     getInstantCreate, 
     postInstantCreate, 
     getInstant, 
     getMyCrews,
-    getCrewManage
+    getCrewManage,
+    deleteInstantCrew
 };

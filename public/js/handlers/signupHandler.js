@@ -185,8 +185,27 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleSignup(e) {
         e.preventDefault();
         if (!validateAll()) return;
-        document.getElementById('signup').submit();
+        const formData = new FormData(document.getElementById('signup'));
+
+    try {
+        const res = await fetch('/user/signup', {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('success-name').textContent = data.name;
+            document.getElementById('successOverlay').style.display = 'flex';
+        } else {
+            showToast(data.message || '회원가입에 실패했습니다.');
+        }
+    } catch (err) {
+        console.error(err);
     }
+}
  
     // 실시간 에러 제거 - 조건 맞으면 에러만 지움
  

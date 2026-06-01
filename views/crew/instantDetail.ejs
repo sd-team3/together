@@ -39,7 +39,7 @@
               <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %>
             </div>
           </div>
-          <button class="detail-like-btn" onclick="document.getElementById('modal-delete').classList.add('show')" style="border-color:#ffb3ae">
+          <button class="detail-like-btn" id="delete-open-btn" style="border-color:#ffb3ae">
             <span class="like-icon">🗑</span>
             <span class="like-count" style="color:var(--red)">삭제</span>
           </button>
@@ -147,8 +147,8 @@
                     </div>
                   </div>
                   <div class="app-foot">
-                    <button class="app-btn accept" onclick="handleApp('<%= u?._id %>', 'accept')">✓ 수락</button>
-                    <button class="app-btn reject" onclick="handleApp('<%= u?._id %>', 'reject')">✕ 거절</button>
+                    <button class="app-btn accept">✓ 수락</button>
+                    <button class="app-btn reject">✕ 거절</button>
                   </div>
                 </div>
               <% }) %>
@@ -168,7 +168,7 @@
     <div class="modal-title">돌이킬 수 없어요.</div>
     <div class="modal-msg">정말 이 번개모임을 삭제하시겠어요?</div>
     <div class="modal-btn" style="display:flex;gap:8px;width:100%;margin-top:24px">
-      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeModal()">취소</button>
+      <button class="btn btn-outline" id="modal-cancel-btn" style="flex:1;padding:12px">취소</button>
       <button class="btn-yes" id="confirm-delete-btn">삭제하기</button>
     </div>
   </div>
@@ -237,15 +237,27 @@ function openDetail(id) {
   document.getElementById('dp-phone').textContent = m.tel;
   document.getElementById('dp-gender').textContent = m.gender;
   document.getElementById('dp-age').textContent = m.age + '세';
+
   const noshowBtn = document.getElementById('dp-noshow-btn');
   const kickBtn = document.getElementById('dp-kick-btn');
-  if (m.role === 'host') { noshowBtn.style.display = 'none'; kickBtn.style.display = 'none'; }
-  else {
-    noshowBtn.style.display = ''; kickBtn.style.display = '';
+
+  if (m.role === 'host') {
+    noshowBtn.style.display = 'none';
+    kickBtn.style.display = 'none';
+  } else {
+    noshowBtn.style.display = '';
+    kickBtn.style.display = '';
     noshowBtn.textContent = m.status === 'noshow' ? '노쇼 취소' : '노쇼 처리';
-    noshowBtn.onclick = () => handleNoshow(id, m.status === 'noshow');
-    kickBtn.onclick = () => handleKick(id);
+    // 기존 리스너 제거 후 재등록 (클론 교체)
+    const newNoshow = noshowBtn.cloneNode(true);
+    noshowBtn.parentNode.replaceChild(newNoshow, noshowBtn);
+    newNoshow.addEventListener('click', () => handleNoshow(id, m.status === 'noshow'));
+
+    const newKick = kickBtn.cloneNode(true);
+    kickBtn.parentNode.replaceChild(newKick, kickBtn);
+    newKick.addEventListener('click', () => handleKick(id));
   }
+
   document.getElementById('detail-panel').classList.add('show');
   render();
 }
@@ -286,9 +298,23 @@ async function handleApp(userId, action) {
 
 function closeModal() { document.getElementById('modal-delete').classList.remove('show'); }
 
+// 삭제 버튼 → 모달 열기
+document.getElementById('delete-open-btn').addEventListener('click', () => {
+  document.getElementById('modal-delete').classList.add('show');
+});
+
+// 모달 취소 버튼
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+
+// 모달 오버레이 클릭
+document.getElementById('modal-delete').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// 모달 삭제 확인
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
   try {
-    const res = await fetch(`/instant/${CREW_ID}`, { method: 'DELETE' });
+    const res = await fetch(`/instant/delete/${CREW_ID}`, { method: 'POST' });
     const data = await res.json();
     if (data.success) location.href = '/instant/manage';
     else alert(data.message || '삭제에 실패했습니다');
@@ -296,15 +322,24 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
   finally { closeModal(); }
 });
 
+// 멤버 테이블 클릭 (이벤트 위임)
 document.getElementById('member-tbody').addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
-  if (btn) { e.stopPropagation(); const id = btn.dataset.id; if (btn.dataset.action==='detail') openDetail(id); if (btn.dataset.action==='kick') handleKick(id); return; }
+  if (btn) {
+    e.stopPropagation();
+    const id = btn.dataset.id;
+    if (btn.dataset.action === 'detail') openDetail(id);
+    if (btn.dataset.action === 'kick') handleKick(id);
+    return;
+  }
   const row = e.target.closest('.member-row');
-  if (row) { const id = row.dataset.id; if (selectedId===id) closeDetail(); else openDetail(id); }
+  if (row) { const id = row.dataset.id; if (selectedId === id) closeDetail(); else openDetail(id); }
 });
 
+// 상세 패널 닫기
 document.getElementById('dp-close-btn').addEventListener('click', closeDetail);
 
+// 필터 칩
 document.querySelectorAll('.filter-chip').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
@@ -312,8 +347,10 @@ document.querySelectorAll('.filter-chip').forEach(btn => {
   });
 });
 
+// 검색
 document.getElementById('search-input').addEventListener('input', e => { searchVal = e.target.value.trim(); render(); });
 
+// 탭 전환
 document.querySelectorAll('.crew-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.crew-tab').forEach(t => t.classList.remove('active'));
@@ -324,7 +361,16 @@ document.querySelectorAll('.crew-tab').forEach(tab => {
   });
 });
 
-document.getElementById('modal-delete').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+// 신청 대기 수락/거절 (이벤트 위임)
+document.querySelector('.app-list')?.addEventListener('click', e => {
+  const btn = e.target.closest('.app-btn');
+  if (!btn) return;
+  const card = btn.closest('.app-card');
+  const userId = card?.id?.replace('app-', '');
+  if (!userId) return;
+  if (btn.classList.contains('accept')) handleApp(userId, 'accept');
+  if (btn.classList.contains('reject')) handleApp(userId, 'reject');
+});
 
 render();
 </script>

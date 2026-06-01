@@ -56,6 +56,9 @@ req.login(result, (err) => {
             if (err) {
                 return next(err);
             }
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.json({ success: true, name: result.name });
+            }
 
             return res.redirect('/');
 
