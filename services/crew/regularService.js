@@ -41,7 +41,7 @@ async function createRegCrew(data, profileFile, host) {
         session.startTransaction();
 
         const crew = await regCrew.save({ session: session });
-        await crewService.addCrewToUser(host, crew._id, { session });
+        // await crewService.addCrewToUser(host, crew._id, { session });
 
         await session.commitTransaction();
         session.endSession();
