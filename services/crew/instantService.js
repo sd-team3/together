@@ -71,17 +71,6 @@ async function createInstantCrew(data, host) {
     }
 
 }
-// 내가 만든 번개모임 목록
-async function getMyCrews(userId) {
-    return await instantCrew.find({
-        $or: [
-            { host: userId },
-            { 'member.memberList.user': userId }
-        ]
-    })
-        .sort({ createdAt: -1 })
-        .lean();
-}
 
 // 특정 모임 상세 (멤버/신청자 populate)
 async function getCrewDetail(crewId) {
@@ -126,7 +115,6 @@ const findHostByCrewId = async (crewId)=>{
 module.exports = {
     createInstantCrew, 
     getInstantCrew, 
-    getMyCrews,
     getCrewDetail,
     deleteInstantCrew,
     kickMember

@@ -13,9 +13,8 @@ router.get('/instant', instantController.getInstant);
 router.get('/create', instantController.getInstantCreate);
 router.post('/create', instantController.postInstantCreate);
 
-//목록 페이지/상세 페이지
-router.get('/list', instantController.getMyCrews);
-router.get('/list/:instantId', instantController.getCrewManage);
+
+router.get('/list/:instantId', instantController.getInstantDetail);
 
 //모임 삭제
 router.post('/delete/:instantId', instantController.deleteInstantCrew);

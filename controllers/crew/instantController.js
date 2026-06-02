@@ -66,34 +66,22 @@ const postInstantCreate = async (req, res) => {
     }
 };
  
-// 내가 만든 번개모임 목록 페이지
-const getMyCrews = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
-    try {
-        const crews = await instantService.getMyCrews(req.user._id);
-        res.render('crew/instantMyCrew', { crews, CONSTANTS, currentUserId: req.user._id.toString() });
-    } catch (error) {
-        next(error);
-    }
-};
-// 특정 모임 상세 관리 페이지
-const getCrewManage = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
+const getInstantDetail = async(req, res, next) => {
     try {
         const crew = await instantService.getCrewDetail(req.params.instantId);
-        if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
-        
-        const isHost = crew.host._id.toString() === req.user._id.toString();
-        const isMember = crew.member.memberList.some(m => m.user._id.toString() === req.user._id.toString());
+        if(!crew) return res.status(404).send('모임을 찾을 수 없습니다');
 
-        if (!isHost && !isMember) return res.status(403).send('권한이 없습니다');
-
-        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost });
+        if(!req.isAuthenticated()) {
+            return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false });
+        }
+        const userId = req.user._id.toString();
+        const isHost = crew.host._id.toString() === userId;
+        const isMember = crew.member.memberList.some(m => m.user._id.toString() === userId);
+        res.render('crew/instantMyCrewDetail', {crew, CONSTANTS, isHost, isMember});
     } catch (error) {
         next(error);
     }
 };
-
 // 번개 모임 삭제
 const deleteInstantCrew = async(req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
@@ -133,8 +121,7 @@ module.exports = {
     getInstantCreate, 
     postInstantCreate, 
     getInstant, 
-    getMyCrews,
-    getCrewManage,
+    getInstantDetail,
     deleteInstantCrew,
     kickMember
 };
