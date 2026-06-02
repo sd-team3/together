@@ -36,7 +36,11 @@
             const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
             const isPast = diffMs < 0;
             const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
-            const sportEmoji = CONSTANTS.SPORTS[crew.sport]?.emoji || '🏃';
+            const sportEmojiMap = {
+              soccer: '⚽', baseball: '⚾', basketball: '🏀',
+              bowling: '🎳', tennis: '🎾', badminton: '🏸', tabletennis: '🏓'
+            };
+            const sportEmoji = sportEmojiMap[crew.sport] || '🏃';
             const current = crew.member.memberList.length;
             const capacity = crew.member.capacity;
             const pending = crew.member.pendingList.filter(p => p.status === 'pending').length;
@@ -50,6 +54,7 @@
                 <div class="reg-card-title"><%= crew.title %></div>
                 <div class="reg-card-sub">
                   <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %> · <%= crew.address.state %> <%= crew.address.city %>
+                  <% if(crew.address.detail) { %> · <%= crew.address.detail%> <%}%>
                 </div>
               </div>
               <span class="role-badge host">👑모임장</span>
@@ -57,7 +62,7 @@
 
             <div class="reg-card-body">
               <div class="reg-meta-row">
-                <span>🏷 <%= sportKr %></span>
+                <span><%=sportEmoji%> <%= sportKr %></span>
                 <span>👥 <%= current %>/<%= capacity %>명</span>
                 <% if (!isPast) { %>
                   <span style="font-family:'DM Mono',monospace;font-weight:700;color:<%= diffDays <= 1 ? '#FF3B30' : diffDays <= 3 ? '#FF6B00' : '#1A5CFF' %>">
@@ -80,8 +85,12 @@
               </div>
 
               <div class="reg-card-actions">
-                <a href="/instant/list/<%= crew._id %>" class="action-btn primary">관리</a>
-                <button class="action-btn danger" type="button" data-delete-id="<%= crew._id %>">삭제</button>
+                <% if(crew.host.toString() === currentUserId) { %>
+                  <a href="/instant/list/<%= crew._id %>" class="action-btn primary">관리</a>
+                  <button class="action-btn danger" type="button" data-delete-id="<%= crew._id %>">삭제</button>
+                <%} else { %>
+                   <a href="/instant/list/<%= crew._id %>" class="action-btn primary">상세보기</a>
+                <% } %>
               </div>
             </div>
           </div>

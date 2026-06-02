@@ -71,7 +71,7 @@ const getMyCrews = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const crews = await instantService.getMyCrews(req.user._id);
-        res.render('crew/instantMyCrew', { crews, CONSTANTS });
+        res.render('crew/instantMyCrew', { crews, CONSTANTS, currentUserId: req.user._id.toString() });
     } catch (error) {
         next(error);
     }
@@ -82,14 +82,19 @@ const getCrewManage = async (req, res, next) => {
     try {
         const crew = await instantService.getCrewDetail(req.params.instantId);
         if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
-        if (crew.host._id.toString() !== req.user._id.toString()) return res.status(403).send('권한이 없습니다');
-        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS });
+        
+        const isHost = crew.host._id.toString() === req.user._id.toString();
+        const isMember = crew.member.memberList.some(m => m.user._id.toString() === req.user._id.toString());
+
+        if (!isHost && !isMember) return res.status(403).send('권한이 없습니다');
+
+        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost });
     } catch (error) {
         next(error);
     }
 };
 
-// 번개 모임 크루 삭제
+// 번개 모임 삭제
 const deleteInstantCrew = async(req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
@@ -100,6 +105,7 @@ const deleteInstantCrew = async(req, res, next) => {
         if(!result.success) {
             return res.status(result.status || 400).json({ success: false, message: result.message});
         }
+        return res.json({ success: true });
     } catch (error) {
         next(error);
     }

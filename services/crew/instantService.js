@@ -41,7 +41,7 @@ async function getInstantCrew(filter = {}, page = 1) {
 
 async function createInstantCrew(data, host) {
     const { title, intro, sport, capacity, 
-        state, city, lat, lng, isAutoAccept, meetAt_date, meetAt_time } = data;
+        state, city, detail,lat, lng, isAutoAccept, meetAt_date, meetAt_time } = data;
     
     const crew = new instantCrew({
         title,
@@ -50,12 +50,13 @@ async function createInstantCrew(data, host) {
         host,
         member: {
             capacity: Number(capacity),
-            memberList: [{user: host}]
+            memberList: [{user: host, role: 'host', status: 'confirmed'}]
         },
         isAutoAccept,
         address: {
             state,
             city,
+            detail: detail || '',
             lat: Number(lat),
             lng: Number(lng)
         },
@@ -72,7 +73,12 @@ async function createInstantCrew(data, host) {
 }
 // 내가 만든 번개모임 목록
 async function getMyCrews(userId) {
-    return await instantCrew.find({ host: userId })
+    return await instantCrew.find({
+        $or: [
+            { host: userId },
+            { 'member.memberList.user': userId }
+        ]
+    })
         .sort({ createdAt: -1 })
         .lean();
 }

@@ -80,7 +80,9 @@
                   <div>
                     <div class="mi-title"><%= crew.title%></div>
                     <div class="mi-meta">
-                      <span>📍 <%= crew.address.state%> <%= crew.address.city%></span>
+                      <span>📍 <%= crew.address.state%> <%= crew.address.city%>
+                         <% if (crew.address.detail) { %> · <%= crew.address.detail %><% } %>
+                      </span>
                     </div>
                   </div>
                 </div>
