@@ -29,7 +29,7 @@ const crewApplicationSchema = new mongoose.Schema(
 
 crewApplicationSchema.index({ crewId: 1, createdAt: -1 });
 crewApplicationSchema.index({ userId: 1, createdAt: -1 });
-crewApplicationSchema.index({ crewId: 1, userId: 1 }, {unique: true});
+crewApplicationSchema.index({ crewId: 1, userId: 1 }, { unique: true });
 
 const crewApplication = mongoose.model('crewApplication', crewApplicationSchema);
 

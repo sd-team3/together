@@ -14,7 +14,7 @@ router.post('/create',
     regularController.postRegCreate
 );
 
-router.post('/application', 
+router.post('/application/:crewId', 
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
