@@ -9,6 +9,8 @@ async function createApplication(userId, crewId, crewType, options = {}) {
     return await newApplication.save({ session: options.session });
 }
 
+async function findAppById(appId) { return await crewApplication.findById(appId); }
+
 async function acceptApplication(appId, currUserId) {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -56,7 +58,7 @@ async function acceptApplication(appId, currUserId) {
     }
 }
 
-const findPendingApplicationsByCrewId = async (crewId) => {
+const findPendingAppsByCrewId = async (crewId) => {
     try {
         const applications = await crewApplication.find({ 
             crew: crewId, 
@@ -73,6 +75,7 @@ const findPendingApplicationsByCrewId = async (crewId) => {
 
 module.exports = {
     createApplication,
-    findPendingApplicationsByCrewId,
-    acceptApplication //기능명세
+    findPendingAppsByCrewId,
+    acceptApplication,
+    findAppById
 }

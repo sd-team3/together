@@ -36,7 +36,7 @@ async function createRegCrew(data, profileFile, host) {
         level: level || 'none', profileImage
     });
 
-    const session = null;
+    let session = null;
     try {
         session = await mongoose.startSession();
         session.startTransaction();
