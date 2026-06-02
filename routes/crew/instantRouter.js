@@ -19,4 +19,7 @@ router.get('/list/:instantId', instantController.getCrewManage);
 
 //모임 삭제
 router.post('/delete/:instantId', instantController.deleteInstantCrew);
+
+//크루 강퇴
+router.post('/list/:instantId/kick/:userId', instantController.kickMember);
 module.exports = router;

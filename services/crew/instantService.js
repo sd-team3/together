@@ -103,6 +103,22 @@ async function deleteInstantCrew(crewId, userId){
     return { success: true };
 }
 
+async function kickMember(crewId, hostId, userId) {
+    const crew = await instantCrew.findById(crewId);
+    if(!crew) return { success: false, message: '모임을 찾을 수 없습니다'};
+    if(crew.host.toString() !== hostId.toString()) return { success: false, status: 403, message: '권한이 없습니다'};
+    
+    const memberIndex = crew.member.memberList.findIndex(
+        m => m.user.toString() === userId.toString()
+    );
+    if (memberIndex === -1) return { success: false, status: 404, message: '해당 멤버를 찾을 수 없습니다' };
+    if (crew.member.memberList[memberIndex].role === 'host') return { success: false, status: 400, message: '모임장은 강퇴할 수 없습니다' };
+    crew.member.memberList.splice(memberIndex, 1);
+    await crew.save();
+
+    return { success: true };
+}   
+
 const findHostByCrewId = async (crewId)=>{
     const crew = await instantCrew.findById(crewId).select('host');
     return crew ? crew.host : null;
@@ -112,5 +128,6 @@ module.exports = {
     getInstantCrew, 
     getMyCrews,
     getCrewDetail,
-    deleteInstantCrew
+    deleteInstantCrew,
+    kickMember
 };

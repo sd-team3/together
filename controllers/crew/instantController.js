@@ -111,13 +111,30 @@ const deleteInstantCrew = async(req, res, next) => {
     }
 };
 
+//멤버 강퇴
+const kickMember = async(req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
+    try {
+        const { instantId, userId } = req.params;
+        const hostId = req.user._id;
+        const result = await instantService.kickMember(instantId, hostId, userId);
+
+        if(!result.success) {
+            return res.status(result.status || 400).json({ success: false, message: result.message});
+        }
+        return res.json({success: true});
+    } catch (error) {
+        next(error);
+    }
+}
 
 
- module.exports = {
+module.exports = {
     getInstantCreate, 
     postInstantCreate, 
     getInstant, 
     getMyCrews,
     getCrewManage,
-    deleteInstantCrew
+    deleteInstantCrew,
+    kickMember
 };
