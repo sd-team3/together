@@ -37,13 +37,13 @@ async function createRegCrew(data, profileFile, host) {
         level: level || 'none', profileImage
     });
 
-    const session = null;
+    let session = null;
     try {
         session = await mongoose.startSession();
         session.startTransaction();
 
         const crew = await regCrew.save({ session: session });
-        await crewService.addCrewToUser(host, crew._id, { session });
+        // await crewService.addCrewToUser(host, crew._id, { session });
 
         await session.commitTransaction();
         session.endSession();
