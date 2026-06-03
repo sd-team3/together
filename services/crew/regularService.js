@@ -3,6 +3,7 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
