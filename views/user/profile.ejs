@@ -44,7 +44,10 @@
           <div class="profile-divider"></div>
           <div class="profile-stat-row">
             <div class="ps-item"><span class="ps-val"><%= user.matchCount %>10</span><span class="ps-label">참여한 경기</span></div>
-            <div class="ps-item"><span class="ps-val"><%= regCrew.length + instantCrew.length %></span><span class="ps-label">참여중인 모임</span></div>
+            <div class="ps-item"><span class="ps-val">
+              <% const regularCrewCount = regCrew.reduce((sum, crew) => sum + crew.schedule.length, 0) %>
+              <%= regularCrewCount + instantCrew.length %></span><span class="ps-label">참여중인 모임</span>
+            </div>
             <div class="ps-item"><span class="ps-val">12</span><span class="ps-label">매너 순위</span></div>
           </div>
           <div class="rank-info-box">
@@ -54,25 +57,24 @@
         </div>
         <div class="card" style="overflow:hidden">
           <div class="mypage-nav">
-            <button class="mypage-nav-item"><span>📅</span> 모임 일정</button>
-            <button class="mypage-nav-item"><span>⭐</span> 프로필 수정</button>
+            <a href="/user/profile" class="mypage-nav-item"><span>📅</span> 모임 일정</a>
+            <a href="/user/edit-profile" class="mypage-nav-item"><span>⭐</span> 프로필 수정</a>
           </div>
         </div>
       </div>
 
       <!-- Main Content -->
-      <div id="regular-card" class="mypage-main">
+      <div class="mypage-main">
         <!-- Upcoming Schedule -->
-        <div class="mypage-card">
+        <div id="regular-card" class="mypage-card">
           <div class="mypage-card-header"><div class="mypage-card-title">📅 계획중인 정기 모임 </div>
-          <%= regCrew.length %>
-          <% if(regCrew.length > 4) { %>
+          <% if(regularCrewCount > 4) { %>
           <button type="button" id="regularSeeAllBtn" class="mypage-card-action">전체보기</button>
           <button type="button" id="regularSee4Btn" class="mypage-card-action" style="display: none">접기</button>
           <% } %>
         </div>
           <div class="mypage-card-body">
-            <% if(regCrew.reduce((sum, crew) => sum + crew.schedule.length, 0) === 0 || !regCrew) { %>
+            <% if(regularCrewCount === 0 || !regCrew) { %>
                 <div class="no-data-container">
                   <div class="no-data-item">🔍</div>
                   <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
@@ -178,9 +180,6 @@
                             <%= Math.abs((crew.meetAt.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0))/86400000) %>
                           </span>
                           <span class="sched-count">👤 <%= crew.member.memberList.length %>/<%= crew.member.capacity %></span>
-                      </div>
-                      <div class="manage-action">
-                          <button class="btn-leave">탈퇴</button>
                       </div>
                   </div>
               </div>
