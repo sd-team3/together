@@ -631,11 +631,11 @@ select.input{cursor:pointer}
 .rank-info-label{font-size:11px;opacity:.6;margin-bottom:2px}
 .rank-info-sub{font-size:12px;margin-top:8px;opacity:.75}
 .rank-accent{color:var(--accent)}
-.mypage-nav{display:flex;flex-direction:column;gap:2px;padding:0 10px 14px}
+.mypage-nav{display:flex;flex-direction:column;gap:2px;padding:10px 14px}
 .mypage-nav-item{
   display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-sm);
   font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .15s;
-  border:none;background:none;text-align:left;
+  border:none;background:none;text-align:left; text-decoration: none;
 }
 .mypage-nav-item:hover{background:var(--bg);color:var(--text)}
 .mypage-nav-item.active{background:var(--bg);color:var(--text);font-weight:600}

@@ -69,6 +69,21 @@ async function createInstantCrew(data, host) {
 
 }
 
+async function findInstantCrewsByUserId(userId) {
+    const crew = await instantCrew.find({ "member.memberList.user" : userId })
+        .populate('host', 'name')
+        .lean();
+    return sortCrewByDate(crew);
+}
+
+function sortCrewByDate(crew) {
+    const now = Date.now();
+    return crew.sort((a, b) => {
+        if((a.meetAt < now) === (b.meetAt < now)) return a.meetAt - b.meetAt;
+        return a.meetAt < now ? 1 : -1;
+    });
+}
+
 // 특정 모임 상세 (멤버/신청자 populate)
 async function getCrewDetail(crewId) {
     return await instantCrew.findById(crewId)
@@ -114,5 +129,6 @@ module.exports = {
     getInstantCrew, 
     getCrewDetail,
     deleteInstantCrew,
-    kickMember
+    kickMember,
+    findInstantCrewsByUserId
 };
