@@ -34,16 +34,16 @@
                             <div class="avatar-preview">
                                 <img id="avatar-img" src="/images/user-profile/default-profile-image.jpg" alt="프로필" />
                             </div>
-                            <button type="button" class="avatar-remove-btn" onclick="resetAvatar()">✕</button>
+                            <button type="button" class="avatar-remove-btn">✕</button>
                             <label class="avatar-edit-label" for="avatar-file">✏️</label>
-                            <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
-                            <input type="hidden" id="removeImage" name="removeImage" value="false">
                         </div>
                     </div>
                 </div>
             </div>
             <% const isSocialLogin = !!socialUser; %>
             <form action="/user/signup" method="post" id="signup" enctype="multipart/form-data">
+                <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
+                <input type="hidden" id="removeImage" name="removeImage" value="false">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>
                     <input type="text" class="input" name="name" id="name" value="<%= socialUser?.name || '' %>" />
@@ -65,15 +65,11 @@
 
                 <div class="form-group">
                     <label class="label">성별 <span class="req">*</span></label>
-                    <div class="gender-group">
-                        <label class="gender-item">
-                            <input type="radio" name="gender" value="male" />
-                            <span>남성</span>
-                        </label>
-                        <label class="gender-item">
-                            <input type="radio" name="gender" value="female" />
-                            <span>여성</span>
-                        </label>
+                    <div class="chip-group" id="autoAcceptGroup">
+                        <input type="radio" name="gender" id="gender-male" value="male" class="hidden-radio">
+                        <label for="gender-male" class="chip">남성</label>
+                        <input type="radio" name="gender" id="gender-female" value="female" class="hidden-radio">
+                        <label for="gender-female" class="chip">여성</label>
                     </div>
                     <div id="genderFeedBack"></div>
                 </div>

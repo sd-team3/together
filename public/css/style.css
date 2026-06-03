@@ -2999,3 +2999,14 @@ select.input{cursor:pointer}
   .noshow-warn { color: var(--red); font-family: 'DM Mono', monospace; }
 
   .rep-star { color: #F59E0B; margin-right: 2px; }
+  
+  .time-select-group {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .time-select-group .input {
+      flex: 1;
+      width: auto; /* width:100% 덮어쓰기 */
+  }

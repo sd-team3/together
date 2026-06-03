@@ -315,11 +315,30 @@ document.addEventListener('DOMContentLoaded', () => {
             setFeedback(emailFeedBack, '', '');
         });
     }
+    // 프로필 이미지 미리보기
+    const avatarFile = document.getElementById('avatar-file');
+    const avatarImg = document.getElementById('avatar-img');
+
+    avatarFile.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            avatarImg.src = e.target.result;
+            document.getElementById('removeImage').value = 'false';
+        };
+        reader.readAsDataURL(file);
+    });
  
     // 기타
     document.getElementById('agreeAll').addEventListener('change', function () { toggleAll(this); });
     document.getElementById('addrSearchBtn').addEventListener('click', searchAddress);
     document.getElementById('signup').addEventListener('submit', handleSignup);
+    document.querySelector('.avatar-remove-btn').addEventListener('click', function () {
+        avatarImg.src = '/images/user-profile/default-profile-image.jpg';
+        avatarFile.value = '';
+        document.getElementById('removeImage').value = 'true';
+    });
  
     document.querySelectorAll('.input-eye').forEach(btn => {
         btn.addEventListener('click', function () {

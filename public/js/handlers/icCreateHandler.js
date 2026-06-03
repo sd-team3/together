@@ -31,6 +31,23 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('accept-input').value = btn.dataset.value;
     });
   });
+  function updateTime() {
+    const ampm = document.getElementById('time-ampm').value;
+    let hour = parseInt(document.getElementById('time-hour').value);
+    const min = document.getElementById('time-min').value;
+
+    if (ampm === 'AM' && hour === 12) hour = 0;
+    if (ampm === 'PM' && hour !== 12) hour += 12;
+
+    document.getElementById('meetAt_time').value = `${String(hour).padStart(2,'0')}:${min}`;
+  }
+
+  ['time-ampm', 'time-hour', 'time-min'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateTime);
+  });
+  updateTime(); // 초기값 세팅
+
+
    // ── 좌표 적용 공통 함수 ──
   function applyLocation(lat, lng, name) {
     document.getElementById('lat-input').value = lat;
@@ -124,6 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
     }
+  });
+  // 날짜 캘린더 피커
+  flatpickr('#meetAt_date', {
+      locale: 'ko',
+      dateFormat: 'Y-m-d',
+      minDate: 'today', //오늘 날짜 기준 이전 날짜 선택 X
+      disableMobile: true
   });
 
   // ── 제출 전 lat/lng 검증 ──
