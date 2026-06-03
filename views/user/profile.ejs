@@ -44,7 +44,7 @@
           <div class="profile-divider"></div>
           <div class="profile-stat-row">
             <div class="ps-item"><span class="ps-val"><%= user.matchCount %>10</span><span class="ps-label">참여한 경기</span></div>
-            <div class="ps-item"><span class="ps-val">3</span><span class="ps-label">참여중인 모임</span></div>
+            <div class="ps-item"><span class="ps-val"><%= regCrew.length + instantCrew.length %></span><span class="ps-label">참여중인 모임</span></div>
             <div class="ps-item"><span class="ps-val">12</span><span class="ps-label">매너 순위</span></div>
           </div>
           <div class="rank-info-box">
@@ -61,17 +61,18 @@
       </div>
 
       <!-- Main Content -->
-      <div class="mypage-main">
+      <div id="regular-card" class="mypage-main">
         <!-- Upcoming Schedule -->
         <div class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 모임</div>
+          <div class="mypage-card-header"><div class="mypage-card-title">📅 계획중인 정기 모임 </div>
+          <%= regCrew.length %>
           <% if(regCrew.length > 4) { %>
-          <button type="button" id="seeAllBtn" class="mypage-card-action">전체보기</button>
-          <button type="button" id="see4Btn" class="mypage-card-action" style="display: none">접기</button>
+          <button type="button" id="regularSeeAllBtn" class="mypage-card-action">전체보기</button>
+          <button type="button" id="regularSee4Btn" class="mypage-card-action" style="display: none">접기</button>
           <% } %>
         </div>
           <div class="mypage-card-body">
-            <% if(regCrew.length === 0 || !regCrew) { %>
+            <% if(regCrew.reduce((sum, crew) => sum + crew.schedule.length, 0) === 0 || !regCrew) { %>
                 <div class="no-data-container">
                   <div class="no-data-item">🔍</div>
                   <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
@@ -83,11 +84,13 @@
               <% crew.schedule.forEach(sched => { %>
                 <div class="schedule-item 
                             <%= index === 1 ? 'schedule-item-last' : '' %>
-                            <%= index >= 2 ? 'schedule-item-hidden' : '' %>">
+                            <%= index > 1 ? 'schedule-item-hidden' : '' %>">
                     <% if(crew.day[0] === '미정') { %>
                     <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
                     <% } else {%>
-                    <div class="sched-time"> <%= crew.day[0] %> <%= sched.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) %></div>
+                    <div class="sched-time"> 
+                      <%= crew.day[0] %> <%= sched.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) %>
+                    </div>
                     <% } %>
                     <div class="sched-dot" style="background:var(--primary)"></div>
 
@@ -130,35 +133,59 @@
           </div>
         </div>
 
-        <!-- ----------------------------------------------------------------------------- -->
-        <div class="mypage-card">
+        <div id="instant-card" class="mypage-card">
           <div class="mypage-card-header">
             <div class="mypage-card-title">🕒 실시간 모임</div>
-            <div class="mypage-card-action">전체보기</div>
+            <% if(instantCrew.length > 4) { %>
+            <button type="button" id="instantSeeAllBtn" class="mypage-card-action">전체보기</button>
+            <button type="button" id="instantSee4Btn" class="mypage-card-action" style="display: none">접기</button>
+            <% } %>
           </div>
           <div class="mypage-card-body">
+            <% if(instantCrew.length === 0 || !instantCrew) { %>
+                  <div class="no-data-container">
+                    <div class="no-data-item">🔍</div>
+                    <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
+                    <p class="no-data-item">나와 취향이 맞는 실시간 모임을 찾아보세요!</p>
+                    <a href="/regular/regular" class="no-data-button">모임 둘러보기</a>
+                  </div>
+              <% } else { %>
+                <% instantCrew.forEach((crew, index) => { %>
+                  <% const now = new Date() %>
+                <div class="schedule-item 
+                            <%= index === 3 ? 'schedule-item-last' : '' %>
+                            <%= index > 3 ? 'schedule-item-hidden' : '' %>">
+                  <div class="sched-time">
+                    <%= crew.meetAt.toDateString() === now.toDateString() ? '오늘' : ' '%> 
+                    <%= crew.meetAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })%>
+                  </div>
+                  <div class="sched-dot" style="background:var(--red)"></div>
+                  <div class="sched-info">
+                      <div class="sched-title-row">
+                          <span class="sched-title"><%= crew.title %></span>
+                          <span class="sched-owner">
+                            👑 <%= crew.host.name %>
+                                <%= String(user.id) === String(crew.host._id) ? "(나)" : "" %>
+                          </span>
+                      </div>
+                      <div class="sched-sub">📌 <%= crew.address.state %> <%= crew.address.city %></div>
+                  </div>
 
-            <div class="schedule-item">
-                <div class="sched-time">오늘 20:00</div>
-                <div class="sched-dot" style="background:var(--red)"></div>
-                <div class="sched-info">
-                    <div class="sched-title-row">
-                        <span class="sched-title">성수 5:5 풋살 매칭</span>
-                        <span class="sched-owner">👑 감비아</span>
-                    </div>
-                    <div class="sched-sub">📌 성수 실내풋살장</div>
-                </div>
-
-                <div class="sched-manage">
-                    <div class="manage-top">
-                        <span class="sched-days">D-10</span>
-                        <span class="sched-count">👤 5/10</span>
-                    </div>
-                    <div class="manage-action">
-                        <button class="btn-leave">탈퇴</button>
-                    </div>
-                </div>
-            </div>
+                  <div class="sched-manage">
+                      <div class="manage-top">
+                          <span class="sched-days">
+                            <%= crew.meetAt.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0) < 0 ? 'D +' : 'D -' %>
+                            <%= Math.abs((crew.meetAt.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0))/86400000) %>
+                          </span>
+                          <span class="sched-count">👤 <%= crew.member.memberList.length %>/<%= crew.member.capacity %></span>
+                      </div>
+                      <div class="manage-action">
+                          <button class="btn-leave">탈퇴</button>
+                      </div>
+                  </div>
+              </div>
+            <% });%>
+            <% } %>
 
           </div>
         </div>
@@ -199,27 +226,39 @@
 </div> -->
 
 <script>
-  const seeAllBtn = document.getElementById('seeAllBtn');
-  const see4Btn = document.getElementById('see4Btn');
+  const regularSeeAllBtn = document.getElementById('regularSeeAllBtn');
+  const regularSee4Btn = document.getElementById('regularSee4Btn');
+  const instantSeeAllBtn = document.getElementById('instantSeeAllBtn');
+  const instantSee4Btn = document.getElementById('instantSee4Btn');
 
-  seeAllBtn.addEventListener('click', () => seeBtn(true));
-  see4Btn.addEventListener('click', () =>  seeBtn(false));
+  if(regularSeeAllBtn) regularSeeAllBtn.addEventListener('click', () => seeBtn(true, "regular"));
+  if(regularSee4Btn) regularSee4Btn.addEventListener('click', () =>  seeBtn(false, "regular"));
+  if(instantSeeAllBtn) instantSeeAllBtn.addEventListener('click', () => seeBtn(true, "instant"));
+  if(instantSee4Btn) instantSee4Btn.addEventListener('click', () =>  seeBtn(false, "instant"));
 
-  function seeBtn(bool) {
-    seeAllBtn.style.display = bool ? 'none' : 'inline-block';
-    see4Btn.style.display = !bool ? 'none' : 'inline-block';
+  function seeBtn(bool, crew) {
+    if(crew === 'regular') {
+      regularSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
+      regularSee4Btn.style.display = !bool ? 'none' : 'inline-block';
+    } else if(crew === 'instant') {
+      instantSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
+      instantSee4Btn.style.display = !bool ? 'none' : 'inline-block';
+    } else return;
 
-    const scheduleItem = document.querySelectorAll('.schedule-item');
-    const scheduleHidden = document.querySelectorAll('.schedule-item-hidden');
+    let mainCard = null;
+    if(crew === 'regular') mainCard = document.querySelector('#regular-card');
+    else if(crew === 'instant') mainCard = document.querySelector('#instant-card');
+    else return;
+    
+    const scheduleItem = mainCard.querySelectorAll('.schedule-item');
+    const scheduleHidden = mainCard.querySelectorAll('.schedule-item-hidden');
 
     scheduleHidden.forEach(item => item.classList.toggle('show', bool));
+    scheduleItem.forEach(item => item.classList.remove('schedule-item-last'));
 
-    if(scheduleItem[scheduleItem.length]) {
-      scheduleItem[scheduleItem.length].classList.toggle('schedule-item-last', bool);
-    }
-    if(scheduleItem[1]) {
-      scheduleItem[1].classList.toggle('schedule-item-last', !bool);
-    }
+    const lastSchedule = scheduleItem[scheduleItem.length - 1]
+    if(lastSchedule && bool) lastSchedule.classList.add('schedule-item-last');
+    else scheduleItem[3].classList.add('schedule-item-last');
   }
 </script>
 

@@ -114,7 +114,7 @@ async function getRegularAPICrews(filter, page) {
     }                              
 }
 
-async function findCrewsByUserId(userId) {
+async function findRegularCrewsByUserId(userId) {
     const user = await User.findById(userId).populate({
         path: 'crews',
         populate: { path: 'host', select: 'name' }
@@ -152,13 +152,11 @@ function sortCrewByDay(crews) {
 }
 
 function sortSchedTime(schedule) {
-    const now = new Date();
+    const now = Date.now();
     if(schedule && schedule.length > 0) {
         schedule.sort((a, b) => {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            if( (dateA < now) === (dateB < now) ) return dateA - dateB
-            return dateA < now ? 1 : -1
+            if((a.date < now) === (b.date < now)) return a.date - b.date;
+            return a.date < now ? 1 : -1;
         });
     }
     return schedule;
@@ -258,7 +256,7 @@ async function crewLike(regularCrewId, userId) {
 module.exports = { 
     findHostByCrewId, 
     createRegCrew, 
-    findCrewsByUserId, 
+    findRegularCrewsByUserId, 
     getMyCrews, 
     deleteMyCrew, 
     getCrewDetail, 

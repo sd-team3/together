@@ -31,20 +31,20 @@ const io = new Server(httpServer);
 // async function addScheduleToExistingCrew() {
 //     try {
 //         // 1️⃣ 일정을 추가하고 싶은 대상 크루를 ID로 조회합니다.
-//         const crewId = "6655f1e2b3c4d5e6f7a8b9c0";
+//         const crewId = "6a1a623e5abcc3d724b23a7f";
 //         const crew = await RegularCrew.findById(crewId);
 
 //         if (crew) {
 //             // 2️⃣ 크루의 schedule 배열 필드에 새로운 일정 객체를 push 합니다.
 //             crew.schedule.push({
-//                 "title": "",
+//                 "title": "새롭게 모인 모임 계획2",
 //                 "date": new Date("2026-06-14T10:30:00.000Z"),
 //                 "address": {
 //                     "state": crew.address.state, // 기존 크루 주소를 그대로 활용하거나 새로 입력
 //                     "city": crew.address.city,
 //                     "detail": "영통종합공원 축구장"
 //                 },
-//                 "participants": [ '6a18ff3d99c14cf2d4ea1f28', '6a18ffde99c14cf2d4ea1f2a' ], // 기본 참여자로 방장 ID 주입
+//                 "participants": [ '6a18ff3d99c14cf2d4ea1f28', '6a18ffae99c14cf2d4ea1f29' ], // 기본 참여자로 방장 ID 주입
 //                 "status": "종료"
 //             });
 
@@ -63,11 +63,55 @@ const io = new Server(httpServer);
 //     }
 // }
 
+// const InstantCrew = require('./models/instantCrew');
 
+// async function createInstantCrew() {
+//     try {
+//         const instantCrew = await InstantCrew.create({
+//             title: "임시모임이에요",
+//             intro: "임시모임이에요",
+//             meetAt: new Date("2026-06-14T10:30:00.000Z"),
+
+//             host: "6a18ffae99c14cf2d4ea1f29",
+
+//             member: {
+//                 capacity: 10,
+//                 memberList: [
+//                     {
+//                         user: "6a18ff3d99c14cf2d4ea1f28"
+//                     },
+//                     {
+//                         user: "6a18ffae99c14cf2d4ea1f29"
+//                     }
+//                 ],
+//                 pendingList: []
+//             },
+
+//             isAutoAccept: true,
+
+//             address: {
+//                 state: "경기도",
+//                 city: "수원시",
+//                 lat: 37.2636,
+//                 lng: 127.0286
+//             },
+
+//             sport: "badminton", // SPORTS_EN에 있는 값 사용
+//             avgReputation: 4.5
+//         });
+
+//         console.log('✅ InstantCrew 생성 완료');
+//         console.log(instantCrew);
+
+//     } catch (error) {
+//         console.error('❌ 생성 실패:', error);
+//     }
+// }
 
 connectDB();
 
 // insertDummyCrewWithSchedule();
+// addScheduleToExistingCrew();
 
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));

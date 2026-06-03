@@ -38,4 +38,21 @@ async function createInstantCrew(data, host) {
     }
 
 }
-module.exports = {createInstantCrew, getInstantCrew};
+
+async function findInstantCrewsByUserId(userId) {
+    const crew = await instantCrew.find({ "member.memberList.user" : userId })
+        .populate('host', 'name')
+        .lean();
+    return sortCrewByDate(crew);
+}
+
+function sortCrewByDate(crew) {
+    const now = Date.now();
+    return crew.sort((a, b) => {
+        if((a.meetAt < now) === (b.meetAt < now)) return a.meetAt - b.meetAt;
+        return a.meetAt < now ? 1 : -1;
+    });
+}
+
+
+module.exports = {createInstantCrew, getInstantCrew, findInstantCrewsByUserId};
