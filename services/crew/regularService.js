@@ -4,7 +4,7 @@ const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
 const User = require('../../models/User');
-const constants = require('../../config/constants');
+const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -37,13 +37,13 @@ async function createRegCrew(data, profileFile, host) {
         level: level || 'none', profileImage
     });
 
-    const session = null;
+    let session = null;
     try {
         session = await mongoose.startSession();
         session.startTransaction();
 
         const crew = await regCrew.save({ session: session });
-        await crewService.addCrewToUser(host, crew._id, { session });
+        // await crewService.addCrewToUser(host, crew._id, { session });
 
         await session.commitTransaction();
         session.endSession();
@@ -70,6 +70,7 @@ async function getRegularCrews(page = 1) {
 
     const regularCrews = await regularCrew.find({})
                         .sort({createdAt : -1})
+                        .skip((page - 1) * limit)
                         .limit(limit);
     return {regularCrews, currentPage: page, totalPages};
 }
@@ -129,7 +130,7 @@ async function findRegularCrewsByUserId(userId) {
 
     crew = sortCrewByDay(crew);
     return crew.map(c => {
-        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
+        return { ...c, day : c.day.map(d => CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
 });
 }
 

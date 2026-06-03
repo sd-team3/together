@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
 </head>
@@ -17,7 +20,7 @@
   <div class="form-page">
     <div class="form-max">
 
-      <form method="POST" action="/instant/instant-create" id="create-form">
+      <form method="POST" action="/instant/create" id="create-form">
 
         <div class="form-section">
           <div class="form-section-title">기본 정보</div>
@@ -50,14 +53,30 @@
           <div class="form-section-title">일정</div>
 
           <div class="field">
-            <label class="label">모임 날짜</label>
-            <input class="input" type="date" name="meetAt_date" required>
+              <label class="label">모임 날짜</label>
+              <input class="input" type="text" name="meetAt_date" id="meetAt_date" 
+                    placeholder="날짜를 선택해주세요" required readonly>
           </div>
 
-          <div class="field">
-            <label class="label">모임 시간</label>
-            <input class="input" type="time" name="meetAt_time" required>
+        <div class="field">
+          <label class="label">모임 시간</label>
+          <div class="time-select-group">
+              <select id="time-ampm" class="input">
+                  <option value="AM">오전</option>
+                  <option value="PM">오후</option>
+              </select>
+              <select id="time-hour" class="input">
+                  <% for(let h = 1; h <= 12; h++) { %>
+                      <option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+                  <% } %>
+              </select>
+              <select id="time-min" class="input">
+                  <% ['00','10','20','30','40','50'].forEach(m => { %>
+                      <option value="<%= m %>"><%= m %></option>
+                  <% }) %>
+              </select>
           </div>
+            <input type="hidden" name="meetAt_time" id="meetAt_time">
         </div>
         
 
