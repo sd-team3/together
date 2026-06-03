@@ -15,159 +15,240 @@
 
   <div class="page-body">
     <div class="detail-wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <a href="/instant/list" class="goback-btn">← 내 번개모임 목록</a>
-        <button class="btn btn-primary btn-sm" id="btn-create-chat">💬 채팅방 만들기</button>
-      </div>
 
-      <div class="detail-group">
+      <a href="/instant/instant" class="goback-btn">← 번개모임 목록</a>
 
-        <%
-          const meetAt = new Date(crew.meetAt);
-          const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
-          const sportEmojiMap = {
-              soccer: '⚽', baseball: '⚾', basketball: '🏀',
-              bowling: '🎳', tennis: '🎾', badminton: '🏸', tabletennis: '🏓'
-            };
-          const sportEmoji = sportEmojiMap[crew.sport] || '🏃';
-          const members = crew.member.memberList;
-          const pendings = crew.member.pendingList.filter(p => p.status === 'pending');
-          const confirmedCount = members.filter(m => m.status === 'confirmed').length;
-        %>
+      <%
+        const meetAt = new Date(crew.meetAt);
+        const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
+        const sportEmojiMap = {
+            soccer: '⚽', baseball: '⚾', basketball: '🏀',
+            bowling: '🎳', tennis: '🎾', badminton: '🏸', tabletennis: '🏓'
+          };
+        const sportEmoji = sportEmojiMap[crew.sport] || '🏃';
+        const members = crew.member.memberList;
+        const pendings = crew.member.pendingList.filter(p => p.status === 'pending');
+        const confirmedCount = members.filter(m => m.status === 'confirmed').length;
+      %>
 
-        <!-- 헤더 -->
-        <div class="detail-header">
-          <div class="detail-sport-icon"><%= sportEmoji %></div>
-          <div class="detail-header-info">
-            <div class="detail-title"><%= crew.title %></div>
-            <div class="detail-sub">
-              <%= sportKr %> · <%= crew.address.state %> <%= crew.address.city %>
-              <% if (crew.address.detail) { %> · <%= crew.address.detail %><% } %> ·
-              <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %>
+      <% if (!isHost && !isMember) { %>
+        <!-- ── 미가입자 화면 ── -->
+        <div class="detail-group">
+          <div class="detail-header">
+            <div class="detail-sport-icon"><%= sportEmoji %></div>
+            <div class="detail-header-info">
+              <div class="detail-title"><%= crew.title %></div>
+              <div class="detail-sub">
+                <%= sportKr %> · <%= crew.address.state %> <%= crew.address.city %>
+                <% if (crew.address.detail) { %> · <%= crew.address.detail %><% } %>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <span class="pill pill-open">참가가능</span>
+              <span class="tag tag-outline"><%= crew.isAutoAccept ? '⚡ 자동수락' : '✋ 수동수락' %></span>
             </div>
           </div>
-          <% if(isHost) { %>
-          <button class="detail-like-btn" id="delete-open-btn" style="border-color:#ffb3ae">
-            <span class="like-icon">🗑</span>
-            <span class="like-count" style="color:var(--red)">삭제</span>
-          </button>
+
+          <% if (crew.intro) { %>
+          <div style="padding:14px 0;font-size:14px;color:var(--text-2);line-height:1.7;border-bottom:1px solid var(--border)">
+            <%= crew.intro %>
+          </div>
           <% } %>
-        </div>
 
-        <!-- 통계 -->
-        <div class="stat-row" style="margin:20px 0">
-          <div class="stat-block"><div class="stat-block-label">전체 참여자</div><div class="stat-block-val"><%= members.length %></div></div>
-          <div class="stat-block"><div class="stat-block-label">참가 확정</div><div class="stat-block-val green"><%= confirmedCount %></div></div>
-          <div class="stat-block"><div class="stat-block-label">모집 현황</div><div class="stat-block-val blue"><%= members.length %> / <%= crew.member.capacity %></div></div>
-          <div class="stat-block"><div class="stat-block-label">신청 대기</div><div class="stat-block-val orange"><%= pendings.length %></div></div>
-        </div>
+          <div class="popup-meta" style="margin:14px 0">
+            <span>📍 <%= crew.address.state %> <%= crew.address.city %></span>
+            <span>👥 <%= members.length %>/<%= crew.member.capacity %>명</span>
+          </div>
 
-        <!-- 탭 -->
-        <div class="crew-tabs">
-          <button class="crew-tab active" data-tab="members">
-            참여자 목록 <span style="font-size:12px;opacity:0.6"><%= members.length %>명</span>
-          </button>
-          <button class="crew-tab" data-tab="apps">
-            신청 대기
-            <% if (pendings.length > 0) { %>
-              <span class="tab-badge"><%= pendings.length %></span>
-            <% } %>
-          </button>
-        </div>
-
-        <!-- 참여자 목록 탭 -->
-        <div class="tab-section active" id="sec-members">
-          <div class="topbar" style="margin-bottom:14px">
-            <div class="filter-chips">
-              <button class="filter-chip on" data-filter="all">전체</button>
-              <button class="filter-chip" data-filter="host">모임장</button>
-              <button class="filter-chip" data-filter="confirmed">참가확정</button>
-              <button class="filter-chip" data-filter="noshow">노쇼</button>
-            </div>
-            <div class="search-wrap">
-              <span style="font-size:14px;color:var(--text-3)">🔍</span>
-              <input type="text" placeholder="이름 검색" id="search-input" />
+          <div class="popup-host" style="margin:12px 0">
+            <div class="popup-host-av"><%= crew.host.name?.charAt(0) %></div>
+            <div>
+              <div class="popup-host-name"><%= crew.host.name %></div>
+              <div class="popup-host-sub"><%= crew.avgReputation > 0 ? '⭐ ' + crew.avgReputation.toFixed(1) : '평점 없음' %></div>
             </div>
           </div>
 
-          <div class="tbl-card">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width:200px">멤버</th>
-                  <th style="width:70px">역할</th>
-                  <th style="width:90px">상태</th>
-                  <th style="width:60px">성별</th>
-                  <th style="width:60px">나이</th>
-                  <th style="width:110px">가입일</th>
-                  <th style="width:100px">관리</th>
-                </tr>
-              </thead>
-              <tbody id="member-tbody"></tbody>
-            </table>
+          <div style="font-size:12px;color:#aaa;margin-bottom:16px">
+            ⏰ <%= meetAt.toLocaleString('ko-KR') %>
           </div>
 
-          <!-- 상세 패널 -->
-          <div class="detail-panel" id="detail-panel">
-            <div class="dp-header">
-              <div class="dp-av" id="dp-av"></div>
-              <div>
-                <div class="dp-name" id="dp-name"></div>
-                <div class="dp-meta">
-                  <span id="dp-role-badge"></span>
-                  <span id="dp-status-badge"></span>
+          <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px" id="btn-apply">참가 신청</button>
+        </div>
+
+      <% } else { %>
+        <!-- ── 멤버/호스트 화면 ── -->
+
+        <!-- 상단 페이지 탭 -->
+        <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:20px">
+          <button class="page-tab active" data-ptab="detail"
+            style="padding:12px 24px;font-size:14px;font-weight:700;border:none;background:none;cursor:pointer;
+                   border-bottom:2px solid var(--text);margin-bottom:-2px;color:var(--text)">
+            📋 모임
+          </button>
+          <button class="page-tab" data-ptab="chat"
+            style="padding:12px 24px;font-size:14px;font-weight:700;border:none;background:none;cursor:pointer;
+                   color:var(--text-3)">
+            💬 채팅방
+          </button>
+        </div>
+
+        <!-- 상세페이지 탭 내용 -->
+        <div id="sec-detail">
+          <div class="detail-group">
+            <!-- 헤더 -->
+            <div class="detail-header">
+              <div class="detail-sport-icon"><%= sportEmoji %></div>
+              <div class="detail-header-info">
+                <div class="detail-title"><%= crew.title %></div>
+                <div class="detail-sub">
+                  <%= sportKr %> · <%= crew.address.state %> <%= crew.address.city %>
+                  <% if (crew.address.detail) { %> · <%= crew.address.detail %><% } %> ·
+                  <%= meetAt.toLocaleDateString('ko-KR', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) %>
                 </div>
               </div>
-              <button class="dp-close" id="dp-close-btn">✕</button>
+              <% if(isHost) { %>
+              <button class="detail-like-btn" id="delete-open-btn" style="border-color:#ffb3ae">
+                <span class="like-icon">🗑</span>
+                <span class="like-count" style="color:var(--red)">삭제</span>
+              </button>
+              <% } %>
             </div>
-            <div class="dp-grid">
-              <div class="dp-cell"><div class="dp-cell-label">연락처</div><div class="dp-cell-val" id="dp-phone"></div></div>
-              <div class="dp-cell"><div class="dp-cell-label">성별</div><div class="dp-cell-val" id="dp-gender"></div></div>
-              <div class="dp-cell"><div class="dp-cell-label">나이</div><div class="dp-cell-val" id="dp-age"></div></div>
+
+            <!-- 통계 -->
+            <div class="stat-row" style="margin:20px 0">
+              <div class="stat-block"><div class="stat-block-label">전체 참여자</div><div class="stat-block-val"><%= members.length %></div></div>
+              <div class="stat-block"><div class="stat-block-label">참가 확정</div><div class="stat-block-val green"><%= confirmedCount %></div></div>
+              <div class="stat-block"><div class="stat-block-label">모집 현황</div><div class="stat-block-val blue"><%= members.length %> / <%= crew.member.capacity %></div></div>
+              <div class="stat-block"><div class="stat-block-label">신청 대기</div><div class="stat-block-val orange"><%= pendings.length %></div></div>
             </div>
+
+            <!-- 내부 탭 (참여자/신청대기) -->
+            <div class="crew-tabs">
+              <button class="crew-tab active" data-tab="members">
+                참여자 목록 <span style="font-size:12px;opacity:0.6"><%= members.length %>명</span>
+              </button>
+              <% if(isHost) { %>
+              <button class="crew-tab" data-tab="apps">
+                신청 대기
+                <% if (pendings.length > 0) { %>
+                  <span class="tab-badge"><%= pendings.length %></span>
+                <% } %>
+              </button>
+              <% } %>
+            </div>
+
+            <!-- 참여자 목록 탭 -->
+            <div class="tab-section active" id="sec-members">
+              <div class="topbar" style="margin-bottom:14px">
+                <div class="filter-chips">
+                  <button class="filter-chip on" data-filter="all">전체</button>
+                  <button class="filter-chip" data-filter="host">모임장</button>
+                  <button class="filter-chip" data-filter="confirmed">참가확정</button>
+                  <button class="filter-chip" data-filter="noshow">노쇼</button>
+                </div>
+                <div class="search-wrap">
+                  <span style="font-size:14px;color:var(--text-3)">🔍</span>
+                  <input type="text" placeholder="이름 검색" id="search-input" />
+                </div>
+              </div>
+
+              <div class="tbl-card">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:200px">멤버</th>
+                      <th style="width:70px;white-space:nowrap">역할</th>
+                      <th style="width:90px;white-space:nowrap">상태</th>
+                      <th style="width:60px;white-space:nowrap">성별</th>
+                      <th style="width:60px;white-space:nowrap">나이</th>
+                      <th style="width:110px;white-space:nowrap">가입일</th>
+                      <th style="width:100px;white-space:nowrap">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="member-tbody"></tbody>
+                </table>
+              </div>
+
+              <!-- 상세 패널 -->
+              <div class="detail-panel" id="detail-panel">
+                <div class="dp-header">
+                  <div class="dp-av" id="dp-av"></div>
+                  <div>
+                    <div class="dp-name" id="dp-name"></div>
+                    <div class="dp-meta">
+                      <span id="dp-role-badge"></span>
+                      <span id="dp-status-badge"></span>
+                    </div>
+                  </div>
+                  <button class="dp-close" id="dp-close-btn">✕</button>
+                </div>
+                <div class="dp-grid">
+                  <div class="dp-cell"><div class="dp-cell-label">연락처</div><div class="dp-cell-val" id="dp-phone"></div></div>
+                  <div class="dp-cell"><div class="dp-cell-label">성별</div><div class="dp-cell-val" id="dp-gender"></div></div>
+                  <div class="dp-cell"><div class="dp-cell-label">나이</div><div class="dp-cell-val" id="dp-age"></div></div>
+                </div>
+                <% if(isHost) { %>
+                <div class="dp-actions">
+                  <button class="dp-act-btn danger" id="dp-noshow-btn" style="margin-left:auto">노쇼 처리</button>
+                  <button class="dp-act-btn danger" id="dp-kick-btn">강퇴</button>
+                </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- 신청 대기 탭 (호스트만) -->
             <% if(isHost) { %>
-            <div class="dp-actions">
-              <button class="dp-act-btn danger" id="dp-noshow-btn" style="margin-left:auto">노쇼 처리</button>
-              <button class="dp-act-btn danger" id="dp-kick-btn">강퇴</button>
+            <div class="tab-section" id="sec-apps">
+              <% if (pendings.length === 0) { %>
+                <div class="empty-state">
+                  <div class="empty-state-icon">📭</div>
+                  <div class="empty-state-title">신청 대기자가 없어요</div>
+                </div>
+              <% } else { %>
+                <div class="app-list">
+                  <% pendings.forEach(p => { %>
+                    <% const u = p.user; %>
+                    <div class="app-card" id="app-<%= u?._id %>">
+                      <div class="app-head">
+                        <div class="app-av" style="background:#EEF3FF;color:#003DB3"><%= u?.name?.slice(0,2) || '??' %></div>
+                        <div>
+                          <div class="app-name"><%= u?.name || '알 수 없음' %></div>
+                          <div class="app-sport"><%= u?.gender === 'male' ? '남성' : '여성' %> · <%= u?.age %>세</div>
+                        </div>
+                        <div class="app-time">
+                          <%= new Date(p.requestAt).toLocaleDateString('ko-KR') %>
+                          <div class="app-phone"><%= u?.tel || '-' %></div>
+                        </div>
+                      </div>
+                      <div class="app-foot">
+                        <button class="app-btn accept">✓ 수락</button>
+                        <button class="app-btn reject">✕ 거절</button>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } %>
             </div>
             <% } %>
+
           </div>
         </div>
 
-        <!-- 신청 대기 탭 -->
-        <div class="tab-section" id="sec-apps">
-          <% if (pendings.length === 0) { %>
-            <div class="empty-state">
-              <div class="empty-state-icon">📭</div>
-              <div class="empty-state-title">신청 대기자가 없어요</div>
+        <!-- 채팅방 탭 내용 -->
+        <div id="sec-chat" style="display:none">
+          <div class="detail-group">
+            <div style="padding:60px 20px;text-align:center;color:var(--text-3)">
+              <div style="font-size:48px;margin-bottom:16px">💬</div>
+              <div style="font-size:16px;font-weight:700;color:var(--text-2);margin-bottom:8px">아직 채팅방이 없어요</div>
+              <div style="font-size:13px;margin-bottom:24px">채팅방을 만들어 멤버들과 소통해보세요!</div>
+              <button class="btn btn-primary" id="btn-create-chat" style="padding:12px 32px;font-size:14px">
+                💬 채팅방 만들기
+              </button>
             </div>
-          <% } else { %>
-            <div class="app-list">
-              <% pendings.forEach(p => { %>
-                <% const u = p.user; %>
-                <div class="app-card" id="app-<%= u?._id %>">
-                  <div class="app-head">
-                    <div class="app-av" style="background:#EEF3FF;color:#003DB3"><%= u?.name?.slice(0,2) || '??' %></div>
-                    <div>
-                      <div class="app-name"><%= u?.name || '알 수 없음' %></div>
-                      <div class="app-sport"><%= u?.gender === 'male' ? '남성' : '여성' %> · <%= u?.age %>세</div>
-                    </div>
-                    <div class="app-time">
-                      <%= new Date(p.requestAt).toLocaleDateString('ko-KR') %>
-                      <div class="app-phone"><%= u?.tel || '-' %></div>
-                    </div>
-                  </div>
-                  <div class="app-foot">
-                    <button class="app-btn accept">✓ 수락</button>
-                    <button class="app-btn reject">✕ 거절</button>
-                  </div>
-                </div>
-              <% }) %>
-            </div>
-          <% } %>
+          </div>
         </div>
 
-      </div>
+      <% } %>
     </div>
   </div>
 </div>
@@ -187,203 +268,224 @@
 
 <script>
 const CREW_ID = '<%= crew._id %>';
+const IS_HOST = <%= isHost %>;
+const IS_MEMBER = <%= isMember %>;
 
-const members = <%- JSON.stringify(members.map(m => ({
-  id: m.user?._id?.toString(),
-  name: m.user?.name || '알 수 없음',
-  tel: m.user?.tel || '-',
-  age: m.user?.age || '-',
-  gender: m.user?.gender === 'male' ? '남성' : '여성',
-  role: m.role,
-  status: m.status,
-  joinedAt: new Date(m.joinedAt).toLocaleDateString('ko-KR')
-}))) %>;
+if (IS_HOST || IS_MEMBER) { 
+  const members = <%- JSON.stringify(members.map(m => ({
+    id: m.user?._id?.toString(),
+    name: m.user?.name || '알 수 없음',
+    tel: m.user?.tel || '-',
+    age: m.user?.age || '-',
+    gender: m.user?.gender === 'male' ? '남성' : '여성',
+    role: m.role,
+    status: m.status,
+    joinedAt: new Date(m.joinedAt).toLocaleDateString('ko-KR')
+  }))) %>;
 
-let currentFilter = 'all', searchVal = '', selectedId = null;
+  let currentFilter = 'all', searchVal = '', selectedId = null;
 
-const avList = [{bg:'#fff3cd',color:'#b45309'},{bg:'#E1F5EE',color:'#085041'},{bg:'#EEF3FF',color:'#003DB3'},{bg:'#FFF4EC',color:'#CC4500'},{bg:'#E8FAF0',color:'#007A33'},{bg:'#FBEAF0',color:'#72243E'}];
-function av(name) { return avList[(name?.charCodeAt(0)||0) % avList.length]; }
-function roleClass(r) { return r === 'host' ? 'role-leader' : 'role-member'; }
-function roleLabel(r) { return r === 'host' ? '모임장' : '멤버'; }
-function statusClass(s) { return s === 'confirmed' ? 'status-confirmed' : 'status-pending'; }
-function statusLabel(s) { return s === 'confirmed' ? '참가확정' : '노쇼'; }
+  const avList = [{bg:'#fff3cd',color:'#b45309'},{bg:'#E1F5EE',color:'#085041'},{bg:'#EEF3FF',color:'#003DB3'},{bg:'#FFF4EC',color:'#CC4500'},{bg:'#E8FAF0',color:'#007A33'},{bg:'#FBEAF0',color:'#72243E'}];
+  function av(name) { return avList[(name?.charCodeAt(0)||0) % avList.length]; }
+  function roleClass(r) { return r === 'host' ? 'role-leader' : 'role-member'; }
+  function roleLabel(r) { return r === 'host' ? '모임장' : '멤버'; }
+  function statusClass(s) { return s === 'confirmed' ? 'status-confirmed' : 'status-pending'; }
+  function statusLabel(s) { return s === 'confirmed' ? '참가확정' : '노쇼'; }
 
-function filtered() {
-  return members.filter(m => {
-    const ok = currentFilter==='all' ? true : currentFilter==='host' ? m.role==='host' : currentFilter==='confirmed' ? m.status==='confirmed' : currentFilter==='noshow' ? m.status==='noshow' : true;
-    return ok && m.name.includes(searchVal);
-  });
-}
-
-function render() {
-  const list = filtered();
-  const tbody = document.getElementById('member-tbody');
-  if (!list.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">조건에 맞는 참여자가 없어요</td></tr>'; return; }
-  tbody.innerHTML = list.map(m => {
-    const a = av(m.name);
-    return `<tr class="member-row${selectedId===m.id?' selected':''}" data-id="${m.id}">
-      <td><div class="member-cell"><div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div><div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div></div></td>
-      <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
-      <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
-      <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
-      <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
-      <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
-      <td><div class="action-btns">
-        <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
-        ${m.role!=='host'?`<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>`:''}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function openDetail(id) {
-  const m = members.find(x => x.id === id); if (!m) return;
-  selectedId = id;
-  const a = av(m.name);
-  const dpAv = document.getElementById('dp-av');
-  dpAv.textContent = m.name.slice(0,2); dpAv.style.background = a.bg; dpAv.style.color = a.color;
-  document.getElementById('dp-name').textContent = m.name;
-  document.getElementById('dp-role-badge').innerHTML = `<span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span>`;
-  document.getElementById('dp-status-badge').innerHTML = `<span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span>`;
-  document.getElementById('dp-phone').textContent = m.tel;
-  document.getElementById('dp-gender').textContent = m.gender;
-  document.getElementById('dp-age').textContent = m.age + '세';
-
-  const noshowBtn = document.getElementById('dp-noshow-btn');
-  const kickBtn = document.getElementById('dp-kick-btn');
-
-  if (m.role === 'host') {
-    noshowBtn.style.display = 'none';
-    kickBtn.style.display = 'none';
-  } else {
-    noshowBtn.style.display = '';
-    kickBtn.style.display = '';
-    noshowBtn.textContent = m.status === 'noshow' ? '노쇼 취소' : '노쇼 처리';
-    // 기존 리스너 제거 후 재등록 (클론 교체)
-    const newNoshow = noshowBtn.cloneNode(true);
-    noshowBtn.parentNode.replaceChild(newNoshow, noshowBtn);
-    newNoshow.addEventListener('click', () => handleNoshow(id, m.status === 'noshow'));
-
-    const newKick = kickBtn.cloneNode(true);
-    kickBtn.parentNode.replaceChild(newKick, kickBtn);
-    newKick.addEventListener('click', () => handleKick(id));
+  function filtered() {
+    return members.filter(m => {
+      const ok = currentFilter==='all' ? true : currentFilter==='host' ? m.role==='host' : currentFilter==='confirmed' ? m.status==='confirmed' : currentFilter==='noshow' ? m.status==='noshow' : true;
+      return ok && m.name.includes(searchVal);
+    });
   }
 
-  document.getElementById('detail-panel').classList.add('show');
+  function render() {
+    const list = filtered();
+    const tbody = document.getElementById('member-tbody');
+    if (!list.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">조건에 맞는 참여자가 없어요</td></tr>'; return; }
+    tbody.innerHTML = list.map(m => {
+      const a = av(m.name);
+      return `<tr class="member-row${selectedId===m.id?' selected':''}" data-id="${m.id}">
+        <td><div class="member-cell"><div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div><div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div></div></td>
+        <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
+        <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
+        <td style="font-size:12.5px;color:var(--text-2);white-space:nowrap">${m.gender}</td>
+        <td style="font-size:12.5px;color:var(--text-2);white-space:nowrap">${m.age}세</td>
+        <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace;white-space:nowrap">${m.joinedAt}</td>
+        <td><div class="action-btns">
+          <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
+          ${IS_HOST && m.role!=='host'?`<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>`:''}
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openDetail(id) {
+    const m = members.find(x => x.id === id); if (!m) return;
+    selectedId = id;
+    const a = av(m.name);
+    const dpAv = document.getElementById('dp-av');
+    dpAv.textContent = m.name.slice(0,2); dpAv.style.background = a.bg; dpAv.style.color = a.color;
+    document.getElementById('dp-name').textContent = m.name;
+    document.getElementById('dp-role-badge').innerHTML = `<span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span>`;
+    document.getElementById('dp-status-badge').innerHTML = `<span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span>`;
+    document.getElementById('dp-phone').textContent = m.tel;
+    document.getElementById('dp-gender').textContent = m.gender;
+    document.getElementById('dp-age').textContent = m.age + '세';
+
+    const noshowBtn = document.getElementById('dp-noshow-btn');
+    const kickBtn = document.getElementById('dp-kick-btn');
+
+    if (noshowBtn && kickBtn) {
+      if (m.role === 'host') {
+        noshowBtn.style.display = 'none';
+        kickBtn.style.display = 'none';
+      } else {
+        noshowBtn.style.display = '';
+        kickBtn.style.display = '';
+        noshowBtn.textContent = m.status === 'noshow' ? '노쇼 취소' : '노쇼 처리';
+        const newNoshow = noshowBtn.cloneNode(true);
+        noshowBtn.parentNode.replaceChild(newNoshow, noshowBtn);
+        newNoshow.addEventListener('click', () => handleNoshow(id, m.status === 'noshow'));
+        const newKick = kickBtn.cloneNode(true);
+        kickBtn.parentNode.replaceChild(newKick, kickBtn);
+        newKick.addEventListener('click', () => handleKick(id));
+      }
+    }
+
+    document.getElementById('detail-panel').classList.add('show');
+    render();
+  }
+
+  function closeDetail() { selectedId = null; document.getElementById('detail-panel').classList.remove('show'); render(); }
+
+  async function handleNoshow(userId, isNoshow) {
+    const url = isNoshow ? `/crew/instant/${CREW_ID}/noshow/${userId}/cancel` : `/crew/instant/${CREW_ID}/noshow/${userId}`;
+    try {
+      const res = await fetch(url, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) location.reload();
+      else alert(data.message || '처리에 실패했습니다');
+    } catch (e) { alert('서버 오류가 발생했습니다'); }
+  }
+
+  async function handleKick(userId) {
+    if (!confirm('정말 강퇴하시겠어요?')) return;
+    try {
+      const res = await fetch(`/instant/list/${CREW_ID}/kick/${userId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) location.reload();
+      else alert(data.message || '강퇴에 실패했습니다');
+    } catch (e) { alert('서버 오류가 발생했습니다'); }
+  }
+
+  async function handleApp(userId, action) {
+    const card = document.getElementById('app-' + userId);
+    try {
+      const res = await fetch(`/crew/instant/${CREW_ID}/${action}/${userId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        card.classList.add('done');
+        card.querySelectorAll('.app-btn').forEach(b => b.textContent = action === 'accept' ? '수락 완료' : '거절 완료');
+      } else alert(data.message || '처리에 실패했습니다');
+    } catch (e) { alert('서버 오류가 발생했습니다'); }
+  }
+
+  // 멤버 테이블 클릭
+  document.getElementById('member-tbody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (btn) {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      if (btn.dataset.action === 'detail') openDetail(id);
+      if (btn.dataset.action === 'kick') handleKick(id);
+      return;
+    }
+    const row = e.target.closest('.member-row');
+    if (row) { const id = row.dataset.id; if (selectedId === id) closeDetail(); else openDetail(id); }
+  });
+
+  document.getElementById('dp-close-btn').addEventListener('click', closeDetail);
+
+  document.querySelectorAll('.filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on'); currentFilter = btn.dataset.filter; closeDetail(); render();
+    });
+  });
+
+  document.getElementById('search-input').addEventListener('input', e => { searchVal = e.target.value.trim(); render(); });
+
+  document.querySelectorAll('.crew-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.crew-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+      closeDetail();
+    });
+  });
+
+  document.querySelector('.app-list')?.addEventListener('click', e => {
+    const btn = e.target.closest('.app-btn');
+    if (!btn) return;
+    const card = btn.closest('.app-card');
+    const userId = card?.id?.replace('app-', '');
+    if (!userId) return;
+    if (btn.classList.contains('accept')) handleApp(userId, 'accept');
+    if (btn.classList.contains('reject')) handleApp(userId, 'reject');
+  });
+
+  // 상단 페이지 탭 전환 (상세/채팅)
+  document.querySelectorAll('.page-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.page-tab').forEach(t => {
+        t.style.borderBottom = 'none';
+        t.style.color = 'var(--text-3)';
+      });
+      tab.style.borderBottom = '2px solid var(--text)';
+      tab.style.color = 'var(--text)';
+
+      document.getElementById('sec-detail').style.display = tab.dataset.ptab === 'detail' ? '' : 'none';
+      document.getElementById('sec-chat').style.display = tab.dataset.ptab === 'chat' ? '' : 'none';
+    });
+  });
+
   render();
-}
+} 
 
-function closeDetail() { selectedId = null; document.getElementById('detail-panel').classList.remove('show'); render(); }
-
-async function handleNoshow(userId, isNoshow) {
-  const url = isNoshow ? `/crew/instant/${CREW_ID}/noshow/${userId}/cancel` : `/crew/instant/${CREW_ID}/noshow/${userId}`;
-  try {
-    const res = await fetch(url, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) location.reload();
-    else alert(data.message || '처리에 실패했습니다');
-  } catch (e) { alert('서버 오류가 발생했습니다'); }
-}
-
-async function handleKick(userId) {
-  if (!confirm('정말 강퇴하시겠어요?')) return;
-  try {
-    const res = await fetch(`/crew/instant/${CREW_ID}/kick/${userId}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) location.reload();
-    else alert(data.message || '강퇴에 실패했습니다');
-  } catch (e) { alert('서버 오류가 발생했습니다'); }
-}
-
-async function handleApp(userId, action) {
-  const card = document.getElementById('app-' + userId);
-  try {
-    const res = await fetch(`/crew/instant/${CREW_ID}/${action}/${userId}`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      card.classList.add('done');
-      card.querySelectorAll('.app-btn').forEach(b => b.textContent = action === 'accept' ? '수락 완료' : '거절 완료');
-    } else alert(data.message || '처리에 실패했습니다');
-  } catch (e) { alert('서버 오류가 발생했습니다'); }
-}
-
+// 삭제 모달
 function closeModal() { document.getElementById('modal-delete').classList.remove('show'); }
-
-// 삭제 버튼 → 모달 열기
 document.getElementById('delete-open-btn')?.addEventListener('click', () => {
   document.getElementById('modal-delete').classList.add('show');
 });
-
-// 모달 취소 버튼
 document.getElementById('modal-cancel-btn')?.addEventListener('click', closeModal);
-
-// 모달 오버레이 클릭
 document.getElementById('modal-delete')?.addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
-// 모달 삭제 확인
 document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
   try {
     const res = await fetch(`/instant/delete/${CREW_ID}`, { method: 'POST' });
     const data = await res.json();
-    if (data.success) location.href = '/instant/list';
+    if (data.success) location.href = '/instant';
     else alert(data.message || '삭제에 실패했습니다');
   } catch (e) { alert('서버 오류가 발생했습니다'); }
   finally { closeModal(); }
 });
 
-// 멤버 테이블 클릭 (이벤트 위임)
-document.getElementById('member-tbody').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if (btn) {
-    e.stopPropagation();
-    const id = btn.dataset.id;
-    if (btn.dataset.action === 'detail') openDetail(id);
-    if (btn.dataset.action === 'kick') handleKick(id);
-    return;
-  }
-  const row = e.target.closest('.member-row');
-  if (row) { const id = row.dataset.id; if (selectedId === id) closeDetail(); else openDetail(id); }
+// 참가 신청 버튼 (미가입자)
+document.getElementById('btn-apply')?.addEventListener('click', async () => {
+  try {
+    const res = await fetch(`/crew/instant/${CREW_ID}/apply`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      alert('참가 신청이 완료됐습니다!');
+      location.reload();
+    } else {
+      alert(data.message || '신청에 실패했습니다');
+    }
+  } catch (e) { alert('서버 오류가 발생했습니다'); }
 });
-
-// 상세 패널 닫기
-document.getElementById('dp-close-btn').addEventListener('click', closeDetail);
-
-// 필터 칩
-document.querySelectorAll('.filter-chip').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on'); currentFilter = btn.dataset.filter; closeDetail(); render();
-  });
-});
-
-// 검색
-document.getElementById('search-input').addEventListener('input', e => { searchVal = e.target.value.trim(); render(); });
-
-// 탭 전환
-document.querySelectorAll('.crew-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.crew-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
-    closeDetail();
-  });
-});
-
-// 신청 대기 수락/거절 (이벤트 위임)
-document.querySelector('.app-list')?.addEventListener('click', e => {
-  const btn = e.target.closest('.app-btn');
-  if (!btn) return;
-  const card = btn.closest('.app-card');
-  const userId = card?.id?.replace('app-', '');
-  if (!userId) return;
-  if (btn.classList.contains('accept')) handleApp(userId, 'accept');
-  if (btn.classList.contains('reject')) handleApp(userId, 'reject');
-});
-
-render();
 </script>
 </body>
 </html>

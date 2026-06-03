@@ -5,6 +5,8 @@ async function getInstantCrew(filter = {}, page = 1) {
     const limit = 9;
     const skip = (page - 1) * limit;
 
+    query.meetAt = { $gte: new Date() };
+
     if (filter.sport) {
         query.sport = { $in: filter.sport };
     }
@@ -22,11 +24,6 @@ async function getInstantCrew(filter = {}, page = 1) {
             $lt: [{ $size: '$member.memberList' }, '$member.capacity']
         };
     }
-    // 번개모임 특성상 지난 모임 제외
-    if (filter.upcoming) {
-        query.meetAt = { $gte: new Date() };
-    }
-
     const total = await instantCrew.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
     const crews = await instantCrew.find(query)

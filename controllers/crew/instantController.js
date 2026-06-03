@@ -3,6 +3,14 @@ const instantService = require('../../services/crew/instantService');
 
 const getInstant = async (req, res) => {
     try {
+        const filter = {
+            sport: req.query.sport ? req.query.sport.split(',') : null,
+            state: req.query.state || null,
+            city: req.query.city || null,
+            isAutoAccept: req.query.isAutoAccept || null,
+            isRecruiting: req.query.isRecruiting || null
+        };
+        
         const { crews } = await instantService.getInstantCrew();
 
         // ── DB에서 넘어온 crews 데이터를 JS에서도 사용 ──
@@ -24,9 +32,22 @@ const getInstant = async (req, res) => {
             createdAt: c.createdAt,
             avgReputation: c.avgReputation || 0
         }));
+        //로그인한 유저의 관련 ID 목록
+        let myCrewIds = [];
+        if (req.isAuthenticated()) {
+            const userId = req.user._id.toString();
+            myCrewIds = crews
+                .filter(c =>
+                    c.host._id.toString() === userId ||
+                    c.member.memberList.some(m => m.user?.toString() === userId)
+                )
+                .map(c => c._id.toString());
+        }
+
         const pageData = {
             crews: crewsJson,
-            isLoggedIn: req.isAuthenticated()
+            isLoggedIn: req.isAuthenticated(),
+            myCrewIds
         };
         res.render('crew/instantCrew', { CONSTANTS, crews, pageData});
     } catch (error) {
