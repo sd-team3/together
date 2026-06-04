@@ -37,7 +37,7 @@ const notificationSchema = new mongoose.Schema(
 
 notificationSchema.index({ receiver: 1, createdAt: -1 });
 notificationSchema.index({ receiver: 1, isRead: 1 });
-notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 1209600 });
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 259200 });
 
 const notification = mongoose.model('notification', notificationSchema);
 

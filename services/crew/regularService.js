@@ -55,11 +55,6 @@ async function createRegCrew(data, profileFile, host) {
     }
 }
 
-const findHostByCrewId = async (crewId)=>{
-    const crew = await regularCrew.findById(crewId).select('host');
-    return crew ? crew.host : null;
-}
-
 async function getRegularCrews(page = 1) {
     const query = {};
     const limit = 9;
