@@ -231,7 +231,6 @@ async function crewLike(regularCrewId, userId) {
 }
 
 module.exports = { 
-    findHostByCrewId, 
     createRegCrew, 
     findCrewsByUserId, 
     getMyCrews, 

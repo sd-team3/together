@@ -12,10 +12,6 @@ const memberSchema = new mongoose.Schema(
         memberList: [{
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
             joinedAt: { type: Date, default: Date.now }
-        }],
-        pendingList: [{
-            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-            requestAt: { type: Date, default: Date.now }
         }]
     }, {
         _id: false

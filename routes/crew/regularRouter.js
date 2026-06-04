@@ -49,7 +49,7 @@ router.post('/pending/:crewId',
 
 router.post('/join/:appId/:action',
     crewMiddleware.joinMiddleware,
-    applicationController.postJoinProcess
+    applicationController.joinProcess
 );
 
 router.get('/my-crews', regularController.getMyCrews);
