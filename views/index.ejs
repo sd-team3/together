@@ -123,10 +123,12 @@
 
             <div class="reg-card-body">
               <div class="reg-meta-row">
-                <span>🗓️ <%= meeting.schedule %></span>
-                <span>💰 <%= meeting.fee %></span>
-                <span>📊 <%= meeting.level %></span>
+              <div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0">
+                <span style="white-space:nowrap">🗓️ <%= meeting.schedule %></span>
+                <span style="white-space:nowrap">💰 <%= meeting.fee %></span>
               </div>
+              <span style="white-space:nowrap;margin-top:2px">📊 <%= meeting.level %></span>
+            </div>
               <div class="reg-progress">
                 <div class="reg-progress-fill" style="width:<%= meeting.fillPct %>%"></div>
               </div>
