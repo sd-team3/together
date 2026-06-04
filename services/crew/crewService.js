@@ -2,25 +2,40 @@ const User = require('../../models/User');
 const regularCrew = require('../../models/regularCrew');
 const instantCrew = require('../../models/instantCrew');
 
-const addCrewToUser = async (userId, crewId, options = {}) => {
-    await User.findByIdAndUpdate( userId, 
-        { $addToSet: { crews: crewId } }, { session: options.session });
-};
+const findHostByCrewId = async (crewModel, crewId)=>{
+    const crew = await crewModel.findById(crewId).select('host');
+    return crew ? crew.host : null;
+}
 
-const addUserToCrew = async (crewId, userId, options = {}) => {
-    return await regularCrew.findByIdAndUpdate(
-        crewId,
-        {
-            // $push를 사용하여 member 객체 안의 memberList 배열에 새 객체 추가
-            $push: {
-                "member.memberList": {
-                    user: userId,
-                    joinedAt: new Date() // 가입 일시
-                }
-            }
+async function addUserToCrew(userId, crewId, crewModel, options = {}) {
+    const session = options.session || null;
+    const result = await crewModel.findOneAndUpdate(
+        { 
+            _id: crewId, 
+            'member.memberList.user': { $ne: userId }
         },
-        { session: options.session }
+        { 
+            $push: { 
+                'member.memberList': { 
+                    user: userId, 
+                    joinedAt: new Date() 
+                } 
+            } 
+        },
+        { session, new: true }
     );
-};
+    return result;
+}
 
-module.exports = { addUserToCrew };
+async function addCrewToUser(userId, crewId, options = {}) {
+    const session = options.session || null;
+    const result = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { crews: crewId } },
+        { session, new: true }
+    );
+
+    return result;
+}
+
+module.exports = { findHostByCrewId, addCrewToUser, addUserToCrew };
