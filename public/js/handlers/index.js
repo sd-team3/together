@@ -299,7 +299,7 @@ async function fetchAndRenderMeetings(sportKey = '') {
   }
 }
 
-// filterSport 함수 교체
+// filterSport
 function filterSport(el) {
   document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
