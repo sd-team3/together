@@ -82,11 +82,12 @@
                   <a href="/regular/regular" class="no-data-button">모임 둘러보기</a>
                 </div>
             <% } else { %>
-            <% regCrew.forEach((crew, index) => { %>
+            <% let scheduleCounter = 0 %>
+            <% regCrew.forEach(crew => { %>
               <% crew.schedule.forEach(sched => { %>
                 <div class="schedule-item 
-                            <%= index === 1 ? 'schedule-item-last' : '' %>
-                            <%= index > 1 ? 'schedule-item-hidden' : '' %>">
+                            <%= scheduleCounter === 3 ? 'schedule-item-last' : '' %>
+                            <%= scheduleCounter > 3 ? 'schedule-item-hidden' : '' %>">
                     <% if(crew.day[0] === '미정') { %>
                     <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
                     <% } else {%>
@@ -130,6 +131,7 @@
                         </div>
                     </div>
                 </div>
+                <% scheduleCounter++ %>
                 <% });%>
               <% });}%>
           </div>
