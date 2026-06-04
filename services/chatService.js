@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const ChatRoom = require('../models/ChatRoom');
 const Message = require('../models/Message');
 
@@ -8,8 +9,8 @@ async function getChatRoomList (userId) {
         throw error;
     }
 
-    const chatRoom = await ChatRoom.find({ members : userId })
-                                    .populate('members', 'name')
+    const chatRoom = await ChatRoom.find({ "members.user" : userId })
+                                    .populate('members.user', 'name')
                                     .populate('lastMessage', 'content')
                                     .sort({ lastMessageAt : -1 });
     
@@ -22,8 +23,7 @@ async function getChatRoom (roomId, userId) {
         error.status = 400;
         throw error;
     }
-    const room = await ChatRoom.findOne({ _id : roomId, members : userId } )
-                                        .populate('members', 'name');
+    const room = await ChatRoom.findById(new mongoose.Types.ObjectId(roomId));
     return room;
 }
 
@@ -34,10 +34,11 @@ async function getMessage (roomId) {
         throw error;
     }
 
-    const chatMessage = await Message.find({ room : roomId })
+    const chatMessage = await Message.find({ room: new mongoose.Types.ObjectId(roomId) })
                                     .select('sender content isRead createdAt')
                                     .populate('sender', 'name')
                                     .sort({ createdAt : 1 });
+    console.log('찾은 메시지:', chatMessage); // 👈
     return chatMessage;
 };
 

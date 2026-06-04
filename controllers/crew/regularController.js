@@ -3,41 +3,21 @@ const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
 
-const getRegCreate = (req, res)=>{
+const getRegularCreate = (req, res)=>{
     res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
 }
 
-const postRegCreate = async (req, res)=>{
+const postRegularCreate = async (req, res)=>{
+    const { data, profileImage, host } = req.crewData;
+
     try {
-        if(!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
+        const result = await regularService.createRegCrew(data, profileImage, host);
 
-        const host = req.user._id;
-        const data = req.body;
-        const profileFile = req.file;
-
-        if (!data.day) {
-            data.day = ['none']; 
-        } else if (!Array.isArray(data.day)) {
-            data.day = [data.day];
-        }
-
-        if (!data.ageRange) {
-            data.ageRange = ['all']; 
-        } else if (!Array.isArray(data.ageRange)) {
-            data.ageRange = [data.ageRange];
-        }
-
-        data.isAutoAccept = (data.isAutoAccept === 'enable');
-
-        const result = await regularService.createRegCrew(data, profileFile, host);
-        
         if (result.success) {
             return res.redirect('/crew/reg-list');
         } else {
             return res.status(400).send();
-        }
+        } 
     } catch (error) {
         console.error(error);
         return res.status(500).send('서버 오류가 발생했습니다.');
@@ -85,6 +65,16 @@ const getRegularAPI = async (req, res, next) => {
         next(error);
     }
 };
+// 정기모임 상세 페이지
+const getRegularPage = async (req, res, next) => {
+    try {
+        const { crewId } = req.params;
+        const crew = await regularService.getCrewDetail(crewId);
+        res.render('crew/regular-join-page', { crew });
+    } catch (error) {
+        next(error);
+    }
+}
 
 const getMyCrews = async (req, res) => {
     try {
@@ -95,7 +85,7 @@ const getMyCrews = async (req, res) => {
         const userId = req.user._id;
         const role = req.query.role || 'all'; // 디폴트 설정
         const crews = await regularService.getMyCrews(userId, role);
-        res.render('crew/my-crews', { crews, role });
+        res.render('regular/my', { crews, role });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -119,11 +109,8 @@ const getMyCrewsApi = async (req, res) => {
 
 const postMyCrewDelete = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        await regularService.deleteMyCrew(req.params.regularCrewId);
-        res.redirect('/crew/my-crews');
+        await regularService.deleteMyCrew(req.params.crewId);
+        res.redirect('/regular/my');
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -132,11 +119,8 @@ const postMyCrewDelete = async (req, res) => {
 
 const postMyCrewWithdraw = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        await regularService.withdrawMyCrew(req.params.regularCrewId, req.user._id);
-        res.redirect('/crew/my-crews');
+        await regularService.withdrawMyCrew(req.params.crewId, req.user._id);
+        res.redirect('/regular/my');
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -184,8 +168,8 @@ const getCrewManage = async (req, res) => {
 }
 
 module.exports = {
-    getRegCreate,
-    postRegCreate, //기능명세
+    getRegularCreate,
+    postRegularCreate, //기능명세
     getMyCrews, // 불러오기
     postMyCrewDelete,
     postMyCrewWithdraw,
@@ -194,5 +178,6 @@ module.exports = {
     getRegular,
     getRegularAPI,
     getMyCrewsApi,
-    getCrewManage
+    getCrewManage,
+    getRegularPage
 };

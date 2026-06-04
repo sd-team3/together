@@ -71,7 +71,11 @@ const userSchema = new mongoose.Schema(
         crews: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'regularCrew'
-        }]
+        }],
+        honor: {
+            type: Number,
+            default: 0
+        }
     }, {
         timestamps: true
     }

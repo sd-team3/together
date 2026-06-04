@@ -69,7 +69,7 @@ app.use('/regular', regularRouter);
 app.use('/instant', instantRouter);
 app.use('/noti', notiRouter);
 
-app.use('/chat', chatRouter);
+app.use('/chatRoom', chatRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
