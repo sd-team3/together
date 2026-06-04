@@ -1,5 +1,5 @@
 async function loadCrews(role = 'all') {
-    const res = await fetch('/regular/api/my-crews?role=' + role);
+    const res = await fetch('/regular/api/my?role=' + role);
     const { crews } = await res.json();
     
     const grid = document.getElementById('crew-grid');
