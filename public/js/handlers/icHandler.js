@@ -88,7 +88,7 @@ function showMapPopup(data) {
     applyBtn.onclick = async () => {
       if (!isLoggedIn) { window.location.href = '/user/login'; return; }
       try {
-        const res    = await fetch(`/instant/${data.id}/apply`, { method: 'POST' });
+        const res    = await fetch(`/crew/instant/${data.id}/apply`, { method: 'POST' });
         const result = await res.json();
         if (result.success) { alert('참가 신청이 완료됐습니다!'); closeMapPopup(); }
         else                { alert(result.message || '신청에 실패했습니다'); }
@@ -107,6 +107,7 @@ function closeMapPopup() {
 let _mpCrewId   = null;
 let _mpCrewData = null;
 let _mpIsHost   = false;
+let _mpTopTab       = 'crew';     // 'crew' | 'chat'
 let _mpActiveTab    = 'member';   // 'member' | 'pending'
 let _mpActiveFilter = 'all';      // 'all' | 'host' | 'confirmed' | 'noshow'
 let _mpSearch       = '';
@@ -126,6 +127,7 @@ async function showMemberPopup(crewId) {
     _mpCrewId   = crewId;
     _mpCrewData = data.crew;
     _mpIsHost   = data.isHost;
+    _mpTopTab       = 'crew';
     _mpActiveTab    = 'member';
     _mpActiveFilter = 'all';
     _mpSearch       = '';
@@ -153,6 +155,32 @@ function renderMemberPopupBody() {
     : isAlmost
       ? '<span class="pill pill-warn">마감임박</span>'
       : '<span class="pill pill-open">참가가능</span>';
+
+
+  // 상단 모임/채팅 탭
+  const topTabs = `
+    <div style="display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px;">
+      ${[['crew','📋 모임'],['chat','💬 채팅방']].map(([key, label]) => `
+        <button onclick="mpSetTopTab('${key}')"
+          style="padding:10px 18px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;
+            border-bottom:2px solid ${_mpTopTab === key ? '#222' : 'transparent'};
+            color:${_mpTopTab === key ? '#222' : '#aaa'};margin-bottom:-2px;">
+          ${label}
+        </button>`).join('')}
+    </div>`;
+
+  if (_mpTopTab === 'chat') {
+    body.innerHTML = `
+      <div class="popup-title" style="margin-bottom:16px;">${crew.title}</div>
+      ${topTabs}
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+        padding:60px 20px;color:#aaa;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">💬</div>
+        <div style="font-size:15px;font-weight:600;color:#555;margin-bottom:6px;">채팅 기능 준비 중</div>
+        <div style="font-size:13px;">곧 모달에서 바로 채팅할 수 있어요</div>
+      </div>`;
+    return;
+  }
 
   // 통계 카드
   const stats = `
@@ -287,6 +315,7 @@ function renderMemberPopupBody() {
       &nbsp;·&nbsp; ⏰ ${crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR') : '미정'}
     </div>
 
+    ${topTabs}
     ${stats}
     ${tabs}
     ${filterBar}
@@ -316,6 +345,7 @@ function renderMemberPopupBody() {
 }
 
 // 탭 전환
+window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
 window.mpSetTab = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
 
 // 필터 전환

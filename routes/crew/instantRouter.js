@@ -7,7 +7,7 @@ const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
 
 //번개 모임 페이지
-router.get('/instant', instantController.getInstant);
+router.get('/list', instantController.getInstant);
 
 //모임 만들기
 router.get('/create', instantController.getInstantCreate);

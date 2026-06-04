@@ -16,7 +16,7 @@ async function createApp(userId, crewId, crewType, options = {}) {
 async function appStatusUpdateById(appId, action, options = {}) {
     const session = options.session || null;
 
-    const result = await CrewApplication.findByIdAndUpdate(
+    const result = await crewApplication.findByIdAndUpdate(
         appId,
         { status: action },
         { session, new: true }
@@ -28,7 +28,7 @@ async function appStatusUpdateById(appId, action, options = {}) {
 const findPendingAppsByCrewId = async (crewId) => {
     try {
         const apps = await crewApplication.find({ 
-            crew: crewId, 
+            crewId: crewId, 
             status: 'pending' 
         })
         .populate('userId', 'name age profileImage gender honor')
