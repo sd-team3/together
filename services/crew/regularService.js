@@ -3,6 +3,7 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -235,6 +236,11 @@ async function crewLike(regularCrewId, userId) {
     ); // $inc : 몽고DB 숫자 필드 증가 연산자
 }
 
+async function getCrewManage(regularCrewId) {
+    const crew = await regularCrew.findById(regularCrewId);
+    return crew;
+}
+
 module.exports = { 
     findHostByCrewId, 
     createRegCrew, 
@@ -245,5 +251,6 @@ module.exports = {
     withdrawMyCrew, 
     crewLike,
     getRegularCrews, 
-    getRegularAPICrews
+    getRegularAPICrews,
+    getCrewManage
 };

@@ -35,6 +35,8 @@ router.get('/api', regularController.getRegularAPI);
 router.post('/delete/:regularCrewId', regularController.postMyCrewDelete);
 router.post('/withdraw/:regularCrewId', regularController.postMyCrewWithdraw);
 
+router.get('/manage/:regularCrewId', regularController.getCrewManage);
+router.get('/api/my-crews', regularController.getMyCrewsApi);
 
 router.get('/:regularCrewId', regularController.getCrewDetail);
 router.post('/:regularCrewId/like', regularController.postCrewLike);
