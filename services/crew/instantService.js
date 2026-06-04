@@ -30,7 +30,8 @@ async function getInstantCrew(filter = {}, page = 1) {
         .sort({ meetAt: 1 })  // 번개는 모임 시간 빠른 순이 자연스러워요
         .skip(skip)
         .limit(limit)
-        .populate('host', 'name');
+        .populate('host', 'name')
+        .populate('member.memberList.user', 'name age gender');
 
     return { crews, totalPages, currentPage: page };
 }

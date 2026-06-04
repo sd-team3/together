@@ -30,7 +30,14 @@ const getInstant = async (req, res) => {
             isAutoAccept: c.isAutoAccept,
             meetAt: c.meetAt,
             createdAt: c.createdAt,
-            avgReputation: c.avgReputation || 0
+            avgReputation: c.avgReputation || 0,
+            members: c.member.memberList.map(m => ({
+                nickname: m.user?.name || '멤버',
+                gender: m.user?.gender || '',
+                age: m.user?.age || '',
+                role: m.role === 'host' ? '모임장' : '참가확정',
+                joinedAt: m.createdAt || ''
+            }))
         }));
         //로그인한 유저의 관련 ID 목록
         let myCrewIds = [];
@@ -135,7 +142,26 @@ const kickMember = async(req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
+
+const getInstantDetailApi = async (req, res, next) => {
+  try {
+    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+
+    const crew   = await instantService.getCrewDetail(req.params.instantId);
+    if (!crew) return res.status(404).json({ success: false });
+
+    const userId = req.user._id.toString();
+    const isHost = crew.host._id.toString() === userId;
+    const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
+
+    if (!isHost && !isMember) return res.status(403).json({ success: false });
+
+    res.json({ success: true, crew, isHost });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
 module.exports = {
@@ -143,6 +169,7 @@ module.exports = {
     postInstantCreate, 
     getInstant, 
     getInstantDetail,
+    getInstantDetailApi,
     deleteInstantCrew,
     kickMember
 };
