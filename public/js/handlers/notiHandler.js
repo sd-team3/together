@@ -81,6 +81,21 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
+
+    socket.on('NEW_MEMBER', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(`알림이 도착했습니다. '${noti.title}'`);
+    });
+
+    socket.on('APPLICATION_ACCEPTED', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(`알림이 도착했습니다. '${noti.title}'`);
+    });
+
+    socket.on('APPLICATION_REJECTED', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(`알림이 도착했습니다. '${noti.title}'`);
+    });
 }
                   
                 

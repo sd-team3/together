@@ -22,15 +22,6 @@ const memberSchema = new mongoose.Schema(
                 default: 'confirmed'
             },
             joinedAt: { type: Date, default: Date.now }
-        }],
-        pendingList: [{
-            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-            status: {
-                type: String,
-                enum: ['pending', 'rejected'],
-                default: 'pending'
-            },
-            requestAt: { type: Date, default: Date.now }
         }]
     }, {
         _id: false

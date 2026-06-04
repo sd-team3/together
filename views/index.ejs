@@ -29,7 +29,7 @@
       </div>
       <div class="hero-cta">
         <button class="btn btn-accent btn-lg" data-href="/instant/instant">🗺️ 지도에서 찾기</button>
-        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/crew/reg-list">정기모임 보기</button>
+        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/regular/list">정기모임 보기</button>
       </div>
       <div class="hero-stats">
         <div>
@@ -55,7 +55,7 @@
       <span class="sb-label">종목</span>
       <select id="qs-sport" class="sb-input">
         <option value="">전체 종목</option>
-        <option value="⚽">⚽ 풋살</option>
+        <option value="⚽">⚽ 축구</option>
         <option value="🏀">🏀 농구</option>
         <option value="⚾">⚾ 야구</option>
         <option value="🎾">🎾 테니스</option>
@@ -99,7 +99,7 @@
     <div>
       <div class="flex justify-between items-center mb-12">
         <div class="section-title" style="margin-bottom:0">🔁 추천 정기 모임</div>
-        <button class="btn btn-ghost btn-sm" data-href="/crew/reg-list">전체보기 →</button>
+        <button class="btn btn-ghost btn-sm" data-href="/regular/list">전체보기 →</button>
       </div>
       <div class="regular-grid">
         <% regularMeetings.forEach(function(meeting) { %>
@@ -123,10 +123,12 @@
 
             <div class="reg-card-body">
               <div class="reg-meta-row">
-                <span>🗓️ <%= meeting.schedule %></span>
-                <span>💰 <%= meeting.fee %></span>
-                <span>📊 <%= meeting.level %></span>
+              <div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0">
+                <span style="white-space:nowrap">🗓️ <%= meeting.schedule %></span>
+                <span style="white-space:nowrap">💰 <%= meeting.fee %></span>
               </div>
+              <span style="white-space:nowrap;margin-top:2px">📊 <%= meeting.level %></span>
+            </div>
               <div class="reg-progress">
                 <div class="reg-progress-fill" style="width:<%= meeting.fillPct %>%"></div>
               </div>
@@ -139,7 +141,7 @@
         <% }); %>
       </div>
       <div style="text-align:center; margin-top:16px;">
-        <button class="btn-more" data-href="/crew/reg-list">모임 더 찾아보기 →</button>
+        <button class="btn-more" data-href="/regular/list">모임 더 찾아보기 →</button>
     </div>
     </div>
     
