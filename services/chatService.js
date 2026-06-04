@@ -47,7 +47,33 @@ async function sendChat (room, sender, content, isRead) {
     const chat = new Message({room, sender, content, isRead});
     await chat.save();
 
+    // lastMessage
+    await ChatRoom.findByIdAndUpdate(room, {
+        lastMessage: chat._id,
+        lastMessageAt: new Date(),
+    });
+
     return chat;
 }
 
-module.exports = {getChatRoomList, getChatRoom, getMessage, sendChat}
+// 크루 생성 시 채팅방 생성
+async function createChatRoom(crewId, crewName, hostId) {
+    const room = await ChatRoom.create({
+        name: crewName,
+        members: [{ user: hostId, isMuted: false }],
+        type: 'group',
+        crewId: crewId, // 아래 스키마 수정 필요
+    });
+    return room;
+}
+
+// 가입 승인 시 채팅방에 멤버 추가
+async function addMemberToChatRoom(crewId, userId) {
+    await ChatRoom.findOneAndUpdate(
+        { crewId: crewId },
+        { $push: { members: { user: userId, isMuted: false } } }
+    );
+}
+
+module.exports = { getChatRoomList, getChatRoom, getMessage, sendChat, createChatRoom, addMemberToChatRoom };
+

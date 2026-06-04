@@ -3,6 +3,7 @@ const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
 const crewService = require('../../services/crew/crewService');
 const regularService = require('../../services/crew/regularService');
+const chatService = require('../../services/chatService');
 //const instCrewService = require('../../services/crew/instCrewService');
 
 

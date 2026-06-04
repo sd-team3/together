@@ -4,6 +4,7 @@ const User = require('./User');
 const chatRoomSchema = new mongoose.Schema (
     {
         name : {type : String, required : true},
+        crewId: { type: mongoose.Schema.Types.ObjectId, ref: 'RegularCrew', default: null }, // 크루 값
         members : [
             {user: {type : mongoose.Schema.Types.ObjectId, ref : "User", required : true},
              isMuted :{ type : Boolean, default : false }}
