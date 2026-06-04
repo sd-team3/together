@@ -21,5 +21,24 @@ router.post('/delete/:instantId', instantController.deleteInstantCrew);
 
 //크루 강퇴
 router.post('/list/:instantId/kick/:userId', instantController.kickMember);
+
+router.post('/application/:crewId', 
+    crewMiddleware.loginValidation,
+    crewMiddleware.applicationValidation,
+    applicationController.postApplication
+);
+
+router.post('/pending/:crewId', 
+    crewMiddleware.loginValidation,
+    crewMiddleware.getPendingValidation,
+    applicationController.getPendingApps
+);
+
+router.post('/join/:appId/:action',
+    crewMiddleware.joinMiddleware,
+    applicationController.joinProcess
+);
+
+
 router.get('/api/:instantId', instantController.getInstantDetailApi);
 module.exports = router;

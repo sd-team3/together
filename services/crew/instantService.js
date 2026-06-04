@@ -90,7 +90,6 @@ async function getCrewDetail(crewId) {
     return await instantCrew.findById(crewId)
         .populate('host', 'name tel profileImage')
         .populate('member.memberList.user', 'name tel age gender profileImage')
-        .populate('member.pendingList.user', 'name tel age gender profileImage')
         .lean();
 }
 
