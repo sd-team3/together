@@ -1,3 +1,4 @@
+<!-- 정기모임 크루 가입 신청 페이지 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,7 +18,7 @@
     <div class="detail-wrap">
 
       <!-- 뒤로가기 -->
-      <a href="/regular/my-crews" class="goback-btn">← 목록으로</a>
+      <a href="/regular/list" class="goback-btn">← 목록으로</a>
 
       <div class="detail-group">
 
@@ -28,11 +29,6 @@
           <div class="detail-title"><%= crew.title %></div>
           <div class="detail-sub"><%= crew.address.state %> · <%= crew.address.city %></div>
         </div>
-        <!-- 좋아요 버튼 -->
-        <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="toggleLike()">
-          <span class="like-icon">🤍</span>
-          <span class="like-count" id="like-count"><%= crew.reputation %></span>
-        </button>
       </div>
 
       <!-- 모임장 -->
@@ -40,7 +36,7 @@
         <div class="detail-section-title">모임장</div>
         <div class="host-card">
           <div class="host-avatar">
-            <img src="/images/user-profile/<%= crew.host.profileImage %>" alt="호스트 프사">
+            <!-- <img src="/images/user-profile/<%= crew.host.profileImage %>" alt="호스트 프사"> -->
           </div>
           <div>
             <div class="host-name"><%= crew.host.name %></div>
@@ -109,10 +105,5 @@
   </div>
 </div>
 
-<script>
-let liked = <%= isLiked %>;
-let likeCount = <%- crew.reputation %>;
-</script>
-<script src="/js/like.js"></script>
 </body>
 </html>

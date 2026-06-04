@@ -14,7 +14,9 @@ const session = require('express-session');
 
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
-const crewRouter = require('./routes/crew/crewRouter');
+const regularRouter = require('./routes/crew/regularRouter');
+const instantRouter = require('./routes/crew/instantRouter');
+const notiRouter = require('./routes/notiRouter');
 const indexRouter = require('./routes/indexRouter.js');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
 // 웹소켓
@@ -42,11 +44,17 @@ app.use((req, res, next) => {
     next();
 });
 
+
+app.set('io', io);
+initSocket(io);
+
+
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/config', express.static(path.join(__dirname, 'config')));
 app.get('/kakao-map-js-key', (req, res) => {
     res.json({ key: process.env.KAKAO_JS_KEY});
 })
@@ -57,7 +65,9 @@ app.use('/', indexRouter);
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
-app.use('/crew', crewRouter);
+app.use('/regular', regularRouter);
+app.use('/instant', instantRouter);
+app.use('/noti', notiRouter);
 
 app.use('/chat', chatRouter);
 app.use(notFoundHandler);
@@ -68,8 +78,6 @@ app.use((err, req, res, next) => {
 
     res.status(err.status || 500).send(err.message || '서버 에러');
 });
-
-initSocket(io);
 
 httpServer.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

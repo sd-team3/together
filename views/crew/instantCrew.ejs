@@ -80,7 +80,9 @@
                   <div>
                     <div class="mi-title"><%= crew.title%></div>
                     <div class="mi-meta">
-                      <span>📍 <%= crew.address.state%> <%= crew.address.city%></span>
+                      <span>📍 <%= crew.address.state%> <%= crew.address.city%>
+                         <% if (crew.address.detail) { %> · <%= crew.address.detail %><% } %>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -157,8 +159,7 @@
       <div style="font-size:12px;color:#aaa;margin-bottom:16px" id="pp-time"></div>
 
       <div class="popup-btns">
-        <button class="btn btn-primary flex-1" id="popup-apply-btn">참가 신청</button>
-        <button class="btn btn-outline" id="popup-share-btn">공유 🔗</button>
+        <button class="btn btn-primary flex-1" id="popup-apply-btn"></button>
       </div>
     </div>
   </div>

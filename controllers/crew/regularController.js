@@ -1,9 +1,10 @@
+const mongoose = require('mongoose');
 const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
-const regCrewService = require('../../services/crew/regCrewService');
+const regularService = require('../../services/crew/regularService');
 
 const getRegCreate = (req, res)=>{
-    res.render('crew/regCreate', { CONSTANTS: CONSTANTS });
+    res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
 }
 
 const postRegCreate = async (req, res)=>{
@@ -30,7 +31,7 @@ const postRegCreate = async (req, res)=>{
 
         data.isAutoAccept = (data.isAutoAccept === 'enable');
 
-        const result = await regCrewService.createRegCrew(data, profileFile, host);
+        const result = await regularService.createRegCrew(data, profileFile, host);
         
         if (result.success) {
             return res.redirect('/crew/reg-list');
@@ -43,6 +44,58 @@ const postRegCreate = async (req, res)=>{
     }
 };
 
+const getRegular = async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    try {
+        const result = await regularService.getRegularCrews(page);
+        
+        res.render('crew/regular', {
+            title : '정기모임 페이지', 
+            regularCrews: result.regularCrews,
+            currentPage: result.currentPage,
+            totalPages : result.totalPages,
+            CONSTANTS
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+// api를 이용해서 정기모임 페이지 열람
+const getRegularAPI = async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    try {
+        const changeArray = (val) => val ? (Array.isArray(val) ? val : [val]) : undefined;
+        const filter = {
+            day : changeArray(req.query.day),
+            isAutoAccept : req.query.isAutoAccept,
+            sport : changeArray(req.query.sport),
+            ageRange : changeArray(req.query.ageRange),
+            state : req.query.state,
+            city : req.query.city,
+            isRecruiting : req.query.isRecruiting === 'true'
+        }
+        const result = await regularService.getRegularAPICrews(filter, page);
+        res.json({
+            success : true,
+            regularCrews: result.regularCrews,
+            currentPage: result.currentPage,
+            totalPages : result.totalPages,
+        })
+    } catch (error) {
+        next(error);
+    }
+};
+// 정기모임 상세 페이지
+const getRegularPage = async (req, res, next) => {
+    try {
+        const { crewId } = req.params;
+        const crew = await regularService.getCrewDetail(crewId);
+        res.render('crew/regular-join-page', { crew });
+    } catch (error) {
+        next(error);
+    }
+}
+
 const getMyCrews = async (req, res) => {
     try {
         if (!req.isAuthenticated()) {
@@ -51,7 +104,7 @@ const getMyCrews = async (req, res) => {
         
         const userId = req.user._id;
         const role = req.query.role || 'all'; // 디폴트 설정
-        const crews = await regCrewService.getMyCrews(userId, role);
+        const crews = await regularService.getMyCrews(userId, role);
         res.render('crew/my-crews', { crews, role });
     } catch (error) {
         console.error(error);
@@ -64,7 +117,7 @@ const postMyCrewDelete = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        await regCrewService.deleteMyCrew(req.params.regularCrewId);
+        await regularService.deleteMyCrew(req.params.regularCrewId);
         res.redirect('/crew/my-crews');
     } catch (error) {
         console.error(error);
@@ -77,7 +130,7 @@ const postMyCrewWithdraw = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        await regCrewService.withdrawMyCrew(req.params.regularCrewId, req.user._id);
+        await regularService.withdrawMyCrew(req.params.regularCrewId, req.user._id);
         res.redirect('/crew/my-crews');
     } catch (error) {
         console.error(error);
@@ -90,7 +143,7 @@ const getCrewDetail = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        const crew = await regCrewService.getCrewDetail(req.params.regularCrewId);
+        const crew = await regularService.getCrewDetail(req.params.regularCrewId);
         const isLiked = crew.likedBy.some(id => id.toString() === req.user._id.toString());
         res.render('crew/crew-detail', { crew, isLiked });
     } catch (error) {
@@ -104,7 +157,7 @@ const postCrewLike = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        await regCrewService.crewLike(req.params.regularCrewId, req.user._id);
+        await regularService.crewLike(req.params.regularCrewId, req.user._id);
         res.json({success: true});
     } catch (error) {
         console.error(error);
@@ -119,5 +172,8 @@ module.exports = {
     postMyCrewDelete,
     postMyCrewWithdraw,
     getCrewDetail,
-    postCrewLike
+    postCrewLike,
+    getRegular,
+    getRegularAPI,
+    getRegularPage
 };

@@ -1,6 +1,7 @@
 const messageService = require('../services/chatService');
 const userService = require('../services/userService');
 const notiService = require('../services/notiService');
+const { notiSocket } = require('./notiSocket');
 
 let _io = null;
 
@@ -9,7 +10,7 @@ const initSocket = (io) => {
     console.log('웹소켓 서버 초기화 완료');
 
     const chat = io.of('/chat');
-    const notification = io.of('/notification');
+    const noti = io.of('/noti');
     
     chat.on('connection', (socket) => {
         console.log('chat 스페이스 접속');
@@ -56,27 +57,10 @@ const initSocket = (io) => {
                 chat : `${userName}님이 퇴장하셨습니다`,
             });
         });
-
-    notification.on('connection', async (socket)=>{
-        const { userId } = socket.handshake.auth;
-
-        if(!userId) {
-            return socket.disconnect();
-        }
-
-        try {
-            const user = await userService.findUserById_WithoutPW(userId);
-            if (!user) return socket.disconnect();
-            socket.data.user = user;
-            socket.join(`notification:${user._id}`);
-
-            const noti = await notiService.findUnReadNotiByUserId(user._id);
-            socket.emit('UNREAD_NOTIFICATION', noti);
-        } catch (error) {
-            socket.disconnect();
-        }
     });
-    })};
+
+    notiSocket(noti);
+};
 
 
 module.exports = { initSocket };

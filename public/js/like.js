@@ -12,7 +12,7 @@ async function toggleLike() {
   btn.classList.toggle('liked', liked);
 
   try {
-    await fetch('/crew/' + crewId + '/like', {
+    await fetch('/regular/' + crewId + '/like', {
       method: 'POST',
       headers: {'Content-Type' : 'application/json'},
       body: JSON.stringify({liked})

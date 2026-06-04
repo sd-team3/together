@@ -1,5 +1,6 @@
 const userService = require('../services/userService');
-const regCrewService = require('../services/crew/regCrewService')
+const regularService = require('../services/crew/regularService');
+const instantService = require('../services/crew/instantService');
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -56,11 +57,11 @@ req.login(result, (err) => {
             if (err) {
                 return next(err);
             }
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.json({ success: true, name: result.name });
+            }
 
-            return res.json({
-                success: true,
-                message: '회원가입 완료'
-            });
+            return res.redirect('/');
 
         });
     } catch (error) {
@@ -102,8 +103,9 @@ const getProfile = async (req, res) => {
         return res.redirect('/user/login');
     }
     const user = await userService.findUserById(req.user.id);
-    const regCrew = await regCrewService.findCrewsByUserId(req.user.id);
-    res.render('user/profile', { user, regCrew });
+    const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
+    const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
+    res.render('user/profile', { user, regCrew, instantCrew});
 };
 
 

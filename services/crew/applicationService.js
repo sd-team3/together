@@ -1,13 +1,81 @@
 const User = require('../../models/User');
-const crewAppliment = require('../../models/crewApplication');
-const notification = require('../../models/notification')
+const crewApplication = require('../../models/crewApplication');
+const notification = require('../../models/notification');
+const regularCrew = require('../../models/regularCrew');
+const instantCrew = require('../../models/instantCrew');
 
-async function createAppliment(userId, crewId, crewType) {
-    const newAppliment = new crewAppliment({ userId, crewId, crewType });
-
-
+async function createApplication(userId, crewId, crewType, options = {}) {
+    const newApplication = new crewApplication({ userId, crewId, crewType });
+    return await newApplication.save({ session: options.session });
 }
 
+async function findAppById(appId) { return await crewApplication.findById(appId); }
+
+async function acceptApplication(appId, currUserId) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const app = await crewApplication.findById(appId).session(session);
+        if (!app) {
+            throw new Error('신청 정보를 찾을 수 없습니다.');
+        }
+
+        const crew = crewType === 'regularCrew' ?
+            await regularCrew.findById(app.crewId).session(session) :
+            await instantCrew.findById(app.crewId).session(session);
+        
+            
+        if (!crew || crew.host.toString() !== currUserId.toString()) {
+            throw new Error('권한이 없거나 크루를 찾을 수 없습니다.');
+        }
+
+        app.status = 'accepted';
+        await app.save({ session });
+
+        crew.member.memberList.push({ user: app.userId, joinedAt: new Date() });
+        await crew.save({ session });
+
+        const user = await User.findById(app.userId).session(session);
+        if (user) {
+            user.crews.push(app.crewId);
+            await user.save({ session });
+        }
+
+        await notification.create([{
+            receiver: app.userId,
+            title: '크루 가입 수락',
+            content: `"${crew.title}" 크루에 가입되었습니다!`,
+            type: 'application_accepted'
+        }], { session });
+
+        await session.commitTransaction();
+        session.endSession();
+        res.status(200).json({ message: '신청이 수락되었습니다.' });
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const findPendingAppsByCrewId = async (crewId) => {
+    try {
+        const applications = await crewApplication.find({ 
+            crew: crewId, 
+            status: 'pending' 
+        })
+        .populate('userId', 'name profileImage')
+        .sort({ createdAt: -1 });
+
+        return applications;
+    } catch (error) {
+        throw new Error('findPendingApplicationsByCrewId');
+    }
+};
+
 module.exports = {
-    createAppliment //기능명세
+    createApplication,
+    findPendingAppsByCrewId,
+    acceptApplication,
+    findAppById
 }

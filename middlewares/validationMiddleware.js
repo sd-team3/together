@@ -17,15 +17,17 @@ const signupValidationRules = (req, res, next) => {
 
         body('age')
             .notEmpty().withMessage('나이는 필수입니다')
-            .isInt({ min: 14, max: 99 }),
+            .isInt({ min: 14, max: 99 }).withMessage('나이를 올바르게 입력해주세요(14~99세)'),
 
         body('tel')
             .notEmpty()
-            .matches(/^010-\d{4}-\d{4}$/),
+            .matches(/^010-\d{4}-\d{4}$/).withMessage('전화번호를 올바르게 입력해주세요'),
 
         body('gender')
-            .notEmpty()
-            .isIn(['male', 'female'])
+            .notEmpty().withMessage('성별을 선택해주세요')
+            .isIn(['male', 'female']).withMessage('올바른 성별을 선택해주세요'),
+        body('zipcode')
+            .notEmpty().withMessage('주소 검색을 통해 주소를 입력해주세요')
     ];
 
     // password validation 추가

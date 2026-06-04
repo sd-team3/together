@@ -1,6 +1,5 @@
 window.MAP = null;
 const MAP_ID = 'map';
-let openedInfoWindow = null;
 let KakaoMarkers = [];
 
 async function loadKakaoMapAPI() {
@@ -56,15 +55,29 @@ const kakaoMap = {
         await loadKakaoMapAPI();
 
         const geocoder = new kakao.maps.services.Geocoder();
+        const places = new kakao.maps.services.Places();
         return new Promise((resolve, reject) => {
             geocoder.addressSearch(address, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
                     resolve({
                         lat: result[0].y,
-                        lng: result[0].x
+                        lng: result[0].x,
+                        name: address
                     });
                 } else {
-                    reject(new Error("GET XY ERROR"));
+                    //상세 주소에 장소명 검색
+                    places.keywordSearch(address, (result, status) => {
+                        if(status === kakao.maps.services.Status.OK) {
+                            //장소가 1개면 바로 반환
+                            if(result.length === 1) {
+                                resolve({ lat: result[0].y, lng: result[0].x, name: result[0].place_name });
+                            }else {
+                                reject({ type: 'MULTIPLE', results: result.slice(0,5) }); // 장소가 여러 개 일때 5개만 reject로 올려서 선택
+                            }
+                        }else {
+                            reject(new Error("GET XY ERROR"));
+                        }
+                    })
                 }
             });
         });
@@ -114,39 +127,81 @@ const kakaoMap = {
             } else {
                     window.MAP.setCenter(position);
             }
+            if(window.CURRENT_MARKER) {
+                window.CURRENT_MARKER.setMap(null);
+            }
+            window.CUURENT_MARKER = new kakao.maps.Marker({
+                map: window.MAP,
+                position: position
+            });
         } catch (error) {
             console.log(error.message);
             //일단 콘솔에 띄우긴 하는데 나중에 에러처리
         }
+    },
+    loadMapByLatLng(lat, lng) {
+        const position = new kakao.maps.LatLng(lat, lng);
+
+        if (!window.MAP) {
+            window.MAP = new kakao.maps.Map(document.getElementById(MAP_ID), {
+                center: position,
+                level: 3
+            });
+        } else {
+            window.MAP.setCenter(position);
+        }
+
+        // 기존 마커 제거 후 새 마커
+        if (window.CURRENT_MARKER) {
+            window.CURRENT_MARKER.setMap(null);
+        }
+        window.CURRENT_MARKER = new kakao.maps.Marker({
+            map: window.MAP,
+            position: position,
+        });
     },
 
     async loadMarker(crews) {
         try {
             KakaoMarkers = crews.map(crew => {
                 const position = new kakao.maps.LatLng(crew.lat, crew.lng);
+                const sportEmoji = {
+                    soccer: '⚽', baseball: '⚾', basketball: '🏀',
+                    badminton: '🏸', bowling: '🎳', tennis: '🎾', tabletennis: '🏓'
+                }[crew.sport] || '🏅';
+
+                const sportColor = {
+                    soccer: '#2ECC71', baseball: '#E74C3C', basketball: '#FF6B00',
+                    badminton: '#00C8D4', bowling: '#9B59B6', tennis: '#F1C40F', tabletennis: '#00C853'
+                };
+
+                // SVG 커스텀 마커
+                const svg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
+                        <path d="M18 0C8 0 0 8 0 18c0 14 18 30 18 30s18-16 18-30C36 8 28 0 18 0z"
+                            fill="${sportColor[crew.sport] || '#9B59B6'}" stroke="white" stroke-width="1.5"/>
+                        <text x="18" y="22" text-anchor="middle" dominant-baseline="middle" font-size="14">${sportEmoji}</text>
+                    </svg>`;
+
+                const markerImage = new kakao.maps.MarkerImage(
+                    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg),
+                    new kakao.maps.Size(36, 48),
+                    { offset: new kakao.maps.Point(18, 48) }
+                );
                 const marker = new kakao.maps.Marker({
                     map: window.MAP,
                     position: position,
+                    image: markerImage,
                     title: crew.title
                 });
                 marker._crewData = crew;
-                const infoWindow = new kakao.maps.InfoWindow({
-                    content: `<div>${crew.title} 크루</div>`
-                });
 
                 kakao.maps.event.addListener(marker, 'click', ()=>{
-                    if(openedInfoWindow) openedInfoWindow.close();
-                    infoWindow.open(window.MAP, marker);
-                    openedInfoWindow = infoWindow;
+                    if(crew.onClick) crew.onClick();
                 });
 
                 return marker;
             });
-            kakao.maps.event.addListener(window.MAP, 'click', () =>{
-                if(openedInfoWindow) openedInfoWindow.close();
-                openedInfoWindow = null;
-            });
-
             return KakaoMarkers;
         } catch (error) {
             return error.message;
