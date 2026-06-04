@@ -8,8 +8,10 @@ const getRegularCreate = (req, res)=>{
 }
 
 const postRegularCreate = async (req, res)=>{
+    const { data, profileImage, host } = req.crewData;
+
     try {
-        const result = await regularService.createRegCrew(req.crewData);
+        const result = await regularService.createRegCrew(data, profileImage, host);
 
         if (result.success) {
             return res.redirect('/crew/reg-list');
