@@ -9,7 +9,7 @@ const getChatRoomList = async (req, res, next) => {
         const userId = req.user._id;
         const chatRooms = await chatService.getChatRoomList(userId);
 
-        res.render('chat/chatRoom', { chatRooms, currentUserId : userId });
+        res.render('chat/chatRoom', { chatRooms, currentUserId : userId, room: null });
     } catch (error) {
         next(error);
     }
