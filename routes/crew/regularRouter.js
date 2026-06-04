@@ -53,7 +53,8 @@ router.post('/join/:appId/:action',
 );
 
 router.get('/my-crews', regularController.getMyCrews);
-router.get('/regular', regularController.getRegular);
+router.get('/list', regularController.getRegular);
+router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 

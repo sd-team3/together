@@ -3,6 +3,8 @@ const regularCrew = require('../../models/regularCrew');
 const crewService = require('../../services/crew/crewService');
 const path = require('path');
 const fs = require('fs');
+const User = require('../../models/User');
+const { CONSTANTS } = require('../../config/constants');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -63,6 +65,7 @@ async function getRegularCrews(page = 1) {
 
     const regularCrews = await regularCrew.find({})
                         .sort({createdAt : -1})
+                        .skip((page - 1) * limit)
                         .limit(limit);
     return {regularCrews, currentPage: page, totalPages};
 }
@@ -107,18 +110,23 @@ async function getRegularAPICrews(filter, page) {
     }                              
 }
 
-async function findCrewsByUserId(userId) {
+async function findRegularCrewsByUserId(userId) {
     const user = await User.findById(userId).populate({
         path: 'crews',
         populate: { path: 'host', select: 'name' }
     }).lean();
 
     if(!user) return null;
-    
-    const crew = sortCrewByDay(user.crews);
+
+    let crew = user.crews.filter(crew => 
+        crew.schedule?.some(sched => 
+            sched.participants?.some(p => String(p) === String(userId)))
+    );
+
+    crew = sortCrewByDay(crew);
     return crew.map(c => {
-        return { ...c, day : c.day.map(d => constants.CONSTANTS.DAYS[d]?.short || '미정') };
-    });
+        return { ...c, day : c.day.map(d => CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
+});
 }
 
 
@@ -137,6 +145,17 @@ function sortCrewByDay(crews) {
         return { ...c, day : c.day};
     });
     return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
+}
+
+function sortSchedTime(schedule) {
+    const now = Date.now();
+    if(schedule && schedule.length > 0) {
+        schedule.sort((a, b) => {
+            if((a.date < now) === (b.date < now)) return a.date - b.date;
+            return a.date < now ? 1 : -1;
+        });
+    }
+    return schedule;
 }
 
 async function getMyCrews(userId, role) {
@@ -232,7 +251,7 @@ async function crewLike(regularCrewId, userId) {
 
 module.exports = { 
     createRegCrew, 
-    findCrewsByUserId, 
+    findRegularCrewsByUserId, 
     getMyCrews, 
     deleteMyCrew, 
     getCrewDetail, 

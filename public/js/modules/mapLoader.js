@@ -55,15 +55,29 @@ const kakaoMap = {
         await loadKakaoMapAPI();
 
         const geocoder = new kakao.maps.services.Geocoder();
+        const places = new kakao.maps.services.Places();
         return new Promise((resolve, reject) => {
             geocoder.addressSearch(address, (result, status) => {
                 if (status === kakao.maps.services.Status.OK) {
                     resolve({
                         lat: result[0].y,
-                        lng: result[0].x
+                        lng: result[0].x,
+                        name: address
                     });
                 } else {
-                    reject(new Error("GET XY ERROR"));
+                    //상세 주소에 장소명 검색
+                    places.keywordSearch(address, (result, status) => {
+                        if(status === kakao.maps.services.Status.OK) {
+                            //장소가 1개면 바로 반환
+                            if(result.length === 1) {
+                                resolve({ lat: result[0].y, lng: result[0].x, name: result[0].place_name });
+                            }else {
+                                reject({ type: 'MULTIPLE', results: result.slice(0,5) }); // 장소가 여러 개 일때 5개만 reject로 올려서 선택
+                            }
+                        }else {
+                            reject(new Error("GET XY ERROR"));
+                        }
+                    })
                 }
             });
         });
@@ -113,10 +127,38 @@ const kakaoMap = {
             } else {
                     window.MAP.setCenter(position);
             }
+            if(window.CURRENT_MARKER) {
+                window.CURRENT_MARKER.setMap(null);
+            }
+            window.CUURENT_MARKER = new kakao.maps.Marker({
+                map: window.MAP,
+                position: position
+            });
         } catch (error) {
             console.log(error.message);
             //일단 콘솔에 띄우긴 하는데 나중에 에러처리
         }
+    },
+    loadMapByLatLng(lat, lng) {
+        const position = new kakao.maps.LatLng(lat, lng);
+
+        if (!window.MAP) {
+            window.MAP = new kakao.maps.Map(document.getElementById(MAP_ID), {
+                center: position,
+                level: 3
+            });
+        } else {
+            window.MAP.setCenter(position);
+        }
+
+        // 기존 마커 제거 후 새 마커
+        if (window.CURRENT_MARKER) {
+            window.CURRENT_MARKER.setMap(null);
+        }
+        window.CURRENT_MARKER = new kakao.maps.Marker({
+            map: window.MAP,
+            position: position,
+        });
     },
 
     async loadMarker(crews) {

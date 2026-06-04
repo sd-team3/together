@@ -7,9 +7,15 @@ const getChatRoomList = async (req, res, next) => {
     }
     try {
         const userId = req.user._id;
-        const chatRooms = await chatService.getChatRoomList(userId);
+        const chatRoomList = await chatService.getChatRoomList(userId);
 
-        res.render('chat/chatRoom', { chatRooms, currentUserId : userId });
+        res.render('chat/chatRoom', { 
+            chatRoomList, 
+            currentUserId: userId, 
+            user: req.user, 
+            room: null, 
+            messages: [] });
+
     } catch (error) {
         next(error);
     }
@@ -17,16 +23,23 @@ const getChatRoomList = async (req, res, next) => {
 
 const openChatRoom = async (req, res, next) => {
     if (!req.isAuthenticated()) {
-        return res.redirect('/user/15_login');
+        return res.redirect('user/login');
     }
     try {
         const userId = req.user._id;
-        const roomId = req.params.roomId;
-        const chatRooms = await chatService.getChatRoomList(userId);
-        const room = await chatService.getChatRoom(roomId, userId);
+        const roomId = req.query.roomId;
+        const chatRoomList = await chatService.getChatRoomList(userId);
+        const room = await chatService.getChatRoom(roomId);
         const messages = await chatService.getMessage(roomId);
 
-        res.render('chat/chatRoom', { chatRooms, currentUserId: userId, room, messages });
+        res.json( {
+            success : true, 
+            chatRoomList, 
+            currentUserId: userId, 
+            user: req.user, 
+            room, 
+            messages
+         });
     } catch (error) {
         next(error);
     }

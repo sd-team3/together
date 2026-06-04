@@ -11,6 +11,16 @@ const memberSchema = new mongoose.Schema(
         },
         memberList: [{
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            role: { 
+                type: String, 
+                enum: ['host', 'member'],
+                default: 'member'
+            },
+            status: {
+                type: String,
+                enum: ['confirmed', 'noshow'],
+                default: 'confirmed'
+            },
             joinedAt: { type: Date, default: Date.now }
         }]
     }, {
@@ -22,6 +32,7 @@ const locationSchema = new mongoose.Schema(
     {
         state: { type: String, required: true },
         city: { type: String, required: true },
+        detail: { type: String, default: ''},
         lat: { type: Number, required: true },
         lng: { type: Number, required: true }
     }, {

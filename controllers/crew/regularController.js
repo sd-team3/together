@@ -63,6 +63,16 @@ const getRegularAPI = async (req, res, next) => {
         next(error);
     }
 };
+// 정기모임 상세 페이지
+const getRegularPage = async (req, res, next) => {
+    try {
+        const { crewId } = req.params;
+        const crew = await regularService.getCrewDetail(crewId);
+        res.render('crew/regular-join-page', { crew });
+    } catch (error) {
+        next(error);
+    }
+}
 
 const getMyCrews = async (req, res) => {
     try {
@@ -136,5 +146,6 @@ module.exports = {
     getCrewDetail,
     postCrewLike,
     getRegular,
-    getRegularAPI
+    getRegularAPI,
+    getRegularPage
 };
