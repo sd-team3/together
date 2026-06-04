@@ -26,7 +26,7 @@ function chatSocket(chat) {
 
                 const saveChat = await messageService.sendChat(roomId, userId, msg.trim());
 
-                chat.to(roomId).emit('chat message', {
+                chat.in(roomId).emit('chat message', {
                     _id: saveChat._id,
                     userId: userId,
                     userName : userName,
