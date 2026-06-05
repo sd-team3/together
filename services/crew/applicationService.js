@@ -4,6 +4,7 @@ const notification = require('../../models/notification');
 const regularCrew = require('../../models/regularCrew');
 const instantCrew = require('../../models/instantCrew');
 
+
 async function findAppById(appId) { 
     return await crewApplication.findById(appId); 
 }
@@ -16,7 +17,7 @@ async function createApp(userId, crewId, crewType, options = {}) {
 async function appStatusUpdateById(appId, action, options = {}) {
     const session = options.session || null;
 
-    const result = await CrewApplication.findByIdAndUpdate(
+    const result = await crewApplication.findByIdAndUpdate(
         appId,
         { status: action },
         { session, new: true }
