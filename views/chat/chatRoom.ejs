@@ -21,29 +21,47 @@
   <div class="page-body-wide" style="flex:1">
     <div class="chat-layout" style="flex:1">
       <!-- Room List -->
-      <div class="chat-rooms">
-        <div class="chat-rooms-header">
-          <div class="chat-rooms-title">채팅방</div>
-          <span class="cr-unread">5</span>
-        </div>
-        <div class="chat-rooms-list">
-           <% if (!chatRoomList || chatRoomList.length === 0 ) { %>
-            <p>채팅방이 없습니다</p>
-          <% } else { %>
-          <% chatRoomList.forEach(room => { %>
-            <div class="chat-room-item" data-id="<%= room._id %>" style="cursor: pointer;">
-              <div class="cr-av">⚽</div>
-              <div class="cr-info">
-                <div class="cr-top">
-                  <div class="cr-name"><%= room.name %></div>
-                </div>
-                <div class="cr-preview"><%= room.lastMessage?.content %></div>
-              </div>
-            </div>
-          <% }) %>
-          <% } %>
-        </div>
+<div class="chat-rooms">
+  <div class="chat-rooms-header">
+    <div class="chat-rooms-title">채팅방</div>
+  </div>
+
+  <!-- 탭 버튼 -->
+  <div style="display:flex;border-bottom:1px solid #eee;">
+    <button onclick="location.href='/chatRoom/chatPage?crewType=regular'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;
+      <%= !crewType || crewType === 'regular' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      정기모임
+    </button>
+    <button onclick="location.href='/chatRoom/chatPage?crewType=instant'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;
+      <%= crewType === 'instant' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      ⚡ 번개모임
+    </button>
+  </div>
+
+  <div class="chat-rooms-list">
+    <% if (!chatRoomList || chatRoomList.length === 0) { %>
+      <div style="padding:40px;text-align:center;color:#999;">
+        <div style="font-size:32px;margin-bottom:12px">📭</div>
+        <div>채팅방이 없습니다</div>
       </div>
+    <% } else { %>
+      <% chatRoomList.forEach(room => { %>
+        <div class="chat-room-item" data-id="<%= room._id %>" style="cursor:pointer;">
+          <div class="cr-av"><%= room.crewType === 'instant' ? '⚡' : '🏃' %></div>
+          <div class="cr-info">
+            <div class="cr-top">
+              <div class="cr-name"><%= room.name %></div>
+              <span style="font-size:11px;color:#aaa;"><%= room.crewType === 'instant' ? '번개' : '정기' %></span>
+            </div>
+            <div class="cr-preview"><%= room.lastMessage?.content %></div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
       <!-- Chat Area -->
       <div class="chat-area">
         <div class="chat-header">

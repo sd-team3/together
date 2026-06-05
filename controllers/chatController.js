@@ -2,20 +2,20 @@ const chatService = require('../services/chatService');
 
 // 왼쪽 채팅방 리스트 가져오기
 const getChatRoomList = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
-    }
+    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const userId = req.user._id;
-        const chatRoomList = await chatService.getChatRoomList(userId);
+        const crewType = req.query.crewType || null;
+        const chatRoomList = await chatService.getChatRoomList(userId, crewType);
 
         res.render('chat/chatRoom', { 
             chatRoomList, 
             currentUserId: userId, 
             user: req.user, 
             room: null, 
-            messages: [] });
-
+            messages: [],
+            crewType  // EJS에서 탭 활성화용
+        });
     } catch (error) {
         next(error);
     }

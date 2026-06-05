@@ -2,20 +2,33 @@ const mongoose = require('mongoose');
 const ChatRoom = require('../models/ChatRoom');
 const Message = require('../models/Message');
 
-async function getChatRoomList (userId) {
+async function getChatRoomList(userId, crewType = null) {
     if (!userId) {
-        const error = new Error ('존재하지 않는 사용자입니다.');
+        const error = new Error('존재하지 않는 사용자입니다.');
         error.status = 400;
         throw error;
     }
 
-    const chatRoom = await ChatRoom.find({ "members.user" : userId })
-                                    .populate('members.user', 'name')
-                                    .populate('lastMessage', 'content')
-                                    .sort({ lastMessageAt : -1 });
+    const query = { "members.user": userId };
     
+    if (crewType === 'instant') {
+        query.crewType = 'instant';
+    } else if (crewType === 'regular') {
+        // crewType이 'regular'이거나 null(기존 데이터)인 것 모두 포함
+        query.$or = [
+            { crewType: 'regular' },
+            { crewType: null },
+            { crewType: { $exists: false } }
+        ];
+    }
+
+    const chatRoom = await ChatRoom.find(query)
+        .populate('members.user', 'name')
+        .populate('lastMessage', 'content')
+        .sort({ lastMessageAt: -1 });
+
     return chatRoom;
-};
+}
 
 async function getChatRoom (roomId, userId) {
     if (!roomId) {
@@ -63,6 +76,7 @@ async function createChatRoom(crewId, crewName, hostId) {
         members: [{ user: hostId, isMuted: false }],
         type: 'group',
         crewId: crewId, // 아래 스키마 수정 필요
+        crewType: crewType
     });
     return room;
 }
