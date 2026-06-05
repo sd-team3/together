@@ -3,6 +3,7 @@ const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
 const crewService = require('../../services/crew/crewService');
 const regularService = require('../../services/crew/regularService');
+const chatService = require('../../services/chatService');
 //const instCrewService = require('../../services/crew/instCrewService');
 
 
@@ -18,6 +19,7 @@ const postApplication = async (req, res)=>{
         if(crew.isAutoAccept) {
             await crewService.addCrewToUser(userId, crew._id, { session });
             await crewService.addUserToCrew(userId, crew._id, crewType, { session });
+            await chatService.addMemberToChatRoom(crew._id, userId);
         } else {
             const newApp = await applicationService.createApp(userId, crew._id, crewType, { session });
             notiData.target = [newApp._id];
@@ -74,6 +76,7 @@ const joinProcess = async (req, res) => {
         if (action === 'accept') {
             const utc = await crewService.addUserToCrew(app.userId, app.crewId, req.crewModel, { session });
             const ctu = await crewService.addCrewToUser(app.userId, app.crewId, { session });
+            await chatService.addMemberToChatRoom(app.crewId, app.userId);
 
             if(!utc || !ctu) throw new Error('ADD_USER_TO_CREW_FAILED');
         }
