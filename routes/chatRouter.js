@@ -6,6 +6,7 @@ const chatController = require('../controllers/chatController');
 router.get('/chatList/api', chatController.openChatRoom);
 // 채팅방 페이지
 router.get('/chatPage', chatController.getChatRoomList);
+router.patch('/:roomId/mute', chatController.toggleMute);
     
 
 module.exports = router;

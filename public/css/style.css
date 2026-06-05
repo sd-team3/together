@@ -701,7 +701,7 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    CHAT PAGE
 ═══════════════════════════════════════ */
-.chat-layout{display:grid;grid-template-columns:270px 1fr;flex:1;min-height:0}
+.chat-layout{display:grid;grid-template-columns:270px 1fr;min-height:0;overflow:hidden;height:calc(100vh - 57px)}
 .chat-rooms{border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
 .chat-rooms-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .chat-rooms-title{font-size:13px;font-weight:700;color:var(--text)}
@@ -732,7 +732,7 @@ select.input{cursor:pointer}
 .chat-icon-btn{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;font-size:14px;color:var(--text-2)}
 .chat-icon-btn:hover{background:var(--bg);color:var(--text)}
 
-.chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;height:0}
 .msg-row{display:flex;align-items:flex-end;gap:8px}
 .msg-row.mine{justify-content:flex-end}
 .msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace}
@@ -3010,3 +3010,7 @@ select.input{cursor:pointer}
       flex: 1;
       width: auto; /* width:100% 덮어쓰기 */
   }
+  .chat-tab.on {
+  border-bottom: 2px solid var(--primary);
+  color: var(--primary);
+}

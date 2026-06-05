@@ -51,7 +51,7 @@ async function getMessage (roomId) {
                                     .select('sender content isRead createdAt')
                                     .populate('sender', 'name')
                                     .sort({ createdAt : 1 });
-    console.log('찾은 메시지:', chatMessage); // 👈
+    
     return chatMessage;
 };
 
@@ -70,12 +70,12 @@ async function sendChat (room, sender, content, isRead) {
 }
 
 // 크루 생성 시 채팅방 생성
-async function createChatRoom(crewId, crewName, hostId) {
+async function createChatRoom(crewId, crewName, hostId, crewType = 'regular') {
     const room = await ChatRoom.create({
         name: crewName,
         members: [{ user: hostId, isMuted: false }],
         type: 'group',
-        crewId: crewId, // 아래 스키마 수정 필요
+        crewId: crewId,
         crewType: crewType
     });
     return room;

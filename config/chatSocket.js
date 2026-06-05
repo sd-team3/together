@@ -3,7 +3,7 @@ const userService = require('../services/userService');
 
 function chatSocket(chat) {
     chat.on('connection', (socket) => {
-        console.log('chat 스페이스 접속');
+        // console.log('chat 스페이스 접속');
 
         const roomId = socket.handshake.auth.roomId;
         const userId = socket.handshake.auth.userId;
@@ -35,13 +35,13 @@ function chatSocket(chat) {
                 });
 
             } catch (error) {
-                console.error('메시지가 저장되지않았습니다.', error);
+                // console.error('메시지가 저장되지않았습니다.', error);
             }
             
         });
 
         socket.on('disconnect', ()=> {
-            console.log('chat 네임스페이스 접속 해제');
+            // console.log('chat 네임스페이스 접속 해제');
 
             socket.to(roomId).emit('exit', {
                 user : 'system',
