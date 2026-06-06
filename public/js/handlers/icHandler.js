@@ -160,6 +160,60 @@ async function showMemberPopup(crewId) {
   }
 }
 
+function buildRow(m, crewId, isHost) {
+    const u = m.user || {};
+    const isOwner = m.role === 'host';
+    const joinedAt = m.joinedAt
+        ? new Date(m.joinedAt).toLocaleDateString('ko-KR', {year:'numeric', month:'numeric', day:'numeric'})
+        : '-';
+    const statusBadge = m.status === 'confirmed'
+        ? '<span style="padding:2px 8px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:12px;">참가확정</span>'
+        : m.status === 'noshow'
+            ? '<span style="padding:2px 8px;border-radius:12px;background:#fee2e2;color:#dc2626;font-size:12px;">노쇼</span>'
+            : '<span style="padding:2px 8px;border-radius:12px;background:#fef9c3;color:#ca8a04;font-size:12px;">대기중</span>';
+
+    return `
+        <tr style="border-bottom:1px solid #f0f0f0;">
+            <td style="padding:10px 12px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:28px;height:28px;border-radius:50%;
+                        background:${isOwner ? '#3b82f6' : '#e5e7eb'};
+                        color:${isOwner ? '#fff' : '#555'};
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:12px;font-weight:600;flex-shrink:0;">
+                        ${(u.name || '?').charAt(0)}
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:600;">${u.name || '멤버'}</div>
+                        <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td style="padding:10px 8px;">
+                <span style="padding:2px 8px;border-radius:12px;font-size:12px;
+                    background:${isOwner ? '#dbeafe' : '#f3f4f6'};
+                    color:${isOwner ? '#1d4ed8' : '#555'};">
+                    ${isOwner ? '모임장' : '일반'}
+                </span>
+            </td>
+            <td style="padding:10px 8px;">${statusBadge}</td>
+            <td style="padding:10px 8px;font-size:12px;color:#555;">
+                ${u.gender === 'male' ? '남성' : u.gender === 'female' ? '여성' : '-'}
+            </td>
+            <td style="padding:10px 8px;font-size:12px;color:#555;">${u.age ? u.age + '세' : '-'}</td>
+            <td style="padding:10px 8px;font-size:12px;color:#aaa;">${joinedAt}</td>
+            <td style="padding:10px 8px;">
+                ${isHost && !isOwner ? `
+                    <button onclick="mpManageMember('${crewId}','${u._id}','${u.name || '멤버'}')"
+                        style="width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;
+                            background:#fff;color:#555;font-size:14px;cursor:pointer;
+                            display:flex;align-items:center;justify-content:center;">
+                        👤
+                    </button>` : ''}
+            </td>
+        </tr>`;
+}
+
 function renderMemberPopupBody() {
   const body        = document.getElementById('mp-body');
   const crew        = _mpCrewData;
@@ -317,60 +371,7 @@ function renderMemberPopupBody() {
 
   const rows = filtered.length === 0
     ? `<tr><td colspan="7" style="padding:30px;text-align:center;color:#aaa;font-size:13px;">해당하는 멤버가 없어요</td></tr>`
-    : filtered.map(m => {
-        const u       = m.user || {};
-        const isOwner = m.role === 'host';
-        const joinedAt = m.joinedAt
-          ? new Date(m.joinedAt).toLocaleDateString('ko-KR', {year:'numeric', month:'numeric', day:'numeric'})
-          : '-';
-        const statusBadge = m.status === 'confirmed'
-          ? '<span style="padding:2px 8px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:12px;">참가확정</span>'
-          : m.status === 'noshow'
-            ? '<span style="padding:2px 8px;border-radius:12px;background:#fee2e2;color:#dc2626;font-size:12px;">노쇼</span>'
-            : '<span style="padding:2px 8px;border-radius:12px;background:#fef9c3;color:#ca8a04;font-size:12px;">대기중</span>';
-
-        return `
-          <tr style="border-bottom:1px solid #f0f0f0;">
-            <td style="padding:10px 12px;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:28px;height:28px;border-radius:50%;
-                  background:${isOwner ? '#3b82f6' : '#e5e7eb'};
-                  color:${isOwner ? '#fff' : '#555'};
-                  display:flex;align-items:center;justify-content:center;
-                  font-size:12px;font-weight:600;flex-shrink:0;">
-                  ${(u.name || '?').charAt(0)}
-                </div>
-                <div>
-                  <div style="font-size:13px;font-weight:600;">${u.name || '멤버'}</div>
-                  <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
-                </div>
-              </div>
-            </td>
-            <td style="padding:10px 8px;">
-              <span style="padding:2px 8px;border-radius:12px;font-size:12px;
-                background:${isOwner ? '#dbeafe' : '#f3f4f6'};
-                color:${isOwner ? '#1d4ed8' : '#555'};">
-                ${isOwner ? '모임장' : '일반'}
-              </span>
-            </td>
-            <td style="padding:10px 8px;">${statusBadge}</td>
-            <td style="padding:10px 8px;font-size:12px;color:#555;">
-              ${u.gender === 'male' ? '남성' : u.gender === 'female' ? '여성' : '-'}
-            </td>
-            <td style="padding:10px 8px;font-size:12px;color:#555;">${u.age ? u.age + '세' : '-'}</td>
-            <td style="padding:10px 8px;font-size:12px;color:#aaa;">${joinedAt}</td>
-            <td style="padding:10px 8px;">
-              ${isHost && !isOwner ? `
-                <button onclick="mpManageMember('${crewId}','${u._id}','${u.name || '멤버'}')"
-                  style="width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;
-                    background:#fff;color:#555;font-size:14px;cursor:pointer;
-                    display:flex;align-items:center;justify-content:center;">
-                  👤
-                </button>` : ''}
-            </td>
-          </tr>`;
-      }).join('');
-
+    : filtered.map(m => buildRow(m, crewId, isHost)).join('');
   body.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
       <div class="popup-sport">${crew.sportKr || ''}</div>
@@ -409,7 +410,25 @@ function renderMemberPopupBody() {
 window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
 window.mpSetTab    = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
 window.mpSetFilter = (f)   => { _mpActiveFilter = f; renderMemberPopupBody(); };
-window.mpSetSearch = (val) => { _mpSearch = val; renderMemberPopupBody(); };
+window.mpSetSearch = (val) => {
+    _mpSearch = val;
+    const memberList = _mpCrewData.member.memberList;
+    const filtered = memberList.filter(m => {
+        const name = (m.user?.name || '').toLowerCase();
+        const matchSearch = !_mpSearch || name.includes(_mpSearch.toLowerCase());
+        const matchFilter =
+            _mpActiveFilter === 'all'       ? true :
+            _mpActiveFilter === 'host'      ? m.role === 'host' :
+            _mpActiveFilter === 'confirmed' ? m.status === 'confirmed' :
+            _mpActiveFilter === 'noshow'    ? m.status === 'noshow' : true;
+        return matchSearch && matchFilter;
+    });
+    const tbody = document.querySelector('#member-popup tbody');
+    if (!tbody) return;
+    tbody.innerHTML = filtered.length === 0
+        ? `<tr><td colspan="7" style="padding:30px;text-align:center;color:#aaa;font-size:13px;">해당하는 멤버가 없어요</td></tr>`
+        : filtered.map(m => buildRow(m, _mpCrewId, _mpIsHost)).join('');
+};
 
 // 신청 수락/거절
 window.mpJoinProcess = async (appId, action, crewId) => {

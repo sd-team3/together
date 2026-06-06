@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 멤버/호스트 공통 ──
     const members = MEMBERS_DATA;
     let currentFilter = 'all', searchVal = '', selectedId = null;
+    const searchInput = document.getElementById('search-input');
 
     const avList = [
         {bg:'#fff3cd',color:'#b45309'},{bg:'#E1F5EE',color:'#085041'},
@@ -46,28 +47,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
         const list = filtered();
         const tbody = document.getElementById('member-tbody');
+        const hadFocus = document.activeElement === searchInput;
+        
         if (!list.length) {
             tbody.innerHTML = '<tr class="empty-row"><td colspan="7">조건에 맞는 참여자가 없어요</td></tr>';
-            return;
+        } else {
+            tbody.innerHTML = list.map(m => {
+                const a = av(m.name);
+                return `<tr class="member-row${selectedId === m.id ? ' selected' : ''}" data-id="${m.id}">
+                    <td><div class="member-cell">
+                        <div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div>
+                        <div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div>
+                    </div></td>
+                    <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
+                    <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
+                    <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
+                    <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
+                    <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
+                    <td><div class="action-btns">
+                        <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
+                        ${IS_HOST && m.role !== 'host' ? `<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>` : ''}
+                    </div></td>
+                </tr>`;
+            }).join('');
         }
-        tbody.innerHTML = list.map(m => {
-            const a = av(m.name);
-            return `<tr class="member-row${selectedId === m.id ? ' selected' : ''}" data-id="${m.id}">
-                <td><div class="member-cell">
-                    <div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div>
-                    <div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div>
-                </div></td>
-                <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
-                <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
-                <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
-                <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
-                <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
-                <td><div class="action-btns">
-                    <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
-                    ${IS_HOST && m.role !== 'host' ? `<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>` : ''}
-                </div></td>
-            </tr>`;
-        }).join('');
+        
+        if (hadFocus) searchInput.focus();
     }
 
     function openDetail(id) {
@@ -174,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('search-input').addEventListener('input', e => {
-        searchVal = e.target.value.trim();
+    searchInput.addEventListener('keyup', e => {
+        searchVal = searchInput.value;
         render();
     });
 
