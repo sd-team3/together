@@ -1,4 +1,3 @@
-
 import { selectedFilters, resetFiltersState } from './state.js';
 import { fetchRegularCrewsData } from './api.js';
 import { renderRegularCards, renderRegularPaging, renderSelectedChips } from './uiRender.js';
@@ -30,6 +29,7 @@ const pagination = document.getElementById('regularPagination');
 const btnRecruitingOnly = document.getElementById('btnRecruitingOnly');
 const regFilterPanel = document.getElementById('reg-filter-panel');
 const regularCardList = document.getElementById('regularCardList');
+const districtGuide = document.querySelector('.district-guide');
 
 if (btnRecruitingOnly) {
   btnRecruitingOnly.addEventListener('click', () => {
@@ -143,16 +143,21 @@ if (regFilterPanel) {
 cityBtns.forEach((button) => {
   button.addEventListener('click', () => {
     const state = button.dataset.state;
+
     selectedFilters.state = state;
     selectedFilters.city = ''; 
 
-    cityBtns.forEach(btn => btn.classList.remove('selected'));
-    button.classList.add('selected');
+    cityBtns.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    if (districtGuide) {
+      districtGuide.style.display = 'none';
+    }
 
     districtGroups.forEach((group) => {
       group.style.display = (group.dataset.state === state) ? 'flex' : 'none';
     });
-    districtBtns.forEach(btn => btn.classList.remove('selected'));
+    districtBtns.forEach(btn => btn.classList.remove('active'));
 
     loadRegularCrews(1);
   });
@@ -163,8 +168,8 @@ districtBtns.forEach((button) => {
   button.addEventListener('click', () => {
     selectedFilters.city = button.dataset.city;
 
-    districtBtns.forEach(btn => btn.classList.remove('selected'));
-    button.classList.add('selected');
+    districtBtns.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
 
     loadRegularCrews(1);
   });
@@ -173,7 +178,6 @@ districtBtns.forEach((button) => {
 // 초기화 버튼
 if (resetFilterBtn) {
   resetFilterBtn.addEventListener('click', () => {
-    console.log("🔥 초기화 버튼 클릭됨! 현재 상태:", selectedFilters);
     resetFiltersState(); // 상태 초기화
 
     // UI 상태 초기화
@@ -185,6 +189,14 @@ if (resetFilterBtn) {
     }
     if (regFilterPanel) {
       regFilterPanel.style.display = 'none';
+    }
+
+    districtGroups.forEach(group => {
+      group.style.display = 'none';
+    });
+
+    if (districtGuide) {
+      districtGuide.style.display = 'block'; // 안내 멘트 다시 표시
     }
     
     // 모집중 버튼 누르면 UI 강제 끄기
