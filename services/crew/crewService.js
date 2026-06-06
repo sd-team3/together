@@ -7,8 +7,14 @@ const findHostByCrewId = async (crewModel, crewId)=>{
     return crew ? crew.host : null;
 }
 
-async function addUserToCrew(userId, crewId, crewModel, options = {}) {
+const modelMap = {
+    regularCrew: regularCrew,
+    instantCrew: instantCrew
+};
+
+async function addUserToCrew(userId, crewId, crewType, options = {}) {
     const session = options.session || null;
+    const crewModel = modelMap[crewType];
     const result = await crewModel.findOneAndUpdate(
         { 
             _id: crewId, 
@@ -22,7 +28,7 @@ async function addUserToCrew(userId, crewId, crewModel, options = {}) {
                 } 
             } 
         },
-        { session, new: true }
+        { session, returnDocument: 'after' }
     );
     return result;
 }
@@ -32,7 +38,7 @@ async function addCrewToUser(userId, crewId, options = {}) {
     const result = await User.findByIdAndUpdate(
         userId,
         { $addToSet: { crews: crewId } },
-        { session, new: true }
+        { session, returnDocument: 'after' }
     );
 
     return result;

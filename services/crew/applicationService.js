@@ -19,8 +19,8 @@ async function appStatusUpdateById(appId, action, options = {}) {
 
     const result = await crewApplication.findByIdAndUpdate(
         appId,
-        { status: action },
-        { session, new: true }
+        { status: action === 'accept' ? 'accepted' : 'rejected' },
+        { session, returnDocument: 'after' }
     );
 
     return result;

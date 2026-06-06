@@ -1,5 +1,6 @@
 const { CONSTANTS } = require('../../config/constants');
 const instantService = require('../../services/crew/instantService');
+const applicationService = require("../../services/crew/applicationService");
 
 const getInstant = async (req, res) => {
     try {
@@ -46,7 +47,7 @@ const getInstant = async (req, res) => {
             myCrewIds = crews
                 .filter(c =>
                     c.host._id.toString() === userId ||
-                    c.member.memberList.some(m => m.user?.toString() === userId)
+                    c.member.memberList.some(m => m.user?._id?.toString() === userId)
                 )
                 .map(c => c._id.toString());
         }
@@ -157,12 +158,27 @@ const getInstantDetailApi = async (req, res, next) => {
 
     if (!isHost && !isMember) return res.status(403).json({ success: false });
 
-    res.json({ success: true, crew, isHost });
+    const pendingApps = await applicationService.findPendingAppsByCrewId(req.params.instantId);
+
+    res.json({ success: true, crew, isHost, pendingApps });
   } catch (error) {
     next(error);
   }
 };
 
+const setNoshow = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+    try {
+        const { instantId, userId } = req.params;
+        const hostId = req.user._id;
+        const result = await instantService.setNoshow(instantId, hostId, userId);
+
+        if(!result.success) return res.status(result.status || 400).json({ success: false, message: result.message });
+        return res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     getInstantCreate, 
@@ -171,5 +187,6 @@ module.exports = {
     getInstantDetail,
     getInstantDetailApi,
     deleteInstantCrew,
-    kickMember
+    kickMember,
+    setNoshow
 };

@@ -163,6 +163,30 @@
   </div>
 </div>
 
+<div class="map-popup-overlay" id="member-action-modal" style="z-index:3000">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%;">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;" id="ma-name"></div>
+    <div style="font-size:13px;color:#aaa;margin-bottom:20px;" id="ma-sub"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button id="ma-noshow-btn"
+        style="padding:12px;border-radius:8px;border:1px solid #fde68a;
+          background:#fffbeb;color:#d97706;font-size:14px;font-weight:600;cursor:pointer;">
+        ⚠️ 노쇼 처리
+      </button>
+      <button id="ma-kick-btn"
+        style="padding:12px;border-radius:8px;border:1px solid #fecaca;
+          background:#fff5f5;color:#ef4444;font-size:14px;font-weight:600;cursor:pointer;">
+        🚫 강퇴
+      </button>
+      <button id="ma-cancel-btn"
+        style="padding:12px;border-radius:8px;border:1px solid #e5e7eb;
+          background:#fff;color:#555;font-size:14px;cursor:pointer;">
+        취소
+      </button>
+    </div>
+  </div>
+</div>
+
 <script id="page-data" type="application/json"><%- JSON.stringify(pageData) %></script>
 <script type="module" src="/js/handlers/icHandler.js"></script>
 </body>

@@ -3,6 +3,8 @@ import kakaoMap from '../modules/mapLoader.js';
 let crewsData = [];
 let isLoggedIn = false;
 let myCrewIds = [];
+let _maCrewId = null;
+let _maUserId = null;
 
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -88,10 +90,30 @@ function showMapPopup(data) {
     applyBtn.onclick = async () => {
       if (!isLoggedIn) { window.location.href = '/user/login'; return; }
       try {
-        const res    = await fetch(`/crew/instant/${data.id}/apply`, { method: 'POST' });
-        const result = await res.json();
-        if (result.success) { alert('참가 신청이 완료됐습니다!'); closeMapPopup(); }
-        else                { alert(result.message || '신청에 실패했습니다'); }
+        const res = await fetch(`/instant/application/${data.id}`, { method: 'POST' });
+        if (res.ok) {
+          document.querySelector('.map-popup').innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;
+              justify-content:center;padding:60px 20px;text-align:center;">
+              <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+              <div style="font-size:18px;font-weight:700;margin-bottom:8px;">참가 신청 완료!</div>
+              <div style="font-size:13px;color:#aaa;margin-bottom:24px;">
+                ${data.isAutoAccept ? '자동 수락되어 모임에 참가됐습니다.' : '호스트 승인 후 참가가 확정됩니다.'}
+              </div>
+              <button id="popup-success-btn"
+                style="padding:12px 32px;border-radius:8px;background:#222;color:#fff;
+                  border:none;font-size:14px;font-weight:600;cursor:pointer;">
+                확인
+              </button>
+            </div>`;
+          document.getElementById('popup-success-btn').addEventListener('click', () => {
+            closeMapPopup();
+            location.reload();
+          });
+        } else {
+          const result = await res.json();
+          alert(result.message || '신청에 실패했습니다');
+        }
       } catch (e) { alert('서버 오류가 발생했습니다'); }
     };
   }
@@ -104,12 +126,12 @@ function closeMapPopup() {
 }
 
 // ── 호스트/멤버용 상세 모달 ──
-let _mpCrewId   = null;
-let _mpCrewData = null;
-let _mpIsHost   = false;
-let _mpTopTab       = 'crew';     // 'crew' | 'chat'
-let _mpActiveTab    = 'member';   // 'member' | 'pending'
-let _mpActiveFilter = 'all';      // 'all' | 'host' | 'confirmed' | 'noshow'
+let _mpCrewId       = null;
+let _mpCrewData     = null;
+let _mpIsHost       = false;
+let _mpTopTab       = 'crew';
+let _mpActiveTab    = 'member';
+let _mpActiveFilter = 'all';
 let _mpSearch       = '';
 
 async function showMemberPopup(crewId) {
@@ -124,9 +146,9 @@ async function showMemberPopup(crewId) {
     const data = await res.json();
     if (!data.success) { body.innerHTML = '<div style="padding:40px;text-align:center;color:#f00;">불러오기 실패</div>'; return; }
 
-    _mpCrewId   = crewId;
-    _mpCrewData = data.crew;
-    _mpIsHost   = data.isHost;
+    _mpCrewId       = crewId;
+    _mpCrewData     = { ...data.crew, pendingApps: data.pendingApps || [] };
+    _mpIsHost       = data.isHost;
     _mpTopTab       = 'crew';
     _mpActiveTab    = 'member';
     _mpActiveFilter = 'all';
@@ -139,15 +161,14 @@ async function showMemberPopup(crewId) {
 }
 
 function renderMemberPopupBody() {
-  const body       = document.getElementById('mp-body');
-  const crew       = _mpCrewData;
-  const crewId     = _mpCrewId;
-  const isHost     = _mpIsHost;
-  const memberList = crew.member.memberList;
-  const pendingList = crew.member.pendingList || [];
-  const confirmed  = memberList.filter(m => m.status === 'confirmed');
+  const body        = document.getElementById('mp-body');
+  const crew        = _mpCrewData;
+  const crewId      = _mpCrewId;
+  const isHost      = _mpIsHost;
+  const memberList  = crew.member.memberList;
+  const pendingList = crew.pendingApps || [];
+  const confirmed   = memberList.filter(m => m.status === 'confirmed');
 
-  // 상태 뱃지
   const isFull   = memberList.length >= crew.member.capacity;
   const isAlmost = !isFull && (memberList.length / crew.member.capacity) >= 0.8;
   const statusPill = isFull
@@ -156,8 +177,6 @@ function renderMemberPopupBody() {
       ? '<span class="pill pill-warn">마감임박</span>'
       : '<span class="pill pill-open">참가가능</span>';
 
-
-  // 상단 모임/채팅 탭
   const topTabs = `
     <div style="display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px;">
       ${[['crew','📋 모임'],['chat','💬 채팅방']].map(([key, label]) => `
@@ -182,14 +201,13 @@ function renderMemberPopupBody() {
     return;
   }
 
-  // 통계 카드
   const stats = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">
       ${[
-        ['전체 참여자', memberList.length,   '#222'],
-        ['참가 확정',   confirmed.length,    '#22c55e'],
+        ['전체 참여자', memberList.length,  '#222'],
+        ['참가 확정',   confirmed.length,   '#22c55e'],
         ['모집 현황',   `${memberList.length} / ${crew.member.capacity}`, '#3b82f6'],
-        ['신청 대기',   pendingList.length,  '#f97316']
+        ['신청 대기',   pendingList.length, '#f97316']
       ].map(([label, val, color]) => `
         <div style="background:#f8f8f8;border-radius:10px;padding:12px 8px;text-align:center;">
           <div style="font-size:11px;color:#aaa;margin-bottom:4px;">${label}</div>
@@ -197,11 +215,10 @@ function renderMemberPopupBody() {
         </div>`).join('')}
     </div>`;
 
-  // 탭
   const tabs = `
     <div style="display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:16px;">
       ${[['member','참여자 목록'],['pending','신청 대기']].map(([key, label]) => `
-        <button id="mp-tab-${key}" onclick="mpSetTab('${key}')"
+        <button onclick="mpSetTab('${key}')"
           style="padding:10px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;
             border-bottom:2px solid ${_mpActiveTab === key ? '#222' : 'transparent'};
             color:${_mpActiveTab === key ? '#222' : '#aaa'};margin-bottom:-2px;">
@@ -209,8 +226,64 @@ function renderMemberPopupBody() {
         </button>`).join('')}
     </div>`;
 
-  // 필터 칩 + 검색 (참여자 탭에서만)
-  const filterBar = _mpActiveTab === 'member' ? `
+  // ── 신청 대기 탭: 카드 형태 ──
+  if (_mpActiveTab === 'pending') {
+    const cards = pendingList.length === 0
+      ? `<div style="padding:40px;text-align:center;color:#aaa;font-size:13px;">신청 대기 중인 멤버가 없어요</div>`
+      : pendingList.map(app => {
+          const u = app.userId || {};
+          return `
+            <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;padding:16px;margin-bottom:12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:var(--primary,#3b82f6);
+                    color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    ${(u.name || '?').charAt(0)}
+                  </div>
+                  <div>
+                    <div style="font-size:14px;font-weight:700;">${u.name || '멤버'}</div>
+                    <div style="font-size:12px;color:#aaa;">${u.tel || ''}</div>
+                  </div>
+                </div>
+                <div style="font-size:12px;color:#aaa;">${timeAgo(app.createdAt)}</div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:12px;color:#555;margin-bottom:12px;">
+                ${u.gender ? `<span>${u.gender === 'male' ? '남성' : '여성'}</span>` : ''}
+                ${u.age ? `<span>${u.age}세</span>` : ''}
+                ${u.honor !== undefined ? `<span>⭐ 매너점수 ${u.honor}</span>` : ''}
+              </div>
+              ${isHost ? `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+                  <button onclick="mpJoinProcess('${app._id}','accept','${crewId}')"
+                    style="padding:10px;border-radius:8px;border:1px solid #bbf7d0;
+                      background:#f0fdf4;color:#16a34a;font-size:13px;font-weight:600;cursor:pointer;">
+                    ✓ 수락
+                  </button>
+                  <button onclick="mpJoinProcess('${app._id}','reject','${crewId}')"
+                    style="padding:10px;border-radius:8px;border:1px solid #fecaca;
+                      background:#fff5f5;color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;">
+                    ✕ 거절
+                  </button>
+                </div>` : ''}
+            </div>`;
+        }).join('');
+
+    body.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div class="popup-sport">${crew.sportKr || ''}</div>
+        ${statusPill}
+      </div>
+      <div class="popup-title" style="margin-bottom:4px;">${crew.title}</div>
+      <div style="font-size:13px;color:#aaa;margin-bottom:16px;">
+        📍 ${crew.address?.state} ${crew.address?.city}
+        &nbsp;·&nbsp; ⏰ ${crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR') : '미정'}
+      </div>
+      ${topTabs}${stats}${tabs}${cards}`;
+    return;
+  }
+
+  // ── 참여자 목록 탭: 테이블 형태 ──
+  const filterBar = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
       <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;">
         ${[['all','전체'],['host','모임장'],['confirmed','참가확정'],['noshow','노쇼']].map(([key, label]) => `
@@ -228,17 +301,12 @@ function renderMemberPopupBody() {
           oninput="mpSetSearch(this.value)"
           style="padding:6px 12px 6px 30px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;width:130px;outline:none;">
       </div>
-    </div>` : '';
+    </div>`;
 
-  // 현재 탭 데이터
-  const sourceList = _mpActiveTab === 'member' ? memberList : pendingList;
-
-  // 필터 + 검색 적용
-  const filtered = sourceList.filter(m => {
+  const filtered = memberList.filter(m => {
     const u = m.user || {};
     const name = (u.name || '').toLowerCase();
     const matchSearch = !_mpSearch || name.includes(_mpSearch.toLowerCase());
-    if (_mpActiveTab !== 'member') return matchSearch;
     const matchFilter =
       _mpActiveFilter === 'all'       ? true :
       _mpActiveFilter === 'host'      ? m.role === 'host' :
@@ -247,14 +315,13 @@ function renderMemberPopupBody() {
     return matchSearch && matchFilter;
   });
 
-  // 테이블 rows
   const rows = filtered.length === 0
     ? `<tr><td colspan="7" style="padding:30px;text-align:center;color:#aaa;font-size:13px;">해당하는 멤버가 없어요</td></tr>`
     : filtered.map(m => {
         const u       = m.user || {};
         const isOwner = m.role === 'host';
-        const joinedAt = m.createdAt
-          ? new Date(m.createdAt).toLocaleDateString('ko-KR', {year:'numeric', month:'numeric', day:'numeric'})
+        const joinedAt = m.joinedAt
+          ? new Date(m.joinedAt).toLocaleDateString('ko-KR', {year:'numeric', month:'numeric', day:'numeric'})
           : '-';
         const statusBadge = m.status === 'confirmed'
           ? '<span style="padding:2px 8px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:12px;">참가확정</span>'
@@ -294,7 +361,7 @@ function renderMemberPopupBody() {
             <td style="padding:10px 8px;font-size:12px;color:#aaa;">${joinedAt}</td>
             <td style="padding:10px 8px;">
               ${isHost && !isOwner ? `
-                <button onclick="mpManageMember('${crewId}','${u._id}','${_mpActiveTab}')"
+                <button onclick="mpManageMember('${crewId}','${u._id}','${u.name || '멤버'}')"
                   style="width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;
                     background:#fff;color:#555;font-size:14px;cursor:pointer;
                     display:flex;align-items:center;justify-content:center;">
@@ -314,12 +381,7 @@ function renderMemberPopupBody() {
       📍 ${crew.address?.state} ${crew.address?.city}
       &nbsp;·&nbsp; ⏰ ${crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR') : '미정'}
     </div>
-
-    ${topTabs}
-    ${stats}
-    ${tabs}
-    ${filterBar}
-
+    ${topTabs}${stats}${tabs}${filterBar}
     <div style="overflow-x:auto;border-radius:10px;border:1px solid #f0f0f0;">
       <table style="width:100%;border-collapse:collapse;">
         <thead>
@@ -332,7 +394,6 @@ function renderMemberPopupBody() {
         <tbody>${rows}</tbody>
       </table>
     </div>
-
     ${isHost ? `
       <div style="margin-top:16px;">
         <button onclick="deleteCrew('${crewId}')"
@@ -346,43 +407,41 @@ function renderMemberPopupBody() {
 
 // 탭 전환
 window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
-window.mpSetTab = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
-
-// 필터 전환
-window.mpSetFilter = (filter) => { _mpActiveFilter = filter; renderMemberPopupBody(); };
-
-// 검색
+window.mpSetTab    = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
+window.mpSetFilter = (f)   => { _mpActiveFilter = f; renderMemberPopupBody(); };
 window.mpSetSearch = (val) => { _mpSearch = val; renderMemberPopupBody(); };
 
-// 관리 버튼 (탭에 따라 강퇴 or 수락/거절)
-window.mpManageMember = async (crewId, userId, tab) => {
-  if (tab === 'pending') {
-    const action = confirm('수락하려면 확인, 거절하려면 취소를 누르세요.\n(확인=수락 / 취소=거절)');
-    // pending 처리 엔드포인트가 생기면 연결
-    alert('신청 처리 기능은 준비 중입니다.');
-    return;
-  }
-  if (!confirm('정말 강퇴하시겠습니까?')) return;
+// 신청 수락/거절
+window.mpJoinProcess = async (appId, action, crewId) => {
   try {
-    const res    = await fetch(`/instant/list/${crewId}/kick/${userId}`, { method: 'POST' });
+    const res    = await fetch(`/instant/join/${appId}/${action}`, { method: 'POST' });
     const result = await res.json();
-    if (result.success) { alert('강퇴됐습니다.'); showMemberPopup(crewId); }
-    else                { alert(result.message || '강퇴 실패'); }
+    if (result.success) showMemberPopup(crewId);
+    else alert(result.message || '처리 실패');
   } catch (e) { alert('서버 오류'); }
+};
+
+// 관리 버튼 — 액션 모달 열기
+window.mpManageMember = (crewId, userId, userName) => {
+  _maCrewId = crewId;
+  _maUserId = userId;
+  document.getElementById('ma-name').textContent = userName;
+  document.getElementById('ma-sub').textContent  = '멤버 관리';
+  document.getElementById('member-action-modal').classList.add('show');
 };
 
 function closeMemberPopup() {
   document.getElementById('member-popup').classList.remove('show');
 }
 
-// 모임 삭제 (멤버 팝업 안 버튼에서 호출)
+// 모임 삭제
 window.deleteCrew = async (crewId) => {
   if (!confirm('정말 삭제하시겠습니까?')) return;
   try {
     const res    = await fetch(`/instant/delete/${crewId}`, { method: 'POST' });
     const result = await res.json();
-    if (result.success) { alert('삭제됐습니다.'); closeMemberPopup(); location.reload(); }
-    else                { alert(result.message || '삭제 실패'); }
+    if (result.success) { closeMemberPopup(); location.reload(); }
+    else alert(result.message || '삭제 실패');
   } catch (e) { alert('서버 오류'); }
 };
 
@@ -450,7 +509,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   renderCrewList();
 
-  // 카드 클릭
   document.querySelectorAll('.map-item').forEach(item => {
     item.addEventListener('click', () => {
       const crew = crewsData.find(c => c.id == item.dataset.id);
@@ -463,12 +521,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // 지도 필터
   document.querySelectorAll('.map-filter-chip').forEach(chip => {
     chip.addEventListener('click', () => filterToggle(chip, chip.dataset.filter));
   });
 
-  // 정렬 탭
   document.querySelectorAll('.map-sort-tab').forEach(tab => {
     tab.addEventListener('click', () => setSortTab(tab, tab.textContent.trim()));
   });
@@ -483,6 +539,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   const memberPopupEl = document.getElementById('member-popup');
   if (memberPopupEl) memberPopupEl.addEventListener('click', e => { if (e.target === memberPopupEl) closeMemberPopup(); });
   document.getElementById('mp-close-btn')?.addEventListener('click', closeMemberPopup);
+
+  // 멤버 관리 액션 모달
+  const actionModal = document.getElementById('member-action-modal');
+  if (actionModal) actionModal.addEventListener('click', e => { if (e.target === actionModal) actionModal.classList.remove('show'); });
+
+  document.getElementById('ma-noshow-btn')?.addEventListener('click', async () => {
+    document.getElementById('member-action-modal').classList.remove('show');
+    try {
+      const res    = await fetch(`/instant/list/${_maCrewId}/noshow/${_maUserId}`, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) showMemberPopup(_maCrewId);
+      else alert(result.message || '노쇼 처리 실패');
+    } catch (e) { alert('서버 오류'); }
+  });
+
+  document.getElementById('ma-kick-btn')?.addEventListener('click', async () => {
+    document.getElementById('member-action-modal').classList.remove('show');
+    try {
+      const res    = await fetch(`/instant/list/${_maCrewId}/kick/${_maUserId}`, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) showMemberPopup(_maCrewId);
+      else alert(result.message || '강퇴 실패');
+    } catch (e) { alert('서버 오류'); }
+  });
+
+  document.getElementById('ma-cancel-btn')?.addEventListener('click', () => {
+    document.getElementById('member-action-modal').classList.remove('show');
+  });
 
   document.getElementById('btn-create-match')?.addEventListener('click', () => {
     if (!isLoggedIn) { window.location.href = '/user/login'; return; }

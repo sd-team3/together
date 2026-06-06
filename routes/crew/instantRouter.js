@@ -1,10 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const instantCrew = require('../../models/instantCrew');
 const instantController = require('../../controllers/crew/instantController');
 const applicationController = require('../../controllers/crew/applicationController');
 const applicationService = require('../../services/crew/applicationService');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
+
+router.use((req, res, next)=>{ 
+    req.crewModel = instantCrew;
+    req.crewType = 'instantCrew';
+    next(); 
+});
 
 //번개 모임 페이지
 router.get('/list', instantController.getInstant);
@@ -39,6 +46,9 @@ router.post('/join/:appId/:action',
     applicationController.joinProcess
 );
 
-
 router.get('/api/:instantId', instantController.getInstantDetailApi);
+
+//노쇼
+router.post('/list/:instantId/noshow/:userId', instantController.setNoshow);
+
 module.exports = router;

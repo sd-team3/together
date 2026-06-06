@@ -55,7 +55,7 @@ const applicationValidation = async (req, res, next)=>{
 
     if (crew.member.memberList.length >= crew.member.capacity) return res.status(400).json({ message: "최대 인원에 도달한 크루입니다." });
     if (isMember) return res.status(404).json({ message: "이미 가입된 크루입니다." });
-    if (!crew.ageRange.includes('all') && !crew.ageRange.includes(ageGroup)) return res.status(404).json({ message: "현재 연령대는 가입 불가한 크루입니다." });
+    if (crew.ageRange && !crew.ageRange.includes('all') && !crew.ageRange.includes(ageGroup)) return res.status(404).json({ message: "현재 연령대는 가입 불가한 크루입니다." });
 
     const notiData = crew.isAutoAccept ?
     {
@@ -89,15 +89,16 @@ const getPendingValidation = async (req, res, next)=>{
 }
 
 const joinMiddleware = async (req, res, next)=>{
-    if(action !== 'accept' || action !== 'reject') return res.status(400).json({ message: "잘못된 요청입니다." });
     const { appId, action } = req.params;
+    if(action !== 'accept' && action !== 'reject') return res.status(400).json({ message: "잘못된 요청입니다." });
 
     try {
+        const app = await applicationService.findAppById(appId);
         const host = await crewService.findHostByCrewId(req.crewModel, app.crewId);
         const crew = await req.crewModel.findById(app.crewId);
 
         if(!host || !crew) return res.status(404).json({ message: "존재하지 않는 크루입니다." });
-        if(host !== req.user._id) return res.status(403).json({ message: "당신은 권한이 없습니다." });
+        if(host.toString() !== req.user._id.toString()) return res.status(403).json({ message: "당신은 권한이 없습니다." });
         
         req.crew = crew;
         next();
