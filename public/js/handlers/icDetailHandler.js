@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 미가입자 - 참가 신청만
         document.getElementById('btn-apply')?.addEventListener('click', async () => {
             try {
-                const res = await fetch(`/crew/instant/${CREW_ID}/apply`, { method: 'POST' });
+                const res = await fetch(`/instant/${CREW_ID}/apply`, { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     alert('참가 신청이 완료됐습니다!');
@@ -121,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleNoshow(userId, isNoshow) {
         const url = isNoshow
-            ? `/crew/instant/${CREW_ID}/noshow/${userId}/cancel`
-            : `/crew/instant/${CREW_ID}/noshow/${userId}`;
+            ? `/instant/${CREW_ID}/noshow/${userId}/cancel`
+            : `/instant/${CREW_ID}/noshow/${userId}`;
         try {
             const res = await fetch(url, { method: 'POST' });
             const data = await res.json();
@@ -141,10 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { alert('서버 오류가 발생했습니다'); }
     }
 
-    async function handleApp(userId, action) {
-        const card = document.getElementById('app-' + userId);
+    async function handleApp(appId, action) {
+        const card = document.querySelector(`[data-app-id="${appId}"]`);
+        const appId = card?.dataset?.appId;
         try {
-            const res = await fetch(`/crew/instant/${CREW_ID}/${action}/${userId}`, { method: 'POST' });
+            const res = await fetch(`/instant/join/${appId}/${action}`, { method: 'POST' });
             const data = await res.json();
             if (data.success) {
                 card.classList.add('done');
@@ -198,10 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target.closest('.app-btn');
         if (!btn) return;
         const card = btn.closest('.app-card');
-        const userId = card?.id?.replace('app-', '');
-        if (!userId) return;
-        if (btn.classList.contains('accept')) handleApp(userId, 'accept');
-        if (btn.classList.contains('reject')) handleApp(userId, 'reject');
+        const appId = card?.dataset?.appId;
+        if (!appId) return;
+        if (btn.classList.contains('accept')) handleApp(appId, 'accept');
+        if (btn.classList.contains('reject')) handleApp(appId, 'reject');
     });
 
     document.querySelectorAll('.page-tab').forEach(tab => {

@@ -18,7 +18,8 @@ async function addUserToCrew(userId, crewId, crewType, options = {}) {
     const result = await crewModel.findOneAndUpdate(
         { 
             _id: crewId, 
-            'member.memberList.user': { $ne: userId }
+            'member.memberList.user': { $ne: userId },
+            $expr: { $lt: [{ $size: '$member.memberList'}, '$member.capacity']}
         },
         { 
             $push: { 
