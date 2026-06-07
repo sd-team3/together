@@ -233,11 +233,11 @@
     </div>
 </div>
 
-<script>
-window.profileData = {
-    regCrew: <%- JSON.stringify(regCrew) %>,
-    instantCrew: <%- JSON.stringify(instantCrew) %>
-};
+<script id="profile-data" type="application/json">
+{
+    "regCrew": <%- JSON.stringify(regCrew) %>,
+    "instantCrew": <%- JSON.stringify(instantCrew) %>
+}
 </script>
 <script src="/js/handlers/profile.js"></script>
 </body>

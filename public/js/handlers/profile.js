@@ -1,4 +1,7 @@
-const { regCrew, instantCrew } = window.profileData;
+const profileData = JSON.parse(
+    document.getElementById("profile-data").textContent
+);
+const { regCrew, instantCrew } = profileData;
 
 document.addEventListener("DOMContentLoaded", () => {
 // 정기 모임, 실시간 모임 전체화면, 접기 버튼
