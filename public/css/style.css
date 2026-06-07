@@ -1887,8 +1887,8 @@ select.input{cursor:pointer}
   color: #fff;
 }
 
-/* ==============================
-   지역 선택 영역
+
+/* 지역 선택 영역 */
 
 .area-select-box {
   display: none;
