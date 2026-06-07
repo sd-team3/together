@@ -66,17 +66,11 @@ const getInstant = async (req, res) => {
 
 
 const getInstantCreate = (req, res) => {
-    if(!req.isAuthenticated()){
-        return res.redirect('/user/login');
-    }
     res.render('crew/instantCreate', {CONSTANTS:CONSTANTS});
 }
 
 const postInstantCreate = async (req, res) => {
     try {
-        if(!req.isAuthenticated()){
-            return res.redirect('/user/login');
-        }
         const host = req.user._id;
         const data = req.body;
 
@@ -113,7 +107,6 @@ const getInstantDetail = async(req, res, next) => {
 };
 // 번개 모임 삭제
 const deleteInstantCrew = async(req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const crewId = req.params.instantId;
         const userId = req.user._id;
@@ -130,7 +123,6 @@ const deleteInstantCrew = async(req, res, next) => {
 
 //멤버 강퇴
 const kickMember = async(req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const { instantId, userId } = req.params;
         const hostId = req.user._id;
