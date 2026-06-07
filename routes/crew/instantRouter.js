@@ -62,6 +62,6 @@ router.post('/join/:appId/:action',
 router.get('/api/:instantId', instantController.getInstantDetailApi);
 
 //노쇼
-router.post('/list/:instantId/noshow/:userId', instantController.setNoshow);
+router.post('/list/:instantId/noshow/:userId', crewMiddleware.loginValidation, instantController.setNoshow);
 
 module.exports = router;

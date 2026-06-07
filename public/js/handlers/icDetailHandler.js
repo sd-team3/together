@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleApp(appId, action) {
         const card = document.querySelector(`[data-app-id="${appId}"]`);
-        const appId = card?.dataset?.appId;
         try {
             const res = await fetch(`/instant/join/${appId}/${action}`, { method: 'POST' });
             const data = await res.json();
