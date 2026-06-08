@@ -98,22 +98,21 @@ export function renderMemberPopupBody() {
             : '<span class="pill pill-open">참가가능</span>';
 
     const topTabs = `
-        <div style="display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:20px;">
-            ${[['crew', '📋 모임'], ['chat', '💬 채팅방']].map(([key, label]) => `
-                <button onclick="mpSetTopTab('${key}')"
-                    style="padding:10px 18px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;
-                        border-bottom:2px solid ${_mpTopTab === key ? '#222' : 'transparent'};
-                        color:${_mpTopTab === key ? '#222' : '#aaa'};margin-bottom:-2px;">
-                    ${label}
-                </button>`).join('')}
-        </div>`;
-
-    if (_mpTopTab === 'chat') {
-        import('./instantPopupChat.js').then(({ renderChatTab }) => {
-            renderChatTab(body, crew, isHost, topTabs);
-        });
-        return;
-    }
+    <div style="display:flex;align-items:center;border-bottom:2px solid #f0f0f0;margin-bottom:20px;">
+        <button onclick="mpSetTopTab('crew')"
+            style="padding:10px 18px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;
+                border-bottom:2px solid #222;color:#222;margin-bottom:-2px;">
+            📋 모임
+        </button>
+        <div style="flex:1;"></div>
+        <a href="/chat/${crewId}"
+            style="display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;
+                background:#f4f4f5;color:#555;font-size:13px;font-weight:600;
+                text-decoration:none;margin-bottom:4px;">
+            💬 채팅방
+            <span style="font-size:15px;">→</span>
+        </a>
+    </div>`;
 
     const stats = `
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;">
