@@ -19,8 +19,8 @@ async function appStatusUpdateById(appId, action, options = {}) {
 
     const result = await crewApplication.findByIdAndUpdate(
         appId,
-        { status: action },
-        { session, new: true }
+        { status: action === 'accept' ? 'accepted' : 'rejected' },
+        { session, returnDocument: 'after' }
     );
 
     return result;
@@ -29,7 +29,7 @@ async function appStatusUpdateById(appId, action, options = {}) {
 const findPendingAppsByCrewId = async (crewId) => {
     try {
         const apps = await crewApplication.find({ 
-            crew: crewId, 
+            crewId: crewId, 
             status: 'pending' 
         })
         .populate('userId', 'name age profileImage gender honor')

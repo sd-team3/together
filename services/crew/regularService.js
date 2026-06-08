@@ -251,6 +251,16 @@ async function crewLike(regularCrewId, userId) {
     ); // $inc : 몽고DB 숫자 필드 증가 연산자
 }
 
+async function getCrewManage(regularCrewId) {
+    const crew = await regularCrew.findById(regularCrewId);
+    return crew;
+}
+
+async function getCrewActivity(regularCrewId) {
+    const crew = await regularCrew.findById(regularCrewId);
+    return crew;
+}
+
 module.exports = { 
     createRegCrew, 
     findRegularCrewsByUserId, 
@@ -260,5 +270,7 @@ module.exports = {
     withdrawMyCrew, 
     crewLike,
     getRegularCrews, 
-    getRegularAPICrews
+    getRegularAPICrews,
+    getCrewManage,
+    getCrewActivity
 };

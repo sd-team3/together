@@ -17,7 +17,10 @@ const notificationSchema = new mongoose.Schema(
         event: { 
             type: String, 
             enum: [
-                'CREW_APPLICATION'
+                'CREW_APPLICATION',
+                'NEW_MEMBER',
+                'APPLICATION_ACCEPTED',
+                'APPLICATION_REJECTED'
             ],
             required: true 
         },

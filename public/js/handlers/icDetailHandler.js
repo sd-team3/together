@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 미가입자 - 참가 신청만
         document.getElementById('btn-apply')?.addEventListener('click', async () => {
             try {
-                const res = await fetch(`/crew/instant/${CREW_ID}/apply`, { method: 'POST' });
+                const res = await fetch(`/instant/${CREW_ID}/apply`, { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     alert('참가 신청이 완료됐습니다!');
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 멤버/호스트 공통 ──
     const members = MEMBERS_DATA;
     let currentFilter = 'all', searchVal = '', selectedId = null;
+    const searchInput = document.getElementById('search-input');
 
     const avList = [
         {bg:'#fff3cd',color:'#b45309'},{bg:'#E1F5EE',color:'#085041'},
@@ -46,28 +47,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
         const list = filtered();
         const tbody = document.getElementById('member-tbody');
+        const hadFocus = document.activeElement === searchInput;
+        
         if (!list.length) {
             tbody.innerHTML = '<tr class="empty-row"><td colspan="7">조건에 맞는 참여자가 없어요</td></tr>';
-            return;
+        } else {
+            tbody.innerHTML = list.map(m => {
+                const a = av(m.name);
+                return `<tr class="member-row${selectedId === m.id ? ' selected' : ''}" data-id="${m.id}">
+                    <td><div class="member-cell">
+                        <div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div>
+                        <div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div>
+                    </div></td>
+                    <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
+                    <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
+                    <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
+                    <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
+                    <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
+                    <td><div class="action-btns">
+                        <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
+                        ${IS_HOST && m.role !== 'host' ? `<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>` : ''}
+                    </div></td>
+                </tr>`;
+            }).join('');
         }
-        tbody.innerHTML = list.map(m => {
-            const a = av(m.name);
-            return `<tr class="member-row${selectedId === m.id ? ' selected' : ''}" data-id="${m.id}">
-                <td><div class="member-cell">
-                    <div class="member-av" style="background:${a.bg};color:${a.color}">${m.name.slice(0,2)}</div>
-                    <div><div class="member-name">${m.name}</div><div class="member-phone">${m.tel}</div></div>
-                </div></td>
-                <td><span class="role-badge ${roleClass(m.role)}">${roleLabel(m.role)}</span></td>
-                <td><span class="status-pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
-                <td style="font-size:12.5px;color:var(--text-2)">${m.gender}</td>
-                <td style="font-size:12.5px;color:var(--text-2)">${m.age}세</td>
-                <td style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">${m.joinedAt}</td>
-                <td><div class="action-btns">
-                    <button class="act-btn" data-action="detail" data-id="${m.id}" title="상세보기">👤</button>
-                    ${IS_HOST && m.role !== 'host' ? `<button class="act-btn danger" data-action="kick" data-id="${m.id}" title="강퇴">✕</button>` : ''}
-                </div></td>
-            </tr>`;
-        }).join('');
+        
+        if (hadFocus) searchInput.focus();
     }
 
     function openDetail(id) {
@@ -116,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleNoshow(userId, isNoshow) {
         const url = isNoshow
-            ? `/crew/instant/${CREW_ID}/noshow/${userId}/cancel`
-            : `/crew/instant/${CREW_ID}/noshow/${userId}`;
+            ? `/instant/${CREW_ID}/noshow/${userId}/cancel`
+            : `/instant/${CREW_ID}/noshow/${userId}`;
         try {
             const res = await fetch(url, { method: 'POST' });
             const data = await res.json();
@@ -136,10 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { alert('서버 오류가 발생했습니다'); }
     }
 
-    async function handleApp(userId, action) {
-        const card = document.getElementById('app-' + userId);
+    async function handleApp(appId, action) {
+        const card = document.querySelector(`[data-app-id="${appId}"]`);
         try {
-            const res = await fetch(`/crew/instant/${CREW_ID}/${action}/${userId}`, { method: 'POST' });
+            const res = await fetch(`/instant/join/${appId}/${action}`, { method: 'POST' });
             const data = await res.json();
             if (data.success) {
                 card.classList.add('done');
@@ -174,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('search-input').addEventListener('input', e => {
-        searchVal = e.target.value.trim();
+    searchInput.addEventListener('keyup', e => {
+        searchVal = searchInput.value;
         render();
     });
 
@@ -193,10 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target.closest('.app-btn');
         if (!btn) return;
         const card = btn.closest('.app-card');
-        const userId = card?.id?.replace('app-', '');
-        if (!userId) return;
-        if (btn.classList.contains('accept')) handleApp(userId, 'accept');
-        if (btn.classList.contains('reject')) handleApp(userId, 'reject');
+        const appId = card?.dataset?.appId;
+        if (!appId) return;
+        if (btn.classList.contains('accept')) handleApp(appId, 'accept');
+        if (btn.classList.contains('reject')) handleApp(appId, 'reject');
     });
 
     document.querySelectorAll('.page-tab').forEach(tab => {

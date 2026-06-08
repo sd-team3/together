@@ -111,7 +111,14 @@
 
       <!-- 하단 가입 버튼 -->
       <div class="detail-footer">
-        <button class="join-btn" id="join-btn" onclick="confirmJoin()">가입 신청하기</button>
+        <%
+          const joinUser = 
+        %>
+        <% if (!userId) { %>
+        <button class="join-btn" id="join-btn" onclick="alert('로그인 후 이용할 수 있습니다.'); location.href='/user/login'; return false;"">가입 신청하기</button>
+        <% } else { %>
+          <button class="join-btn" id="join-btn" onclick="confirmJoin('<%= crew._id %>')">가입 신청하기</button>
+        <% } %>
       </div>
     </div>
   </div>
@@ -122,5 +129,33 @@ let likeCount = <%= crew.reputation %>;
 </script>
 <script src="/js/like.js"></script>
 
+<script>
+  async function confirmJoin(crewId) {
+    if (!confirm('가입 신청을 하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/regular/application/${crewId}`, {
+        method : 'POST',
+        headers : {
+          'Content-Type' : 'application/json'
+        }
+      });
+
+      if (response.status == 201) {
+        alert('가입 신청 완료!');
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || '신청 중 문제가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('가입 신청 오류 : ' , error);
+      alert('서버 오류가 났습니다. 잠시 후 다시 시도해주세요');
+    }
+  }
+
+</script>
 </body>
 </html>

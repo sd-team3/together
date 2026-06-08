@@ -1,5 +1,6 @@
 const { CONSTANTS } = require('../../config/constants');
 const instantService = require('../../services/crew/instantService');
+const applicationService = require("../../services/crew/applicationService");
 
 const getInstant = async (req, res) => {
     try {
@@ -30,7 +31,14 @@ const getInstant = async (req, res) => {
             isAutoAccept: c.isAutoAccept,
             meetAt: c.meetAt,
             createdAt: c.createdAt,
-            avgReputation: c.avgReputation || 0
+            avgReputation: c.avgReputation || 0,
+            members: c.member.memberList.map(m => ({
+                nickname: m.user?.name || '멤버',
+                gender: m.user?.gender || '',
+                age: m.user?.age || '',
+                role: m.role === 'host' ? '모임장' : '참가확정',
+                joinedAt: m.createdAt || ''
+            }))
         }));
         //로그인한 유저의 관련 ID 목록
         let myCrewIds = [];
@@ -39,7 +47,7 @@ const getInstant = async (req, res) => {
             myCrewIds = crews
                 .filter(c =>
                     c.host._id.toString() === userId ||
-                    c.member.memberList.some(m => m.user?.toString() === userId)
+                    c.member.memberList.some(m => m.user?._id?.toString() === userId)
                 )
                 .map(c => c._id.toString());
         }
@@ -58,17 +66,11 @@ const getInstant = async (req, res) => {
 
 
 const getInstantCreate = (req, res) => {
-    if(!req.isAuthenticated()){
-        return res.redirect('/user/login');
-    }
     res.render('crew/instantCreate', {CONSTANTS:CONSTANTS});
 }
 
 const postInstantCreate = async (req, res) => {
     try {
-        if(!req.isAuthenticated()){
-            return res.redirect('/user/login');
-        }
         const host = req.user._id;
         const data = req.body;
 
@@ -105,7 +107,6 @@ const getInstantDetail = async(req, res, next) => {
 };
 // 번개 모임 삭제
 const deleteInstantCrew = async(req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const crewId = req.params.instantId;
         const userId = req.user._id;
@@ -122,7 +123,6 @@ const deleteInstantCrew = async(req, res, next) => {
 
 //멤버 강퇴
 const kickMember = async(req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const { instantId, userId } = req.params;
         const hostId = req.user._id;
@@ -135,14 +135,50 @@ const kickMember = async(req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
+const getInstantDetailApi = async (req, res, next) => {
+  try {
+    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+
+    const crew   = await instantService.getCrewDetail(req.params.instantId);
+    if (!crew) return res.status(404).json({ success: false });
+
+    const userId = req.user._id.toString();
+    const isHost = crew.host._id.toString() === userId;
+    const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
+
+    if (!isHost && !isMember) return res.status(403).json({ success: false });
+
+    const pendingApps = await applicationService.findPendingAppsByCrewId(req.params.instantId);
+
+    res.json({ success: true, crew, isHost, pendingApps });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const setNoshow = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+    try {
+        const { instantId, userId } = req.params;
+        const hostId = req.user._id;
+        const result = await instantService.setNoshow(instantId, hostId, userId);
+
+        if(!result.success) return res.status(result.status || 400).json({ success: false, message: result.message });
+        return res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     getInstantCreate, 
     postInstantCreate, 
     getInstant, 
     getInstantDetail,
+    getInstantDetailApi,
     deleteInstantCrew,
-    kickMember
+    kickMember,
+    setNoshow
 };

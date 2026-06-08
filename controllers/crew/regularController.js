@@ -14,7 +14,7 @@ const postRegularCreate = async (req, res)=>{
         const result = await regularService.createRegCrew(data, profileImage, host);
 
         if (result.success) {
-            return res.redirect('/crew/reg-list');
+            return res.redirect('/regular/list');
         } else {
             return res.status(400).send();
         } 
@@ -96,10 +96,25 @@ const getMyCrews = async (req, res) => {
         const userId = req.user._id;
         const role = req.query.role || 'all'; // 디폴트 설정
         const crews = await regularService.getMyCrews(userId, role);
-        res.render('regular/my', { crews, role });
+        res.render('crew/my', { crews, role });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
+    }
+}
+
+const getMyCrewsApi = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: '로그인이 필요합니다.' });
+        }
+        const userId = req.user._id;
+        const role = req.query.role || 'all';
+        const crews = await regularService.getMyCrews(userId, role);
+        res.json({ crews });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: '서버 오류' });
     }
 }
 
@@ -123,20 +138,6 @@ const postMyCrewWithdraw = async (req, res) => {
     }
 }
 
-const getCrewDetail = async (req, res) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        const crew = await regularService.getCrewDetail(req.params.regularCrewId);
-        const isLiked = crew.likedBy.some(id => id.toString() === req.user._id.toString());
-        res.render('crew/crew-detail', { crew, isLiked });
-    } catch (error) {
-        console.error(error);
-        res.status(500).render('error/error_500');
-    }
-}
-
 const postCrewLike = async (req, res) => {
     try {
         if (!req.isAuthenticated()) {
@@ -150,15 +151,43 @@ const postCrewLike = async (req, res) => {
     }
 }
 
+const getCrewManage = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        const crew = await regularService.getCrewManage(req.params.regularCrewId);
+        res.render('crew/crewManage', { crew });
+    } catch(error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
+const getCrewActivity = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        const crew = await regularService.getCrewActivity(req.params.regularCrewId);
+        res.render('crew/crewActivity', { crew });
+    } catch(error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
     getMyCrews, // 불러오기
     postMyCrewDelete,
     postMyCrewWithdraw,
-    getCrewDetail,
     postCrewLike,
     getRegular,
     getRegularAPI,
-    getRegularPage
+    getMyCrewsApi,
+    getCrewManage,
+    getRegularPage,
+    getCrewActivity
 };
