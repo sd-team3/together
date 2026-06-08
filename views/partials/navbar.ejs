@@ -17,6 +17,35 @@
   object-fit:cover;
   display:block;
 }
+  .toast-noti {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #222;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    animation: toast-in 0.3s ease;
+    max-width: 300px;
+  }
+  .toast-noti .toast-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #aaa;
+  }
+  .toast-noti .toast-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 </style>
 
 <nav class="sidenav">
@@ -129,3 +158,40 @@ const profileImg =
 
 </div>
 </nav>
+
+<% if (user) { %>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  (function() {
+    const globalNotiSocket = io('/noti', {
+      auth: { userId: '<%= user._id %>' }
+    });
+
+    globalNotiSocket.on('chat noti', (data) => {
+      if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
+      showGlobalToast(data.roomName, `${data.senderName}: ${data.content}`);
+    });
+
+    function showGlobalToast(title, content) {
+      const toast = document.createElement('div');
+      toast.className = 'toast-noti';
+      toast.innerHTML = `
+        <div class="toast-title">${escapeStr(title)}</div>
+        <div class="toast-content">${escapeStr(content)}</div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function escapeStr(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+  })();
+</script>
+<% } %>

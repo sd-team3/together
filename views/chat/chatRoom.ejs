@@ -72,10 +72,10 @@
         </div>
 
         <!-- 알림 버튼 -->
-        <button id="muteBtn" data-muted="false"
+        <button id="muteBtn" data-muted="<%= room && room.isMuted ? 'true' : 'false' %>"
           style="border:none;background:none;cursor:pointer;font-size:20px;padding:4px 8px;"
           onclick="toggleMute()">
-          🔔
+          <%= room && room.isMuted ? '🔇' : '🔔' %>
         </button>
       </div>
 
@@ -117,7 +117,7 @@
 </div><!-- /.main -->
 
 <script src="/socket.io/socket.io.js"></script>
-<script type="module" src="/js/chat/api.js"></script>
+<script type="module" src="/js/regularCrew/api.js"></script>
 
 <script>
   const chatMessages = document.getElementById('chatMessages');
@@ -269,7 +269,8 @@
     chatMessages.appendChild(row);
     scrollToBottom();
 
-    const roomItem = document.querySelector(`.chat-room-item[data-id="${window.currentRoomId}"]`);
+    const targetRoomId = data.roomId || window.currentRoomId;
+    const roomItem = document.querySelector(`.chat-room-item[data-id="${targetRoomId}"]`);
     if (roomItem) {
       roomItem.dataset.lastAt = new Date().toISOString();
       const preview = roomItem.querySelector('.cr-preview span');
@@ -335,6 +336,12 @@
   }
 
   scrollToBottom();
+
+  if (roomId && roomId !== '') {
+    window.currentRoomId = roomId;
+    connectSocket(roomId);
+  }
+  
 </script>
 
 </body>
