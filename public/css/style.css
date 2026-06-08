@@ -1399,6 +1399,39 @@ select.input{cursor:pointer}
 .toast-notify.success{border-left:3px solid var(--green)}
 .toast-notify.error{border-left:3px solid var(--red)}
 
+/* 채팅방 토스트 알림 */
+
+  .toast-noti {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #222;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    animation: toast-in 0.3s ease;
+    max-width: 300px;
+  }
+  .toast-noti .toast-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #aaa;
+  }
+  .toast-noti .toast-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+
 /* 구분선 + 힌트 */
 .edit-section-divider{
   border-top:1px solid var(--border);margin-top:14px;padding-top:14px;
