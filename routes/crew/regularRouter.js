@@ -58,11 +58,6 @@ router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
-
-
-
-
-router.get('/:regularCrewId', regularController.getCrewDetail);
-router.post('/:regularCrewId/like', regularController.postCrewLike);
+router.post('/list/:crewID/like', regularController.postCrewLike);
 
 module.exports = router;
