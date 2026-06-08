@@ -167,6 +167,19 @@ const getCrewManage = async (req, res) => {
     }
 }
 
+const getCrewActivity = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        const crew = await regularService.getCrewActivity(req.params.regularCrewId);
+        res.render('crew/crew-activity', { crew });
+    } catch(error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
@@ -179,5 +192,6 @@ module.exports = {
     getRegularAPI,
     getMyCrewsApi,
     getCrewManage,
-    getRegularPage
+    getRegularPage,
+    getCrewActivity
 };

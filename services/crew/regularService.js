@@ -254,6 +254,11 @@ async function getCrewManage(regularCrewId) {
     return crew;
 }
 
+async function getCrewActivity(regularCrewId) {
+    const crew = await regularCrew.findById(regularCrewId);
+    return crew;
+}
+
 module.exports = { 
     createRegCrew, 
     findRegularCrewsByUserId, 
@@ -264,5 +269,6 @@ module.exports = {
     crewLike,
     getRegularCrews, 
     getRegularAPICrews,
-    getCrewManage
+    getCrewManage,
+    getCrewActivity
 };

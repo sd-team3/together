@@ -61,4 +61,6 @@ router.get('/api', regularController.getRegularAPI);
 router.get('/manage/:regularCrewId', regularController.getCrewManage);
 router.get('/api/my', regularController.getMyCrewsApi);
 
+router.get('/activity/:regularCrewId', regularController.getCrewActivity);
+
 module.exports = router;
