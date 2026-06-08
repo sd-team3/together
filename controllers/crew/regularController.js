@@ -14,7 +14,7 @@ const postRegularCreate = async (req, res)=>{
         const result = await regularService.createRegCrew(data, profileImage, host);
 
         if (result.success) {
-            return res.redirect('/crew/reg-list');
+            return res.redirect('/regular/list');
         } else {
             return res.status(400).send();
         } 
