@@ -105,7 +105,7 @@ export function renderMemberPopupBody() {
             📋 모임
         </button>
         <div style="flex:1;"></div>
-        <a href="/chat/${crewId}"
+        <a href="/chatRoom/chatPage"
             style="display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;
                 background:#f4f4f5;color:#555;font-size:13px;font-weight:600;
                 text-decoration:none;margin-bottom:4px;">
