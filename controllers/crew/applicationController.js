@@ -10,7 +10,7 @@ const chatService = require('../../services/chatService');
 const postApplication = async (req, res)=>{
     const userId = req.user._id;
     const crew = req.crew;
-    const crewType = req.crewType;
+    const crewType = req.crewModel.modelName;
     let notiData = req.notiData;
     
     const session = await mongoose.startSession();
@@ -18,7 +18,7 @@ const postApplication = async (req, res)=>{
     try {
         if(crew.isAutoAccept) {
             await crewService.addCrewToUser(userId, crew._id, { session });
-            await crewService.addUserToCrew(userId, crew._id, crewType, { session });
+            await crewService.addUserToCrew(userId, crew._id, req.crewModel, { session });
             await chatService.addMemberToChatRoom(crew._id, userId);
         } else {
             const newApp = await applicationService.createApp(userId, crew._id, crewType, { session });
