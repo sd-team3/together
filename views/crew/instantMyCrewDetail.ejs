@@ -16,7 +16,7 @@
   <div class="page-body">
     <div class="detail-wrap">
 
-      <a href="/instant/instant" class="goback-btn">← 번개모임 목록</a>
+      <a href="/instant/list" class="goback-btn">← 번개모임 목록</a>
 
       <%
         const meetAt = new Date(crew.meetAt);
@@ -208,7 +208,7 @@
                 <div class="app-list">
                   <% pendings.forEach(p => { %>
                     <% const u = p.user; %>
-                    <div class="app-card" id="app-<%= u?._id %>">
+                    <div class="app-card" id="app-<%= u?._id %>" data-app-id="<%= p._id %>">
                       <div class="app-head">
                         <div class="app-av" style="background:#EEF3FF;color:#003DB3"><%= u?.name?.slice(0,2) || '??' %></div>
                         <div>
