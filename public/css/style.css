@@ -707,10 +707,13 @@ select.input{cursor:pointer}
 .no-data-item{font-size:40; margin-bottom: 10px;}
 .no-data-item:first-child{font-size:50px;}
 .no-data-button{padding: 8px 20px; background: var(--primary); color: white; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: bold; transition: opacity 0.2s;}
-.regular-calendar{margin:10px;display:grid;grid-template-columns:repeat(7,1fr);gap:12px;}
+.regular-calendar{margin:10px;display:grid;grid-template-columns: repeat(7, minmax(0, 1fr));;gap:12px;}
 .regular-day{min-height:110px;border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff;cursor: pointer;}
 .regular-today{border:2px solid var(--primary);}
-.regular-day-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.regular-day-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);width: 100%;min-width: 0;box-sizing: border-box;
+}
 .regular-day-name{font-size:13px;font-weight:700;}
 .regular-day-date{font-size:11px;color:var(--text-3);}
 .regular-event{background:#f8f9fa;border-radius:8px;padding:8px;margin-bottom:8px;}
@@ -718,11 +721,14 @@ select.input{cursor:pointer}
 .regular-title{font-size:12px;font-weight:600;}
 .calendar-month-header{display:flex;justify-content:center;align-items:center;gap:16px;margin-top: 10px;margin-bottom:16px;font-size:16px;font-weight:700;}
 .calendar-arrow{border:none;background:none;cursor:pointer;font-size:16px;color:var(--text-2);}
-.monthly-calendar{display:grid;margin: 10px;grid-template-columns:repeat(7,1fr);gap:8px;}
+.monthly-calendar{display:grid;margin: 10px;grid-template-columns:repeat(7,1fr);gap: 12px;}
 .calendar-weekday{text-align:center;font-size:12px;font-weight:700;color:var(--text-3);padding-bottom:6px;}
 .sunday{color:#ff6b6b;}
 .saturday{color:#4dabf7;}
-.calendar-cell{min-height:95px;border:1px solid var(--border);border-radius:10px;padding:8px;background:#fff;transition:.2s; cursor: pointer;}
+.calendar-cell{
+  min-height:95px;border:1px solid var(--border);border-radius:10px;padding:8px;
+  background:#fff;transition:.2s; cursor: pointer;
+  min-width: 0;width: 100%;height: 140px;box-sizing: border-box;}
 .calendar-cell:hover{border-color:var(--primary);}
 .calendar-cell.empty{background:none;border:none;}
 .calendar-date{font-size:12px;font-weight:700;margin-bottom:6px;}
