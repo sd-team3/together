@@ -62,5 +62,6 @@ router.get('/manage/:regularCrewId', regularController.getCrewManage);
 router.get('/api/my', regularController.getMyCrewsApi);
 
 router.get('/activity/:regularCrewId', regularController.getCrewActivity);
+router.post('/list/:crewID/like', regularController.postCrewLike);
 
 module.exports = router;

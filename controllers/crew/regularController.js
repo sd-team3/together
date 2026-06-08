@@ -138,20 +138,6 @@ const postMyCrewWithdraw = async (req, res) => {
     }
 }
 
-const getCrewDetail = async (req, res) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        const crew = await regularService.getCrewDetail(req.params.regularCrewId);
-        const isLiked = crew.likedBy.some(id => id.toString() === req.user._id.toString());
-        res.render('crew/crew-detail', { crew, isLiked });
-    } catch (error) {
-        console.error(error);
-        res.status(500).render('error/error_500');
-    }
-}
-
 const postCrewLike = async (req, res) => {
     try {
         if (!req.isAuthenticated()) {
@@ -197,7 +183,6 @@ module.exports = {
     getMyCrews, // 불러오기
     postMyCrewDelete,
     postMyCrewWithdraw,
-    getCrewDetail,
     postCrewLike,
     getRegular,
     getRegularAPI,
