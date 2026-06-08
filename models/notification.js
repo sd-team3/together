@@ -16,12 +16,6 @@ const notificationSchema = new mongoose.Schema(
         content: { type: String },
         event: { 
             type: String, 
-            enum: [
-                'CREW_APPLICATION',
-                'NEW_MEMBER',
-                'APPLICATION_ACCEPTED',
-                'APPLICATION_REJECTED'
-            ],
             required: true 
         },
         route: { type: String },
