@@ -6,6 +6,7 @@ const fs = require('fs');
 const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
 const chatService = require('../chatService'); //
+const crewApplication = require('../../models/crewApplication');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -252,13 +253,17 @@ async function crewLike(regularCrewId, userId) {
 }
 
 async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId);
+    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
     return crew;
 }
 
 async function getCrewActivity(regularCrewId) {
     const crew = await regularCrew.findById(regularCrewId);
-    return crew;
+
+    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
+                                             .populate('userId', 'name age profileImage');
+
+    return { crew, pendingApps };
 }
 
 module.exports = { 

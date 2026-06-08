@@ -157,7 +157,8 @@ const getCrewManage = async (req, res) => {
             return res.redirect('/user/login');
         }
         const crew = await regularService.getCrewManage(req.params.regularCrewId);
-        res.render('crew/crewManage', { crew });
+        const pendingApps = await regularService.getCrewManage(req.params.regularCrewId);
+        res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {
         console.error(error);
         res.status(500).render('error/error_500');
