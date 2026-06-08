@@ -208,9 +208,13 @@
     }
 
     chatMessages.innerHTML = '';
+    chatInput.disabled = false;
+    chatInput.placeholder = '메시지를 입력하세요...';
+    document.getElementById('chatSendBtn').style.display = 'inline-block';
 
     if (!messages || messages.length === 0) {
       chatMessages.innerHTML = `<div class="chat-date-divider">메시지를 남기세요!</div>`;
+      
       return;
     }
 
@@ -242,9 +246,7 @@
 
     scrollToBottom();
 
-    chatInput.disabled = false;
-    chatInput.placeholder = '메시지를 입력하세요...';
-    document.getElementById('chatSendBtn').style.display = 'inline-block';
+    
   }
 
   function sendChatMsg() {
