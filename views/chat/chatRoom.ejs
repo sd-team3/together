@@ -106,8 +106,11 @@
         </div>
               
         <div class="chat-input-area">
-          <textarea class="chat-input" id="chatInput" rows="1" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
-          <button class="chat-send-btn" onclick="sendChatMsg()">↑</button>
+          <textarea class="chat-input" id="chatInput" rows="1" 
+            placeholder="<%= room ? '메시지를 입력하세요...' : '채팅방이 선택되지 않았습니다' %>"
+            <%= room ? '' : 'disabled' %>
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMsg()">↑</button>
         </div>
       </div>
     </div>
@@ -238,6 +241,10 @@
     });
 
     scrollToBottom();
+
+    chatInput.disabled = false;
+    chatInput.placeholder = '메시지를 입력하세요...';
+    document.getElementById('chatSendBtn').style.display = 'inline-block';
   }
 
   function sendChatMsg() {
@@ -340,6 +347,8 @@
   if (roomId && roomId !== '') {
     window.currentRoomId = roomId;
     connectSocket(roomId);
+  } else {
+    document.getElementById('chatSendBtn').style.display = 'none';
   }
   
 </script>

@@ -41,6 +41,7 @@ function chatSocket(chat, io) {
                         if (String(member.user._id) === String(userId)) return; // 본인 제외
                         if (member.isMuted) return; // 뮤트된 멤버 제외
 
+                        //네임스페이스로 알림 쏘기
                         const notiNamespace = io.of('/noti');
                         notiNamespace.to(`user:${member.user._id.toString()}`).emit('chat noti', {
                             roomId: roomId,

@@ -82,3 +82,15 @@ export function renderReadNoti(notis, notiList) {
     checkEmpty(notiList, true);
 }
 
+export function renderChatNoti(data, notiList) {
+    if (!notiList) return;
+    const notiItem = document.createElement('div');
+    notiItem.innerHTML = `
+        <div style="padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer"
+             onclick="location.href='/chatRoom/chatPage?roomId=${data.roomId}'">
+            <div style="font-weight:600;margin-bottom:4px">${data.roomName}</div>
+            <div style="color:var(--text-3);font-size:13px">${data.senderName}: ${data.content}</div>
+        </div>
+    `;
+    notiList.prepend(notiItem);
+}

@@ -1,4 +1,4 @@
-import { renderUnreadNoti, renderReadNoti, renderNoti } from '../modules/notiRender.js';
+import { renderUnreadNoti, renderReadNoti, renderNoti, renderChatNoti } from '../modules/notiRender.js';
 
 let socket = null;
 const notiList = document.getElementById('noti-list');
@@ -99,22 +99,11 @@ export function initNotiSocket(user) {
     
     // 채팅알림
     socket.on('chat noti', (data) => {
-        if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
-
-        if (notiList) {
-            const notiItem = document.createElement('div');
-            notiItem.innerHTML = `
-                <div style="padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer"
-                     onclick="location.href='/chatRoom/chatPage?roomId=${data.roomId}'">
-                    <div style="font-weight:600;margin-bottom:4px">${data.roomName}</div>
-                    <div style="color:var(--text-3);font-size:13px">${data.senderName}: ${data.content}</div>
-                </div>
-            `;
-            notiList.prepend(notiItem);
-        }
-
-        showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
-    });
+    // 현재 그 채팅방에 있으면 알림 무시
+    if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
+    renderChatNoti(data, notiList);
+    showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
+});
 }
                   
                 
