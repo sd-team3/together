@@ -112,10 +112,27 @@
       <!-- 하단 가입 버튼 -->
       <div class="detail-footer">
         <%
-          const joinUser = 
+          let isMember = false;
+
+          if (userId && crew && crew.member && crew.member.memberList) {
+            for (let i = 0; i < crew.member.memberList.length; i++) {
+              if (crew.member.memberList[i].user.toString() === userId.toString()) {
+                isMember = true;
+                break;
+              }
+            }
+          }
         %>
         <% if (!userId) { %>
-        <button class="join-btn" id="join-btn" onclick="alert('로그인 후 이용할 수 있습니다.'); location.href='/user/login'; return false;"">가입 신청하기</button>
+          <button class="join-btn" 
+                  id="join-btn" onclick="alert('로그인 후 이용할 수 있습니다.'); 
+                  location.href='/user/login'; return false;">가입 신청하기
+          </button>
+        <% } else if (isMember) { %>
+          <button class="join-btn" 
+                  id="join-btn" disabled 
+                  style="background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;">이미 가입된 크루입니다
+          </button>
         <% } else { %>
           <button class="join-btn" id="join-btn" onclick="confirmJoin('<%= crew._id %>')">가입 신청하기</button>
         <% } %>
