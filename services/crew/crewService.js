@@ -12,9 +12,8 @@ const modelMap = {
     instantCrew: instantCrew
 };
 
-async function addUserToCrew(userId, crewId, crewType, options = {}) {
+async function addUserToCrew(userId, crewId, crewModel, options = {}) {
     const session = options.session || null;
-    const crewModel = modelMap[crewType];
     const result = await crewModel.findOneAndUpdate(
         { 
             _id: crewId, 
