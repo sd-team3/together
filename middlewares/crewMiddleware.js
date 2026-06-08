@@ -85,15 +85,14 @@ const getPendingValidation = async (req, res, next)=>{
     const { host, crew } = await hostandCrewMiddleware(req);
 
     if(!host || !crew)  return res.status(404).json({ message: "존재하지 않는 크루입니다." });
-    if(host.toString() !== req.user._id.toString()) return res.status(403).json({ message: "당신은 권한이 없습니다." });
-
-    req.crew = crew;
+    if(host !== req.user._id) return res.status(403).json({ message: "당신은 권한이 없습니다." });
+    
     next();
 }
 
 const joinMiddleware = async (req, res, next)=>{
     const { appId, action } = req.params;
-    if(action !== 'accept' && action !== 'reject') return res.status(400).json({ message: "잘못된 요청입니다." });
+    if(action !== 'accept' || action !== 'reject') return res.status(400).json({ message: "잘못된 요청입니다." });
 
     try {
         const app = await applicationService.findAppById(appId);
