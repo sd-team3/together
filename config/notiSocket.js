@@ -42,7 +42,7 @@ function notiSocket(noti) {
             
             socket.data.user = user;
             
-            const roomName = `user:${user._id.toString()}`;
+            const roomName = `user:${user._id.toString()}`; //개인 방 입장
             socket.join(roomName);
             
             console.log(`✅ [Socket] 크루장(${user._id})이 ${roomName} 방에 안전하게 입장했습니다.`);

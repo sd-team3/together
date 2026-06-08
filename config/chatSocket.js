@@ -24,6 +24,7 @@ function chatSocket(chat, io) {
 
                 const saveChat = await messageService.sendChat(roomId, userId, msg.trim());
 
+                // 같은 방 전체에게 메시지 전송
                 chat.in(roomId).emit('chat message', {
                     _id: saveChat._id,
                     userId: userId,

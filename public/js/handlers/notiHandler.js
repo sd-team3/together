@@ -96,6 +96,25 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
+    
+    // 채팅알림
+    socket.on('chat noti', (data) => {
+        if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
+
+        if (notiList) {
+            const notiItem = document.createElement('div');
+            notiItem.innerHTML = `
+                <div style="padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer"
+                     onclick="location.href='/chatRoom/chatPage?roomId=${data.roomId}'">
+                    <div style="font-weight:600;margin-bottom:4px">${data.roomName}</div>
+                    <div style="color:var(--text-3);font-size:13px">${data.senderName}: ${data.content}</div>
+                </div>
+            `;
+            notiList.prepend(notiItem);
+        }
+
+        showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
+    });
 }
                   
                 
