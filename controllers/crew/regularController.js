@@ -14,7 +14,7 @@ const postRegularCreate = async (req, res)=>{
         const result = await regularService.createRegCrew(data, profileImage, host);
 
         if (result.success) {
-            return res.redirect('/crew/reg-list');
+            return res.redirect('/regular/list');
         } else {
             return res.status(400).send();
         } 
@@ -85,7 +85,7 @@ const getMyCrews = async (req, res) => {
         const userId = req.user._id;
         const role = req.query.role || 'all'; // 디폴트 설정
         const crews = await regularService.getMyCrews(userId, role);
-        res.render('regular/my', { crews, role });
+        res.render('crew/my-crews', { crews, role });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
