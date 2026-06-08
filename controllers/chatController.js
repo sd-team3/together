@@ -7,15 +7,28 @@ const getChatRoomList = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const crewType = req.query.crewType || 'regular';
+        const roomId = req.query.roomId || null;
         const chatRoomList = await chatService.getChatRoomList(userId, crewType);
+
+        let room = null;
+        let messages = [];
+        let isMuted = false;
+
+        if (roomId) {
+            room = await chatService.getChatRoom(roomId);
+            messages = await chatService.getMessage(roomId);
+            const member = room.members.find(m => String(m.user) === String(userId));
+            isMuted = member ? member.isMuted : false;
+            room = { ...room.toObject(), isMuted };
+        }
 
         res.render('chat/chatRoom', { 
             chatRoomList, 
             currentUserId: userId, 
             user: req.user, 
-            room: null, 
-            messages: [],
-            crewType  // EJS에서 탭 활성화용
+            room,
+            messages,
+            crewType
         });
     } catch (error) {
         next(error);
@@ -42,12 +55,16 @@ const openChatRoom = async (req, res, next) => {
             sport = crew?.sport || null;
         }
 
+        // isMuted 조회
+        const member = room.members.find(m => String(m.user) === String(userId));
+        const isMuted = member ? member.isMuted : false;
+
         res.json({ 
             success: true, 
             chatRoomList, 
             currentUserId: userId, 
             user: req.user, 
-            room: { ...room.toObject(), sport },  // sport 포함
+            room: { ...room.toObject(), sport, isMuted },
             messages
         });
     } catch (error) {

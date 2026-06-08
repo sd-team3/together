@@ -10,7 +10,7 @@ const chatService = require('../../services/chatService');
 const postApplication = async (req, res)=>{
     const userId = req.user._id;
     const crew = req.crew;
-    const crewType = req.crewType;
+    const crewType = req.crewModel.modelName;
     let notiData = req.notiData;
     
     const session = await mongoose.startSession();
@@ -18,7 +18,7 @@ const postApplication = async (req, res)=>{
     try {
         if(crew.isAutoAccept) {
             await crewService.addCrewToUser(userId, crew._id, { session });
-            await crewService.addUserToCrew(userId, crew._id, crewType, { session });
+            await crewService.addUserToCrew(userId, crew._id, req.crewModel, { session });
             await chatService.addMemberToChatRoom(crew._id, userId);
         } else {
             const newApp = await applicationService.createApp(userId, crew._id, crewType, { session });
@@ -37,8 +37,8 @@ const postApplication = async (req, res)=>{
     } catch (error) {
         if (session && session.inTransaction()) await session.abortTransaction();
         if (session) session.endSession();
-        res.status(500).json({ message: "appCtrl:Transaction" });
-        throw error;
+        console.error(error);
+        return res.status(500).json({ message: "appCtrl:Transaction" });
     }
 };
 
@@ -49,7 +49,7 @@ const getPendingApps = async (req, res) => {
         const pendingApps = await applicationService.findPendingAppsByCrewId(crewId);
         res.json(pendingApps);
     } catch (error) {
-        res.status(500).json({ message: 'regularRouter' });
+        return res.status(500).json({ message: 'regularRouter' });
     }
 };
 
@@ -74,13 +74,12 @@ const joinProcess = async (req, res) => {
         };
 
         if (action === 'accept') {
-            const utc = await crewService.addUserToCrew(app.userId, app.crewId, req.crewModel, { session });
+            const utc = await crewService.addUserToCrew(app.userId, app.crewId, app.crewType, { session });
             const ctu = await crewService.addCrewToUser(app.userId, app.crewId, { session });
             await chatService.addMemberToChatRoom(app.crewId, app.userId);
 
             if(!utc || !ctu) throw new Error('ADD_USER_TO_CREW_FAILED');
         }
-
         const newNoti = await notiService.createNoti(notiData, { session });
         await session.commitTransaction();
 

@@ -31,7 +31,8 @@ async function getInstantCrew(filter = {}, page = 1) {
         .sort({ meetAt: 1 })  // 번개는 모임 시간 빠른 순이 자연스러워요
         .skip(skip)
         .limit(limit)
-        .populate('host', 'name');
+        .populate('host', 'name')
+        .populate('member.memberList.user', 'name age gender');
 
     return { crews, totalPages, currentPage: page };
 }
@@ -91,7 +92,6 @@ async function getCrewDetail(crewId) {
     return await instantCrew.findById(crewId)
         .populate('host', 'name tel profileImage')
         .populate('member.memberList.user', 'name tel age gender profileImage')
-        .populate('member.pendingList.user', 'name tel age gender profileImage')
         .lean();
 }
 
@@ -126,11 +126,27 @@ const findHostByCrewId = async (crewId)=>{
     const crew = await instantCrew.findById(crewId).select('host');
     return crew ? crew.host : null;
 }
+
+async function setNoshow(crewId, hostId, userId) {
+    const crew = await instantCrew.findById(crewId);
+    if(!crew) return { success: false, status: 404, message: '모임을 찾을 수 없습니다'};
+    if(crew.host.toString() !== hostId.toString()) return { success: false, status: 403, message: '권한이 없습니다'};
+
+    const member = crew.member.memberList.find(m => m.user.toString() === userId.toString());
+    if(!member) return { success: false, status: 404, message: '해당 멤버를 찾을 수 없습니다'};
+    if(member.role === 'host') return { success: false, status: 400, message: '모임장은 노쇼 처리할 수 없습니다'};
+
+    member.status = 'noshow';
+    await crew.save();
+    return { success: true };
+}
+
 module.exports = {
     createInstantCrew, 
     getInstantCrew, 
     getCrewDetail,
     deleteInstantCrew,
     kickMember,
-    findInstantCrewsByUserId
+    findInstantCrewsByUserId,
+    setNoshow
 };
