@@ -10,62 +10,82 @@
 </head>
 <body>
 <%- include('../partials/navbar') %>
-<!-- ═══════ MAIN ═══════ -->
-
-<!-- ═══════ MAIN ═══════ -->
 <div class="main">
-
-<!-- ──────── CHAT PAGE ──────── -->
 <%- include('../partials/head', { title: '✉️ 채팅', pageId: 'page-chat', active: '' }) %>
 
-  <div class="page-body-wide" style="flex:1">
-    <div class="chat-layout" style="flex:1">
+  <div class="page-body-wide" style="flex:1;height:0;overflow:hidden;">
+  <div class="chat-layout" style="height:100%;">
       <!-- Room List -->
-      <div class="chat-rooms">
-        <div class="chat-rooms-header">
-          <div class="chat-rooms-title">채팅방</div>
-          <span class="cr-unread">5</span>
-        </div>
-        <div class="chat-rooms-list">
-           <% if (!chatRoomList || chatRoomList.length === 0 ) { %>
-            <p>채팅방이 없습니다</p>
-          <% } else { %>
-          <% chatRoomList.forEach(room => { %>
-            <div class="chat-room-item" data-id="<%= room._id %>" style="cursor: pointer;">
-              <div class="cr-av">⚽</div>
-              <div class="cr-info">
-                <div class="cr-top">
-                  <div class="cr-name"><%= room.name %></div>
-                </div>
-                <div class="cr-preview"><%= room.lastMessage?.content %></div>
-              </div>
-            </div>
-          <% }) %>
-          <% } %>
-        </div>
+<div class="chat-rooms">
+  <div class="chat-rooms-header">
+    <div class="chat-rooms-title">채팅방</div>
+  </div>
+
+  <!-- 탭 버튼 -->
+  <div style="display:flex;border-bottom:1px solid #eee;">
+    <button onclick="location.href='/chatRoom/chatPage?crewType=regular'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= !crewType || crewType === 'regular' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      정기모임
+    </button>
+    <button onclick="location.href='/chatRoom/chatPage?crewType=instant'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= crewType === 'instant' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      번개모임
+    </button>
+  </div>
+
+  <div class="chat-rooms-list">
+    <% if (!chatRoomList || chatRoomList.length === 0) { %>
+      <div style="padding:40px;text-align:center;color:#999;">
+        <div style="font-size:32px;margin-bottom:12px">📭</div>
+        <div>채팅방이 없습니다</div>
       </div>
-      <!-- Chat Area -->
-      <div class="chat-area">
-        <div class="chat-header">
-          <div class="chat-hd-av" id="chatRoomIcon">⚽</div>
-          <div>
-            <div class="chat-hd-name" id="chatRoomName">
-                <%= room ? room.name : '채팅방을 선택하세요' %>
+    <% } else { %>
+      <% chatRoomList.forEach(room => { %>
+        <div class="chat-room-item" data-id="<%= room._id %>" data-last-at="<%= room.lastMessageAt %>" style="cursor:pointer;">
+          <div class="cr-av"><%= room.crewType === 'instant' ? '⚡' : '🏃' %></div>
+          <div class="cr-info">
+            <div class="cr-top">
+              <div class="cr-name"><%= room.name %></div>
+              <span style="font-size:11px;color:#aaa;"><%= room.crewType === 'instant' ? '번개' : '정기' %></span>
             </div>
-            <div class="chat-hd-meta" id="chatRoomMeta">
-              <%= room ? '대화 참여중' : '채팅방을 선택하세요' %>
+            <div class="cr-preview" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><%= room.lastMessage?.content %></span>
+              <span class="cr-time-ago" style="font-size:11px;color:#aaa;flex-shrink:0;margin-left:8px;"></span>
             </div>
           </div>
         </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
 
-        <div class="chat-msgs" id="chatMessages">
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div class="chat-header">
+        <div class="chat-hd-av" id="chatRoomIcon">
+          <%= room ? (room.crewType === 'instant' ? '⚡' : '🏃') : '💬' %>
+        </div>
+        <div style="flex:1;">
+          <div class="chat-hd-name" id="chatRoomName">
+            <%= room ? room.name : '채팅방을 선택하세요' %>
+          </div>
+        </div>
+
+        <!-- 알림 버튼 -->
+        <button id="muteBtn" data-muted="false"
+          style="border:none;background:none;cursor:pointer;font-size:20px;padding:4px 8px;"
+          onclick="toggleMute()">
+          🔔
+        </button>
+      </div>
+
+        <div class="chat-msgs" id="chatMessages" style="height:calc(100vh - 120px);overflow-y:auto;">
           <% if (!room) { %>
             <div class="chat-date-divider">채팅방을 선택하세요</div>
           <% } else { %>
             <div class="chat-date-divider">오늘</div>
             <% messages.forEach(msg => { %>
               <% if (String(msg.sender._id) === String(currentUserId)) { %>
-                <!-- 내가 보낸 메시지 -->
                 <div class="msg-row mine">
                   <div class="msg-content">
                     <div class="msg-bubble mine"><%= msg.content %></div>
@@ -73,7 +93,6 @@
                   </div>
                 </div>
               <% } else { %>
-                <!-- 남이 보낸 메시지 -->
                 <div class="msg-row">
                   <div class="msg-content">
                     <div class="msg-sender"><%= msg.sender.name %></div>
@@ -91,8 +110,6 @@
           <button class="chat-send-btn" onclick="sendChatMsg()">↑</button>
         </div>
       </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -100,7 +117,7 @@
 </div><!-- /.main -->
 
 <script src="/socket.io/socket.io.js"></script>
-<script type="module" src = "/js/chat/api.js"></script>
+<script type="module" src="/js/chat/api.js"></script>
 
 <script>
   const chatMessages = document.getElementById('chatMessages');
@@ -108,22 +125,25 @@
 
   const chatUser = '<%- JSON.stringify(user) %>';
   const roomId = '<%= room ? room._id.toString() : "" %>';
-
-  const parsedUser  = JSON.parse(chatUser);
+  const parsedUser = JSON.parse(chatUser);
 
   let chatSocket = null;
 
+  function formatTime(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleString('ko-KR', {
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   async function connectSocket(roomId) {
-    if (chatSocket) {
-      chatSocket.disconnect();
-    }
+    if (chatSocket) chatSocket.disconnect();
 
     chatSocket = io('/chat', {
-        auth: {
-            roomId: roomId,
-            userId: parsedUser._id,
-            userName: parsedUser.name
-        }
+      auth: { roomId, userId: parsedUser._id, userName: parsedUser.name }
     });
     chatSocket.on('connect', () => console.log('소켓연결'));
     chatSocket.on('connect_error', (error) => console.log('소켓 연결 오류', error));
@@ -133,154 +153,178 @@
     chatSocket.on('exit', (data) => inOutMessage(data.chat));
   }
 
-  // 채팅방 클릭 이벤트
   document.addEventListener('click', async function(e) {
     const chat = e.target.closest('.chat-room-item');
     if (!chat) return;
 
     const chatRoomId = chat.dataset.id;
-    console.log("ID : ", chatRoomId);
-
     try {
       const data = await fetchChatRoomData(chatRoomId);
-
       if (data && data.success) {
-        console.log('messages:', data.messages); // 👈 추가
-        renderChatRoomUI(data.room, data.messages ,data.currentUserId);
-
+        renderChatRoomUI(data.room, data.messages, data.currentUserId);
         window.currentRoomId = data.room._id;
         connectSocket(chatRoomId);
       }
     } catch (error) {
-      console.error('채팅방 불러오기 실패')
+      console.error('채팅방 불러오기 실패');
     }
   });
 
   async function fetchChatRoomData(roomId) {
     const params = new URLSearchParams();
-
-    if (roomId) {
-        params.append('roomId', roomId);
-    }
+    if (roomId) params.append('roomId', roomId);
     try {
-        const res = await fetch('/chatRoom/chatList/api?' + params.toString());
-
-        if (!res.ok) {
-            throw new Error(`서버 응답오류 ( 상태 코드 : ${res.status})`);
-        }
-
-        const data = await res.json();
-
-        if (!data.success) {
-        throw new Error('데이터 요청 실패');
-        }
-
-        return data; 
+      const res = await fetch('/chatRoom/chatList/api?' + params.toString());
+      if (!res.ok) throw new Error(`서버 응답오류 ( 상태 코드 : ${res.status})`);
+      const data = await res.json();
+      if (!data.success) throw new Error('데이터 요청 실패');
+      return data;
     } catch (error) {
-        console.error('API 통신 에러:', error);
-        throw error; 
+      console.error('API 통신 에러:', error);
+      throw error;
     }
-}
+  }
 
-  // 채팅방 UI 재구성
   function renderChatRoomUI(room, messages, currentUserId) {
+    const sportEmojiMap = {
+      soccer: '⚽', basketball: '🏀', baseball: '⚾',
+      tennis: '🎾', badminton: '🏸', tabletennis: '🏓', bowling: '🎳'
+    };
+
+    const icon = document.getElementById('chatRoomIcon');
+    if (icon) icon.textContent = sportEmojiMap[room.sport] || (room.crewType === 'instant' ? '⚡' : '🏃');
+
     const chatRoomName = document.getElementById('chatRoomName');
-    if (chatRoomName) {
-      chatRoomName.innerText = room.name;
+    if (chatRoomName) chatRoomName.innerText = room.name;
+
+    // 뮤트 버튼 상태 초기화
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) {
+      muteBtn.dataset.muted = room.isMuted || false;
+      muteBtn.textContent = room.isMuted ? '🔇' : '🔔';
     }
 
-    chatMessages.innerHTML = ''; // 초기화
+    chatMessages.innerHTML = '';
 
     if (!messages || messages.length === 0) {
       chatMessages.innerHTML = `<div class="chat-date-divider">메시지를 남기세요!</div>`;
       return;
     }
 
-   chatMessages.insertAdjacentHTML('beforeend', `<div class="chat-date-divider">오늘</div>`);
+    chatMessages.insertAdjacentHTML('beforeend', `<div class="chat-date-divider">오늘</div>`);
 
-   messages.forEach(msg => {
-    const isMine = String(msg.sender._id) === String(currentUserId);
-    let msgHtml = '';
+    messages.forEach(msg => {
+      const isMine = String(msg.sender._id) === String(currentUserId);
+      let msgHtml = '';
+      if (isMine) {
+        msgHtml = `
+          <div class="msg-row mine">
+            <div class="msg-content">
+              <div class="msg-bubble mine">${escapeHTML(msg.content)}</div>
+              <div class="msg-time">${formatTime(msg.createdAt)}</div>
+            </div>
+          </div>`;
+      } else {
+        msgHtml = `
+          <div class="msg-row">
+            <div class="msg-content">
+              <div class="msg-sender">${escapeHTML(msg.sender.name)}</div>
+              <div class="msg-bubble theirs">${escapeHTML(msg.content)}</div>
+              <div class="msg-time">${formatTime(msg.createdAt)}</div>
+            </div>
+          </div>`;
+      }
+      chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+    });
 
-    if (isMine) {
-      msgHtml = `
-        <div class="msg-row mine">
-          <div class="msg-content">
-            <div class="msg-bubble mine">${escapeHTML(msg.content)}</div>
-            <div class="msg-time">${msg.createdAt}</div>
-          </div>
-        </div>
-      `;
-    } else {
-      msgHtml = `
-        <div class="msg-row">
-          <div class="msg-content">
-            <div class="msg-sender">${escapeHTML(msg.sender.name)}</div>
-            <div class="msg-bubble theirs">${escapeHTML(msg.content)}</div>
-            <div class="msg-time">${msg.createdAt}</div>
-          </div>
-        </div>
-      `;
-    }
-    chatMessages.insertAdjacentHTML('beforeend', msgHtml);
-   });
-  // escapeHTML : 보안을 위해 쓰는 코드. html에 넣는 거라서 코드 그래도 치면 html에 추가 될 수도 있음 
-    
-  scrollToBottom();
-}
+    scrollToBottom();
+  }
 
   function sendChatMsg() {
     const msg = chatInput.value.trim();
-
-    if (!msg || !window.currentRoomId) {
-      return;
-    }
-    // 서버에 emit
+    if (!msg || !window.currentRoomId) return;
     chatSocket.emit('chat message', msg);
-    // 서버에 보냈으니 비우기
     chatInput.value = '';
   }
 
   function renderChatMessage(data) {
     const myId = String(data.userId) === String(parsedUser._id);
     const row = document.createElement('div');
-
     if (myId) {
       row.className = 'msg-row mine';
       row.innerHTML = `
         <div class="msg-content">
           <div class="msg-bubble mine">${escapeHTML(data.chat)}</div>
-          <div class="msg-time">방금</div>
-        </div>
-      `;
+          <div class="msg-time">${formatTime(new Date())}</div>
+        </div>`;
     } else {
       row.className = 'msg-row';
       row.innerHTML = `
         <div class="msg-content">
           <div class="msg-sender">${escapeHTML(data.userName || '알 수 없음')}</div>
           <div class="msg-bubble theirs">${escapeHTML(data.chat)}</div>
-          <div class="msg-time">방금</div>
-        </div>
-      `;
+          <div class="msg-time">${formatTime(new Date())}</div>
+        </div>`;
     }
     chatMessages.appendChild(row);
     scrollToBottom();
+
+    const roomItem = document.querySelector(`.chat-room-item[data-id="${window.currentRoomId}"]`);
+    if (roomItem) {
+      roomItem.dataset.lastAt = new Date().toISOString();
+      const preview = roomItem.querySelector('.cr-preview span');
+      if (preview) preview.textContent = data.chat;
+      updateAllTimeAgo();
+    }
   }
 
+  async function toggleMute() {
+    const btn = document.getElementById('muteBtn');
+    if (!window.currentRoomId) return;
+
+    try {
+      const res = await fetch(`/chatRoom/${window.currentRoomId}/mute`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        btn.dataset.muted = data.isMuted;
+        btn.textContent = data.isMuted ? '🔇' : '🔔';
+      }
+    } catch (error) {
+      console.error('뮤트 처리 실패', error);
+    }
+  }
 
   function inOutMessage(message) {
     const div = document.createElement('div');
-
     div.textContent = message;
-
     chatMessages.appendChild(div);
     scrollToBottom();
   }
 
+  function timeAgo(dateStr) {
+    if (!dateStr || dateStr === 'null') return '메시지 없음';
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+    if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+    return Math.floor(diff / 86400) + '일 전';
+  }
+
+  function updateAllTimeAgo() {
+    document.querySelectorAll('.chat-room-item').forEach(item => {
+      const lastAt = item.dataset.lastAt;
+      const timeEl = item.querySelector('.cr-time-ago');
+      if (timeEl) timeEl.textContent = timeAgo(lastAt);
+    });
+  }
+
+  updateAllTimeAgo();
+  setInterval(updateAllTimeAgo, 60000);
+
   function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
-  // 이건 해킹을 방지하기 위해 쓴 함수
+
   function escapeHTML(text) {
     return String(text)
       .replaceAll('&', '&amp;')

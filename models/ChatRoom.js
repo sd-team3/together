@@ -4,6 +4,8 @@ const User = require('./User');
 const chatRoomSchema = new mongoose.Schema (
     {
         name : {type : String, required : true},
+        crewId: { type: mongoose.Schema.Types.ObjectId, default: null },
+        crewType: { type: String, enum: ['regular', 'instant'], default: 'regular' },
         members : [
             {user: {type : mongoose.Schema.Types.ObjectId, ref : "User", required : true},
              isMuted :{ type : Boolean, default : false }}
@@ -17,11 +19,9 @@ const chatRoomSchema = new mongoose.Schema (
         timestamps : true,
     }
 );
-// 최근 메시지순 채팅방 인덱스
+
 chatRoomSchema.index({ lastMessageAt : -1 });
-// 특정 유저 있는 채팅방 인덱스
 chatRoomSchema.index({ "members.user" : 1 });
-// 알림을 끈 멤버 인덱스
 chatRoomSchema.index({ noticeOffMembers : 1 });
 
 module.exports = mongoose.model("ChatRoom", chatRoomSchema);

@@ -1,4 +1,5 @@
 const instantCrew = require('../../models/instantCrew');
+const chatService = require('../chatService');
 
 async function getInstantCrew(filter = {}, page = 1) {
     const query = {};
@@ -61,6 +62,7 @@ async function createInstantCrew(data, host) {
     });
     try {
         await crew.save();
+        await chatService.createChatRoom(crew._id, crew.title, host, 'instant');
         return {success : true, data: crew};
     } catch (error) {
         console.error(error);
