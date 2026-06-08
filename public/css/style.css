@@ -2883,7 +2883,7 @@ select.input{cursor:pointer}
 /* ── 탭 네비게이션 ── */
 .manage-tab-bar {
   display: flex;
-  gap: 4px;
+  gap: 0;
   padding: 8px 0 0;
   border-bottom: 1px solid var(--border);
   margin-bottom: 20px;
@@ -2903,6 +2903,8 @@ select.input{cursor:pointer}
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 1;
+  justify-content: center;
 }
 .manage-tab:hover { color: var(--text); }
 .manage-tab.active { color: var(--text); border-bottom-color: var(--text); }
@@ -3018,7 +3020,7 @@ select.input{cursor:pointer}
 .tt-header-cell:not(:last-child) { border-right: 1px solid var(--border); }
 .tt-time-cell {
   padding: 0 6px;
-  height: 36px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -3030,7 +3032,7 @@ select.input{cursor:pointer}
 }
 .tt-time-cell:not(:last-child) { border-bottom: 1px solid rgba(0,0,0,.04); }
 .tt-cell {
-  height: 36px;
+  height: 50px;
   border-bottom: 1px solid rgba(0,0,0,.04);
   cursor: pointer;
   transition: background .1s;
@@ -3038,28 +3040,12 @@ select.input{cursor:pointer}
 }
 .tt-cell:not(:last-child) { border-right: 1px solid rgba(0,0,0,.04); }
 .tt-cell:hover { background: rgba(26,92,255,.06); }
-.tt-cell.selected { background: rgba(26,92,255,.18) !important; }
-.tt-cell.selected::after {
-  content: '';
-  position: absolute; inset: 1px;
-  border-radius: 2px;
-  background: var(--primary);
-  opacity: .25;
-}
 .tt-cell.has-event { background: rgba(26,92,255,.15); }
 .tt-cell.has-event::after {
   content: '';
   position: absolute; inset: 2px;
   border-radius: 3px;
   background: var(--primary);
-}
-.tt-cell.dragging { background: rgba(200,255,0,.2) !important; }
-.tt-cell.dragging::after {
-  content: '';
-  position: absolute; inset: 1px;
-  border-radius: 2px;
-  background: var(--accent);
-  opacity: .4;
 }
 .timetable-legend {
   display: flex;
@@ -3122,13 +3108,17 @@ select.input{cursor:pointer}
 }
 .event-del-btn:hover { background: #fef2f2; }
 
-/* 일정 추가 폼 (인라인) */
 .add-schedule-form {
-  margin-top: 16px;
-  padding: 20px;
-  background: var(--bg);
-  border: 1.5px dashed var(--border);
-  border-radius: var(--radius-sm);
+  position: fixed;
+  top: 50%;
+  left: calc(50% + 85px);
+  transform: translate(-50%, -50%);
+  z-index: 900;
+  width: 480px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
   display: none;
 }
 .add-schedule-form.show { display: block; }
@@ -3613,6 +3603,17 @@ select.manage-input { cursor: pointer; }
   padding: 14px 18px;
   cursor: pointer; user-select: none;
 }
+/* 방식 칩 */
+.type-chip-wrap { display: flex; gap: 8px; }
+.type-chip {
+  flex: 1; padding: 9px; text-align: center;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text-2);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.type-chip:hover { border-color: var(--border-strong); }
+.type-chip.sel-battle { background: #FFF0EE; border-color: #ffb3ae; color: #CC2900; }
+.type-chip.sel-internal { background: var(--primary-soft); border-color: #c7d8ff; color: var(--primary-deep); }
 
 /* 방식 배지 */
 .type-badge {
@@ -3768,18 +3769,6 @@ select.manage-input { cursor: pointer; }
   border-top: 1px solid var(--border);
 }
 
-/* 방식 칩 */
-.type-chip-wrap { display: flex; gap: 8px; }
-.type-chip {
-  flex: 1; padding: 9px; text-align: center;
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text-2);
-  font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
-}
-.type-chip:hover { border-color: var(--border-strong); }
-.type-chip.sel-battle { background: #FFF0EE; border-color: #ffb3ae; color: #CC2900; }
-.type-chip.sel-internal { background: var(--primary-soft); border-color: #c7d8ff; color: var(--primary-deep); }
-
 /* 주소 검색 */
 .addr-row { display: flex; gap: 7px; }
 .addr-search {
@@ -3825,3 +3814,12 @@ select.manage-input { cursor: pointer; }
   border-bottom: 2px solid var(--primary);
   color: var(--primary);
 }
+.schedule-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(8px);
+  z-index: 899;
+  display: none;
+}
+.schedule-overlay.show { display: block; }
