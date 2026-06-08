@@ -57,7 +57,8 @@
         </div>
         <div class="card" style="overflow:hidden">
           <div class="mypage-nav">
-            <a href="/user/profile" class="mypage-nav-item"><span>📅</span> 모임 일정</a>
+            <button id="regular-tab" class="mypage-nav-item active"><span>📅</span> 정기 모임</button>
+            <button id="instant-tab" class="mypage-nav-item"><span>⚡</span> 실시간 모임</button>
             <a href="/user/edit-profile" class="mypage-nav-item"><span>⭐</span> 프로필 수정</a>
           </div>
         </div>
@@ -65,12 +66,20 @@
 
       <!-- Main Content -->
       <div class="mypage-main">
+      <div id="regular-section">
+        <div class="mypage-card" style="margin-bottom: 16px;">
+          <div class="mypage-card-header">
+          <div class="mypage-card-title">📅 정기 모임 일정</div>
+        </div>
+        <div id="regular-calendar" class="regular-calendar"></div>
+      </div>
+
         <!-- Upcoming Schedule -->
         <div id="regular-card" class="mypage-card">
           <div class="mypage-card-header"><div class="mypage-card-title">📅 계획중인 정기 모임 </div>
           <% if(regularCrewCount > 4) { %>
-          <button type="button" id="regularSeeAllBtn" class="mypage-card-action">전체보기</button>
-          <button type="button" id="regularSee4Btn" class="mypage-card-action" style="display: none">접기</button>
+          <button type="button" id="regular-all-btn" class="mypage-card-action">전체보기</button>
+          <button type="button" id="regular-four-btn" class="mypage-card-action" style="display: none">접기</button>
           <% } %>
         </div>
           <div class="mypage-card-body">
@@ -79,7 +88,7 @@
                   <div class="no-data-item">🔍</div>
                   <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
                   <p class="no-data-item">나와 취향이 맞는 정기 모임을 찾아보세요!</p>
-                  <a href="/regular/regular" class="no-data-button">모임 둘러보기</a>
+                  <a href="/regular/list" class="no-data-button">모임 둘러보기</a>
                 </div>
             <% } else { %>
             <% let scheduleCounter = 0 %>
@@ -92,7 +101,7 @@
                     <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
                     <% } else {%>
                     <div class="sched-time"> 
-                      <%= crew.day[0] %> <%= sched.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) %>
+                      <%= crew.day[0] %> <%= sched.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
                     </div>
                     <% } %>
                     <div class="sched-dot" style="background:var(--primary)"></div>
@@ -120,7 +129,7 @@
                         </div>
                         <div class="manage-bottom">
                         <% if (sched.status === '마감') { %>
-                          <span class="sched-joined" style="color: yellow"><%= sched.status %></span>
+                          <span class="sched-joined" style="color: #d0b134"><%= sched.status %></span>
                         <% } else if(sched.status === '종료') { %>
                           <span class="sched-joined" style="color: red"><%= sched.status %></span>
                         <% } else if(sched.status === '취소') { %>
@@ -136,13 +145,29 @@
               <% });}%>
           </div>
         </div>
+        </div>
+        
+        <div id="instant-section" style="display: none">
+        <div class="mypage-card" style="margin-bottom: 16px;">
+            <div class="mypage-card-header">
+                <div class="mypage-card-title">⚡ 실시간 모임 캘린더</div>
+            </div>
+
+            <div class="calendar-month-header">
+                <button id="prev-month-btn" class="calendar-arrow">◀</button>
+                <span id="year-month"></span>
+                <button id="next-month-btn" class="calendar-arrow">▶</button>
+            </div>
+
+            <div id="instant-calendar" class="monthly-calendar"></div>
+        </div>
 
         <div id="instant-card" class="mypage-card">
           <div class="mypage-card-header">
-            <div class="mypage-card-title">🕒 실시간 모임</div>
+            <div class="mypage-card-title">⚡ 실시간 모임</div>
             <% if(instantCrew.length > 4) { %>
-            <button type="button" id="instantSeeAllBtn" class="mypage-card-action">전체보기</button>
-            <button type="button" id="instantSee4Btn" class="mypage-card-action" style="display: none">접기</button>
+            <button type="button" id="instant-all-btn" class="mypage-card-action">전체보기</button>
+            <button type="button" id="instant-four-btn" class="mypage-card-action" style="display: none">접기</button>
             <% } %>
           </div>
           <div class="mypage-card-body">
@@ -151,7 +176,7 @@
                     <div class="no-data-item">🔍</div>
                     <p class="no-data-item" style="font-weight: 700;">아직 가입한 모임이 없어요</p>
                     <p class="no-data-item">나와 취향이 맞는 실시간 모임을 찾아보세요!</p>
-                    <a href="/regular/regular" class="no-data-button">모임 둘러보기</a>
+                    <a href="/instant/instant" class="no-data-button">모임 둘러보기</a>
                   </div>
               <% } else { %>
                 <% instantCrew.forEach((crew, index) => { %>
@@ -161,7 +186,7 @@
                             <%= index > 3 ? 'schedule-item-hidden' : '' %>">
                   <div class="sched-time">
                     <%= crew.meetAt.toDateString() === now.toDateString() ? '오늘' : ' '%> 
-                    <%= crew.meetAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })%>
+                    <%= crew.meetAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })%>
                   </div>
                   <div class="sched-dot" style="background:var(--red)"></div>
                   <div class="sched-info">
@@ -189,79 +214,31 @@
             <% } %>
 
           </div>
+          </div>
         </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-
 </div>
-<!-- /main -->
 
-<!-- <div class="map-popup-overlay" id="map-popup" onclick="if(event.target===this)closeMapPopup()">
-  <div class="map-popup">
-    <button class="popup-close" onclick="closeMapPopup()">✕</button>
-    <div class="popup-sport" id="pp-sport">⚽</div>
-    <div class="popup-title" id="pp-title">강남 풋살파크 5:5 매칭</div>
-    <div class="popup-meta">
-      <span id="pp-loc">📍 강남구 역삼동</span>
-      <span id="pp-time">⏰ 오늘 19:30</span>
-      <span id="pp-members">👥 6/10명</span>
-      <span>💰 <span id="pp-price">10,000원</span></span>
+<div id="calendar-modal" class="calendar-modal">
+    <div class="calendar-modal-content">
+        <div class="calendar-modal-header">
+            <span id="modal-title"></span>
+            <button id="modal-close-btn">✕</button>
+        </div>
+        <div id="modal-body"></div>
     </div>
-    <div class="flex gap-6 mb-16">
-      <span class="tag tag-outline" id="pp-level">중급</span>
-      <span class="tag tag-green">실내</span>
-    </div>
-    <div class="popup-host">
-      <div class="popup-host-av">K</div>
-      <div><div class="popup-host-name">강남킬러 <span style="color:var(--text-3);font-weight:400">⭐ 4.9</span></div><div class="popup-host-sub">47경기 · 매너 우수</div></div>
-    </div>
-    <div class="popup-btns">
-      <button class="btn btn-primary flex-1" onclick="closeMapPopup();showModal('🎉 참가 신청 완료!','매칭에 참가 신청이 완료되었습니다!<br>당일 30분 전 알림을 드립니다.',null)">참가 신청</button>
-      <button class="btn btn-outline" onclick="closeMapPopup()">공유 🔗</button>
-    </div>
-  </div>
-</div> -->
+</div>
 
-<script>
-  const regularSeeAllBtn = document.getElementById('regularSeeAllBtn');
-  const regularSee4Btn = document.getElementById('regularSee4Btn');
-  const instantSeeAllBtn = document.getElementById('instantSeeAllBtn');
-  const instantSee4Btn = document.getElementById('instantSee4Btn');
-
-  if(regularSeeAllBtn) regularSeeAllBtn.addEventListener('click', () => seeBtn(true, "regular"));
-  if(regularSee4Btn) regularSee4Btn.addEventListener('click', () =>  seeBtn(false, "regular"));
-  if(instantSeeAllBtn) instantSeeAllBtn.addEventListener('click', () => seeBtn(true, "instant"));
-  if(instantSee4Btn) instantSee4Btn.addEventListener('click', () =>  seeBtn(false, "instant"));
-
-  function seeBtn(bool, crew) {
-    if(crew === 'regular') {
-      regularSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
-      regularSee4Btn.style.display = !bool ? 'none' : 'inline-block';
-    } else if(crew === 'instant') {
-      instantSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
-      instantSee4Btn.style.display = !bool ? 'none' : 'inline-block';
-    } else return;
-
-    let mainCard = null;
-    if(crew === 'regular') mainCard = document.querySelector('#regular-card');
-    else if(crew === 'instant') mainCard = document.querySelector('#instant-card');
-    else return;
-    
-    const scheduleItem = mainCard.querySelectorAll('.schedule-item');
-    const scheduleHidden = mainCard.querySelectorAll('.schedule-item-hidden');
-
-    scheduleHidden.forEach(item => item.classList.toggle('show', bool));
-    scheduleItem.forEach(item => item.classList.remove('schedule-item-last'));
-
-    const lastSchedule = scheduleItem[scheduleItem.length - 1]
-    if(lastSchedule && bool) lastSchedule.classList.add('schedule-item-last');
-    else scheduleItem[3].classList.add('schedule-item-last');
-  }
+<script id="profile-data" type="application/json">
+{
+    "regCrew": <%- JSON.stringify(regCrew) %>,
+    "instantCrew": <%- JSON.stringify(instantCrew) %>
+}
 </script>
-
+<script src="/js/handlers/profile.js"></script>
 </body>
 </html>

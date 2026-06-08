@@ -52,12 +52,16 @@ router.post('/join/:appId/:action',
     applicationController.joinProcess
 );
 
-router.get('/my-crews', regularController.getMyCrews);
+router.get('/my', regularController.getMyCrews);
 router.get('/list', regularController.getRegular);
 router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
+router.get('/manage/:regularCrewId', regularController.getCrewManage);
+router.get('/api/my', regularController.getMyCrewsApi);
+
+router.get('/activity/:regularCrewId', regularController.getCrewActivity);
 router.post('/list/:crewID/like', regularController.postCrewLike);
 
 module.exports = router;
