@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
+const chatService = require('../chatService'); //
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -44,6 +45,7 @@ async function createRegCrew(data, profileFile, host) {
 
         const crew = await regCrew.save({ session: session });
         // await crewService.addCrewToUser(host, crew._id, { session });
+        await chatService.createChatRoom(crew._id, crew.title, host);
 
         await session.commitTransaction();
         session.endSession();

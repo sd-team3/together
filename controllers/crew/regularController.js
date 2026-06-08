@@ -70,7 +70,18 @@ const getRegularPage = async (req, res, next) => {
     try {
         const { crewId } = req.params;
         const crew = await regularService.getCrewDetail(crewId);
-        res.render('crew/regular-join-page', { crew });
+        let userId;
+        let isLiked;
+
+        if (req.isAuthenticated()) {
+            userId = req.user._id;
+            isLiked = crew.likedBy && crew.likedBy.some(id => id.toString() === req.user._id.toString());
+
+        } else {
+            userId = null;
+        }
+
+        res.render('crew/regular-join-page', { crew, isLiked, userId });
     } catch (error) {
         next(error);
     }
