@@ -11,32 +11,18 @@
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '⚔️ 크루 활동 계획', pageId: 'page-crew-activity', active: '' }) %>
+<%- include('../partials/head', { title: '⚔️ 크루 활동 기록', pageId: 'page-crew-activity', active: '' }) %>
 
   <div class="page-body">
-
-    <!-- 타이틀 -->
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <h1 class="page-heading" style="margin-bottom:0">크루 활동 계획</h1>
-        <span class="crew-pill"><%= crew.title %></span>
-      </div>
-      <button class="btn btn-primary" onclick="openCreateModal()">＋ 활동</button>
-    </div>
-    <p class="page-subheading">내 주변 크루의 활동을 확인하고 대전을 신청해보세요.</p>
-
+    
     <!-- 필터/정렬 -->
     <div class="activity-filter-bar">
       <span class="filter-label">정렬</span>
       <button class="sort-btn active" data-sort="latest" onclick="setSort(this)">최신순</button>
       <button class="sort-btn" data-sort="score-high" onclick="setSort(this)">점수 높은 순</button>
       <button class="sort-btn" data-sort="score-low" onclick="setSort(this)">점수 낮은 순</button>
-      <span class="filter-label" style="margin-left:6px">범위</span>
-      <select class="range-select" id="rangeSelect" onchange="setRange(this.value)">
-        <option value="city">시 단위 (마포구)</option>
-        <option value="state">시/도 단위 (서울)</option>
-      </select>
-      <span class="total-count" id="totalCount">총 5건</span>
+      <span class="total-count" id="totalCount">총 4건</span>
+      <button class="btn btn-primary btn-sm" onclick="openCreateModal()">＋ 활동</button>
     </div>
 
     <!-- 게시판 -->
@@ -50,14 +36,13 @@
   <div class="modal-box">
     <div class="modal-head">
       <span class="modal-head-title">📋 활동 등록</span>
-      <button class="modal-close" onclick="closeModal('modalCreate')">✕</button>
     </div>
     <div class="modal-body">
       <div class="field">
         <label class="label">방식</label>
         <div class="type-chip-wrap">
-          <button class="type-chip sel-battle" id="chip-battle" onclick="selectType('battle')">⚔️ 크루 대전</button>
-          <button class="type-chip" id="chip-internal" onclick="selectType('internal')">🏃 크루 내전</button>
+          <button class="type-chip sel-battle" id="chip-team" onclick="selectType('team')">👥 팀전</button>
+          <button class="type-chip" id="chip-solo" onclick="selectType('solo')">🏃 개인전</button>
         </div>
       </div>
       <div class="input-row2">
@@ -87,34 +72,6 @@
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modalCreate')">취소</button>
       <button class="btn btn-primary" onclick="submitCreate()">등록</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ 대전 신청 모달 ══ -->
-<div class="modal-overlay" id="modalApply">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-head-title">⚔️ 대전 신청</span>
-      <button class="modal-close" onclick="closeModal('modalApply')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="target-card">
-        <div class="target-emoji" id="applyEmoji">🏀</div>
-        <div>
-          <div class="target-name" id="applyName"></div>
-          <div class="target-meta" id="applyMeta"></div>
-        </div>
-      </div>
-      <div class="info-chips" id="applyChips"></div>
-      <div class="field">
-        <label class="label">신청 메시지 (조율 사항)</label>
-        <textarea class="input" id="apply-message" placeholder="예) 인원 조정, 장소 변경 협의 등 희망하는 내용을 입력해주세요"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('modalApply')">취소</button>
-      <button class="btn btn-primary" onclick="submitApply()">신청하기</button>
     </div>
   </div>
 </div>
@@ -167,7 +124,13 @@ const ACTIVITIES = [
 
 let currentSort = 'latest';
 let currentRange = 'city';
-let pendingApplyId = null;
+let selType = 'team';
+
+function selectType(t) {
+  selType = t;
+  document.getElementById('chip-team').className = 'type-chip' + (t==='team' ? ' sel-battle' : '');
+  document.getElementById('chip-solo').className = 'type-chip' + (t==='solo' ? ' sel-internal' : '');
+}
 
 function getList() {
   let list = ACTIVITIES.filter(a => currentRange === 'state' || a.region === 'city');
@@ -193,21 +156,18 @@ function renderList() {
 
   cont.innerHTML = list.map(a => {
     const own = a.crewId === MY_CREW_ID;
-    const typeBadge = a.type === 'battle'
-      ? `<span class="type-badge type-battle">대전</span>`
-      : `<span class="type-badge type-internal">내전</span>`;
-    const applyBtn = own
-      ? `<button class="apply-btn own" disabled>내 크루</button>`
-      : `<button class="apply-btn" onclick="openApply(event,'${a.id}')">⚔️ 신청</button>`;
-    const appTag = a.applications.length
-      ? `<span class="app-count-tag">${a.applications.length}</span>` : '';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const actDate = new Date(a.date);
+    const statusBadge = actDate >= today
+      ? `<span class="type-badge type-internal">예정</span>`
+      : `<span class="type-badge type-battle">완료</span>`;
     const ownTag = own ? `<span class="own-tag">내 크루</span>` : '';
 
     return `<div class="activity-card" id="card-${a.id}">
       <div class="activity-row" onclick="toggleApps('${a.id}')">
-        ${typeBadge}
+        ${statusBadge}
         <div class="activity-main">
-          <div class="activity-title">${a.crewName}${appTag} ${ownTag}</div>
+          <div class="activity-title">${a.crewName} ${ownTag}</div>
           <div class="activity-meta">
             <span>📅 ${fmtDate(a.date)}</span>
             <span>📍 ${a.place.split(' ').slice(2).join(' ')}</span>
@@ -215,39 +175,13 @@ function renderList() {
           </div>
           <div class="activity-desc">${a.content}</div>
         </div>
-        <div class="crew-score">
-          <span class="score-val">${a.crewScore.toLocaleString()}</span>
-          <span class="score-label">크루 점수</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${applyBtn}
-          <span class="chevron" id="chev-${a.id}">▼</span>
-        </div>
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation()">삭제</button>
+        <span class="chevron" id="chev-${a.id}">▼</span>
       </div>
       <div class="apps-panel" id="apps-${a.id}">
-        ${renderApps(a)}
       </div>
     </div>`;
   }).join('');
-}
-
-function renderApps(a) {
-  const own = a.crewId === MY_CREW_ID;
-  const title = `<div class="apps-panel-title">신청 목록 (${a.applications.length}건)</div>`;
-  if (!a.applications.length) return title + `<div class="apps-empty">아직 신청이 없어요</div>`;
-  return title + a.applications.map(app => `
-    <div class="app-item" id="appcard-${app.id}">
-      <div class="app-crew-av">${app.crewEmoji}</div>
-      <div class="app-info">
-        <div class="app-crew-name">${app.crewName}</div>
-        <div class="app-message">${app.message}</div>
-      </div>
-      <div class="app-date">${app.date}</div>
-      ${own ? `<div class="app-actions">
-        <button class="app-accept" onclick="handleApp(event,'${app.id}','${a.id}','accept')">✓ 수락</button>
-        <button class="app-reject" onclick="handleApp(event,'${app.id}','${a.id}','reject')">✕ 거절</button>
-      </div>` : ''}
-    </div>`).join('');
 }
 
 function toggleApps(id) {
@@ -263,20 +197,14 @@ function setSort(btn) {
 }
 function setRange(v) { currentRange = v; renderList(); }
 
-let selType = 'battle';
 function openCreateModal() {
   document.getElementById('new-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('new-count').value = '';
   document.getElementById('new-place').value = '';
   document.getElementById('new-place-detail').value = '';
   document.getElementById('new-content').value = '';
-  selectType('battle');
+  selectType('team');
   openModal('modalCreate');
-}
-function selectType(t) {
-  selType = t;
-  document.getElementById('chip-battle').className = 'type-chip' + (t==='battle'?' sel-battle':'');
-  document.getElementById('chip-internal').className = 'type-chip' + (t==='internal'?' sel-internal':'');
 }
 function searchAddress() {
   const fakes = ['서울 마포구 망원동 100-1','서울 마포구 합정동 22-5','서울 마포구 상수동 70','서울 마포구 서교동 350'];
@@ -298,60 +226,11 @@ function submitCreate() {
     content:content||'활동 내용 없음', region:'city', createdAt:new Date(), applications:[],
   });
   closeModal('modalCreate'); renderList();
-  showToast(selType==='internal' ? '✅ 내전 활동이 등록되어 스케줄에 저장되었습니다' : '✅ 대전 활동이 등록되었습니다');
 }
 
-function openApply(e, id) {
-  e.stopPropagation();
-  const a = ACTIVITIES.find(x => x.id===id);
-  if (!a) return;
-  pendingApplyId = id;
-  document.getElementById('applyName').textContent = a.crewName;
-  document.getElementById('applyMeta').textContent = a.place.split(' ').slice(0,2).join(' ') + ' · 농구';
-  document.getElementById('applyChips').innerHTML =
-    `<span class="info-chip">📅 ${fmtDate(a.date)}</span>
-     <span class="info-chip">📍 ${a.place.split(' ').slice(2).join(' ')}</span>
-     <span class="info-chip">👥 ${a.count}명</span>`;
-  document.getElementById('apply-message').value = '';
-  openModal('modalApply');
-}
-function submitApply() {
-  const msg = document.getElementById('apply-message').value.trim();
-  if (!msg) { showToast('⚠️ 신청 메시지를 입력해주세요'); return; }
-  const a = ACTIVITIES.find(x => x.id===pendingApplyId);
-  if (a) {
-    a.applications.push({ id:'app_'+Date.now(), crewId:MY_CREW_ID, crewName:'마포 후크슛', crewEmoji:'🏀', message:msg, date:new Date().toISOString().split('T')[0] });
-    renderList();
-  }
-  closeModal('modalApply');
-  showToast('✅ 대전 신청이 완료되었습니다');
-}
-
-function handleApp(e, appId, actId, action) {
-  e.stopPropagation();
-  const a = ACTIVITIES.find(x => x.id===actId);
-  if (!a) return;
-  if (action==='accept') {
-    a.applications = a.applications.filter(x => x.id!==appId);
-    renderList();
-    setTimeout(() => {
-      const p = document.getElementById('apps-'+actId), ch = document.getElementById('chev-'+actId);
-      if (p) { p.classList.add('open'); ch.classList.add('open'); }
-    }, 50);
-    showToast('✅ 신청을 수락했습니다. 스케줄에 저장되었습니다!');
-  } else {
-    const card = document.getElementById('appcard-'+appId);
-    if (card) { card.style.transition='opacity .3s,transform .3s'; card.style.opacity='0'; card.style.transform='translateX(12px)'; }
-    setTimeout(() => {
-      a.applications = a.applications.filter(x => x.id!==appId);
-      renderList();
-      setTimeout(() => {
-        const p = document.getElementById('apps-'+actId), ch = document.getElementById('chev-'+actId);
-        if (p) { p.classList.add('open'); ch.classList.add('open'); }
-      }, 50);
-    }, 300);
-    showToast('❌ 신청을 거절했습니다');
-  }
+function toggleApps(id) {
+  document.getElementById('apps-'+id).classList.toggle('open');
+  document.getElementById('chev-'+id).classList.toggle('open');
 }
 
 function openModal(id) { 

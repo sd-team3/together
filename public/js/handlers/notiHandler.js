@@ -1,4 +1,4 @@
-import { renderUnreadNoti, renderReadNoti, renderNoti } from '../modules/notiRender.js';
+import { renderUnreadNoti, renderReadNoti, renderNoti, renderChatNoti } from '../modules/notiRender.js';
 
 let socket = null;
 const notiList = document.getElementById('noti-list');
@@ -96,6 +96,14 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
+    
+    // 채팅알림
+    socket.on('chat noti', (data) => {
+    // 현재 그 채팅방에 있으면 알림 무시
+    if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
+    renderChatNoti(data, notiList);
+    showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
+});
 }
                   
                 

@@ -7,12 +7,18 @@ const findHostByCrewId = async (crewModel, crewId)=>{
     return crew ? crew.host : null;
 }
 
+const modelMap = {
+    regularCrew: regularCrew,
+    instantCrew: instantCrew
+};
+
 async function addUserToCrew(userId, crewId, crewModel, options = {}) {
     const session = options.session || null;
     const result = await crewModel.findOneAndUpdate(
         { 
             _id: crewId, 
-            'member.memberList.user': { $ne: userId }
+            'member.memberList.user': { $ne: userId },
+            $expr: { $lt: [{ $size: '$member.memberList'}, '$member.capacity']}
         },
         { 
             $push: { 

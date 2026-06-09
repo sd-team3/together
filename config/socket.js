@@ -13,10 +13,11 @@ const initSocket = (io) => {
     const chat = io.of('/chat');
     const noti = io.of('/noti');
     
-    chatSocket(chat);
+    chatSocket(chat, io);  //io 전달
 
     notiSocket(noti);
 };
 
+const getIO = () => _io; 
 
-module.exports = { initSocket };
+module.exports = { initSocket, getIO };
