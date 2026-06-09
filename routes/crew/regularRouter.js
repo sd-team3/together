@@ -41,10 +41,15 @@ router.post('/application/:crewId',
     applicationController.postApplication
 );
 
-router.post('/pending/:crewId', 
+router.get('/pending/:crewId', 
     crewMiddleware.loginValidation,
     crewMiddleware.getPendingValidation,
     applicationController.getPendingApps
+);
+
+router.get('/relation/:crewId/:userId', 
+    crewMiddleware.loginValidation,
+    applicationController.getRelation
 );
 
 router.post('/join/:appId/:action',
@@ -58,10 +63,11 @@ router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
-router.get('/manage/:regularCrewId', regularController.getCrewManage);
+router.get('/manage/:crewId', regularController.getCrewManage);
+router.post('/manage/:crewId/update', regularController.postCrewUpdate);
 router.get('/api/my', regularController.getMyCrewsApi);
 
-router.get('/activity/:regularCrewId',
+router.get('/activity/:crewId',
     crewMiddleware.loginValidation, 
     regularController.getCrewActivity
 );
