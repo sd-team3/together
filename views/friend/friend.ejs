@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPORTMATCH — 내 친구 목록</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<div class="main">
+<%- include('../partials/head', { title: '👥 내 친구 목록', pageId: 'page-friends', active: '' }) %>
+
+  <div class="page-body" style="padding:24px;max-width:800px;margin:0 auto;width:100%">
+
+    <!-- 탭 -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="friend-tab on" data-tab="all">전체 <span class="friend-count" id="count-all"></span></button>
+      <button class="friend-tab" data-tab="favorite">⭐ 즐겨찾기 <span class="friend-count" id="count-fav"></span></button>
+      <button class="friend-tab" data-tab="pending">친구 신청 <span class="friend-count" id="count-pending"><%= pendingRequests.length %></span></button>
+    </div>
+
+    <!-- 친구 신청 목록 -->
+    <div id="pending-list" style="display:none;flex-direction:column;gap:10px;">
+      <% if (pendingRequests.length === 0) { %>
+        <div style="text-align:center;padding:60px 0;color:var(--text-3)">
+          <div style="font-size:32px;margin-bottom:12px">📭</div>
+          <div>받은 친구 신청이 없어요</div>
+        </div>
+      <% } %>
+      <% pendingRequests.forEach(req => { %>
+        <%
+          const u = req.sender;
+          const profileImg = u.profileImage && u.profileImage !== 'default-profile-image.jpg'
+            ? `/images/user-profile/${u.profileImage}`
+            : '/images/user-profile/default-profile-image.jpg';
+        %>
+        <div class="friend-card" data-request-id="<%= req._id %>">
+          <div style="display:flex;align-items:center;gap:12px;flex:1">
+            <div class="user-av" style="width:44px;height:44px;flex-shrink:0">
+              <img src="<%= profileImg %>" alt="profile">
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:15px"><%= u.name %></div>
+              <div style="font-size:13px;color:var(--text-3)">
+                <%= u.gender === 'male' ? '남성' : '여성' %> · <%= u.age %>세
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-accept" data-id="<%= req._id %>" data-sender-id="<%= u._id %>"
+              style="padding:6px 14px;border:none;border-radius:8px;
+                background:#2563eb;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+              수락
+            </button>
+            <button class="btn-reject" data-id="<%= req._id %>"
+              style="padding:6px 14px;border:1px solid #e5e7eb;border-radius:8px;
+                background:#fff;color:#555;font-size:13px;cursor:pointer;">
+              거절
+            </button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- 검색 -->
+    <div id="search-bar" style="margin-bottom:16px">
+      <input type="text" id="friend-search" placeholder="🔍 이름으로 검색"
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none">
+    </div>
+
+    <!-- 친구 목록 -->
+    <div id="friend-list" style="display:flex;flex-direction:column;gap:10px">
+      <% if (friends.length === 0) { %>
+        <div style="text-align:center;padding:60px 0;color:var(--text-3)">
+          <div style="font-size:32px;margin-bottom:12px">👥</div>
+          <div>아직 친구가 없어요</div>
+          <div style="font-size:13px;margin-top:6px">매칭에서 친구를 추가해보세요!</div>
+        </div>
+      <% } %>
+      <% friends.forEach(f => { %>
+        <%
+          const u = f.user;
+          const profileImg = u.profileImage && u.profileImage !== 'default-profile-image.jpg'
+            ? `/images/user-profile/${u.profileImage}`
+            : '/images/user-profile/default-profile-image.jpg';
+        %>
+        <div class="friend-card" data-id="<%= u._id %>" data-name="<%= u.name %>" data-fav="<%= f.isFavorite %>">
+          <div style="display:flex;align-items:center;gap:12px;flex:1">
+            <div class="user-av" style="width:44px;height:44px;flex-shrink:0">
+              <img src="<%= profileImg %>" alt="profile">
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:15px"><%= u.name %></div>
+              <div style="font-size:13px;color:var(--text-3)">
+                <%= u.gender === 'male' ? '남성' : '여성' %> · <%= u.age %>세
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-fav" data-id="<%= u._id %>" title="즐겨찾기"
+              style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px">
+              <%= f.isFavorite ? '⭐' : '☆' %>
+            </button>
+            <button class="btn-remove" data-id="<%= u._id %>" data-name="<%= u.name %>"
+              style="padding:6px 12px;border:1px solid #fecaca;background:#fff5f5;
+                color:#ef4444;border-radius:8px;font-size:13px;cursor:pointer">
+              삭제
+            </button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div id="remove-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%">
+    <div style="font-size:15px;font-weight:700;margin-bottom:8px" id="remove-modal-name"></div>
+    <div style="font-size:13px;color:#aaa;margin-bottom:20px">정말 친구를 삭제할까요?</div>
+    <div style="display:flex;gap:8px">
+      <button id="remove-cancel-btn"
+        style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer">
+        취소
+      </button>
+      <button id="remove-confirm-btn"
+        style="flex:1;padding:10px;border:none;border-radius:8px;background:#ef4444;color:#fff;font-weight:600;cursor:pointer">
+        삭제
+      </button>
+    </div>
+  </div>
+</div>
+
+<% if (user) { %>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module">
+  import { initFriendSocket } from '/js/handlers/friendHandler.js';
+  const userData = <%- JSON.stringify(user) %>;
+  window.addEventListener('DOMContentLoaded', () => {
+    const socket = io('/noti', { auth: { userId: userData._id } });
+    initFriendSocket(socket);
+  });
+</script>
+<% } %>
+
+<script type="module" src="/js/handlers/friendHandler.js"></script>
+</body>
+</html>

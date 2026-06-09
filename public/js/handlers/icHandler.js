@@ -281,3 +281,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/instant/create';
     });
 });
+
+// ── 친구추가 모달 ──
+let _friendTargetId = null;
+
+window.mpShowFriendModal = (userId, name, gender, age, profileImage) => {
+    _friendTargetId = userId;
+
+    const genderKr = gender === 'male' ? '남성' : gender === 'female' ? '여성' : '-';
+    const profileSrc = profileImage && profileImage !== 'default-profile-image.jpg'
+        ? `/images/user-profile/${profileImage}`
+        : '/images/user-profile/default-profile-image.jpg';
+
+    document.getElementById('fm-avatar').src          = profileSrc;
+    document.getElementById('fm-name').textContent    = name;
+    document.getElementById('fm-gender').textContent  = genderKr;
+    document.getElementById('fm-age').textContent     = age ? age + '세' : '-';
+
+    document.getElementById('friend-modal').classList.add('show');
+};
+
+document.getElementById('fm-cancel-btn')?.addEventListener('click', () => {
+    document.getElementById('friend-modal').classList.remove('show');
+    _friendTargetId = null;
+});
+
+document.getElementById('fm-confirm-btn')?.addEventListener('click', () => {
+    if (!_friendTargetId) return;
+    console.log('친구추가 receiverId:', _friendTargetId);
+    import('./friendHandler.js').then(({ emitFriendRequest }) => {
+        emitFriendRequest(_friendTargetId);
+    });
+    document.getElementById('friend-modal').classList.remove('show');
+    _friendTargetId = null;
+});
+

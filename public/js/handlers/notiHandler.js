@@ -1,4 +1,5 @@
 import { renderUnreadNoti, renderReadNoti, renderNoti, renderChatNoti } from '../modules/notiRender.js';
+import { initFriendSocket } from './friendHandler.js';
 
 let socket = null;
 const notiList = document.getElementById('noti-list');
@@ -76,6 +77,8 @@ export function initNotiSocket(user) {
     if (socket) return;
 
     socket = io('/noti', { auth: { userId: user._id } });
+
+    initFriendSocket(socket);
 
     socket.on('CREW_APPLICATION', (noti)=>{
         renderNoti(noti, notiList);

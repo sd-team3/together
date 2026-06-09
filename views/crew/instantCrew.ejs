@@ -164,6 +164,9 @@
 </div>
 
 <div class="map-popup-overlay" id="member-action-modal" style="z-index:3000">
+
+
+
   <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%;">
     <div style="font-size:15px;font-weight:700;margin-bottom:4px;" id="ma-name"></div>
     <div style="font-size:13px;color:#aaa;margin-bottom:20px;" id="ma-sub"></div>
@@ -187,7 +190,44 @@
   </div>
 </div>
 
+</div>
+
+<!-- ── 친구추가 확인 모달 ── -->
+<div class="map-popup-overlay" id="friend-modal" style="z-index:3000">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%;">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <img id="fm-avatar" src="" alt="profile"
+        style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb;">
+      <div>
+        <div id="fm-name" style="font-size:16px;font-weight:700;"></div>
+        <div style="font-size:13px;color:#aaa;margin-top:2px;">
+          <span id="fm-gender"></span> · <span id="fm-age"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:#555;margin-bottom:20px;">
+      친구 요청을 보내시겠습니까?
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      <button id="fm-cancel-btn"
+        style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;
+          background:#fff;color:#555;font-size:14px;cursor:pointer;">
+        취소
+      </button>
+      <button id="fm-confirm-btn"
+        style="flex:1;padding:10px;border:none;border-radius:8px;
+          background:#2563eb;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+        친구추가
+      </button>
+    </div>
+  </div>
+</div>
+
 <script id="page-data" type="application/json"><%- JSON.stringify(pageData) %></script>
 <script type="module" src="/js/handlers/icHandler.js"></script>
+
 </body>
 </html>

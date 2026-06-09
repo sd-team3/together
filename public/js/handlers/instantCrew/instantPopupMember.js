@@ -28,7 +28,11 @@ function timeAgo(dateStr) {
 
 function buildRow(m, crewId, isHost) {
     const u = m.user || {};
+    const uid = u._id ? u._id.toString() :
     const isOwner = m.role === 'host';
+    const pageData = JSON.parse(document.getElementById('page-data').textContent);
+    const currentUserId = pageData.currentUserId;
+    const isMe = currentUserId && u._id && u._id.toString() === currentUserId;
     const joinedAt = m.joinedAt
         ? new Date(m.joinedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })
         : '-';
@@ -50,7 +54,18 @@ function buildRow(m, crewId, isHost) {
                         ${(u.name || '?').charAt(0)}
                     </div>
                     <div>
-                        <div style="font-size:13px;font-weight:600;">${u.name || '멤버'}</div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:13px;font-weight:600;">${u.name || '멤버'}</span>
+                            ${!isMe ? `
+                                <button onclick="mpShowFriendModal('${uid}','${u.name || '멤버'}','${u.gender || ''}','${u.age || ''}','${u.profileImage || ''}')"
+                                    style="width:18px;height:18px;border-radius:50%;border:1px solid #bfdbfe;
+                                        background:#eff6ff;color:#2563eb;font-size:12px;font-weight:700;
+                                        cursor:pointer;display:flex;align-items:center;justify-content:center;
+                                        line-height:1;padding:0;"
+                                    title="친구추가">
+                                    +
+                                </button>` : ''}
+                        </div>
                         <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
                     </div>
                 </div>
@@ -194,7 +209,6 @@ export function renderMemberPopupBody() {
         return;
     }
 
-    // 참여자 목록 탭
     const filterBar = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
             <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;">
@@ -263,7 +277,6 @@ export function renderMemberPopupBody() {
             </div>` : ''}`;
 }
 
-// window 함수 등록
 window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
 window.mpSetTab    = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
 window.mpSetFilter = (f)   => { _mpActiveFilter = f; renderMemberPopupBody(); };

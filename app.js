@@ -24,6 +24,7 @@ const chatRouter = require('./routes/chatRouter');
 const {initSocket} = require('./config/socket');
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
+const friendRouter = require('./routes/friendRouter');
 
 connectDB();
 
@@ -70,6 +71,8 @@ app.use('/instant', instantRouter);
 app.use('/noti', notiRouter);
 
 app.use('/chatRoom', chatRouter);
+app.use('/friends', friendRouter);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
@@ -82,3 +85,4 @@ app.use((err, req, res, next) => {
 httpServer.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });
+
