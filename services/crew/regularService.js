@@ -254,16 +254,14 @@ async function crewLike(regularCrewId, userId) {
 
 async function getCrewManage(regularCrewId) {
     const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
-    return crew;
+    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
+                                             .populate('userId', 'name age profileImage');
+    return { crew, pendingApps };
 }
 
 async function getCrewActivity(regularCrewId) {
     const crew = await regularCrew.findById(regularCrewId);
-
-    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
-                                             .populate('userId', 'name age profileImage');
-
-    return { crew, pendingApps };
+    return crew;
 }
 
 module.exports = { 

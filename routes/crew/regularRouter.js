@@ -61,7 +61,10 @@ router.get('/api', regularController.getRegularAPI);
 router.get('/manage/:regularCrewId', regularController.getCrewManage);
 router.get('/api/my', regularController.getMyCrewsApi);
 
-router.get('/activity/:regularCrewId', regularController.getCrewActivity);
+router.get('/activity/:regularCrewId',
+    crewMiddleware.loginValidation, 
+    regularController.getCrewActivity
+);
 router.post('/list/:crewID/like', regularController.postCrewLike);
 
 module.exports = router;
