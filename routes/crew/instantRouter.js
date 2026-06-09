@@ -21,4 +21,10 @@ router.post('/delete/:instantId', instantController.deleteInstantCrew);
 
 //크루 강퇴
 router.post('/list/:instantId/kick/:userId', instantController.kickMember);
+
+router.get('/relation/:crewId/:userId', 
+    crewMiddleware.loginValidation,
+    applicationController.getRelation
+);
+
 module.exports = router;

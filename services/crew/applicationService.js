@@ -20,7 +20,7 @@ async function appStatusUpdateById(appId, action, options = {}) {
     const result = await crewApplication.findByIdAndUpdate(
         appId,
         { status: action },
-        { session, new: true }
+        { session, returnDocument: 'after' }
     );
 
     return result;
@@ -42,10 +42,26 @@ const findPendingAppsByCrewId = async (crewId) => {
     }
 };
 
+const findAppByCrewAndUser = async (crewId, userId)=>{
+    try {
+        const app = await crewApplication.findOne({ 
+            user: userId, 
+            crew: crewId 
+        });
+
+        return app;
+    } catch (error) {
+        console.error("DB 에러:", error);
+        throw new Error('findAppByCrewAndUser');
+        
+    }
+}
+
 
 module.exports = {
     createApp,
     findPendingAppsByCrewId,
     findAppById,
-    appStatusUpdateById
+    appStatusUpdateById,
+    findAppByCrewAndUser
 }

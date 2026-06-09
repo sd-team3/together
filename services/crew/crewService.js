@@ -22,7 +22,7 @@ async function addUserToCrew(userId, crewId, crewModel, options = {}) {
                 } 
             } 
         },
-        { session, new: true }
+        { session, returnDocument: 'after' }
     );
     return result;
 }
@@ -32,7 +32,7 @@ async function addCrewToUser(userId, crewId, options = {}) {
     const result = await User.findByIdAndUpdate(
         userId,
         { $addToSet: { crews: crewId } },
-        { session, new: true }
+        { session, returnDocument: 'after' }
     );
 
     return result;
