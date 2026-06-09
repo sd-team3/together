@@ -156,7 +156,8 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        const { crew, pendingApps } = await regularService.getCrewManage(req.params.crewId);
+        const {crew, pendingApps} = await regularService.getCrewManage(req.params.regularCrewId);
+        
         res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {
         console.error(error);
@@ -179,11 +180,8 @@ const postCrewUpdate = async (req, res) => {
 
 const getCrewActivity = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        const crew = await regularService.getCrewActivity(req.params.crewId);
-        res.render('crew/crewActivity', { crew });
+        const crews = await regularService.getCrewActivity(req.params.crewId);
+        res.render('crew/crewActivity', { crews });
     } catch(error) {
         console.error(error);
         res.status(500).render('error/error_500');
