@@ -41,10 +41,15 @@ router.post('/application/:crewId',
     applicationController.postApplication
 );
 
-router.post('/pending/:crewId', 
+router.get('/pending/:crewId', 
     crewMiddleware.loginValidation,
     crewMiddleware.getPendingValidation,
     applicationController.getPendingApps
+);
+
+router.get('/relation/:crewId/:userId', 
+    crewMiddleware.loginValidation,
+    applicationController.getRelation
 );
 
 router.post('/join/:appId/:action',
