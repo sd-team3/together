@@ -159,10 +159,12 @@ export function renderMemberPopupBody() {
                             </div>
                             <div style="font-size:12px;color:#aaa;">${timeAgo(app.createdAt)}</div>
                         </div>
-                        <div style="display:flex;gap:16px;font-size:12px;color:#555;margin-bottom:12px;">
-                            ${u.gender ? `<span>${u.gender === 'male' ? '남성' : '여성'}</span>` : ''}
-                            ${u.age ? `<span>${u.age}세</span>` : ''}
-                            ${u.honor !== undefined ? `<span>⭐ 매너점수 ${u.honor}</span>` : ''}
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+                            <button onclick="mpOpenProfile(${JSON.stringify(u)})"
+                                style="padding:3px 10px;border-radius:6px;border:1px solid #e5e7eb;
+                                    background:#fff;color:#555;font-size:11px;font-weight:600;cursor:pointer;">
+                                프로필 보기
+                            </button>
                         </div>
                         ${isHost ? `
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
