@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
 const crewService = require('../../services/crew/crewService');
-const regularService = require('../../services/crew/regularService');
 const chatService = require('../../services/chatService');
-//const instCrewService = require('../../services/crew/instCrewService');
 
 
 const postApplication = async (req, res)=>{
@@ -39,6 +37,27 @@ const postApplication = async (req, res)=>{
         if (session) session.endSession();
         console.error(error);
         return res.status(500).json({ message: "appCtrl:Transaction" });
+    }
+};
+
+const getRelation = async (req, res)=>{
+    try {
+        const { crewId, userId } = req.params;
+        const app = await applicationService.findAppByCrewAndUser(crewId, userId);
+        let relation = 'none'
+
+        if(!app) {
+            const crew = await req.crewModel.findById(crewId);
+            if(crew.member.memberList.some(m=>m.user.toString() === userId)) {
+                relation = 'member';
+            }
+        } else {
+            relation = app.status;
+        }
+
+        res.json({ relation: relation });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -102,5 +121,6 @@ const joinProcess = async (req, res) => {
 module.exports = {
     postApplication,
     getPendingApps,
+    getRelation,
     joinProcess
 }
