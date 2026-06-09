@@ -28,7 +28,8 @@ function timeAgo(dateStr) {
 
 function buildRow(m, crewId, isHost) {
     const u = m.user || {};
-    const uid = u._id ? u._id.toString() :
+    const uid = u._id ? u._id.toString() : '';
+    console.log('u:', u, 'u._id:', u._id, 'uid:', uid);
     const isOwner = m.role === 'host';
     const pageData = JSON.parse(document.getElementById('page-data').textContent);
     const currentUserId = pageData.currentUserId;

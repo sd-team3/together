@@ -126,6 +126,7 @@ export function initFriendSocket(socket) {
 }
 
 export function emitFriendRequest(receiverId) {
-    if (!_notiSocket) return;
+    if (!_notiSocket) { console.log('소켓 없음'); return; }
+    console.log('emit receiverId:', receiverId, 'socket id:', _notiSocket.id);
     _notiSocket.emit('friend:request', { receiverId });
 }

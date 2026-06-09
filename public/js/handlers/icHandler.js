@@ -16,7 +16,6 @@ function timeAgo(dateStr) {
     return Math.floor(diff / 86400) + '일 전';
 }
 
-// ── 내 모임/다른 모임 섹션 분리 ──
 function renderCrewList() {
     const container = document.querySelector('.map-list-items');
     const items = [...container.querySelectorAll('.map-item')];
@@ -45,7 +44,6 @@ function renderCrewList() {
     }
 }
 
-// ── 비회원/미가입자용 팝업 ──
 function showMapPopup(data) {
     document.getElementById('pp-sport').textContent = data.sportKr;
 
@@ -85,7 +83,6 @@ function showMapPopup(data) {
         applyBtn.onclick = async () => {
             if (!isLoggedIn) { window.location.href = '/user/login'; return; }
             try {
-                const { apiApply } = await import('./instantCrew/instantApi.js');
                 const res = await fetch(`/instant/application/${data.id}`, { method: 'POST' });
                 if (res.ok) {
                     document.querySelector('.map-popup').innerHTML = `
@@ -120,7 +117,6 @@ function closeMapPopup() {
     document.getElementById('map-popup').classList.remove('show');
 }
 
-// ── 호스트/멤버용 상세 모달 ──
 async function showMemberPopup(crewId) {
     const modal = document.getElementById('member-popup');
     const body  = document.getElementById('mp-body');
@@ -155,7 +151,6 @@ function closeMemberPopup() {
     document.getElementById('member-popup').classList.remove('show');
 }
 
-// ── 멤버 관리 액션 모달 ──
 window.mpManageMember = (crewId, userId, userName) => {
     _maCrewId = crewId;
     _maUserId = userId;
@@ -164,7 +159,6 @@ window.mpManageMember = (crewId, userId, userName) => {
     document.getElementById('member-action-modal').classList.add('show');
 };
 
-// ── 정렬 ──
 function setSortTab(el, type) {
     el.closest('.map-sort-tabs').querySelectorAll('.map-sort-tab').forEach(t => t.classList.remove('on'));
     el.classList.add('on');
@@ -190,7 +184,6 @@ function setSortTab(el, type) {
     renderCrewList();
 }
 
-// ── 지도 필터 ──
 function filterToggle(btn, type) {
     document.querySelectorAll('.map-filter-chip').forEach(c => c.classList.remove('on'));
     btn.classList.add('on');
@@ -201,12 +194,27 @@ function filterToggle(btn, type) {
     });
 }
 
-// ── DOMContentLoaded ──
 document.addEventListener('DOMContentLoaded', async () => {
     const pageData = JSON.parse(document.getElementById('page-data').textContent);
     crewsData  = pageData.crews;
     isLoggedIn = pageData.isLoggedIn;
     myCrewIds  = pageData.myCrewIds || [];
+
+    // ── 친구 소켓 초기화 (notiHandler의 소켓 재사용) ──
+    if (isLoggedIn) {
+        const { getNotiSocket } = await import('./notiHandler.js');
+        const { initFriendSocket } = await import('./friendHandler.js');
+        
+        const tryInit = () => {
+            const existingSocket = getNotiSocket();
+            if (existingSocket) {
+                initFriendSocket(existingSocket);
+            } else {
+                setTimeout(tryInit, 100);
+            }
+        };
+        tryInit();
+    }
 
     await kakaoMap.loadMapByGPS();
     const crewsWithLocation = crewsData.filter(c => c.lat && c.lng);
@@ -240,17 +248,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         tab.addEventListener('click', () => setSortTab(tab, tab.textContent.trim()));
     });
 
-    // 비회원 팝업 닫기
     const mapPopupEl = document.getElementById('map-popup');
     if (mapPopupEl) mapPopupEl.addEventListener('click', e => { if (e.target === mapPopupEl) closeMapPopup(); });
     document.getElementById('popup-close-btn')?.addEventListener('click', closeMapPopup);
 
-    // 멤버 팝업 닫기
     const memberPopupEl = document.getElementById('member-popup');
     if (memberPopupEl) memberPopupEl.addEventListener('click', e => { if (e.target === memberPopupEl) closeMemberPopup(); });
     document.getElementById('mp-close-btn')?.addEventListener('click', closeMemberPopup);
 
-    // 멤버 관리 액션 모달
     const actionModal = document.getElementById('member-action-modal');
     if (actionModal) actionModal.addEventListener('click', e => { if (e.target === actionModal) actionModal.classList.remove('show'); });
 
@@ -308,11 +313,11 @@ document.getElementById('fm-cancel-btn')?.addEventListener('click', () => {
 
 document.getElementById('fm-confirm-btn')?.addEventListener('click', () => {
     if (!_friendTargetId) return;
-    console.log('친구추가 receiverId:', _friendTargetId);
-    import('./friendHandler.js').then(({ emitFriendRequest }) => {
-        emitFriendRequest(_friendTargetId);
-    });
-    document.getElementById('friend-modal').classList.remove('show');
+    const targetId = _friendTargetId;  // 먼저 복사
     _friendTargetId = null;
+    document.getElementById('friend-modal').classList.remove('show');
+    console.log('친구추가 receiverId:', targetId);
+    import('./friendHandler.js').then(({ emitFriendRequest }) => {
+        emitFriendRequest(targetId);
+    });
 });
-
