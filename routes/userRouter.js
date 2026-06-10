@@ -4,6 +4,7 @@ const {signupValidationRules, validate} = require('../middlewares/validationMidd
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
 const {uploadProfile} = require('../config/upload');
+const { loginValidation } = require('../middlewares/crewMiddleware');
 
 //회원가입 페이지
 router.get('/signup', (req, res) => {
@@ -77,5 +78,8 @@ router.get('/setting', userController.getSetting);
 
 //프로필 api
 router.get('/api/:userId/profile', userController.getUserProfile);
+
+//프로필 비공개
+router.patch('/privacy', loginValidation, userController.updatePrivacy);
 
 module.exports = router;

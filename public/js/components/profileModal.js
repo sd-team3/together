@@ -40,7 +40,15 @@ export async function openProfileModal(userId) {
     try {
         const res = await fetch(`/user/api/${userId}/profile`);
         const data = await res.json();
-        if (!data.ok) return;
+        if (!data.ok) {
+            if (data.reason === 'private') {
+                document.getElementById('pm-name').textContent = '비공개 프로필';
+                document.getElementById('pm-meta').textContent = '이 사용자는 프로필을 비공개로 설정했습니다';
+                document.getElementById('pm-friend-btn').style.display = 'none';
+                document.getElementById('pm-crew-list').innerHTML = '';
+            }
+            return;
+        }
 
         const u = data.user;
         document.getElementById('pm-name').textContent = u.name;
@@ -51,6 +59,11 @@ export async function openProfileModal(userId) {
         const genderKor = u.gender === 'male' ? '남성' : '여성';
         document.getElementById('pm-meta').textContent = `${genderKor} · ${u.age}세`;
         document.getElementById('pm-score').textContent = u.reputation || 0;
+
+        if (!data.showManner) {
+        document.getElementById('pm-score').textContent = '비공개';
+        document.getElementById('pm-score').style.color = 'var(--text-3)';
+    }
 
         // 친구 여부 확인
         if (data.friendInfo) {
@@ -191,3 +204,4 @@ function _injectHTML() {
         </div>
     `);
 }
+
