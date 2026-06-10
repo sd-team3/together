@@ -3769,15 +3769,7 @@ select.manage-input { cursor: pointer; }
 .activity-empty-title { font-size: 15px; font-weight: 600; color: var(--text-2); margin-bottom: 5px; }
 .activity-empty-sub { font-size: 13px; color: var(--text-3); }
 
-/* 모달 */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,.4);
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; display: flex; }
+
 .modal-box {
   background: var(--surface);
   border-radius: var(--radius);
