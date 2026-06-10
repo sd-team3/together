@@ -1,5 +1,6 @@
 const mongosse = require('mongoose');
 const comService = require('../../services/community/comService');
+const Board = require('../../models/Board');
 
 const getCommunity = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
@@ -45,4 +46,24 @@ const postBoardLike = async (req, res, next) => {
     }
 }
 
-module.exports = { getCommunity, getListAPI, postBoardLike };
+const getWrite = async (req, res) => {
+    res.render('community/write');
+}
+
+const postWrite = async (req, res, next) => {
+    try {
+        const { title, content, category } = req.body;
+        const board = await comService.createBoard(
+            title,
+            content,
+            req.user.id,
+            category,
+            req.file
+        );
+        res.redirect('/community/list');
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { getCommunity, getListAPI, postBoardLike, getWrite, postWrite };

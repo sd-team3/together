@@ -42,5 +42,11 @@ async function boardLike(boardId, userId) {
     );
 }
 
+async function createBoard(title, content, author, category, file) {
+    const newBoard = new Board({
+        title, content, author, category, file: file ? file.filename : null,
+    });
+    await newBoard.save();
+}
 
-module.exports = {getBoard, getBoardByCategory, boardLike};
+module.exports = {getBoard, getBoardByCategory, boardLike, createBoard};

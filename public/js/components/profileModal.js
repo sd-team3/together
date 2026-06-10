@@ -155,7 +155,7 @@ function _injectHTML() {
     if (document.getElementById('pm-overlay')) return;
 
     document.body.insertAdjacentHTML('beforeend', `
-        <div class="modal-overlay" id="pm-overlay" style="display:none;">
+        <div class="modal-overlay" id="pm-overlay" style="display:none; z-index:9999;">
             <div class="modal-box" style="max-width:560px;">
                 <div class="modal-head">
                     <span class="modal-head-title">👤 멤버 프로필</span>
