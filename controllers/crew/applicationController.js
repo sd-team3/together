@@ -93,7 +93,7 @@ const joinProcess = async (req, res) => {
         };
 
         if (action === 'accept') {
-            const utc = await crewService.addUserToCrew(app.userId, app.crewId, app.crewType, { session });
+            const utc = await crewService.addUserToCrew(app.userId, app.crewId, req.crewModel, { session });
             const ctu = await crewService.addCrewToUser(app.userId, app.crewId, { session });
             await chatService.addMemberToChatRoom(app.crewId, app.userId);
 

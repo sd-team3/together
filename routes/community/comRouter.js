@@ -10,7 +10,7 @@ router.get('/list/api/:category', comController.getListAPI);
 
 router.post('list/:boardId/like', comController.postBoardLike);
 
-router.get('/write', comController.getWrite);
+router.get('/write', crewMiddleware.loginValidation, comController.getWrite);
 
 router.post('/write', crewMiddleware.loginValidation, uploadBoard.single('file'), comController.postWrite);
 
