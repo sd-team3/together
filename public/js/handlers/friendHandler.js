@@ -52,6 +52,18 @@ if (isFriendPage) {
             card.dataset.fav = data.isFavorite ? 'true' : 'false';
             btn.textContent = data.isFavorite ? '⭐' : '☆';
             updateCount();
+
+            // 즐찾 추가면 맨 위로, 해제면 즐찾 카드들 뒤로
+            const list = document.getElementById('friend-list');
+            if (data.isFavorite) {
+                list.prepend(card);
+            } else {
+                // 즐찾 카드 수 세서 그 다음 위치로 이동
+                const favCards = list.querySelectorAll('.friend-card[data-fav="true"]');
+                const lastFav = favCards[favCards.length - 1];
+                if (lastFav) lastFav.after(card);
+                else list.prepend(card);
+            }
         });
     });
 
