@@ -1,4 +1,6 @@
+import { initProfileModal, openProfileModal } from '../../components/profileModal.js';
 document.addEventListener('DOMContentLoaded', () => {
+    initProfileModal(null, CURRENT_USER_ID);
 
     if (!IS_HOST && !IS_MEMBER) {
         // 미가입자 - 참가 신청만
@@ -159,7 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn) {
             e.stopPropagation();
             const id = btn.dataset.id;
-            if (btn.dataset.action === 'detail') openDetail(id);
+            if (btn.dataset.action === 'detail') {
+                const m = members.find(x => x.id === id);
+                if (m) openProfileModal(m.id); // DB의 실제 _id
+            }
             if (btn.dataset.action === 'kick') handleKick(id);
             return;
         }
@@ -232,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`/instant/delete/${CREW_ID}`, { method: 'POST' });
             const data = await res.json();
-            if (data.success) location.href = '/instant/instant';
+            if (data.success) location.href = '/instant/list';
             else alert(data.message || '삭제에 실패했습니다');
         } catch (e) { alert('서버 오류가 발생했습니다'); }
         finally { closeModal(); }

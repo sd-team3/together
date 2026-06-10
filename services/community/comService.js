@@ -42,6 +42,12 @@ async function boardLike(boardId, userId) {
     );
 }
 
+async function createBoard(title, content, author, category, file) {
+    const newBoard = new Board({
+        title, content, author, category, file: file ? file.filename : null,
+    });
+    await newBoard.save();
+}
 async function getDetail(boardId) {
     const board = await Board.findById(boardId)
                             .populate('author', 'name');
@@ -84,4 +90,4 @@ async function deleteComment(commentId) {
 
 
 
-module.exports = {getBoard, getBoardByCategory, getDetail, getComments ,boardLike, createComment,updateComment,deleteComment,updateBoard ,deleteBoard };
+module.exports = {getBoard, getBoardByCategory, getDetail, getComments, createBoard ,boardLike, createComment,updateComment,deleteComment,updateBoard ,deleteBoard };
