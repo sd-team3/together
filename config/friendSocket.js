@@ -40,6 +40,7 @@ function friendSocket(noti) {
                 socket.emit('friend:request:sent', { message: '친구 요청을 보냈습니다.' });
 
             } catch (err) {
+                console.error('friend:request 에러:', err.message);
                 socket.emit('friend:error', { message: err.message });
             }
         });
@@ -71,6 +72,7 @@ function friendSocket(noti) {
                 socket.emit('friend:accept:done');
 
             } catch (err) {
+                console.error('friend:request 에러:', err.message);
                 socket.emit('friend:error', { message: err.message });
             }
         });
@@ -83,6 +85,7 @@ function friendSocket(noti) {
                 await friendService.rejectFriendRequest(requestId, receiver._id);
                 socket.emit('friend:reject:done');
             } catch (err) {
+                console.error('friend:request 에러:', err.message);
                 socket.emit('friend:error', { message: err.message });
             }
         });

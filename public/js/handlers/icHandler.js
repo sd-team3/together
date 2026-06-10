@@ -199,22 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     crewsData  = pageData.crews;
     isLoggedIn = pageData.isLoggedIn;
     myCrewIds  = pageData.myCrewIds || [];
-
-    // ── 친구 소켓 초기화 (notiHandler의 소켓 재사용) ──
-    if (isLoggedIn) {
-        const { getNotiSocket } = await import('./notiHandler.js');
-        const { initFriendSocket } = await import('./friendHandler.js');
-        
-        const tryInit = () => {
-            const existingSocket = getNotiSocket();
-            if (existingSocket) {
-                initFriendSocket(existingSocket);
-            } else {
-                setTimeout(tryInit, 100);
-            }
-        };
-        tryInit();
-    }
+    
 
     await kakaoMap.loadMapByGPS();
     const crewsWithLocation = crewsData.filter(c => c.lat && c.lng);
@@ -287,37 +272,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// ── 친구추가 모달 ──
-let _friendTargetId = null;
-
-window.mpShowFriendModal = (userId, name, gender, age, profileImage) => {
-    _friendTargetId = userId;
-
-    const genderKr = gender === 'male' ? '남성' : gender === 'female' ? '여성' : '-';
-    const profileSrc = profileImage && profileImage !== 'default-profile-image.jpg'
-        ? `/images/user-profile/${profileImage}`
-        : '/images/user-profile/default-profile-image.jpg';
-
-    document.getElementById('fm-avatar').src          = profileSrc;
-    document.getElementById('fm-name').textContent    = name;
-    document.getElementById('fm-gender').textContent  = genderKr;
-    document.getElementById('fm-age').textContent     = age ? age + '세' : '-';
-
-    document.getElementById('friend-modal').classList.add('show');
-};
-
-document.getElementById('fm-cancel-btn')?.addEventListener('click', () => {
-    document.getElementById('friend-modal').classList.remove('show');
-    _friendTargetId = null;
-});
-
-document.getElementById('fm-confirm-btn')?.addEventListener('click', () => {
-    if (!_friendTargetId) return;
-    const targetId = _friendTargetId;  // 먼저 복사
-    _friendTargetId = null;
-    document.getElementById('friend-modal').classList.remove('show');
-    console.log('친구추가 receiverId:', targetId);
-    import('./friendHandler.js').then(({ emitFriendRequest }) => {
-        emitFriendRequest(targetId);
-    });
-});

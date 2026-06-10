@@ -57,15 +57,7 @@ function buildRow(m, crewId, isHost) {
                     <div>
                         <div style="display:flex;align-items:center;gap:6px;">
                             <span style="font-size:13px;font-weight:600;">${u.name || '멤버'}</span>
-                            ${!isMe ? `
-                                <button onclick="mpShowFriendModal('${uid}','${u.name || '멤버'}','${u.gender || ''}','${u.age || ''}','${u.profileImage || ''}')"
-                                    style="width:18px;height:18px;border-radius:50%;border:1px solid #bfdbfe;
-                                        background:#eff6ff;color:#2563eb;font-size:12px;font-weight:700;
-                                        cursor:pointer;display:flex;align-items:center;justify-content:center;
-                                        line-height:1;padding:0;"
-                                    title="친구추가">
-                                    +
-                                </button>` : ''}
+                            
                         </div>
                         <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
                     </div>

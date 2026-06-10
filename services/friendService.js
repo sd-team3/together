@@ -13,9 +13,13 @@ const sendFriendRequest = async (senderId, receiverId) => {
     if (alreadyFriend) throw new Error('이미 친구입니다.');
 
     // 중복 요청 확인
-    const existing = await FriendRequest.findOne({ sender: senderId, receiver: receiverId, status: 'pending' });
-    if (existing) throw new Error('이미 친구 요청을 보냈습니다.');
-
+    const existing = await FriendRequest.findOne({ sender: senderId, receiver: receiverId });
+    if (existing) {
+        if (existing.status === 'pending') throw new Error('이미 친구 요청을 보냈습니다.');
+        existing.status = 'pending';
+        await existing.save();
+        return existing;
+    }
     const request = await FriendRequest.create({ sender: senderId, receiver: receiverId });
     return request;
 };
@@ -30,13 +34,25 @@ const acceptFriendRequest = async (requestId, receiverId) => {
     request.status = 'accepted';
     await request.save();
 
-    // 양쪽 friends 배열에 추가
-    await User.findByIdAndUpdate(request.sender, {
-        $push: { friends: { user: request.receiver } }
-    });
-    await User.findByIdAndUpdate(request.receiver, {
-        $push: { friends: { user: request.sender } }
-    });
+    // 역방향 요청도 accepted로 처리 (양쪽이 서로 요청한 경우 중복 방지)
+    await FriendRequest.findOneAndUpdate(
+        { sender: request.receiver, receiver: request.sender, status: 'pending' },
+        { status: 'accepted' }
+    );
+
+    // 중복 없이 양쪽 friends 배열에 추가
+    const addIfNotExists = async (userId, friendId) => {
+        const user = await User.findById(userId);
+        const already = user.friends.some(f => f.user.toString() === friendId.toString());
+        if (!already) {
+            await User.findByIdAndUpdate(userId, {
+                $push: { friends: { user: friendId } }
+            });
+        }
+    };
+
+    await addIfNotExists(request.sender, request.receiver);
+    await addIfNotExists(request.receiver, request.sender);
 
     return request;
 };
@@ -59,6 +75,13 @@ const removeFriend = async (userId, friendId) => {
     });
     await User.findByIdAndUpdate(friendId, {
         $pull: { friends: { user: userId } }
+    });
+    // FriendRequest도 삭제
+    await FriendRequest.deleteMany({
+        $or: [
+            { sender: userId, receiver: friendId },
+            { sender: friendId, receiver: userId }
+        ]
     });
 };
 

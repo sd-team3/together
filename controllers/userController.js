@@ -1,6 +1,7 @@
 const userService = require('../services/userService');
 const regularService = require('../services/crew/regularService');
 const instantService = require('../services/crew/instantService');
+const User = require('../models/User');
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -252,4 +253,15 @@ const getSetting = (req, res) => {
   res.render('user/setting', { user: req.user });
 };
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting };
+//유저 api
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await userService.findUserById_WithoutPW(req.params.userId);
+        if (!user) return res.status(404).json({ ok: false });
+        res.json({ ok: true, user });
+    } catch (err) {
+        res.status(500).json({ ok: false });
+    }
+};
+
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting, getUserProfile };
