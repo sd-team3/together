@@ -55,7 +55,8 @@ const getInstant = async (req, res) => {
         const pageData = {
             crews: crewsJson,
             isLoggedIn: req.isAuthenticated(),
-            myCrewIds
+            myCrewIds,
+            currentUserId: req.isAuthenticated() ? req.user._id.toString() : null 
         };
         res.render('crew/instantCrew', { CONSTANTS, crews, pageData});
     } catch (error) {

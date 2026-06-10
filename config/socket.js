@@ -3,6 +3,7 @@ const userService = require('../services/userService');
 const notiService = require('../services/notiService');
 const { notiSocket } = require('./notiSocket');
 const { chatSocket } = require('./chatSocket');
+const { friendSocket } = require('./friendSocket');
 
 let _io = null;
 
@@ -14,8 +15,9 @@ const initSocket = (io) => {
     const noti = io.of('/noti');
     
     chatSocket(chat, io);  //io 전달
-
     notiSocket(noti);
+
+    friendSocket(noti);
 };
 
 const getIO = () => _io; 

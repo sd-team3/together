@@ -1,4 +1,5 @@
 import { renderUnreadNoti, renderReadNoti, renderNoti, renderChatNoti } from '../modules/notiRender.js';
+import { initFriendSocket } from './friendHandler.js';
 
 let socket = null;
 const notiList = document.getElementById('noti-list');
@@ -34,24 +35,20 @@ if(notiAllRead) {
 if(readNoti && unreadNoti) {
     readNoti.addEventListener('click', async ()=>{ 
         render('read');
-
         unreadNoti.style.display = 'inline-flex';
         readNoti.style.display = 'none';
     });
         
     unreadNoti.addEventListener('click', async ()=>{ 
         render('unread');
-
         readNoti.style.display = 'inline-flex';
         unreadNoti.style.display = 'none';
     });
 }
 
-
 export async function render(state) {
     const response = await fetch(`/noti/${state}`);
     const notis = await response.json();
-
     state === 'read' ? renderReadNoti(notis, notiList) : renderUnreadNoti(notis, notiList);
 }
 
@@ -60,22 +57,21 @@ function showToast(message) {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerText = message;
-    
     container.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
+    setTimeout(() => { toast.remove(); }, 3000);
+}
+
+export function getNotiSocket() {
+    return socket;
 }
 
 export function initNotiSocket(user) {
-    if (!user || !user._id) {
-        return;
-    }
-
+    if (!user || !user._id) return;
     if (socket) return;
 
     socket = io('/noti', { auth: { userId: user._id } });
+
+    initFriendSocket(socket);
 
     socket.on('CREW_APPLICATION', (noti)=>{
         renderNoti(noti, notiList);
@@ -96,14 +92,10 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`알림이 도착했습니다. '${noti.title}'`);
     });
-    
-    // 채팅알림
+
     socket.on('chat noti', (data) => {
-    // 현재 그 채팅방에 있으면 알림 무시
-    if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
-    renderChatNoti(data, notiList);
-    showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
-});
+        if (typeof window.currentRoomId !== 'undefined' && String(data.roomId) === String(window.currentRoomId)) return;
+        renderChatNoti(data, notiList);
+        showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
+    });
 }
-                  
-                

@@ -1,6 +1,7 @@
 const userService = require('../services/userService');
 const regularService = require('../services/crew/regularService');
 const instantService = require('../services/crew/instantService');
+const User = require('../models/User');
 
 //# 회원 가입 페이지
 const getSignup = (req, res) => {
@@ -252,4 +253,41 @@ const getSetting = (req, res) => {
   res.render('user/setting', { user: req.user });
 };
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting };
+//유저 api
+const getUserProfile = async (req, res) => {
+    try {
+        const targetId = req.params.userId;
+        const myId = req.user?._id;
+
+        const user = await userService.findUserById_WithoutPW(targetId);
+        if (!user) return res.status(404).json({ ok: false });
+
+        // 크루 정보
+        const [regCrews, instantCrews] = await Promise.all([
+            regularService.findRegularCrewsByUserId(targetId),
+            instantService.findInstantCrewsByUserId(targetId)
+        ]);
+
+        const crews = [
+            ...regCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' })),
+            ...instantCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' }))
+        ];
+
+        // 친구 여부 확인
+        let friendInfo = null;
+        if (myId) {
+            const me = await userService.findUserById(myId);
+            const friendEntry = me.friends?.find(f => f.user.toString() === targetId.toString());
+            if (friendEntry) {
+                friendInfo = { since: friendEntry.createdAt || null };
+            }
+        }
+
+        res.json({ ok: true, user, crews, friendInfo });
+    } catch (err) {
+        console.error('getUserProfile:', err);
+        res.status(500).json({ ok: false });
+    }
+};
+
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting, getUserProfile };
