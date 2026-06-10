@@ -45,4 +45,83 @@ const postBoardLike = async (req, res, next) => {
     }
 }
 
-module.exports = { getCommunity, getListAPI, postBoardLike };
+const getDetail = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        const board = await comService.getDetail(boardId);
+        const comments = await comService.getComments({ board : boardId });
+        const userId = req.isAuthenticated() ? req.user._id : null;
+        const isLiked = userId && board.likedBy
+            ? board.likedBy.some(id => id.toString() === userId.toString())
+            : false;
+        
+        res.render("community/comDetail", { board, comments, userId, isLiked });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const postComment = async (req, res, next) => {
+    try {
+        const {boardId} = req.params;
+        const {content } = req.body;
+        await comService.createComment(boardId, content , req.user._id);
+        res.status(201).json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getEditBoard = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        const board = await comService.getDetail(boardId);
+        res.render('community/comEdit', { board });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const postEditBoard = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        const { title, content } = req.body;
+        await comService.updateBoard(boardId, title, content);
+        res.redirect(`/community/list/${boardId}`);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const putComment = async (req, res, next) => {
+    try {
+        const { commentId } = req.params;
+        const { content } = req.body;
+        await comService.updateComment(commentId, content);
+        res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteComment = async (req, res, next) => {
+    try {
+        const { commentId } = req.params;
+        await comService.deleteComment(commentId);
+        res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteBoard = async (req, res, next) => {
+    try {
+        const { boardId } = req.params;
+        await comService.deleteBoard(boardId);
+        res.redirect('/community/list');
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { getCommunity, getListAPI, postBoardLike, getDetail, postComment,putComment,deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard };
