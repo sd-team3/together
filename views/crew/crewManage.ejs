@@ -303,7 +303,13 @@
           </div>
           <div class="member-action-btns">
             <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>
-            <button class="approve-btn" onclick="handleRequest('req-<%= app._id %>', 'approve')">✓ 승인</button>
+            <button class="approve-btn"
+              data-name="<%= app.userId.name %>"
+              data-age="<%= app.userId.age %>"
+              data-img="/images/user-profile/<%= app.userId.profileImage %>"
+              data-id="<%= app.userId._id %>"
+              onclick="handleRequest(this, 'req-<%= app._id %>', 'approve')">✓ 승인
+            </button>
             <button class="reject-btn" onclick="handleRequest('req-<%= app._id %>', 'reject')">✗ 거절</button>
           </div>
         </div>
@@ -558,7 +564,16 @@ function deleteSchedule(idx) {
   showToast('🗑️ 일정이 삭제되었습니다');
 }
 
-function handleRequest(elId, action) {
+async function handleRequest(btn, elId, action) {
+  const appId = elId.replace('req-', '');
+  const res = await fetch(`/regular/join/${appId}/${action === 'approve' ? 'accept' : 'reject'}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) {
+    showToast('❌ 처리에 실패했습니다');
+    return;
+  }
   const el = document.getElementById(elId);
   if (el) {
     el.style.transition = 'opacity .3s, transform .3s';
@@ -571,6 +586,38 @@ function handleRequest(elId, action) {
     const cur = parseInt(statVal.textContent);
     if (cur > 0) statVal.textContent = cur - 1;
   }
+
+  if (action === 'approve' && btn) {
+    const name = btn.dataset.name;
+    const age = btn.dataset.age;
+    const img = btn.dataset.img;
+    const today = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' }).replace(/\. /g, '.').replace('.', '');
+    const id = btn.dataset.id;
+
+    const memberList = document.querySelector('#panel-members .manage-section:last-child .manage-section-body') 
+                    || document.querySelector('#panel-members .manage-section:last-child');
+
+    if (memberList) {
+      const newCard = document.createElement('div');
+      newCard.className = 'member-list-item';
+      newCard.innerHTML = `
+        <img src="${img}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+        <div class="member-info">
+          <div class="member-name">${name}</div>
+          <div class="member-meta">${age}세 · 가입 ${today}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openProfileModal('${id}')">👤 프로필</button>
+        <span class="member-role-tag member">멤버</span>
+        <button class="kick-btn" onclick="kickMember('${name}')">강퇴</button>
+      `;
+      memberList.appendChild(newCard);
+    }
+    const currentMember = document.querySelector('.member-stat-card:first-child .member-stat-val');
+    if (currentMember) {
+      currentMember.textContent = parseInt(currentMember.textContent) + 1;
+    }
+  }
+
   showToast(action === 'approve' ? '✅ 승인되었습니다' : '❌ 거절되었습니다');
 }
 
