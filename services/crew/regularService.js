@@ -232,7 +232,7 @@ async function getCrewDetail(regularCrewId) {
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
     const periodLabel = period_Kor[obj.period] || obj.period;
     const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = accept_Kor[String(obj.isAutoAccept)] || '자동 승인';
+    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
     return {
         ...obj,
         dayLabel,
@@ -253,10 +253,11 @@ async function crewLike(regularCrewId, userId) {
 }
 
 async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
+    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage address');
 
     const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
                                              .populate('userId', 'name age profileImage');
+    console.log('pendingApps:', pendingApps);
     return { crew, pendingApps };
 }
 

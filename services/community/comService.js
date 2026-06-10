@@ -48,5 +48,46 @@ async function createBoard(title, content, author, category, file) {
     });
     await newBoard.save();
 }
+async function getDetail(boardId) {
+    const board = await Board.findById(boardId)
+                            .populate('author', 'name');
+    return board;
+}
 
-module.exports = {getBoard, getBoardByCategory, boardLike, createBoard};
+async function getComments(boardId) {
+    const comments = await Comment.find(boardId)
+                                  .populate('author', 'name')
+                                  .sort({ createdAt : -1 });
+    return comments;
+}
+
+async function createComment(boardId, content, userId) {
+    const comment = new Comment({
+        content,
+        author : userId,
+        board : boardId
+    });
+    await comment.save();
+    return comment;
+}
+
+async function updateBoard(boardId, title, content) {
+    await Board.findByIdAndUpdate(boardId, { title, content });
+}
+
+async function deleteBoard(boardId) {
+    await Board.findByIdAndDelete(boardId);
+    await Comment.deleteMany({ board: boardId }); // 게시글 삭제 시 댓글도 같이 삭제
+}
+
+async function updateComment(commentId, content) {
+    await Comment.findByIdAndUpdate(commentId, { content });
+}
+
+async function deleteComment(commentId) {
+    await Comment.findByIdAndDelete(commentId);
+}
+
+
+
+module.exports = {getBoard, getBoardByCategory, getDetail, getComments, createBoard ,boardLike, createComment,updateComment,deleteComment,updateBoard ,deleteBoard };

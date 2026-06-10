@@ -262,16 +262,28 @@ const getUserProfile = async (req, res) => {
         const user = await userService.findUserById_WithoutPW(targetId);
         if (!user) return res.status(404).json({ ok: false });
 
-        // 크루 정보
-        const [regCrews, instantCrews] = await Promise.all([
-            regularService.findRegularCrewsByUserId(targetId),
-            instantService.findInstantCrewsByUserId(targetId)
-        ]);
+        // 프로필 비공개 체크
+        const visibility = user.privacy?.profileVisibility || 'all';
+        if (visibility === 'none' && myId?.toString() !== targetId.toString()) {
+            return res.json({ ok: false, reason: 'private' });
+        }
 
-        const crews = [
-            ...regCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' })),
-            ...instantCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' }))
-        ];
+        // 활동이력 공개 여부
+        const showHistory = user.privacy?.showHistory !== false;
+        //매너점수 공개 여부
+        const showManner = user.privacy?.showManner !== false;
+
+        let crews = [];
+        if (showHistory) {
+            const [regCrews, instantCrews] = await Promise.all([
+                regularService.findRegularCrewsByUserId(targetId),
+                instantService.findInstantCrewsByUserId(targetId)
+            ]);
+            crews = [
+                ...regCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' })),
+                ...instantCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' }))
+            ];
+        }
 
         // 친구 여부 확인
         let friendInfo = null;
@@ -283,11 +295,32 @@ const getUserProfile = async (req, res) => {
             }
         }
 
-        res.json({ ok: true, user, crews, friendInfo });
+        res.json({ ok: true, user, crews, friendInfo, showManner });
     } catch (err) {
         console.error('getUserProfile:', err);
         res.status(500).json({ ok: false });
     }
 };
+//프로필 비공개
+const updatePrivacy = async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        const allowedKeys = ['priv-profile', 'priv-history', 'priv-manner'];
+        if (!allowedKeys.includes(key)) return res.status(400).json({ ok: false });
 
-module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting, getUserProfile };
+        const fieldMap = {
+            'priv-profile': 'privacy.profileVisibility',
+            'priv-history': 'privacy.showHistory',
+            'priv-manner':  'privacy.showManner'
+        };
+
+        await User.findByIdAndUpdate(req.user._id, {
+            $set: { [fieldMap[key]]: value }
+        });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false });
+    }
+};
+
+module.exports = { getSignup, postSignup, getLogin, logout, getProfile, getEditProfile, postEditProfile, postDelete, checkEmail, getVerify, postVerify,getSetting, getUserProfile, updatePrivacy };

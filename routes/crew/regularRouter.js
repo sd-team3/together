@@ -53,6 +53,7 @@ router.get('/relation/:crewId/:userId',
 );
 
 router.post('/join/:appId/:action',
+    crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
     applicationController.joinProcess
 );

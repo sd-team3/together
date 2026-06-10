@@ -90,6 +90,15 @@ const userSchema = new mongoose.Schema(
         honor: {
             type: Number,
             default: 0
+        },
+        privacy: {
+            profileVisibility: {
+                type: String,
+                enum: ['all', 'matched', 'none'],
+                default: 'all'
+            },
+            showHistory: { type: Boolean, default: true },
+            showManner: { type: Boolean, default: true }
         }
     }, {
         timestamps: true
