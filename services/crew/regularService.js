@@ -253,7 +253,7 @@ async function crewLike(regularCrewId, userId) {
 }
 
 async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
+    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage address');
 
     const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
                                              .populate('userId', 'name age profileImage');
