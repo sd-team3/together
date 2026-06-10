@@ -256,10 +256,36 @@ const getSetting = (req, res) => {
 //유저 api
 const getUserProfile = async (req, res) => {
     try {
-        const user = await userService.findUserById_WithoutPW(req.params.userId);
+        const targetId = req.params.userId;
+        const myId = req.user?._id;
+
+        const user = await userService.findUserById_WithoutPW(targetId);
         if (!user) return res.status(404).json({ ok: false });
-        res.json({ ok: true, user });
+
+        // 크루 정보
+        const [regCrews, instantCrews] = await Promise.all([
+            regularService.findRegularCrewsByUserId(targetId),
+            instantService.findInstantCrewsByUserId(targetId)
+        ]);
+
+        const crews = [
+            ...regCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' })),
+            ...instantCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' }))
+        ];
+
+        // 친구 여부 확인
+        let friendInfo = null;
+        if (myId) {
+            const me = await userService.findUserById(myId);
+            const friendEntry = me.friends?.find(f => f.user.toString() === targetId.toString());
+            if (friendEntry) {
+                friendInfo = { since: friendEntry.createdAt || null };
+            }
+        }
+
+        res.json({ ok: true, user, crews, friendInfo });
     } catch (err) {
+        console.error('getUserProfile:', err);
         res.status(500).json({ ok: false });
     }
 };

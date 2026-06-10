@@ -3971,6 +3971,7 @@ select.manage-input { cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: border-color .15s, box-shadow .15s, transform .15s;
+  cursor: pointer;
 }
 .friend-card:hover {
   border-color: var(--border-strong);

@@ -19,13 +19,23 @@ export async function openProfileModal(userId) {
     document.getElementById('pm-score').textContent = '0';
     document.getElementById('pm-img').src = '/images/user-profile/default-profile-image.jpg';
     document.getElementById('pm-crew-list').innerHTML = '<div style="color:var(--text-3);font-size:13px;">불러오는 중...</div>';
-    document.getElementById('pm-friend-btn').textContent = '+ 친구 추가';
-    document.getElementById('pm-friend-btn').disabled = false;
+
+    const friendBtn = document.getElementById('pm-friend-btn');
+    friendBtn.textContent = '+ 친구 추가';
+    friendBtn.disabled = false;
+    friendBtn.style.display = '';
+    document.getElementById('pm-friend-since').style.display = 'none';
+    document.getElementById('pm-friend-since').textContent = '';
 
     const overlay = document.getElementById('pm-overlay');
     overlay.style.display = 'flex';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+
+    // 내 프로필이면 친구 추가 버튼 숨김
+    if (_myUserId && userId === _myUserId.toString()) {
+        friendBtn.style.display = 'none';
+    }
 
     try {
         const res = await fetch(`/user/api/${userId}/profile`);
@@ -41,6 +51,16 @@ export async function openProfileModal(userId) {
         const genderKor = u.gender === 'male' ? '남성' : '여성';
         document.getElementById('pm-meta').textContent = `${genderKor} · ${u.age}세`;
         document.getElementById('pm-score').textContent = u.reputation || 0;
+
+        // 친구 여부 확인
+        if (data.friendInfo) {
+            friendBtn.style.display = 'none';
+            const sinceEl = document.getElementById('pm-friend-since');
+            sinceEl.style.display = '';
+            const since = new Date(data.friendInfo.since);
+            const formatted = `${since.getFullYear()}.${String(since.getMonth()+1).padStart(2,'0')}.${String(since.getDate()).padStart(2,'0')}`;
+            sinceEl.textContent = `👥 ${formatted}에 친구가 됐어요`;
+        }
 
         const crewList = document.getElementById('pm-crew-list');
         if (data.crews && data.crews.length > 0) {
@@ -71,7 +91,6 @@ export function closeProfileModal() {
 }
 
 function _showToast(msg) {
-    // 토스트가 있으면 토스트, 없으면 alert
     const toastEl = document.getElementById('manageToast');
     if (toastEl) {
         const msgEl = document.getElementById('toastMsg');
@@ -116,10 +135,8 @@ function _bindEvents() {
         if (action === 'kick') closeProfileModal();
     });
 
-    // 소켓 에러 수신
     if (_socket) {
         _socket.on('friend:error', ({ message }) => {
-            // 에러 나면 버튼 원상복구
             const btn = document.getElementById('pm-friend-btn');
             if (btn) {
                 btn.textContent = '+ 친구 추가';
@@ -165,7 +182,8 @@ function _injectHTML() {
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:20px;">+ 친구 추가</button>
+                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:12px;">+ 친구 추가</button>
+                    <div id="pm-friend-since" style="display:none;font-size:12px;color:var(--text-3);text-align:center;margin-bottom:20px;"></div>
                     <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">가입한 크루</div>
                     <div id="pm-crew-list" style="display:flex;flex-direction:column;gap:8px;"></div>
                 </div>
