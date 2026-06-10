@@ -32,8 +32,8 @@
           <!-- 기간 필터 -->
           <div style="display:flex;gap:5px;align-items:center">
             <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.5px;text-transform:uppercase"></span>
-            <button class="comm-period-btn active" onclick="filterCommPeriod(this,'all')">전체</button>
-            <button class="comm-period-btn" onclick="filterCommPeriod(this,'daily')">인기</button>
+            <button class="comm-period-btn active" data-sort="latest">전체</button>
+            <button class="comm-period-btn" data-sort="popular">인기</button>
           </div>
         </div>
         
@@ -58,18 +58,6 @@
       <!-- Sidebar -->
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="card" style="padding:16px">
-          <div class="section-title">인기 태그</div>
-          <div class="chip-group">
-            <div class="chip on">⚽ 풋살</div>
-            <div class="chip">🏃 러닝</div>
-            <div class="chip">🎾 테니스</div>
-            <div class="chip">장비추천</div>
-            <div class="chip">초보질문</div>
-            <div class="chip">후기</div>
-            <div class="chip">성동구</div>
-          </div>
-        </div>
-        <div class="card" style="padding:16px">
           <div class="section-title">이번 주 인기글</div>
           <div style="font-size:12.5px;display:flex;flex-direction:column;gap:10px">
             <div style="padding-bottom:10px;border-bottom:1px solid var(--border)"><div style="font-weight:600;margin-bottom:3px">테니스 서브 폼 교정법</div><div class="text-muted text-xs">👍 87 · 💬 34</div></div>
@@ -81,144 +69,7 @@
     </div>
   </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const tabs = document.querySelectorAll('.comm-tab');
-    const commPosts = document.querySelector('#comm-posts');
-
-    let currentCategory = 'all';
-    let currentPage = 1;
-
-    // 카테고리 탭 클릭
-    tabs.forEach(tab => {
-        tab.addEventListener('click', async (e) => {
-            tabs.forEach(t => t.classList.remove('active'));
-            e.target.classList.add('active');
-
-            currentCategory = e.target.dataset.category;
-            currentPage = 1; // 카테고리 바뀌면 1페이지부터
-            await loadBoards(currentCategory, currentPage);
-        });
-    });
-
-    // 게시글 불러오기
-    async function loadBoards(category, page) {
-        try {
-            commPosts.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3)">불러오는 중...</div>';
-
-            const url = `/community/list/api/${category}?page=${page}`; // ✅ 절대경로 + 페이지
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('서버 오류');
-
-            const data = await response.json();
-            renderBoards(data.boards);
-            renderCommPaging(data.currentPage, data.totalPages);
-
-        } catch (error) {
-            console.error('게시글 로딩 오류:', error);
-            commPosts.innerHTML = '<div style="text-align:center;padding:40px;color:red">게시글을 불러오지 못했습니다.</div>';
-        }
-    }
-
-    // 게시글 카드 렌더링
-    function renderBoards(boards) {
-      commPosts.innerHTML = '';
-
-      if (!boards || boards.length === 0) {
-          commPosts.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-3)">해당 카테고리에 게시글이 없습니다.</div>';
-          return;
-      }
-
-      const categoryMap = { question: '질문', tip: '팁/정보', free: '자유', all: '전체' };
-
-      boards.forEach(board => {
-        const card = document.createElement('div');
-        card.className = 'post-item';
-        card.dataset.type = board.category;
-
-        const categoryLabel = categoryMap[board.category] || board.category;
-        const excerptHtml = board.content ? `<div class="post-excerpt">${board.content.substring(0, 60)}...</div>` : '';
-
-        card.innerHTML = `
-          <div class="post-sport-av">📝</div>
-          <div>
-            <div class="post-title">${board.title}</div>
-              <div class="post-meta">
-                <span>${categoryLabel}</span>
-                <span>${board.author ? board.author.name : '익명'}</span>
-                <span>${getTimeAgo(board.createdAt)}</span>
-              </div>
-              ${excerptHtml}
-              <div class="post-footer">
-                <div class="post-stat">❤️ ${board.reputation || 0}</div>
-                <div class="post-stat">💬 ${board.commentsCount || 0}</div>
-              </div>
-            </div>
-            `;
-
-            // 카드 클릭 시 상세 페이지 이동 (board._id 활용)
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', () => {
-                window.location.href = `/community/${board._id}`;
-            });
-
-            commPosts.appendChild(card);
-        });
-          }
-      // 페이지네이션 렌더링
-      function renderCommPaging(currentPage, totalPages) {
-          const pagination = document.getElementById('commPagination');
-          if (!pagination) return;
-
-          let html = '';
-
-          if (currentPage > 1) {
-              html += `<li class="page-item"><button type="button" class="page-link" data-page="${currentPage - 1}">이전</button></li>`;
-          }
-
-          for (let i = 1; i <= totalPages; i++) {
-              html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <button type="button" class="page-link" data-page="${i}">${i}</button>
-                      </li>`;
-          }
-
-          if (currentPage < totalPages) {
-              html += `<li class="page-item"><button type="button" class="page-link" data-page="${currentPage + 1}">다음</button></li>`;
-          }
-
-          pagination.innerHTML = html;
-      }
-
-      // 페이지네이션 클릭 이벤트
-      const pagination = document.getElementById('commPagination');
-      if (pagination) {
-          pagination.addEventListener('click', (e) => {
-              const btn = e.target.closest('.page-link');
-              if (!btn) return;
-
-              const targetPage = Number(btn.dataset.page);
-              if (targetPage) loadBoards(currentCategory, targetPage);
-          });
-
-          loadBoards(currentCategory, currentPage);
-      }
-    // 시간 포맷 유틸
-    function getTimeAgo(dateString) {
-        const diff = new Date() - new Date(dateString);
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        if (days > 1) return `${days}일 전`;
-        if (days === 1) return '어제';
-        if (hours > 0) return `${hours}시간 전`;
-        if (minutes > 0) return `${minutes}분 전`;
-        return '방금 전';
-    }
-});
-
-
-</script>
-<script src="/js/boardLike.js"></script>
+<script type="module" src="/js/board/main.js"></script>
+<script src="/js/board/boardLike.js"></script>
 </body>
 </html>
