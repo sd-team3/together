@@ -28,7 +28,12 @@ function timeAgo(dateStr) {
 
 function buildRow(m, crewId, isHost) {
     const u = m.user || {};
+    const uid = u._id ? u._id.toString() : '';
+    console.log('u:', u, 'u._id:', u._id, 'uid:', uid);
     const isOwner = m.role === 'host';
+    const pageData = JSON.parse(document.getElementById('page-data').textContent);
+    const currentUserId = pageData.currentUserId;
+    const isMe = currentUserId && u._id && u._id.toString() === currentUserId;
     const joinedAt = m.joinedAt
         ? new Date(m.joinedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })
         : '-';
@@ -50,7 +55,10 @@ function buildRow(m, crewId, isHost) {
                         ${(u.name || '?').charAt(0)}
                     </div>
                     <div>
-                        <div style="font-size:13px;font-weight:600;">${u.name || '멤버'}</div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:13px;font-weight:600;">${u.name || '멤버'}</span>
+                            
+                        </div>
                         <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
                     </div>
                 </div>
@@ -196,7 +204,6 @@ export function renderMemberPopupBody() {
         return;
     }
 
-    // 참여자 목록 탭
     const filterBar = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
             <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;">
@@ -265,7 +272,6 @@ export function renderMemberPopupBody() {
             </div>` : ''}`;
 }
 
-// window 함수 등록
 window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
 window.mpSetTab    = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
 window.mpSetFilter = (f)   => { _mpActiveFilter = f; renderMemberPopupBody(); };
