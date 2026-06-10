@@ -232,7 +232,7 @@ async function getCrewDetail(regularCrewId) {
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
     const periodLabel = period_Kor[obj.period] || obj.period;
     const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = accept_Kor[obj.isAutoAccept] || obj.isAutoAccept;
+    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
     return {
         ...obj,
         dayLabel,

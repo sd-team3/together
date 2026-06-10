@@ -3059,7 +3059,7 @@ select.input{cursor:pointer}
 .tt-header-cell:not(:last-child) { border-right: 1px solid var(--border); }
 .tt-time-cell {
   padding: 0 6px;
-  height: 50px;
+  height: 15px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -3071,7 +3071,7 @@ select.input{cursor:pointer}
 }
 .tt-time-cell:not(:last-child) { border-bottom: 1px solid rgba(0,0,0,.04); }
 .tt-cell {
-  height: 50px;
+  height: 15px;
   border-bottom: 1px solid rgba(0,0,0,.04);
   cursor: pointer;
   transition: background .1s;
@@ -3770,14 +3770,14 @@ select.manage-input { cursor: pointer; }
 .activity-empty-sub { font-size: 13px; color: var(--text-3); }
 
 /* 모달 */
-.modal-overlay {
+.modal-overlay2 {
   position: fixed; inset: 0; z-index: 500;
   background: rgba(0,0,0,.4);
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
-.modal-overlay.open { opacity: 1; pointer-events: all; display: flex; }
+.modal-overlay2.open { opacity: 1; pointer-events: all; display: flex; }
 .modal-box {
   background: var(--surface);
   border-radius: var(--radius);
@@ -3786,7 +3786,7 @@ select.manage-input { cursor: pointer; }
   transform: translateY(12px); transition: transform .22s;
   overflow: hidden;
 }
-.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-overlay2.open .modal-box { transform: translateY(0); }
 .modal-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 22px 14px;
