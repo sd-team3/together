@@ -168,15 +168,11 @@ function _injectHTML() {
     if (document.getElementById('pm-overlay')) return;
 
     document.body.insertAdjacentHTML('beforeend', `
-        <div class="modal-overlay" id="pm-overlay" style="display:none;">
-            <div class="modal-box" style="max-width:560px;">
-                <div class="modal-head">
-                    <span class="modal-head-title">👤 멤버 프로필</span>
-                    <button class="modal-close" id="pm-close">✕</button>
-                </div>
-                <div class="modal-body" style="padding:20px 24px;">
-                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;position:relative;">
-                        <img id="pm-img" src="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;">
+        <div class="modal-overlay" id="pm-overlay" style="display:none;padding:0;">
+            <div class="modal-box" style="max-width:420px;width:100%;position:relative;overflow:visible;">
+            <button class="modal-close" id="pm-close" style="position:absolute;top:-12px;right:-12px;z-index:10;transition:all .15s;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;">✕</button>
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative;">
+                        <img id="pm-img" src="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;">
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:16px;font-weight:700;" id="pm-name">이름</div>
                             <div style="font-size:12.5px;color:var(--text-3);margin-top:3px;" id="pm-meta">성별 · 나이</div>
@@ -195,10 +191,10 @@ function _injectHTML() {
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:12px;">+ 친구 추가</button>
-                    <div id="pm-friend-since" style="display:none;font-size:12px;color:var(--text-3);text-align:center;margin-bottom:20px;"></div>
-                    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">가입한 크루</div>
-                    <div id="pm-crew-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:8px;">+ 친구 추가</button>
+                    <div id="pm-friend-since" style="display:none;font-size:12px;color:var(--text-3);text-align:center;margin-bottom:12px;"></div>
+                    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">가입한 크루</div>
+                    <div id="pm-crew-list" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;"></div>
                 </div>
             </div>
         </div>
