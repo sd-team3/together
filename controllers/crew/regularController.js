@@ -156,7 +156,7 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        const {crew, pendingApps} = await regularService.getCrewManage(req.params.regularCrewId);
+        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
         
         res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {

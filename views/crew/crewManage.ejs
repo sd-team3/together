@@ -6,7 +6,6 @@
 <title>SPORTMATCH — 크루 관리</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
-<script src="/js/profile.js"></script>
 </head>
 <body>
 <%- include('../partials/navbar') %>
@@ -227,8 +226,6 @@
         <span class="tag tag-outline" id="scheduleCount">0개</span>
       </div>
       <div class="schedule-event-list" id="scheduleList" style="padding:16px;">
-
-        <!-- 일정 추가 폼 -->
         <div class="add-schedule-form" id="addScheduleForm">
           <div class="add-form-title">📅 새 일정 추가</div>
           <div class="add-form-grid">
@@ -294,32 +291,23 @@
       <div class="manage-section-header">
         <div class="manage-section-title">⏳ 가입 신청 대기</div>
       </div>
-
-      <div class="member-request-item" id="req-u001">
-        <div class="member-av" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">김</div>
-        <div class="member-info">
-          <div class="member-name">김도현</div>
-          <div class="member-meta">20대 · Lv.2 &nbsp;·&nbsp; "농구 좋아하는 직장인입니다!"</div>
+      <% if (pendingApps.length === 0) { %>
+        <div style="padding:16px;color:var(--text-3);font-size:13px;">대기 중인 신청이 없습니다</div>
+      <% } %>
+      <% pendingApps.forEach(app => { %>
+        <div class="member-request-item" id="req-<%= app._id %>">
+          <img src="/images/user-profile/<%= app.userId.profileImage && app.userId.profileImage !== 'default-profile-image.jpg' ? app.userId.profileImage : 'default-profile-image.jpg' %>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+          <div class="member-info">
+            <div class="member-name"><%= app.userId.name %></div>
+            <div class="member-meta"><%= app.userId.age %>세</div>
+          </div>
+          <div class="member-action-btns">
+            <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>
+            <button class="approve-btn" onclick="handleRequest('req-<%= app._id %>', 'approve')">✓ 승인</button>
+            <button class="reject-btn" onclick="handleRequest('req-<%= app._id %>', 'reject')">✗ 거절</button>
+          </div>
         </div>
-        <div class="member-action-btns">
-          <button class="btn btn-outline btn-sm" onclick="openProfileModal('김도현', '', '남성 · 20대 · 서울', 320)">👤 프로필</button>
-          <button class="approve-btn" onclick="handleRequest('req-u001', 'approve')">✓ 승인</button>
-          <button class="reject-btn" onclick="handleRequest('req-u001', 'reject')">✗ 거절</button>
-        </div>
-      </div>
-
-      <div class="member-request-item" id="req-u002">
-        <div class="member-av" style="background:linear-gradient(135deg,#ea580c,#f97316)">이</div>
-        <div class="member-info">
-          <div class="member-name">이수진</div>
-          <div class="member-meta">20대 · Lv.1 &nbsp;·&nbsp; "처음 시작하는 농구 초보입니다 😊"</div>
-        </div>
-        <div class="member-action-btns">
-          <button class="btn btn-outline btn-sm" onclick="openProfileModal('이수진', '', '여성 · 20대 · 서울', 150)">👤 프로필</button>
-          <button class="approve-btn" onclick="handleRequest('req-u002', 'approve')">✓ 승인</button>
-          <button class="reject-btn" onclick="handleRequest('req-u002', 'reject')">✗ 거절</button>
-        </div>
-      </div>
+      <% }) %>
     </div>
 
     <!-- 멤버 목록 -->
@@ -327,111 +315,28 @@
       <div class="manage-section-header">
         <div class="manage-section-title">👥 멤버 목록</div>
       </div>
-
       <% crew.member.memberList.forEach(member => { %>
-        <div class="member-list-item" id="member-host">
-          <img src="/images/user-profile/<%= member.user.profileImage %>" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />
+        <div class="member-list-item">
+          <img src="/images/user-profile/<%= member.user.profileImage && member.user.profileImage !== 'default-profile-image.jpg' ? member.user.profileImage : 'default-profile-image.jpg' %>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
           <div class="member-info">
             <div class="member-name"><%= member.user.name %></div>
-            <div class="member-meta">30대 · 가입 2024.03.01</div>
+            <div class="member-meta"><%= member.user.age %>세 · 가입 <%= new Date(member.joinedAt).toLocaleDateString('ko-KR') %></div>
           </div>
-          <span class="member-role-tag host">👑 크루장</span>
+          <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= member.user._id %>')">👤 프로필</button>
+          <% if (member.user._id.toString() === crew.host.toString()) { %>
+            <span class="member-role-tag host">👑 크루장</span>
+          <% } else { %>
+            <span class="member-role-tag member">멤버</span>
+            <button class="kick-btn" onclick="kickMember('<%= member.user._id %>', '<%= member.user.name %>')">강퇴</button>
+          <% } %>
         </div>
       <% }) %>
-
-      <div class="member-list-item" id="member-host">
-        <div class="member-av" style="background:linear-gradient(135deg,#1A5CFF,#00C8D4)">박</div>
-        <div class="member-info">
-          <div class="member-name">박준혁</div>
-          <div class="member-meta">30대 · 가입 2024.03.01</div>
-        </div>
-        <span class="member-role-tag host">👑 크루장</span>
-      </div>
-
-      <div class="member-list-item" id="member-m001">
-        <div class="member-av" style="background:linear-gradient(135deg,#16a34a,#22c55e)">최</div>
-        <div class="member-info">
-          <div class="member-name">최민준</div>
-          <div class="member-meta">20대 · 가입 2024.04.10</div>
-        </div>
-        <span class="member-role-tag member">멤버</span>
-        <button class="kick-btn" onclick="kickMember('member-m001', '최민준')">강퇴</button>
-      </div>
     </div>
   </div>
-
-  
 
   </div><!-- /detail-wrap -->
   </div><!-- /page-body -->
 </div><!-- /main -->
-
-<!-- ══ 프로필 모달 ══ -->
-<div class="modal-overlay" id="modalProfile">
-  <div class="modal-box" style="max-width:560px;">
-
-    <div class="modal-head">
-      <span class="modal-head-title">👤 멤버 프로필</span>
-      <button class="modal-close" onclick="closeProfileModal()">✕</button>
-    </div>
-
-    <div class="modal-body" style="padding:20px 24px;">
-
-      <!-- 상단: 프로필 정보 -->
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; position:relative;">
-        <img id="profileModalImg" src="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border);flex-shrink:0;">
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:16px;font-weight:700;" id="profileModalName">이름</div>
-          <div style="font-size:12.5px;color:var(--text-3);margin-top:3px;" id="profileModalMeta">성별 · 나이대 · 지역</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--primary);" id="profileModalScore">0</div>
-          <div style="font-size:11px;color:var(--text-3);">활동 점수</div>
-        </div>
-
-        <!-- ... 버튼 + 드롭다운 -->
-        <div style="position:relative;">
-          <button class="btn btn-outline btn-sm" onclick="toggleProfileMenu(event)" id="profileMenuBtn" style="padding:6px 10px;">•••</button>
-          <div id="profileDropdown" style="
-            display:none; position:absolute; right:0; top:calc(100% + 6px);
-            background:var(--surface); border:1px solid var(--border);
-            border-radius:var(--radius-sm); box-shadow:var(--shadow-lg);
-            min-width:130px; z-index:600; overflow:hidden;
-          ">
-            <button class="profile-menu-item" onclick="profileAction('report')">🚨 신고</button>
-            <button class="profile-menu-item" onclick="profileAction('block')">🚫 차단</button>
-            <button class="profile-menu-item" onclick="profileAction('message')">💬 쪽지 보내기</button>
-            <button class="profile-menu-item" onclick="profileAction('kick')" style="color:var(--red);">👢 강퇴</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- + 친구 버튼 -->
-      <button class="btn btn-outline btn-full" style="margin-bottom:20px;" onclick="profileAction('friend')">+ 친구 추가</button>
-
-      <!-- 가입한 크루 목록 -->
-      <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">가입한 크루</div>
-      <div id="profileCrewList" style="display:flex;flex-direction:column;gap:8px;">
-        <!-- 하드코딩 예시 -->
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);">
-          <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#1A5CFF,#00C8D4);display:flex;align-items:center;justify-content:center;font-size:14px;">🏀</div>
-          <div>
-            <div style="font-size:13px;font-weight:600;">마포 후크슛</div>
-            <div style="font-size:11.5px;color:var(--text-3);">농구 · 서울 마포구</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);">
-          <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:14px;">⚽</div>
-          <div>
-            <div style="font-size:13px;font-weight:600;">홍대 런앤건</div>
-            <div style="font-size:11.5px;color:var(--text-3);">축구 · 서울 마포구</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <!-- 토스트 -->
 <div class="manage-toast" id="manageToast">
@@ -458,7 +363,7 @@ async function saveCrew() {
       ageRange: Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val),
       isAutoAccept: document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false
     })
-  })
+  });
   if(res.ok) {
     showToast('✅ 크루 정보가 저장되었습니다');
   } else {
@@ -466,7 +371,6 @@ async function saveCrew() {
   }
 }
 
-// ── 탭 전환 ──
 function switchTab(name, btn) {
   document.querySelectorAll('.manage-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.manage-panel').forEach(p => p.classList.remove('active'));
@@ -474,33 +378,17 @@ function switchTab(name, btn) {
   document.getElementById('panel-' + name).classList.add('active');
 }
 
-// ── 칩 토글 ──
 function toggleChip(el) { el.classList.toggle('on'); }
 function selectSingle(el, group) {
   document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('on'));
   el.classList.add('on');
 }
 
-// ── 이미지 미리보기 ──
-function previewImg(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => { document.getElementById('imgPreview').src = e.target.result; };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-function resetImg() {
-  document.getElementById('imgPreview').src = 'https://placehold.co/88x88/1A5CFF/ffffff?text=🏀';
-  document.getElementById('imgInput').value = '';
-}
-
-// ── 일정 추가 폼 토글 ──
 function toggleAddForm() {
   document.getElementById('addScheduleForm').classList.toggle('show');
   document.getElementById('scheduleOverlay').classList.toggle('show');
 }
 
-// ── 일정 추가 ──
 function addSchedule() {
   const title    = document.getElementById('new-title').value.trim() || '정기 활동';
   const day      = document.getElementById('new-day').value;
@@ -559,30 +447,24 @@ function addSchedule() {
       <button class="btn btn-primary btn-sm" onclick="saveEdit(${idx})">저장</button>
     </div>`;
 
-  // 추가 폼 앞에 삽입
   const addForm = document.getElementById('addScheduleForm');
   list.insertBefore(editForm, addForm);
   list.insertBefore(item, editForm);
 
-  // 카운트 업데이트
   const countEl = document.getElementById('scheduleCount');
   countEl.textContent = (parseInt(countEl.textContent) + 1) + '개';
 
-  // 폼 초기화 및 닫기
   document.getElementById('new-title').value = '';
   document.getElementById('new-location').value = '';
 
-  // 시간표 반영
-  const dayIdx = DAYS.indexOf(day); // 요일 인덱스 찾기
+  const dayIdx = DAYS.indexOf(day);
   const startHour = parseInt(start.split(':')[0]);
   const endHour = parseInt(end.split(':')[0]);
 
   for (let h = startHour; h < endHour; h++) {
-    const key = `${dayIdx}-${h}`;
     const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"]`);
     if (cell) {
       cell.classList.add('has-event');
-      // 시작 시간 셀에만 제목 표시
       if (h === startHour) {
         cell.textContent = title;
         cell.style.fontSize = '11px';
@@ -594,7 +476,6 @@ function addSchedule() {
     }
   }
 
-  // idx에 day, startHour, endHour 저장 (삭제/수정용)
   item.dataset.day = dayIdx;
   item.dataset.start = startHour;
   item.dataset.end = endHour;
@@ -603,7 +484,6 @@ function addSchedule() {
   showToast('✅ 일정이 추가되었습니다');
 }
 
-// ── 수정 폼 토글 ──
 function toggleEditForm(idx) {
   const form = document.getElementById('edit-form-' + idx);
   if (form) form.classList.toggle('show');
@@ -620,21 +500,15 @@ function saveEdit(idx) {
   if (newStart >= newEnd) { showToast('⚠️ 올바른 시간을 입력해주세요'); return; }
 
   const item = document.getElementById('sch-' + idx);
-
-  // 기존 시간표 셀 초기화
   const oldDayIdx = item.dataset.day;
   const oldStart = parseInt(item.dataset.start);
   const oldEnd = parseInt(item.dataset.end);
 
   for (let h = oldStart; h < oldEnd; h++) {
     const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"]`);
-    if (cell) {
-      cell.classList.remove('has-event');
-      cell.textContent = '';
-    }
+    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; }
   }
 
-  // 새 시간표 셀 반영
   const newStartHour = parseInt(newStart.split(':')[0]);
   const newEndHour = parseInt(newEnd.split(':')[0]);
 
@@ -653,10 +527,8 @@ function saveEdit(idx) {
     }
   }
 
-  // 카드 데이터 업데이트
   item.dataset.start = newStartHour;
   item.dataset.end = newEndHour;
-
   item.querySelector('.event-title').textContent = newTitle;
   item.querySelector('.event-meta').innerHTML = `⏰ ${newStart} – ${newEnd} &nbsp;·&nbsp; 📍 ${newLocation}`;
 
@@ -664,21 +536,16 @@ function saveEdit(idx) {
   showToast('✅ 일정이 수정되었습니다');
 }
 
-// ── 일정 삭제 ──
 function deleteSchedule(idx) {
   if (!confirm('이 일정을 삭제할까요?')) return;
   const item = document.getElementById('sch-' + idx);
-
   const dayIdx = item.dataset.day;
   const startHour = parseInt(item.dataset.start);
   const endHour = parseInt(item.dataset.end);
   
   for (let h = startHour; h < endHour; h++) {
     const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"]`);
-    if (cell) {
-      cell.classList.remove('has-event');
-      cell.textContent = '';
-    }
+    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; }
   }
 
   const form = document.getElementById('edit-form-' + idx);
@@ -691,7 +558,6 @@ function deleteSchedule(idx) {
   showToast('🗑️ 일정이 삭제되었습니다');
 }
 
-// ── 가입 신청 처리 ──
 function handleRequest(elId, action) {
   const el = document.getElementById(elId);
   if (el) {
@@ -700,7 +566,6 @@ function handleRequest(elId, action) {
     el.style.transform = 'translateX(20px)';
     setTimeout(() => el.remove(), 300);
   }
-  // 대기 카운트 업데이트
   const statVal = document.querySelector('.member-stat-val[style*="color:#ef4444"]');
   if (statVal) {
     const cur = parseInt(statVal.textContent);
@@ -709,19 +574,12 @@ function handleRequest(elId, action) {
   showToast(action === 'approve' ? '✅ 승인되었습니다' : '❌ 거절되었습니다');
 }
 
-// ── 멤버 강퇴 ──
-function kickMember(elId, name) {
+function kickMember(userId, name) {
   if (!confirm(`'${name}' 멤버를 정말 강퇴하시겠습니까?`)) return;
-  const el = document.getElementById(elId);
-  if (el) {
-    el.style.transition = 'opacity .3s';
-    el.style.opacity = '0';
-    setTimeout(() => el.remove(), 300);
-  }
+  // TODO: 강퇴 API 연결
   showToast('🚫 멤버가 강퇴되었습니다');
 }
 
-// ── 시간표 ──
 const START_HOUR = 6;
 const END_HOUR   = 23;
 const DAYS = ['일','월','화','수','목','금','토'];
@@ -733,11 +591,9 @@ function buildTimetable() {
     timeCell.className = 'tt-time-cell';
     timeCell.textContent = `${String(h).padStart(2,'0')}:00`;
     tt.appendChild(timeCell);
-
     for (let d = 0; d < 7; d++) {
       const cell = document.createElement('div');
       cell.className = 'tt-cell';
-      const key = `${d}-${h}`;
       cell.dataset.day = d;
       cell.dataset.hour = h;
       tt.appendChild(cell);
@@ -747,7 +603,6 @@ function buildTimetable() {
 
 buildTimetable();
 
-// ── 토스트 ──
 function showToast(msg) {
   const t = document.getElementById('manageToast');
   document.getElementById('toastMsg').textContent = msg;
@@ -756,5 +611,16 @@ function showToast(msg) {
 }
 </script>
 <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module">
+  import { initProfileModal, openProfileModal } from '/js/components/profileModal.js';
+  <% if (locals.user) { %>
+  const socket = io('/noti', { auth: { userId: '<%= user._id %>' } });
+  initProfileModal(socket, '<%= user._id %>');
+  <% } else { %>
+  initProfileModal(null, null);
+  <% } %>
+  window.openProfileModal = openProfileModal;
+</script>
 </body>
 </html>
