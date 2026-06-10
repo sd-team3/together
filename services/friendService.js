@@ -101,10 +101,12 @@ const getFriendList = async (userId) => {
     const user = await User.findById(userId)
         .populate('friends.user', 'name gender age profileImage');
 
-    const sorted = user.friends.sort((a, b) => {
-        if (a.isFavorite === b.isFavorite) return 0;
-        return a.isFavorite ? -1 : 1;
-    });
+    const sorted = user.friends
+        .filter(f => f.user !== null)  // 탈퇴한 유저 제외
+        .sort((a, b) => {
+            if (a.isFavorite === b.isFavorite) return 0;
+            return a.isFavorite ? -1 : 1;
+        });
 
     return sorted;
 };
