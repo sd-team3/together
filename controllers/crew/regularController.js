@@ -156,11 +156,13 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
+        console.log('crewId:', req.params.crewId);
         const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
-        
+        console.log('crew:', crew?._id);
+        console.log('pendingApps:', pendingApps);
         res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {
-        console.error(error);
+        console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
     }
 }
