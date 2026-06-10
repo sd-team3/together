@@ -81,6 +81,7 @@ function saveSetting(key, value) {
 
 function toggleDarkMode(on) {
   document.body.classList.toggle('dark', on);
+  localStorage.setItem('darkMode', on ? '1' : '0');
   showToast(on ? '다크 모드가 켜졌습니다.' : '라이트 모드로 전환됐습니다.');
 }
 
@@ -102,14 +103,23 @@ function confirmWithdraw() {
 document.addEventListener('DOMContentLoaded', () => {
 
   // 토글 스위치
-  document.getElementById('priv-history').addEventListener('change', function () { saveSetting('priv-history', this.checked); });
-  document.getElementById('priv-manner').addEventListener('change', function () { saveSetting('priv-manner', this.checked); });
-  document.getElementById('priv-location').addEventListener('change', function () { saveSetting('priv-location', this.checked); });
+  document.getElementById('priv-history').addEventListener('change', function () { 
+      saveSetting('priv-history', this.checked); 
+  });
+  document.getElementById('priv-manner').addEventListener('change', function () { 
+      saveSetting('priv-manner', this.checked); 
+  });
+  
   document.getElementById('app-darkmode').addEventListener('change', function () { toggleDarkMode(this.checked); });
 
   // 셀렉트
-  document.getElementById('priv-profile').addEventListener('change', function () { saveSetting('priv-profile', this.value); });
-  
+  document.getElementById('priv-profile').addEventListener('change', function () { 
+      saveSetting('priv-profile', this.value); 
+  });
+
+  //다크모드
+  document.getElementById('app-darkmode').checked = localStorage.getItem('darkMode') === '1';
+    
 
   // 계정 관리
 document.getElementById('btn-edit-profile')
@@ -183,3 +193,16 @@ document.getElementById('btn-edit-profile')
 });
 
 });
+
+async function saveSetting(key, value) {
+    try {
+        await fetch('/user/privacy', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, value })
+        });
+        showToast('설정이 저장되었습니다.');
+    } catch (err) {
+        showToast('저장에 실패했습니다.');
+    }
+}
