@@ -4140,3 +4140,11 @@ select.manage-input { cursor: pointer; }
   box-shadow: 0 2px 8px rgba(239,68,68,.25);
 }
 .friend-modal-confirm:hover { background: #dc2626; box-shadow: 0 3px 14px rgba(239,68,68,.35); }
+.profile-menu-item {
+  display: block; width: 100%;
+  padding: 9px 14px; text-align: left;
+  font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-2); transition: background .12s;
+}
+.profile-menu-item:hover { background: var(--bg); color: var(--text); }

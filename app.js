@@ -18,6 +18,7 @@ const regularRouter = require('./routes/crew/regularRouter');
 const instantRouter = require('./routes/crew/instantRouter');
 const notiRouter = require('./routes/notiRouter');
 const indexRouter = require('./routes/indexRouter.js');
+const comRouter = require('./routes/community/comRouter.js');
 const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
 // 웹소켓
 const chatRouter = require('./routes/chatRouter');
@@ -69,6 +70,7 @@ app.use('/auth', authRouter);
 app.use('/regular', regularRouter);
 app.use('/instant', instantRouter);
 app.use('/noti', notiRouter);
+app.use('/community', comRouter)
 
 app.use('/chatRoom', chatRouter);
 app.use('/friends', friendRouter);
