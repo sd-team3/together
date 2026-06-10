@@ -4198,3 +4198,39 @@ select.manage-input { cursor: pointer; }
   background:#fff0f0; border:1px solid #e74c3c;
   border-radius:8px; color:#e74c3c; font-size:13px;
 }
+/* 카카오맵 펄스 마커 애니메이션 스타일 */
+.pulse-wrap {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.pulse-dot {
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    z-index: 2;
+}
+.pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulseAnim 2s ease-out infinite;
+    z-index: 1;
+}
+.pulse-ring.fast { 
+    animation-duration: 1.3s; 
+}
+@keyframes pulseAnim {
+    0%   { transform: scale(1);   opacity: .55; }
+    70%  { transform: scale(2.4); opacity: 0;   }
+    100% { transform: scale(2.4); opacity: 0;   }
+}
+.pulse-wrap.closed .pulse-ring { 
+    display: none; 
+}
+.pulse-wrap.closed .pulse-dot  { 
+    background: #9ca3af !important; 
+}
