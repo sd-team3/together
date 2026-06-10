@@ -257,6 +257,7 @@ async function getCrewManage(regularCrewId) {
 
     const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
                                              .populate('userId', 'name age profileImage');
+    console.log('pendingApps:', pendingApps);
     return { crew, pendingApps };
 }
 
