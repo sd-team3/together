@@ -23,6 +23,21 @@
   --radius-sm:8px;
   --radius-lg:22px;
 }
+/* 다크모드 */
+body.dark {
+  --bg: #0f1117;
+  --surface: #161920;
+  --border: #252830;
+  --border-strong: #353840;
+  --text: #eeeef0;
+  --text-2: #9090a0;
+  --text-3: #55555f;
+  --primary-soft: #141c35;
+  --accent: #C8FF00;
+  --accent-dark: #8FB800;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.4);
+}
 
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow-x:hidden}

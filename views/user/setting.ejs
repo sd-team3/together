@@ -36,9 +36,9 @@
           </div>
           <div class="settings-row-right">
             <select class="settings-select" id="priv-profile">
-              <option value="all" selected>전체 공개</option>
-              <option value="matched">매칭 상대만</option>
-              <option value="none">비공개</option>
+              <option value="all" <%= user.privacy?.profileVisibility === 'all' || !user.privacy ? 'selected' : '' %>>전체 공개</option>
+              
+              <option value="none" <%= user.privacy?.profileVisibility === 'none' ? 'selected' : '' %>>비공개</option>
             </select>
           </div>
         </div>
@@ -50,7 +50,7 @@
           </div>
           <div class="settings-row-right">
             <label class="toggle-switch">
-              <input type="checkbox" id="priv-history" checked>
+              <input type="checkbox" id="priv-history" <%= user.privacy?.showHistory !== false ? 'checked' : '' %>>
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -63,24 +63,13 @@
           </div>
           <div class="settings-row-right">
             <label class="toggle-switch">
-              <input type="checkbox" id="priv-manner" checked>
+              <input type="checkbox" id="priv-manner" <%= user.privacy?.showManner !== false ? 'checked' : '' %>>
               <span class="toggle-slider"></span>
             </label>
           </div>
         </div>
 
-        <div class="settings-row">
-          <div class="settings-row-left">
-            <div class="settings-row-label">위치 정보 사용</div>
-            <div class="settings-row-desc">지도 매칭 기능 및 반경 검색에 사용됩니다</div>
-          </div>
-          <div class="settings-row-right">
-            <label class="toggle-switch">
-              <input type="checkbox" id="priv-location" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
+        
       </div>
 
       <!-- ② 앱 설정 (다크모드만) -->
@@ -100,7 +89,7 @@
           </div>
           <div class="settings-row-right">
             <label class="toggle-switch">
-              <input type="checkbox" id="app-darkmode">
+              <input type="checkbox" id="app-darkmode" <%= '' %>>
               <span class="toggle-slider"></span>
             </label>
           </div>
