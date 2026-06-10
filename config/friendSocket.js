@@ -8,7 +8,7 @@ function friendSocket(noti) {
         socket.on('friend:request', async ({ receiverId }) => {
             const sender = socket.data.user;
             console.log('서버 수신 receiverId:', receiverId);
-            console.log('sender:', sender?._id); 
+            console.log('sender:', sender?._id);
             if (!sender) return;
 
             try {
@@ -56,6 +56,8 @@ function friendSocket(noti) {
                     receiver: {
                         _id: receiver._id,
                         name: receiver.name,
+                        gender: receiver.gender,
+                        age: receiver.age,
                         profileImage: receiver.profileImage
                     }
                 });
@@ -69,10 +71,20 @@ function friendSocket(noti) {
                     route: '/friends'
                 });
 
-                socket.emit('friend:accept:done');
+                // 수락한 사람(receiver) 본인에게도 sender 정보 포함해서 전달
+                const senderUser = await userService.findUserById_WithoutPW(senderId);
+                socket.emit('friend:accept:done', {
+                    newFriend: {
+                        _id: senderUser._id,
+                        name: senderUser.name,
+                        gender: senderUser.gender,
+                        age: senderUser.age,
+                        profileImage: senderUser.profileImage
+                    }
+                });
 
             } catch (err) {
-                console.error('friend:request 에러:', err.message);
+                console.error('friend:accept 에러:', err.message);
                 socket.emit('friend:error', { message: err.message });
             }
         });
@@ -85,7 +97,7 @@ function friendSocket(noti) {
                 await friendService.rejectFriendRequest(requestId, receiver._id);
                 socket.emit('friend:reject:done');
             } catch (err) {
-                console.error('friend:request 에러:', err.message);
+                console.error('friend:reject 에러:', err.message);
                 socket.emit('friend:error', { message: err.message });
             }
         });

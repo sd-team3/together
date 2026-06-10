@@ -2,11 +2,12 @@ const friendService = require('../services/friendService');
 
 const getFriendList = async (req, res) => {
     try {
-        const [friends, pendingRequests] = await Promise.all([
+        const [friends, pendingRequests, sentRequests] = await Promise.all([
             friendService.getFriendList(req.user._id),
-            friendService.getPendingRequests(req.user._id)
+            friendService.getPendingRequests(req.user._id),
+            friendService.getSentRequests(req.user._id)
         ]);
-        res.render('friend/friend', { friends, pendingRequests });
+        res.render('friend/friend', { friends, pendingRequests, sentRequests });
     } catch (err) {
         console.error('getFriendList:', err);
         res.status(500).send('서버 오류');
@@ -33,4 +34,13 @@ const toggleFavorite = async (req, res) => {
     }
 };
 
-module.exports = { getFriendList, removeFriend, toggleFavorite };
+const cancelFriendRequest = async (req, res) => {
+    try {
+        await friendService.cancelSentRequest(req.params.requestId, req.user._id);
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ ok: false, message: err.message });
+    }
+};
+
+module.exports = { getFriendList, removeFriend, toggleFavorite, cancelFriendRequest };

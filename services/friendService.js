@@ -46,7 +46,7 @@ const acceptFriendRequest = async (requestId, receiverId) => {
         const already = user.friends.some(f => f.user.toString() === friendId.toString());
         if (!already) {
             await User.findByIdAndUpdate(userId, {
-                $push: { friends: { user: friendId } }
+                $push: { friends: { user: friendId, createdAt: new Date() } }
             });
         }
     };
@@ -116,6 +116,20 @@ const getPendingRequests = async (userId) => {
         .sort({ createdAt: -1 });
 };
 
+// 보낸 친구 요청 목록
+const getSentRequests = async (userId) => {
+    return await FriendRequest.find({ sender: userId, status: 'pending' })
+        .populate('receiver', 'name gender age profileImage')
+        .sort({ createdAt: -1 });
+};
+
+const cancelSentRequest = async (requestId, senderId) => {
+    const request = await FriendRequest.findById(requestId);
+    if (!request) throw new Error('요청을 찾을 수 없습니다.');
+    if (request.sender.toString() !== senderId.toString()) throw new Error('권한이 없습니다.');
+    await request.deleteOne();
+};
+
 module.exports = {
     sendFriendRequest,
     acceptFriendRequest,
@@ -123,5 +137,7 @@ module.exports = {
     removeFriend,
     toggleFavorite,
     getFriendList,
-    getPendingRequests
+    getPendingRequests,
+    getSentRequests,
+    cancelSentRequest
 };
