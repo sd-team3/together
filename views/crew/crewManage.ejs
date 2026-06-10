@@ -361,7 +361,7 @@ async function saveCrew() {
       level: document.getElementById('level').value,
       day: Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val),
       ageRange: Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val),
-      isAutoAccept: document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false
+      isAutoAccept: document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false,
     })
   });
   if(res.ok) {
