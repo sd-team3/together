@@ -13,42 +13,50 @@ router.use((req, res, next)=>{
 });
 
 router.get('/create', 
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     regularController.getRegularCreate
 );
 
 router.post('/create',
     uploadRegularProfile.single('uploadFile'),
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     crewMiddleware.regularCreateMiddleware,
     regularController.postRegularCreate
 );
 
 router.post('/delete/:crewId',
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     regularController.postMyCrewDelete
 );
 
 router.post('/withdraw/:crewId', 
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     regularController.postMyCrewWithdraw
 );
 
 
 router.post('/application/:crewId', 
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
+console.log({
+    isLogin: typeof crewMiddleware.isLogin,
+    isHost: typeof crewMiddleware.isHost,
+    isCrewExist: typeof crewMiddleware.isCrewExist,
+    getPendingApps: typeof applicationController.getPendingApps
+});
+
 router.get('/pending/:crewId', 
-    crewMiddleware.loginValidation,
-    crewMiddleware.getPendingValidation,
+    crewMiddleware.isLogin,
+    crewMiddleware.isHost,
+    crewMiddleware.isCrewExist,
     applicationController.getPendingApps
 );
 
 router.get('/relation/:crewId/:userId', 
-    crewMiddleware.loginValidation,
+    crewMiddleware.isLogin,
     applicationController.getRelation
 );
 

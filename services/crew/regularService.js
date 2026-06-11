@@ -33,7 +33,7 @@ async function createRegCrew(data, profileFile, host) {
             capacity: Number(capacity),
             memberList: [{ user: host }]
         },
-        isAutoAccept, period, day, schedule: [], ageRange,
+        isAutoAccept, period, day, ageRange,
         address: { state, city, detail: detail || null },
         sport, fee: Number(fee) || 0, 
         level: level || 'none', profileImage
