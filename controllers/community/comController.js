@@ -53,13 +53,19 @@ const getWrite = async (req, res) => {
 const postWrite = async (req, res, next) => {
     try {
         const { title, content, category } = req.body;
-        const board = await comService.createBoard(
+        await comService.createBoard(
             title,
             content,
             req.user.id,
             category,
             req.file
         );
+        res.redirect('/community/list');
+    }catch(error) {
+        next(error);
+    }
+}
+
 const getDetail = async (req, res, next) => {
     try {
         const { boardId } = req.params;
