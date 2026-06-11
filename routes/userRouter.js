@@ -48,7 +48,7 @@ router.post('/login', passport.authenticate('local', {
 router.get('/logout', userController.logout);
 
 //마이페이지
-router.get('/profile', userController.getProfile);
+router.get('/profile', loginValidation, userController.getProfile);
 
 //회원수정 페이지
 router.get('/edit-profile', userController.getEditProfile);

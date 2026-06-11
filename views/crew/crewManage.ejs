@@ -53,7 +53,7 @@
           <div class="avatar-section" style="border:none"> 
             <div class="avatar-preview-wrap">
               <div class="avatar-preview">
-                  <img id="profileImage" src="/images/reg-crew/profile/default-profile-image.jpg" alt="profile"/>
+                  <img id="profileImage" src="<%= crew.profileImage %>" alt="profile"/>
               </div>
               <button type="button" class="avatar-remove-btn" id="profile-reset">x</button>
               <label class="avatar-edit-label" for="profile-input">+</label>
@@ -351,25 +351,51 @@
 
 <script>
 const crewId = '<%= crew._id %>';
+const crewProfileImage = '<%= crew.profileImage %>';
+const profileInput = document.getElementById('profile-input');
+const preview = document.getElementById('profileImage');
+const profileReset = document.getElementById('profile-reset');
+
+profileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
+});
+
+profileReset.addEventListener('click', e => {
+  preview.src = '/images/reg-crew/profile/default-profile-image.jpg';
+  profileInput.value = '';
+  document.getElementById('removeImage').value = 'true';
+});
 
 async function saveCrew() {
+  const formData = new FormData();
+  
+  formData.append('title', document.getElementById('crewTitle').value);
+  formData.append('intro', document.getElementById('crewIntro').value);
+  formData.append('member.capacity', document.getElementById('capacity').value);
+  formData.append('fee', document.getElementById('fee').value);
+  formData.append('address.detail', document.getElementById('detail').value);
+  formData.append('sport', document.getElementById('sport').value);
+  formData.append('period', document.getElementById('period').value);
+  formData.append('level', document.getElementById('level').value);
+  formData.append('day', JSON.stringify(
+    Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val)
+  ));
+  formData.append('ageRange', JSON.stringify(
+    Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val)
+  ));
+  formData.append('isAutoAccept', document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false);
+  formData.append('removeImage', document.getElementById('removeImage').value);
+
+  const file = document.getElementById('profile-input').files[0];
+  if(file) formData.append('uploadFile', file);
+
   const res = await fetch(`/regular/manage/${crewId}/update`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      title: document.getElementById('crewTitle').value,
-      intro: document.getElementById('crewIntro').value,
-      'member.capacity': document.getElementById('capacity').value,
-      fee: document.getElementById('fee').value,
-      'address.detail': document.getElementById('detail').value,
-      sport: document.getElementById('sport').value,
-      period: document.getElementById('period').value,
-      level: document.getElementById('level').value,
-      day: Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val),
-      ageRange: Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val),
-      isAutoAccept: document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false,
-    })
+    body: formData
   });
+
   if(res.ok) {
     showToast('✅ 크루 정보가 저장되었습니다');
   } else {
@@ -672,6 +698,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
 </script>
 <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
 <script src="/socket.io/socket.io.js"></script>

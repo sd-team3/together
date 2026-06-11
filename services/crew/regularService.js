@@ -261,9 +261,18 @@ async function getCrewManage(regularCrewId) {
     return { crew, pendingApps };
 }
 
-async function postCrewUpdate(regularCrewId, updateData) {
-    const update = await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true })
-    return update;
+async function postCrewUpdate(regularCrewId, updateData, updateFile) {
+    const crew = await regularCrew.findById(regularCrewId);
+    if(updateData.removeImage === 'true' || updateFile) {
+        if(crew.profileImage && crew.profileImage != 'default-profile-image.jpg') {
+            const oldPath = path.join(process.cwd(), 'public/images/reg-crew/profile', crew.profileImage);
+            if(fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        if (updateFile) updateData.profileImage = `/image/reg-crew/profile/${updateFile.filename}`;
+        else updateData.profileImage = '/image/reg-crew/profile/default-profile-image.jpg';
+    }
+    delete updateData.removeImage;
+    return await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true });;
 }
 
 async function getCrewActivity(regularCrewId) {
