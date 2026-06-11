@@ -196,6 +196,7 @@
 
 <script id="page-data" type="application/json"><%- JSON.stringify(pageData) %></script>
 <script type="module" src="/js/handlers/icHandler.js"></script>
+<script>const CURRENT_USER_ID = '<%= pageData.currentUserId || "" %>';</script>
 
 </body>
 </html>

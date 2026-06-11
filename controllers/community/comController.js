@@ -1,5 +1,6 @@
 const mongosse = require('mongoose');
 const comService = require('../../services/community/comService');
+const Board = require('../../models/Board');
 
 const getCommunity = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
@@ -43,6 +44,26 @@ const postBoardLike = async (req, res, next) => {
         await comService.boardLike(req.params.boardId, req.user._id);
         res.json({ success: true });
     } catch (error) {
+        next(error);
+    }
+}
+
+const getWrite = async (req, res) => {
+    res.render('community/write');
+}
+
+const postWrite = async (req, res, next) => {
+    try {
+        const { title, content, category } = req.body;
+        await comService.createBoard(
+            title,
+            content,
+            req.user.id,
+            category,
+            req.file
+        );
+        res.redirect('/community/list');
+    }catch(error) {
         next(error);
     }
 }
@@ -128,6 +149,6 @@ const deleteBoard = async (req, res, next) => {
 
 module.exports = { 
     getCommunity, getListAPI, postBoardLike, getDetail, postComment,putComment,
-    deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard 
+    deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard , getWrite, postWrite
 
 };

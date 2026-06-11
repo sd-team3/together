@@ -130,7 +130,7 @@ const kakaoMap = {
             if(window.CURRENT_MARKER) {
                 window.CURRENT_MARKER.setMap(null);
             }
-            window.CUURENT_MARKER = new kakao.maps.Marker({
+            window.CURRENT_MARKER = new kakao.maps.Marker({
                 map: window.MAP,
                 position: position
             });
@@ -163,44 +163,57 @@ const kakaoMap = {
 
     async loadMarker(crews) {
         try {
+            // 기존 오버레이 제거
+            KakaoMarkers.forEach(m => m.setMap(null));
+            KakaoMarkers = [];
+    
+            const sportColor = {
+                soccer:      '#22c55e',
+                baseball:    '#ef4444',
+                basketball:  '#f97316',
+                badminton:   '#06b6d4',
+                bowling:     '#a855f7',
+                tennis:      '#eab308',
+                tabletennis: '#10b981',
+            };
+    
             KakaoMarkers = crews.map(crew => {
                 const position = new kakao.maps.LatLng(crew.lat, crew.lng);
-                const sportEmoji = {
-                    soccer: '⚽', baseball: '⚾', basketball: '🏀',
-                    badminton: '🏸', bowling: '🎳', tennis: '🎾', tabletennis: '🏓'
-                }[crew.sport] || '🏅';
-
-                const sportColor = {
-                    soccer: '#2ECC71', baseball: '#E74C3C', basketball: '#FF6B00',
-                    badminton: '#00C8D4', bowling: '#9B59B6', tennis: '#F1C40F', tabletennis: '#00C853'
-                };
-
-                // SVG 커스텀 마커
-                const svg = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
-                        <path d="M18 0C8 0 0 8 0 18c0 14 18 30 18 30s18-16 18-30C36 8 28 0 18 0z"
-                            fill="${sportColor[crew.sport] || '#9B59B6'}" stroke="white" stroke-width="1.5"/>
-                        <text x="18" y="22" text-anchor="middle" dominant-baseline="middle" font-size="14">${sportEmoji}</text>
-                    </svg>`;
-
-                const markerImage = new kakao.maps.MarkerImage(
-                    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg),
-                    new kakao.maps.Size(36, 48),
-                    { offset: new kakao.maps.Point(18, 48) }
-                );
-                const marker = new kakao.maps.Marker({
-                    map: window.MAP,
+                const color    = sportColor[crew.sport] || '#6366f1';
+                const isFull   = crew.current >= crew.capacity;
+                const isAlmost = !isFull && (crew.current / crew.capacity) >= 0.8;
+    
+                const ringClass = isAlmost ? 'pulse-ring fast' : 'pulse-ring';
+                const wrapClass = isFull   ? 'pulse-wrap closed' : 'pulse-wrap';
+    
+                // 1. 문자열 대신 DOM 객체를 직접 생성 (안전한 이벤트 바인딩을 위해)
+                const contentEl = document.createElement('div');
+                contentEl.className = wrapClass;
+                contentEl.setAttribute('data-crew-id', crew.id);
+                
+                contentEl.innerHTML = `
+                    <div class="${ringClass}" style="background:${color}"></div>
+                    <div class="pulse-dot"   style="background:${color}"></div>
+                `;
+ 
+                // 2. 엘리먼트 생성 즉시 클릭 이벤트 할당 (setTimeout 300ms 제거 가능)
+                if (crew.onClick) {
+                    contentEl.addEventListener('click', (e) => {
+                        // 카카오맵 자체 클릭 이벤트와 충돌 방지
+                        e.stopPropagation(); 
+                        crew.onClick(e);
+                    });
+                }
+    
+                const overlay = new kakao.maps.CustomOverlay({
+                    map:      window.MAP,
                     position: position,
-                    image: markerImage,
-                    title: crew.title
+                    content:  contentEl, // DOM 객체 전달
+                    zIndex:   3,
                 });
-                marker._crewData = crew;
-
-                kakao.maps.event.addListener(marker, 'click', ()=>{
-                    if(crew.onClick) crew.onClick();
-                });
-
-                return marker;
+    
+                overlay._crewData = crew;
+                return overlay;
             });
             return KakaoMarkers;
         } catch (error) {

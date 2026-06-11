@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const comController = require('../../controllers/community/comController');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
+const {uploadBoard} = require('../../config/upload');
 
 router.get('/list', comController.getCommunity);
 
@@ -36,5 +37,9 @@ router.post('/list/:boardId/delete',
     comController.deleteBoard);
 
 router.post('/list/:boardId/delete', comController.deleteBoard);
+
+router.get('/write', crewMiddleware.loginValidation, comController.getWrite);
+
+router.post('/write', crewMiddleware.loginValidation, uploadBoard.single('file'), comController.postWrite);
 
 module.exports = router;
