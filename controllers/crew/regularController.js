@@ -143,7 +143,7 @@ const postCrewLike = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        await regularService.crewLike(req.params.regularCrewId, req.user._id);
+        await regularService.crewLike(req.params.crewId, req.user._id);
         res.json({success: true});
     } catch (error) {
         console.error(error);
@@ -156,10 +156,25 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        const crew = await regularService.getCrewManage(req.params.regularCrewId);
-        const pendingApps = await regularService.getCrewManage(req.params.regularCrewId);
+        console.log('crewId:', req.params.crewId);
+        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
+        console.log('crew:', crew?._id);
+        console.log('pendingApps:', pendingApps);
         res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {
+        console.error('getCrewManage 에러:', error);
+        res.status(500).render('error/error_500');
+    }
+}
+
+const postCrewUpdate = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        await regularService.postCrewUpdate(req.params.crewId, req.body);
+        res.json({ success: true});
+    } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
     }
@@ -167,11 +182,8 @@ const getCrewManage = async (req, res) => {
 
 const getCrewActivity = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        const crew = await regularService.getCrewActivity(req.params.regularCrewId);
-        res.render('crew/crewActivity', { crew });
+        const crews = await regularService.getCrewActivity(req.params.crewId);
+        res.render('crew/crewActivity', { crews });
     } catch(error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -189,6 +201,7 @@ module.exports = {
     getRegularAPI,
     getMyCrewsApi,
     getCrewManage,
+    postCrewUpdate,
     getRegularPage,
     getCrewActivity
 };

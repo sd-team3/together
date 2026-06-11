@@ -213,7 +213,6 @@
                         <div class="app-av" style="background:#EEF3FF;color:#003DB3"><%= u?.name?.slice(0,2) || '??' %></div>
                         <div>
                           <div class="app-name"><%= u?.name || '알 수 없음' %></div>
-                          <div class="app-sport"><%= u?.gender === 'male' ? '남성' : '여성' %> · <%= u?.age %>세</div>
                         </div>
                         <div class="app-time">
                           <%= new Date(p.requestAt).toLocaleDateString('ko-KR') %>
@@ -270,8 +269,10 @@
 const CREW_ID = '<%= crew._id %>';
 const IS_HOST = <%= isHost %>;
 const IS_MEMBER = <%= isMember %>;
+const CURRENT_USER_ID = '<%= currentUserId || "" %>';
 const MEMBERS_DATA = <%- JSON.stringify(members.map(m => ({
     id: m.user?._id?.toString(),
+    userId: m.user?._id?.toString(),
     name: m.user?.name || '알 수 없음',
     tel: m.user?.tel || '-',
     age: m.user?.age || '-',
@@ -281,6 +282,6 @@ const MEMBERS_DATA = <%- JSON.stringify(members.map(m => ({
     joinedAt: new Date(m.joinedAt).toLocaleDateString('ko-KR')
 }))) %>;
 </script>
-<script src="/js/handlers/icDetailHandler.js"></script>
+<script type="module" src="/js/handlers/icDetailHandler.js"></script>
 </body>
 </html>

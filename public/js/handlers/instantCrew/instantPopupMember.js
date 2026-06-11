@@ -1,4 +1,5 @@
 import { apiJoinProcess, apiDeleteCrew } from './instantApi.js';
+import { initProfileModal, openProfileModal } from '../../components/profileModal.js';
 
 export let _mpCrewId       = null;
 export let _mpCrewData     = null;
@@ -28,7 +29,12 @@ function timeAgo(dateStr) {
 
 function buildRow(m, crewId, isHost) {
     const u = m.user || {};
+    const uid = u._id ? u._id.toString() : '';
+    console.log('u:', u, 'u._id:', u._id, 'uid:', uid);
     const isOwner = m.role === 'host';
+    const pageData = JSON.parse(document.getElementById('page-data').textContent);
+    const currentUserId = pageData.currentUserId;
+    const isMe = currentUserId && u._id && u._id.toString() === currentUserId;
     const joinedAt = m.joinedAt
         ? new Date(m.joinedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })
         : '-';
@@ -50,7 +56,9 @@ function buildRow(m, crewId, isHost) {
                         ${(u.name || '?').charAt(0)}
                     </div>
                     <div>
-                        <div style="font-size:13px;font-weight:600;">${u.name || '멤버'}</div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:13px;font-weight:600;">${u.name || '멤버'}</span>
+                        </div>
                         <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
                     </div>
                 </div>
@@ -70,7 +78,7 @@ function buildRow(m, crewId, isHost) {
             <td style="padding:10px 8px;font-size:12px;color:#aaa;">${joinedAt}</td>
             <td style="padding:10px 8px;">
                 ${isHost && !isOwner ? `
-                    <button onclick="mpManageMember('${crewId}','${u._id}','${u.name || '멤버'}')"
+                    <button onclick="window.openProfileModal('${uid}')"
                         style="width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;
                             background:#fff;color:#555;font-size:14px;cursor:pointer;
                             display:flex;align-items:center;justify-content:center;">
@@ -144,6 +152,7 @@ export function renderMemberPopupBody() {
             ? `<div style="padding:40px;text-align:center;color:#aaa;font-size:13px;">신청 대기 중인 멤버가 없어요</div>`
             : pendingList.map(app => {
                 const u = app.userId || {};
+                const uid = u._id ? u._id.toString() : '';
                 return `
                     <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;padding:16px;margin-bottom:12px;">
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
@@ -153,16 +162,19 @@ export function renderMemberPopupBody() {
                                     ${(u.name || '?').charAt(0)}
                                 </div>
                                 <div>
-                                    <div style="font-size:14px;font-weight:700;">${u.name || '멤버'}</div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span style="font-size:14px;font-weight:700;">${u.name || '멤버'}</span>
+                                        ${uid ? `
+                                        <button onclick="window.openProfileModal('${uid}')"
+                                            style="padding:2px 8px;border-radius:6px;border:1px solid #e5e7eb;
+                                                background:#fff;color:#555;font-size:12px;cursor:pointer;">
+                                            👤 프로필
+                                        </button>` : ''}
+                                    </div>
                                     <div style="font-size:12px;color:#aaa;">${u.tel || ''}</div>
                                 </div>
                             </div>
                             <div style="font-size:12px;color:#aaa;">${timeAgo(app.createdAt)}</div>
-                        </div>
-                        <div style="display:flex;gap:16px;font-size:12px;color:#555;margin-bottom:12px;">
-                            ${u.gender ? `<span>${u.gender === 'male' ? '남성' : '여성'}</span>` : ''}
-                            ${u.age ? `<span>${u.age}세</span>` : ''}
-                            ${u.honor !== undefined ? `<span>⭐ 매너점수 ${u.honor}</span>` : ''}
                         </div>
                         ${isHost ? `
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
@@ -194,7 +206,6 @@ export function renderMemberPopupBody() {
         return;
     }
 
-    // 참여자 목록 탭
     const filterBar = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
             <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;">
@@ -263,7 +274,6 @@ export function renderMemberPopupBody() {
             </div>` : ''}`;
 }
 
-// window 함수 등록
 window.mpSetTopTab = (tab) => { _mpTopTab = tab; renderMemberPopupBody(); };
 window.mpSetTab    = (tab) => { _mpActiveTab = tab; _mpActiveFilter = 'all'; renderMemberPopupBody(); };
 window.mpSetFilter = (f)   => { _mpActiveFilter = f; renderMemberPopupBody(); };
@@ -303,3 +313,9 @@ window.deleteCrew = async (crewId) => {
         else alert(result.message || '삭제 실패');
     } catch (e) { alert('서버 오류'); }
 };
+document.addEventListener('DOMContentLoaded', () => {
+    const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
+    initProfileModal(null, userId);
+});
+// profileModal 연결
+window.openProfileModal = (userId) => openProfileModal(userId);

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<div class="main">
+<%- include('../partials/head', { title: '💬 커뮤니티', pageId: 'page-community', active: '' }) %>
+
+  <div class="page-body">
+    <div class="detail-wrap">
+
+      <!-- 뒤로가기 -->
+      <a href="/community/list" class="goback-btn">← 목록으로</a>
+
+      <div class="detail-group">
+
+        <!-- 게시글 헤더 -->
+        <div class="detail-header" style="flex-direction:column;align-items:flex-start;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pill pill-warn" style="font-size:11px">
+              <%= board.category === 'question' ? '질문' : board.category === 'tip' ? '팁/정보' : '자유' %>
+            </span>
+          </div>
+          <div class="detail-title"><%= board.title %></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+            <div class="post-meta" style="margin:0">
+              <span>✍️ <%= board.author ? board.author.name : '익명' %></span>
+              <span id="board-time"></span>
+            </div>
+            <!-- 수정/삭제 버튼 -->
+            <% if (userId && board.author && board.author._id.toString() === userId.toString()) { %>
+            <div style="display:flex;gap:6px">
+              <a href="/community/list/<%= board._id %>/edit" class="btn btn-sm" style="background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)">수정</a>
+              <form action="/community/list/<%= board._id %>/delete" method="POST" style="display:inline">
+                <button type="submit" onclick="return confirm('게시글을 삭제하시겠습니까?')" 
+                    class="btn btn-sm" style="background:#fff0f0;color:#e53e3e;border:1px solid #fcc">삭제</button>
+            </form>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div style="font-size:15px;line-height:1.8;color:var(--text-1);white-space:pre-wrap"><%= board.content %></div>
+        </div>
+
+        <!-- 좋아요 -->
+        <div style="display:flex;justify-content:center;margin:8px 0">
+          <% if (userId) { %>
+          <button class="detail-like-btn" id="like-btn" data-id="<%= board._id %>" onclick="toggleLike()">
+            <span class="like-icon">🤍</span>
+            <span id="like-count"><%= board.reputation || 0 %></span>
+          </button>
+          <% } else { %>
+          <button class="detail-like-btn" onclick="alert('로그인 먼저 하세요')">
+            <span class="like-icon">🤍</span>
+            <span><%= board.reputation || 0 %></span>
+          </button>
+          <% } %>
+        </div>
+
+      </div>
+
+      <!-- 댓글 섹션 -->
+      <div class="detail-group" style="margin-top:16px">
+        <div class="detail-section-title">댓글 <span style="color:var(--primary)"><%= comments.length %></span></div>
+
+        <!-- 댓글 목록 -->
+        <div id="comment-list">
+          <% comments.forEach(comment => { %>
+          <div class="comment-item" id="comment-<%= comment._id %>">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <span style="font-weight:600;font-size:13px"><%= comment.author.name %></span>
+                <span style="font-size:11px;color:var(--text-3);margin-left:6px" data-time="<%= comment.createdAt %>"></span>
+              </div>
+              <!-- 댓글 수정/삭제 -->
+              <% if (userId && comment.author && comment.author._id.toString() === userId.toString()) { %>
+              <div style="display:flex;gap:6px">
+                <button onclick="editComment('<%= comment._id %>', `<%= comment.content %>`)" class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)">수정</button>
+                <button onclick="deleteComment('<%= comment._id %>')" class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:#fff0f0;color:#e53e3e;border:1px solid #fcc">삭제</button>
+              </div>
+              <% } %>
+            </div>
+            <div class="comment-content" style="font-size:14px;margin-top:6px;line-height:1.6"><%= comment.content %></div>
+          </div>
+          <% }) %>
+          <% if (comments.length === 0) { %>
+          <div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px">첫 댓글을 남겨보세요!</div>
+          <% } %>
+        </div>
+
+        <!-- 댓글 작성 -->
+        <% if (userId) { %>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <textarea id="comment-input" rows="2" placeholder="댓글을 입력하세요..."
+            style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;resize:none;background:var(--surface-1);color:var(--text-1);font-family:inherit"></textarea>
+          <button onclick="submitComment()" class="btn btn-primary" style="align-self:flex-end">등록</button>
+        </div>
+        <% } else { %>
+        <div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">
+          <a href="/user/login" style="color:var(--primary)">로그인</a> 후 댓글을 작성할 수 있습니다.
+        </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+// 좋아요 초기 상태
+let liked = <%= isLiked === true ? 'true' : 'false' %>;
+let likeCount = <%= board.reputation || 0 %>;
+const boardId = '<%= board._id %>';
+
+// 시간 포맷
+function getTimeAgo(dateString) {
+    const diff = new Date() - new Date(dateString);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 1) return `${days}일 전`;
+    if (days === 1) return '어제';
+    if (hours > 0) return `${hours}시간 전`;
+    if (minutes > 0) return `${minutes}분 전`;
+    return '방금 전';
+}
+
+// 게시글 시간 렌더링
+document.getElementById('board-time').textContent = getTimeAgo('<%= board.createdAt %>');
+
+// 댓글 시간 렌더링
+document.querySelectorAll('[data-time]').forEach(el => {
+    el.textContent = getTimeAgo(el.dataset.time);
+});
+
+// 좋아요 초기 상태 반영
+if (liked) {
+    const likeIcon = document.getElementById('like-btn')?.querySelector('.like-icon');
+    if (likeIcon) likeIcon.textContent = '\u2764\uFE0F';
+}
+
+// 좋아요 토글
+async function toggleLike() {
+    liked = !liked;
+    likeCount += liked ? 1 : -1;
+
+    const btn = document.getElementById('like-btn');
+    const icon = btn.querySelector('.like-icon');
+    icon.textContent = liked ? '\u2764\uFE0F' : '\u{1F90D}';
+    document.getElementById('like-count').textContent = likeCount;
+
+    try {
+        await fetch(`/community/list/${boardId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        // 실패 시 되돌림
+        liked = !liked;
+        likeCount += liked ? 1 : -1;
+        icon.textContent = liked ? '\u2764\uFE0F' : '\u{1F90D}';
+        document.getElementById('like-count').textContent = likeCount;
+    }
+}
+
+// 게시글 삭제
+async function deleteBoard(boardId) {
+    if (!confirm('게시글을 삭제하시겠습니까?')) return;
+    try {
+        const res = await fetch(`/community/${boardId}`, { method: 'DELETE' });
+        if (res.ok) {
+            alert('삭제되었습니다.');
+            window.location.href = '/community/list';
+        }
+    } catch (error) {
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+
+// 댓글 등록
+async function submitComment() {
+    const input = document.getElementById('comment-input');
+    const content = input.value.trim();
+    if (!content) return alert('댓글 내용을 입력해주세요.');
+
+    try {
+        const res = await fetch(`/community/list/${boardId}/comment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+        });
+        if (res.ok) {
+            input.value = '';
+            window.location.reload();
+        }
+    } catch (error) {
+        alert('댓글 등록 중 오류가 발생했습니다.');
+    }
+}
+
+// 댓글 수정
+async function editComment(commentId, currentContent) {
+    const newContent = prompt('댓글 수정', currentContent);
+    if (!newContent || newContent.trim() === currentContent) return;
+
+    try {
+        const res = await fetch(`/community/list/${boardId}/comment/${commentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: newContent.trim() })
+        });
+        if (res.ok) window.location.reload();
+    } catch (error) {
+        alert('수정 중 오류가 발생했습니다.');
+    }
+}
+
+// 댓글 삭제
+async function deleteComment(commentId) {
+    if (!confirm('댓글을 삭제하시겠습니까?')) return;
+    try {
+        const res = await fetch(`/community/list/${boardId}/comment/${commentId}`, { method: 'DELETE' });
+        if (res.ok) window.location.reload();
+    } catch (error) {
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+</script>
+</body>
+</html>

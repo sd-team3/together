@@ -72,9 +72,33 @@ const userSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'regularCrew'
         }],
+        friends: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            isFavorite: {
+                type: Boolean,
+                default: false
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
         honor: {
             type: Number,
             default: 0
+        },
+        privacy: {
+            profileVisibility: {
+                type: String,
+                enum: ['all', 'matched', 'none'],
+                default: 'all'
+            },
+            showHistory: { type: Boolean, default: true },
+            showManner: { type: Boolean, default: true }
         }
     }, {
         timestamps: true

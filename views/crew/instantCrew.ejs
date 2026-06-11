@@ -164,6 +164,9 @@
 </div>
 
 <div class="map-popup-overlay" id="member-action-modal" style="z-index:3000">
+
+
+
   <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%;">
     <div style="font-size:15px;font-weight:700;margin-bottom:4px;" id="ma-name"></div>
     <div style="font-size:13px;color:#aaa;margin-bottom:20px;" id="ma-sub"></div>
@@ -187,7 +190,13 @@
   </div>
 </div>
 
+</div>
+
+
+
 <script id="page-data" type="application/json"><%- JSON.stringify(pageData) %></script>
 <script type="module" src="/js/handlers/icHandler.js"></script>
+<script>const CURRENT_USER_ID = '<%= pageData.currentUserId || "" %>';</script>
+
 </body>
 </html>

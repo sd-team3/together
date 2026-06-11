@@ -3,7 +3,13 @@ const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
 const crewService = require('../../services/crew/crewService');
 const chatService = require('../../services/chatService');
+const regularCrew = require('../../models/regularCrew');
+const instantCrew = require('../../models/instantCrew');
 
+const modelMap = {
+    regularCrew: regularCrew,
+    instantCrew: instantCrew
+};
 
 const postApplication = async (req, res)=>{
     const userId = req.user._id;

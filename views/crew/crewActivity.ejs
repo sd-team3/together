@@ -16,12 +16,14 @@
   <div class="page-body">
     
     <!-- 필터/정렬 -->
-    <div class="activity-filter-bar">
+    <div id="activity-filter" class="activity-filter-bar">
       <span class="filter-label">정렬</span>
-      <button class="sort-btn active" data-sort="latest" onclick="setSort(this)">최신순</button>
-      <button class="sort-btn" data-sort="score-high" onclick="setSort(this)">점수 높은 순</button>
-      <button class="sort-btn" data-sort="score-low" onclick="setSort(this)">점수 낮은 순</button>
-      <span class="total-count" id="totalCount">총 4건</span>
+      <button class="sort-btn active" data-sort="latest">최신</button>
+      <button class="sort-btn" data-sort="finished">완료</button>
+      <button class="sort-btn" data-sort="recruited">모집</button>
+      <!-- <button class="sort-btn" data-sort="solo">개인전</button>
+      <button class="sort-btn" data-sort="team">팀전</button> -->
+      <span class="total-count" id="totalCount">총 <%= crews.schedule.length %>건</span>
       <button class="btn btn-primary btn-sm" onclick="openCreateModal()">＋ 활동</button>
     </div>
 
@@ -32,7 +34,7 @@
 </div>
 
 <!-- ══ 활동 등록 모달 ══ -->
-<div class="modal-overlay" id="modalCreate">
+<div class="2" id="modalCreate">
   <div class="modal-box">
     <div class="modal-head">
       <span class="modal-head-title">📋 활동 등록</span>
@@ -80,48 +82,6 @@
 <div class="activity-toast" id="actToast"></div>
 
 <script>
-const MY_CREW_ID = 'crew_001';
-
-const ACTIVITIES = [
-  {
-    id: 'act_001', crewId: 'crew_002', crewName: '강남 레이업스', crewEmoji: '🏀', crewScore: 1340,
-    date: '2025-07-05', place: '서울 강남구 역삼동 123-4', placeDetail: '역삼 실내 농구장 2층',
-    count: 12, type: 'battle', content: '농구 5:5 크루 대전 모집합니다. 실력 중급 이상 크루 환영!',
-    region: 'city', createdAt: new Date('2025-06-28T14:30:00'),
-    applications: [
-      { id: 'app_101', crewId: 'crew_003', crewName: '은평 덩크단', crewEmoji: '🏀', message: '저희도 5:5 가능합니다. 시간 조율 가능한지요?', date: '2025-06-29' },
-    ],
-  },
-  {
-    id: 'act_002', crewId: MY_CREW_ID, crewName: '마포 후크슛', crewEmoji: '🏀', crewScore: 980,
-    date: '2025-07-12', place: '서울 마포구 망원동 456-7', placeDetail: '망원 공원 농구장',
-    count: 10, type: 'battle', content: '주말 오전 크루 대전 파트너 구합니다. 가볍게 즐기는 게임입니다.',
-    region: 'city', createdAt: new Date('2025-06-27T09:10:00'),
-    applications: [
-      { id: 'app_201', crewId: 'crew_004', crewName: '서대문 스매시', crewEmoji: '🏀', message: '7월 12일 오전 10시 가능합니다!', date: '2025-06-28' },
-      { id: 'app_202', crewId: 'crew_005', crewName: '용산 블록샷', crewEmoji: '🏀', message: '인원 8명도 괜찮으시면 연락 주세요.', date: '2025-06-29' },
-    ],
-  },
-  {
-    id: 'act_003', crewId: 'crew_006', crewName: '홍대 런앤건', crewEmoji: '🏀', crewScore: 2210,
-    date: '2025-07-08', place: '서울 마포구 상수동 789', placeDetail: '상수 공용 체육관',
-    count: 8, type: 'battle', content: '실력 상관없이 즐겁게 대전할 크루 찾아요. 음료 제공!',
-    region: 'city', createdAt: new Date('2025-06-26T18:00:00'), applications: [],
-  },
-  {
-    id: 'act_004', crewId: MY_CREW_ID, crewName: '마포 후크슛', crewEmoji: '🏀', crewScore: 980,
-    date: '2025-07-19', place: '서울 마포구 합정동 11-2', placeDetail: '합정 실내체육관',
-    count: 14, type: 'internal', content: '크루 내전 일정입니다. 참여 확정 인원 확인 중.',
-    region: 'city', createdAt: new Date('2025-06-25T11:20:00'), applications: [],
-  },
-  {
-    id: 'act_005', crewId: 'crew_007', crewName: '성동 픽앤롤', crewEmoji: '🏀', crewScore: 650,
-    date: '2025-07-15', place: '서울 성동구 금호동 55', placeDetail: '금호 체육관',
-    count: 10, type: 'battle', content: '성동구에서 원정 오실 크루 환영합니다!',
-    region: 'state', createdAt: new Date('2025-06-24T16:45:00'), applications: [],
-  },
-];
-
 let currentSort = 'latest';
 let currentRange = 'city';
 let selType = 'team';
@@ -133,61 +93,86 @@ function selectType(t) {
 }
 
 function getList() {
-  let list = ACTIVITIES.filter(a => currentRange === 'state' || a.region === 'city');
-  if (currentSort === 'latest') list.sort((a,b) => b.createdAt - a.createdAt);
-  else if (currentSort === 'score-high') list.sort((a,b) => b.crewScore - a.crewScore);
-  else list.sort((a,b) => a.crewScore - b.crewScore);
-  return list;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const crew = <%- JSON.stringify(crews) %>;
+  const schedules = [...crew.schedule];
+  if (currentSort === "latest") return schedules.sort((a, b) => new Date(b.date) - new Date(a.date));
+  if(currentSort === "finished") {
+    return schedules.filter(sched => new Date(sched.date) >= today)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+  if(currentSort === "recruited") {
+    return schedules.filter(sched => new Date(sched.date) < today)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+  //if(currentSort === "solo")
+  //if(currentSort === "team")
+
+  return crew;
 }
+const activityFilter = document.getElementById("activity-filter");
+activityFilter.addEventListener('click', e => {
+  const sortBtn = e.target.closest('.sort-btn');
+  if(!sortBtn) return;
+  currentSort = sortBtn.dataset.sort;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  sortBtn.classList.add('active');
+  renderList();
+});
 
 function fmtDate(str) {
   return new Date(str).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
 }
 
+const cont = document.getElementById('activityList');
 function renderList() {
   const list = getList();
+  // console.log(list.schedule.length);
   document.getElementById('totalCount').textContent = `총 ${list.length}건`;
-  const cont = document.getElementById('activityList');
-
-  if (!list.length) {
-    cont.innerHTML = `<div class="activity-empty"><div class="activity-empty-icon">📭</div><div class="activity-empty-title">등록된 활동이 없어요</div><div class="activity-empty-sub">[＋ 활동] 버튼으로 새 활동을 등록해보세요</div></div>`;
+  console.log(list);
+  if (!list) {
+    cont.innerHTML = 
+    `<div class="activity-empty">
+      <div class="activity-empty-icon">📭</div>
+      <div class="activity-empty-title">등록된 활동이 없어요</div>
+      <div class="activity-empty-sub">[＋ 활동] 버튼으로 새 활동을 등록해보세요</div>
+    </div>`;
     return;
   }
 
-  cont.innerHTML = list.map(a => {
-    const own = a.crewId === MY_CREW_ID;
+  cont.innerHTML = list.map((a, index)=> {
     const today = new Date(); today.setHours(0,0,0,0);
     const actDate = new Date(a.date);
     const statusBadge = actDate >= today
       ? `<span class="type-badge type-internal">예정</span>`
       : `<span class="type-badge type-battle">완료</span>`;
-    const ownTag = own ? `<span class="own-tag">내 크루</span>` : '';
 
-    return `<div class="activity-card" id="card-${a.id}">
-      <div class="activity-row" onclick="toggleApps('${a.id}')">
+    return `<div class="activity-card">
+      <div class="activity-row">
         ${statusBadge}
         <div class="activity-main">
-          <div class="activity-title">${a.crewName} ${ownTag}</div>
+          <div class="activity-title">${a.title}</div>
           <div class="activity-meta">
             <span>📅 ${fmtDate(a.date)}</span>
-            <span>📍 ${a.place.split(' ').slice(2).join(' ')}</span>
-            <span>👥 ${a.count}명</span>
+            <span>📍 ${a.address.state} ${a.address.city}</span>
+            <span>👥 ${a.participants.length}명</span>
           </div>
           <div class="activity-desc">${a.content}</div>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation()">삭제</button>
-        <span class="chevron" id="chev-${a.id}">▼</span>
+        <button class="btn btn-outline btn-sm">삭제</button>
+        <span class="chevron">▼</span>
       </div>
-      <div class="apps-panel" id="apps-${a.id}">
-      </div>
+      <div class="apps-panel"></div>
     </div>`;
   }).join('');
 }
+cont.addEventListener('click', e => {
+  const row = e.target.closest('.activity-row');
+  if (!row) return;
+  row.nextElementSibling.classList.toggle('open');
+  row.querySelector('.chevron').classList.toggle('open');
+});
 
-function toggleApps(id) {
-  document.getElementById('apps-'+id).classList.toggle('open');
-  document.getElementById('chev-'+id).classList.toggle('open');
-}
 
 function setSort(btn) {
   currentSort = btn.dataset.sort;
@@ -228,11 +213,6 @@ function submitCreate() {
   closeModal('modalCreate'); renderList();
 }
 
-function toggleApps(id) {
-  document.getElementById('apps-'+id).classList.toggle('open');
-  document.getElementById('chev-'+id).classList.toggle('open');
-}
-
 function openModal(id) { 
   const el = document.getElementById(id);
   el.style.display = 'flex';
@@ -245,7 +225,7 @@ function closeModal(id) {
   el.style.display = 'none';
   document.body.style.overflow=''; 
 }
-document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+document.querySelectorAll('.modal-overlay2').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
 
 function showToast(msg) {
   const t = document.getElementById('actToast');

@@ -55,7 +55,8 @@ const getInstant = async (req, res) => {
         const pageData = {
             crews: crewsJson,
             isLoggedIn: req.isAuthenticated(),
-            myCrewIds
+            myCrewIds,
+            currentUserId: req.isAuthenticated() ? req.user._id.toString() : null 
         };
         res.render('crew/instantCrew', { CONSTANTS, crews, pageData});
     } catch (error) {
@@ -95,12 +96,12 @@ const getInstantDetail = async(req, res, next) => {
         if(!crew) return res.status(404).send('모임을 찾을 수 없습니다');
 
         if(!req.isAuthenticated()) {
-            return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false });
+            return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false, currentUserId: null });
         }
         const userId = req.user._id.toString();
         const isHost = crew.host._id.toString() === userId;
         const isMember = crew.member.memberList.some(m => m.user._id.toString() === userId);
-        res.render('crew/instantMyCrewDetail', {crew, CONSTANTS, isHost, isMember});
+        res.render('crew/instantMyCrewDetail', {crew, CONSTANTS, isHost, isMember, currentUserId: userId});
     } catch (error) {
         next(error);
     }

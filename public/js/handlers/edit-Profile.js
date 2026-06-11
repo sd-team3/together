@@ -45,14 +45,18 @@ btn.textContent = inputEl.type === 'password' ? '👁' : '🙈';
 let redirectAfterClose = false;
 
 function openModal(msg, shouldRedirect = false) {
-document.getElementById('modal-msg').innerText = msg;
-document.getElementById('modal').style.display = 'flex';
-redirectAfterClose = shouldRedirect;
+    document.getElementById('modal-msg').innerText = msg;
+    const modal = document.getElementById('modal');
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    redirectAfterClose = shouldRedirect;
 }
 
 function closeModal() {
-document.getElementById('modal').style.display = 'none';
-if (redirectAfterClose) window.location.href = '/user/profile';
+    const modal = document.getElementById('modal');
+    modal.style.display = 'none';
+    modal.classList.remove('open');
+    if (redirectAfterClose) window.location.href = '/user/profile';
 }
 
 /* 이미지 */
@@ -177,6 +181,7 @@ if (el) el.addEventListener('focus', function () { this.removeAttribute('readonl
 /* 폼 제출 유효성 검사*/
 document.getElementById('editForm').addEventListener('submit', async (e) => {
 e.preventDefault();
+
 const form = e.target;
 
 // 이름

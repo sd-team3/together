@@ -215,7 +215,7 @@ async function getCrewDetail(regularCrewId) {
 
     const period_Kor = { week: '매주', '2week': '격주', month: '매달' };
     const level_Kor = {none : '무관', low : '초급', mid : '중급', high : '상급'};
-    const accept_Kor = {true : '승인 가입', false : '자동 가입'};
+    const accept_Kor = { true: '자동 승인', false: '수동 승인' };
 
     const dayLabel = obj.day
             .filter(day => day !== 'none')
@@ -232,7 +232,7 @@ async function getCrewDetail(regularCrewId) {
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
     const periodLabel = period_Kor[obj.period] || obj.period;
     const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = accept_Kor[obj.isAutoAccept] || obj.isAutoAccept;
+    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
     return {
         ...obj,
         dayLabel,
@@ -253,17 +253,22 @@ async function crewLike(regularCrewId, userId) {
 }
 
 async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
-    return crew;
+    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage address');
+
+    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
+                                             .populate('userId', 'name age profileImage');
+    console.log('pendingApps:', pendingApps);
+    return { crew, pendingApps };
+}
+
+async function postCrewUpdate(regularCrewId, updateData) {
+    const update = await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true })
+    return update;
 }
 
 async function getCrewActivity(regularCrewId) {
     const crew = await regularCrew.findById(regularCrewId);
-
-    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
-                                             .populate('userId', 'name age profileImage');
-
-    return { crew, pendingApps };
+    return crew;
 }
 
 module.exports = { 
@@ -277,5 +282,6 @@ module.exports = {
     getRegularCrews, 
     getRegularAPICrews,
     getCrewManage,
+    postCrewUpdate,
     getCrewActivity
 };
