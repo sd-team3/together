@@ -264,12 +264,12 @@ async function getCrewManage(regularCrewId) {
 async function postCrewUpdate(regularCrewId, updateData, updateFile) {
     const crew = await regularCrew.findById(regularCrewId);
     if(updateData.removeImage === 'true' || updateFile) {
-        if(crew.profileImage && crew.profileImage != 'default-profile-image.jpg') {
+        if(crew.profileImage && crew.profileImage != '/images/reg-crew/profile/default-profile-image.jpg') {
             const oldPath = path.join(process.cwd(), 'public/images/reg-crew/profile', crew.profileImage);
             if(fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
-        if (updateFile) updateData.profileImage = `/image/reg-crew/profile/${updateFile.filename}`;
-        else updateData.profileImage = '/image/reg-crew/profile/default-profile-image.jpg';
+        if (updateFile) updateData.profileImage = `/images/reg-crew/profile/${updateFile.filename}`;
+        else updateData.profileImage = '/images/reg-crew/profile/default-profile-image.jpg';
     }
     delete updateData.removeImage;
     return await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true });;
