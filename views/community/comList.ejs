@@ -60,9 +60,17 @@
         <div class="card" style="padding:16px">
           <div class="section-title">이번 주 인기글</div>
           <div style="font-size:12.5px;display:flex;flex-direction:column;gap:10px">
-            <div style="padding-bottom:10px;border-bottom:1px solid var(--border)"><div style="font-weight:600;margin-bottom:3px">테니스 서브 폼 교정법</div><div class="text-muted text-xs">👍 87 · 💬 34</div></div>
-            <div style="padding-bottom:10px;border-bottom:1px solid var(--border)"><div style="font-weight:600;margin-bottom:3px">비 오는 날 러닝 팁</div><div class="text-muted text-xs">👍 52 · 💬 19</div></div>
-            <div><div style="font-weight:600;margin-bottom:3px">뚝섬 3on3 후기</div><div class="text-muted text-xs">👍 31 · 💬 6</div></div>
+            <% weeklyPopular.forEach((board, index) => { %>
+              <div style="<%= index < weeklyPopular.length - 1 ? 'padding-bottom:10px;border-bottom:1px solid var(--border)' : '' %>">
+                <a href="/community/list/<%= board._id %>" style="text-decoration:none;color:inherit">
+                  <div style="font-weight:600;margin-bottom:3px"><%= board.title %></div>
+                  <div class="text-muted text-xs">❤️ <%= board.reputation || 0 %> · 💬 <%= board.commentsCount %></div>
+                </a>
+              </div>
+            <% }) %>
+            <% if (weeklyPopular.length === 0) { %>
+              <div style="color:var(--text-3);text-align:center;padding:8px">이번 주 인기글이 없습니다.</div>
+            <% } %>
           </div>
         </div>
       </div>

@@ -62,6 +62,7 @@ async function createComment(boardId, content, userId) {
         board : boardId
     });
     await comment.save();
+    await Board.findByIdAndUpdate(boardId, { $inc: { commentsCount: 1 } });
     return comment;
 }
 
@@ -80,8 +81,23 @@ async function updateComment(commentId, content) {
 
 async function deleteComment(commentId) {
     await Comment.findByIdAndDelete(commentId);
+    await Board.findByIdAndUpdate(comment.board, { $inc: { commentsCount: -1 } });
+}
+
+async function getWeeklyPopular() {
+    const oneWeek = new Date();
+    oneWeek.setDate(oneWeek.getDate()-7);
+
+    const boards = await Board.find({ createdAt : {$gte : oneWeek }})
+                              .populate('author', 'name')
+                              .sort({ reputation : -1 })
+                              .limit(5);
+    return boards;                          
 }
 
 
 
-module.exports = {getBoard, getBoardByCategory, getDetail, getComments ,boardLike, createComment,updateComment,deleteComment,updateBoard ,deleteBoard };
+module.exports = {
+    getBoard, getBoardByCategory, getDetail, getComments ,boardLike, createComment,
+    updateComment,deleteComment,updateBoard ,deleteBoard, getWeeklyPopular
+ };

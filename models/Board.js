@@ -19,7 +19,8 @@ const boardSchema = new mongoose.Schema(
         likedBy: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
-        }]
+        }],
+        commentsCount: { type: Number, default: 0 }
     }, {
         timestamps : true
     }
