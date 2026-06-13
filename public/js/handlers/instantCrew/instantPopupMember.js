@@ -78,7 +78,7 @@ function buildRow(m, crewId, isHost) {
             <td style="padding:10px 8px;font-size:12px;color:#aaa;">${joinedAt}</td>
             <td style="padding:10px 8px;">
                 ${isHost && !isOwner ? `
-                    <button onclick="window.openProfileModal('${uid}')"
+                    <button onclick="window.mpManageMember('${crewId}', '${uid}', '${u.name || '멤버'}')"
                         style="width:28px;height:28px;border-radius:50%;border:1px solid #e5e7eb;
                             background:#fff;color:#555;font-size:14px;cursor:pointer;
                             display:flex;align-items:center;justify-content:center;">
