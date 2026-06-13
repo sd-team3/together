@@ -16,11 +16,11 @@ router.get('/list', instantController.getInstant);
 
 //모임 만들기
 router.get('/create', 
-    crewMiddleware.isLogin, 
+    crewMiddleware.loginValidation, 
     instantController.getInstantCreate
 );
 router.post('/create', 
-    crewMiddleware.isLogin, 
+    crewMiddleware.loginValidation, 
     instantController.postInstantCreate
 );
 
@@ -31,44 +31,49 @@ router.get('/list/:instantId',
 
 //모임 삭제
 router.post('/delete/:instantId', 
-    crewMiddleware.isLogin, 
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     instantController.deleteInstantCrew
 );
 
 //크루 강퇴
 
 router.get('/relation/:crewId/:userId', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     applicationController.getRelation
 );
 
 router.post('/list/:instantId/kick/:userId', 
-    crewMiddleware.isLogin, 
+    crewMiddleware.loginValidation, 
     instantController.kickMember
 );
 
 router.post('/application/:crewId', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
-router.post('/pending/:crewId', 
-    crewMiddleware.isLogin,
-    crewMiddleware.isHost,
+router.get('/pending/:crewId', 
+    crewMiddleware.loginValidation,
     crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.getPendingApps
 );
 
 router.post('/join/:appId/:action',
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.joinProcess
 );
 
 router.get('/api/:instantId', instantController.getInstantDetailApi);
 
 //노쇼
-router.post('/list/:instantId/noshow/:userId', crewMiddleware.isLogin, instantController.setNoshow);
+router.post('/list/:instantId/noshow/:userId', crewMiddleware.loginValidation, instantController.setNoshow);
 
 module.exports = router;

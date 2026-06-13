@@ -13,56 +13,54 @@ router.use((req, res, next)=>{
 });
 
 router.get('/create', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     regularController.getRegularCreate
 );
 
 router.post('/create',
     uploadRegularProfile.single('uploadFile'),
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     crewMiddleware.regularCreateMiddleware,
     regularController.postRegularCreate
 );
 
 router.post('/delete/:crewId',
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     regularController.postMyCrewDelete
 );
 
 router.post('/withdraw/:crewId', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     regularController.postMyCrewWithdraw
 );
 
 
 router.post('/application/:crewId', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
-console.log({
-    isLogin: typeof crewMiddleware.isLogin,
-    isHost: typeof crewMiddleware.isHost,
-    isCrewExist: typeof crewMiddleware.isCrewExist,
-    getPendingApps: typeof applicationController.getPendingApps
-});
-
 router.get('/pending/:crewId', 
-    crewMiddleware.isLogin,
-    crewMiddleware.isHost,
+    crewMiddleware.loginValidation,
     crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.getPendingApps
 );
 
 router.get('/relation/:crewId/:userId', 
-    crewMiddleware.isLogin,
+    crewMiddleware.loginValidation,
     applicationController.getRelation
 );
 
 router.post('/join/:appId/:action',
     crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.joinProcess
 );
 
@@ -72,12 +70,17 @@ router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
-router.get('/manage/:crewId', regularController.getCrewManage);
-router.post('/manage/:crewId/update', 
+router.get('/manage/:crewId', 
+    regularController.getCrewManage
+);
+router.post('/manage/:crewId/update',
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost, 
     uploadRegularProfile.single('uploadFile'), 
     regularController.postCrewUpdate
 );
+
 router.get('/api/my', regularController.getMyCrewsApi);
 
 router.get('/activity/:crewId',
