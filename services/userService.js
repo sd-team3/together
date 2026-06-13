@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const instantCrew = require('../models/instantCrew');
+const crewApplication = require('../models/crewApplication');
+const chatRoom = require('../models/ChatRoom');
+const Message = require('../models/Message');
 
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
@@ -153,6 +157,24 @@ async function deleteUser(userId, password) {
             throw error;
         }
     }
+
+    // 내가 호스트인 모임 찾기
+    const myCrews = await instantCrew.find( { host: userId });
+    const myCrewIds = myCrews.map(c => c._id);
+
+    // 연관 데이터 삭제
+    await crewApplication.deleteMany({ crewId: { $in : myCrewIds }});
+    await chatRoom.deleteMany({ crewId: { $in: myCrewIds }});
+    await Message.deleteMany( { crewId: { $in: myCrewIds }});
+    
+    //(임시) 호스트 탈퇴시 모임 삭제
+    await instantCrew.deleteMany({ host: userId });
+
+    // 내가 멤버로만 있는 모임에서 제거
+    await instantCrew.updateMany(
+        { 'member.memberList.user': userId },
+        { $pull: {'member.memberList' : {user: userId }}}
+    );
 
     await User.findByIdAndDelete(user.id);
 }
