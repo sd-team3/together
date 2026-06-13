@@ -40,9 +40,10 @@ const postApplication = async (req, res)=>{
         return res.status(201).json();
     } catch (error) {
         if (session && session.inTransaction()) await session.abortTransaction();
-        if (session) session.endSession();
         console.error(error);
         return res.status(500).json({ message: "appCtrl:Transaction" });
+    } finally {
+        session.endSession();
     }
 };
 
@@ -70,8 +71,7 @@ const getRelation = async (req, res)=>{
 
 const getPendingApps = async (req, res) => {
     try {
-        const { crewId } = req.body;
-        const pendingApps = await applicationService.findPendingAppsByCrewId(crewId);
+        const pendingApps = await applicationService.findPendingAppsByCrewId(req.crew._id);
         res.json(pendingApps);
     } catch (error) {
         return res.status(500).json({ message: 'regularRouter' });

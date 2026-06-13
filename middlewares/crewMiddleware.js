@@ -5,8 +5,8 @@ const crewService = require('../services/crew/crewService');
 const isHost = async (req, res, next)=>{
     try {
         if (req.isAuthenticated()) {
-            const hostId = await crewService.findHostByCrewId(req.params.crewId);
-            if(!hostId) return res.status(404).json({ message: "존재하지 않는 크루입니다." });
+            const hostId = req.crew.host;
+            if(!hostId) return res.status(403).json({ message: "존재하지 않는 크루입니다." });
             return hostId.equals(req.user._id) ? next() : res.status(403).json({ message: "권한이 없습니다." });
         }
         return res.redirect('/user/login');
@@ -37,7 +37,7 @@ const isCrewExist = async (req, res, next)=>{
     }
 };
 
-const isLogin = async (req, res, next)=>{
+const loginValidation = async (req, res, next)=>{
     if (req.isAuthenticated()) {
         return next();
     }
@@ -70,6 +70,7 @@ const regularCreateMiddleware = (req, res, next)=>{
 const applicationValidation = async (req, res, next)=>{
     try {
         const crew = req.crew;
+        console.log(crew);
         const ageGroup = req.user.age >= 60 ? '60+' : `${Math.floor(req.user.age / 10) * 10}s`;
         const isMember = await crewService.userInCrew(req.crewModel, req.params.crewId, req.user._id);
 
@@ -101,7 +102,7 @@ const applicationValidation = async (req, res, next)=>{
         req.notiData = notiData;
         next();
     } catch (error) {
-        return res.status(500).json({ message: "DB오류" });
+        return res.status(500).json({ message: `DB오류 : ${error.message}` });
     }    
 };
 
@@ -111,13 +112,8 @@ const joinMiddleware = async (req, res, next)=>{
 
     try {
         const app = await applicationService.findAppById(appId);
-        const host = await crewService.findHostByCrewId(req.crewModel, app.crewId);
-        const crew = await req.crewModel.findById(app.crewId);
-
-        if(!host || !crew) return res.status(404).json({ message: "존재하지 않는 크루입니다." });
-        if(host.toString() !== req.user._id.toString()) return res.status(403).json({ message: "당신은 권한이 없습니다." });
-        
-        req.crew = crew;
+        if (!app) return res.status(404).json({ message: "신청을 찾을 수 없습니다." });
+        req.params.crewId = app.crewId.toString();
         next();
     } catch (error) {
         next(error);
@@ -129,7 +125,7 @@ module.exports = {
     isHost,
     isMember,
     isCrewExist,
-    isLogin,
+    loginValidation,
     regularCreateMiddleware,
     applicationValidation,
     joinMiddleware
