@@ -12,6 +12,17 @@ async function createActivity(activityData) {
     }
 };
 
+async function findActById(actId) {
+    try {
+        const act = await crewActivity.findById(actId);
+        return act;
+    } catch (error) {
+        console.error("findActById:", error.message);
+        throw error;
+    }
+};
+
 module.exports = {
-    createActivity
+    createActivity,
+    findActById
 };

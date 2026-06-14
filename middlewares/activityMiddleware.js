@@ -1,5 +1,6 @@
 const { authenticate } = require('passport');
 const crewService = require('../services/crew/crewService');
+const activityService = require('../services/crew/activityService');
 
 const activityCreateMiddleware = (req, res, next) => {
     const { content, startTime, endTime, location, gameType, capacity } = req.body;
@@ -32,7 +33,7 @@ const activityCreateMiddleware = (req, res, next) => {
         return res.status(400).json({ message: "정원은 1 이상이어야 합니다." });
     }
 
-    if (!req.crewModel?.modelName || !req.params.crewId) {
+    if (!req.crewModel?.modelName || !req.crew._id) {
         return res.status(500).json({ message: "크루 정보가 유효하지 않습니다." });
     }
 
@@ -40,7 +41,7 @@ const activityCreateMiddleware = (req, res, next) => {
 
     req.activityData = {
         crewModel: req.crewModel.modelName,
-        crewId: req.params.crewId,
+        crewId: req.crew._id,
         title: title,
         content: content,
         startTime: startTime,
@@ -59,6 +60,38 @@ const activityCreateMiddleware = (req, res, next) => {
     next();
 };
 
+const isActExist = async (req, res, next) => {
+    try {
+        const act = await activityService.findActById(req.params.actId);
+        if(!act) return res.status(404).json({ message: '활동을 찾을 수 없습니다.' });
+        req.params.crewId = act.crewId.toString();
+        req.activity = act;
+        next();
+    } catch (error) {
+        console.error('isActExist 오류:', error);
+        return res.status(500).json({ message: '서버 내부 오류가 발생했습니다.' });
+    }
+};
+
+const progressMiddleware = async (req, res, next) => {
+    const { status } = req.params;
+
+    const allowedStatuses = ['recruit', 'deadline', 'active', 'end', 'cancel'];    
+    if (!allowedStatuses.includes(status)) return res.status(400).json({ message: '올바르지 않은 상태 변경 요청입니다.' });
+    
+    const statusMap = {
+        'recruit': '모집',
+        'deadline': '마감',
+        'active': '활동',
+        'end': '종료',
+        'cancel': '취소'
+    };
+    const koreanStatus = statusMap[status];
+    req.koreanStatus = koreanStatus;
+};
+
 module.exports = {
-    activityCreateMiddleware
+    activityCreateMiddleware,
+    isActExist,
+    progressMiddleware
 };
