@@ -3,6 +3,9 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const chatService = require('./chatService');
 const friendService = require('./friendService');
+const instantService = require('./crew/instantService');
+const regularService = require('./crew/regularService');
+const boardService = require('./community/comService'); 
 
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
@@ -158,6 +161,9 @@ async function deleteUser(userId, password) {
 
     await chatService.handleUserDeleted(userId);
     await friendService.handleUserDeleted(userId);
+    await instantService.handleUserDeleted(userId);
+    await regularService.handleUserDeleted(userId);
+    await boardService.handleUserDeleted(userId);
     await User.findByIdAndDelete(userId);
 }
 

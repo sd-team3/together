@@ -101,9 +101,22 @@ async function getWeeklyPopular() {
     return boards;                          
 }
 
+async function handleUserDeleted(userId) {
+    // 게시글 author null 처리
+    await Board.updateMany(
+        { author: userId },
+        { $set: { author: null } }
+    );
+
+    // 댓글 author null 처리
+    await Comment.updateMany(
+        { author: userId },
+        { $set: { author: null } }
+    );
+}
 
 
 module.exports = {
     getBoard, getBoardByCategory, getDetail, getComments, createBoard ,boardLike, createComment,
-    updateComment,deleteComment,updateBoard ,deleteBoard, getWeeklyPopular
+    updateComment,deleteComment,updateBoard ,deleteBoard, getWeeklyPopular, handleUserDeleted
  };

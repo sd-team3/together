@@ -141,6 +141,17 @@ async function setNoshow(crewId, hostId, userId) {
     return { success: true };
 }
 
+async function handleUserDeleted(userId) {
+    // 탈퇴 유저가 host인 번개모임 삭제
+    await instantCrew.deleteMany({ host: userId });
+    
+    // 나머지 모임에서 memberList에서 제거
+    await instantCrew.updateMany(
+        { "member.memberList.user": userId },
+        { $pull: { "member.memberList": { user: userId } } }
+    );
+}
+
 module.exports = {
     createInstantCrew, 
     getInstantCrew, 
@@ -148,5 +159,6 @@ module.exports = {
     deleteInstantCrew,
     kickMember,
     findInstantCrewsByUserId,
-    setNoshow
+    setNoshow,
+    handleUserDeleted
 };
