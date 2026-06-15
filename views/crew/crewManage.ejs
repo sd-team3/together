@@ -473,12 +473,12 @@ async function saveCrew() {
   formData.append('sport', document.getElementById('sport').value);
   formData.append('period', document.getElementById('period').value);
   formData.append('level', document.getElementById('level').value);
-  formData.append('day', JSON.stringify(
-    Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val)
-  ));
-  formData.append('ageRange', JSON.stringify(
-    Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val)
-  ));
+  Array.from(document.querySelectorAll('#day .chip.on')).forEach(d => {
+    formData.append('day', d.dataset.val);
+  });
+  Array.from(document.querySelectorAll('#ageRange .chip.on')).forEach(a => {
+    formData.append('ageRange', a.dataset.val);
+  });
   formData.append('isAutoAccept', document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false);
   formData.append('removeImage', document.getElementById('removeImage').value);
 

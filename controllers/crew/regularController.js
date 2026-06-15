@@ -181,8 +181,8 @@ const postCrewUpdate = async (req, res) => {
 
 const getCrewActivity = async (req, res) => {
     try {
-        const crews = await regularService.getCrewActivity(req.params.crewId);
-        res.render('crew/crewActivity', { crews });
+        const crew = await regularService.getCrewActivity(req.params.crewId);
+        res.render('crew/crewActivity', { crew });
     } catch(error) {
         console.error(error);
         res.status(500).render('error/error_500');
