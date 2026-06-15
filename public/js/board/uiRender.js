@@ -25,7 +25,7 @@ export function renderBoards(boards) {
                 <div class="post-title">${board.title}</div>
                 <div class="post-meta">
                     <span>${categoryLabel}</span>
-                    <span>${board.author ? board.author.name : '익명'}</span>
+                    <span>${board.author ? board.author.name : '알 수 없음'}</span>
                     <span>${getTimeAgo(board.createdAt)}</span>
                 </div>
                 ${excerptHtml}

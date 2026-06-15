@@ -4,7 +4,7 @@ const boardSchema = new mongoose.Schema(
     {
         title : {type: String, required : true},
         content : {type : String, required : true},
-        author : {type : mongoose.Schema.Types.ObjectId, ref : 'User', required : true},
+        author : {type : mongoose.Schema.Types.ObjectId, ref : 'User', required : false, default: null},
         // ref : 내가 무엇을 참조하는지 
         // author : User 컬렉션 참조
         // 몽고 DB에서 기본키를 만들어 유저의 기본키를 가져옴
