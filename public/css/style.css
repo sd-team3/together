@@ -855,7 +855,7 @@ select.input{cursor:pointer}
 .pos-tag.on{background:var(--text);color:var(--bg);border-color:var(--text)}
 
 /* 모달 */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.modal-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);align-items:center;justify-content:center}
 .modal-overlay.show{display:flex;animation:pageIn .2s ease}
 
 .modal-box{
@@ -4383,4 +4383,7 @@ body.dark .tt-px-event {
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+}
+#manageToast {
+    z-index: 99999;
 }
