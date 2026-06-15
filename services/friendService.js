@@ -132,6 +132,17 @@ const cancelSentRequest = async (requestId, senderId) => {
     await request.deleteOne();
 };
 
+// 회원 탈퇴 시 친구 관계 전체 제거
+const handleUserDeleted = async (userId) => {
+    await User.updateMany(
+        { "friends.user": userId },
+        { $pull: { friends: { user: userId } } }
+    );
+    await FriendRequest.deleteMany({
+        $or: [{ sender: userId }, { receiver: userId }] // 탈퇴 유저가 보냈거나 받은 친구요청 전부 삭제
+    });
+};
+
 module.exports = {
     sendFriendRequest,
     acceptFriendRequest,
@@ -141,5 +152,6 @@ module.exports = {
     getFriendList,
     getPendingRequests,
     getSentRequests,
-    cancelSentRequest
+    cancelSentRequest,
+    handleUserDeleted
 };

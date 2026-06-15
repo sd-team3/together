@@ -85,7 +85,7 @@
           <% } else { %>
             <div class="chat-date-divider">오늘</div>
             <% messages.forEach(msg => { %>
-              <% if (String(msg.sender._id) === String(currentUserId)) { %>
+              <% if (msg.sender && String(msg.sender._id) === String(currentUserId)) { %>
                 <div class="msg-row mine">
                   <div class="msg-content">
                     <div class="msg-bubble mine"><%= msg.content %></div>
@@ -95,7 +95,7 @@
               <% } else { %>
                 <div class="msg-row">
                   <div class="msg-content">
-                    <div class="msg-sender"><%= msg.sender.name %></div>
+                    <div class="msg-sender"><%= msg.sender ? msg.sender.name : '알 수 없음' %></div>
                     <div class="msg-bubble theirs"><%= msg.content %></div>
                     <div class="msg-time"></div>
                   </div>
@@ -221,7 +221,7 @@
     chatMessages.insertAdjacentHTML('beforeend', `<div class="chat-date-divider">오늘</div>`);
 
     messages.forEach(msg => {
-      const isMine = String(msg.sender._id) === String(currentUserId);
+      const isMine = msg.sender && String(msg.sender._id) === String(currentUserId);
       let msgHtml = '';
       if (isMine) {
         msgHtml = `
@@ -235,7 +235,7 @@
         msgHtml = `
           <div class="msg-row">
             <div class="msg-content">
-              <div class="msg-sender">${escapeHTML(msg.sender.name)}</div>
+              <div class="msg-sender">${escapeHTML(msg.sender ? msg.sender.name : '알 수 없음')}</div>
               <div class="msg-bubble theirs">${escapeHTML(msg.content)}</div>
               <div class="msg-time">${formatTime(msg.createdAt)}</div>
             </div>
