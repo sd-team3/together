@@ -1,5 +1,6 @@
 const instantCrew = require('../../models/instantCrew');
 const chatService = require('../chatService');
+const ChatRoom = require('../../models/ChatRoom');
 
 async function getInstantCrew(filter = {}, page = 1) {
     const query = {};

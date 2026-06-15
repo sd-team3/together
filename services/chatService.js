@@ -14,7 +14,6 @@ async function getChatRoomList(userId, crewType = null) {
     if (crewType === 'instant') {
         query.crewType = 'instant';
     } else if (crewType === 'regular') {
-        // crewType이 'regular'이거나 null(기존 데이터)인 것 모두 포함
         query.$or = [
             { crewType: 'regular' },
             { crewType: null },
@@ -22,10 +21,14 @@ async function getChatRoomList(userId, crewType = null) {
         ];
     }
 
+    console.log('[getChatRoomList] userId:', userId, 'crewType:', crewType, 'query:', JSON.stringify(query));
+
     const chatRoom = await ChatRoom.find(query)
         .populate('members.user', 'name')
         .populate('lastMessage', 'content')
         .sort({ lastMessageAt: -1 });
+
+    console.log('[getChatRoomList] 결과 개수:', chatRoom.length);
 
     return chatRoom;
 }
