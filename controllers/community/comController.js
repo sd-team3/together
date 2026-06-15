@@ -5,12 +5,14 @@ const Board = require('../../models/Board');
 const getCommunity = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     try {
-        const result = await comService.getBoard(page);            
+        const result = await comService.getBoard(page);  
+        const weeklyPopular = await comService.getWeeklyPopular()          
         res.render('community/comList', {
             title : '게시판 페이지', 
             boards: result.boards,
             currentPage: result.currentPage,
             totalPages : result.totalPages,
+            weeklyPopular
         });
     } catch (error) {
         next(error);
@@ -145,4 +147,8 @@ const deleteBoard = async (req, res, next) => {
     }
 }
 
-module.exports = { getCommunity, getListAPI, postBoardLike, getWrite, postWrite, getDetail, postComment,putComment,deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard };
+module.exports = { 
+    getCommunity, getListAPI, postBoardLike, getDetail, postComment,putComment,
+    deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard , getWrite, postWrite
+
+};

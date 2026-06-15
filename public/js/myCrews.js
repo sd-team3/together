@@ -11,7 +11,7 @@ async function loadCrews(role = 'all') {
             <div class="empty-state-icon">🏃</div>
             <div class="empty-state-title">참여 중인 모임이 없어요</div>
             <div class="empty-state-sub">정기모임에 참가하거나 직접 만들어보세요!<br>같은 스포츠를 즐기는 사람들을 만날 수 있어요.</div>
-            <button class="empty-state-btn" onclick="location.href='/regular/regular'">모임 둘러보기</button>
+            <button class="empty-state-btn" onclick="location.href='/regular/list'">모임 둘러보기</button>
         </div>
     `;
     return;

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialCurrentPage = Number(pagination.dataset.currentPage) || 1;
     const initialTotalPages = Number(pagination.dataset.totalPages) || 1;
     renderRegularPaging(initialCurrentPage, initialTotalPages);
+    renderProgressBars();
   }
 });
 
@@ -50,6 +51,7 @@ async function loadRegularCrews(page = 1) {
     renderRegularCards(data.regularCrews);
     // 컨트롤러에서 받아온 페이징 정보
     renderRegularPaging(data.currentPage, data.totalPages); 
+    renderProgressBars();
   } catch (error) {
     console.error('목록을 불러오는 데 실패했습니다.', error);
   }
@@ -233,3 +235,11 @@ document.addEventListener('click', function(e) {
   // 페이지 이동 혹은 API 호출
   window.location.href = `/regular/list/${regularID}`;
 });
+function renderProgressBars() {
+    document.querySelectorAll('.reg-progress').forEach(bar => {
+        const member = parseInt(bar.dataset.member);
+        const capacity = parseInt(bar.dataset.capacity);
+        const pct = Math.round(member / capacity * 100);
+        bar.querySelector('.reg-progress-fill').style.width = pct + '%';
+    });
+}

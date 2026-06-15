@@ -169,10 +169,9 @@ const getCrewManage = async (req, res) => {
 
 const postCrewUpdate = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        await regularService.postCrewUpdate(req.params.crewId, req.body);
+        const updateData = {...req.body};
+        if(req.file) updateData.profileImage = req.file.filename;
+        await regularService.postCrewUpdate(req.params.crewId, updateData, req.file);
         res.json({ success: true});
     } catch (error) {
         console.error(error);

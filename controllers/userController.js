@@ -100,13 +100,15 @@ const logout = (req, res, next) => {
 
 //마이페이지
 const getProfile = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
+    try {
+        const user = await userService.findUserById(req.user.id);
+        const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
+        const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
+        res.render('user/profile', { user, regCrew, instantCrew});
+    } catch (error) {
+        return next(error);
     }
-    const user = await userService.findUserById(req.user.id);
-    const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
-    const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
-    res.render('user/profile', { user, regCrew, instantCrew});
+
 };
 
 
@@ -270,19 +272,21 @@ const getUserProfile = async (req, res) => {
 
         // 활동이력 공개 여부
         const showHistory = user.privacy?.showHistory !== false;
-        //매너점수 공개 여부
-        const showManner = user.privacy?.showManner !== false;
 
+        // 크루 정보
         let crews = [];
         if (showHistory) {
-            const [regCrews, instantCrews] = await Promise.all([
-                regularService.findRegularCrewsByUserId(targetId),
-                instantService.findInstantCrewsByUserId(targetId)
-            ]);
-            crews = [
-                ...regCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' })),
-                ...instantCrews.map(c => ({ title: c.title, sport: c.sport, address: c.address?.city || '', sportEmoji: c.sportEmoji || '🏅' }))
-            ];
+            const regularCrew = require('../models/regularCrew');
+            const rawCrews = await regularCrew.find({
+                'member.memberList.user': targetId
+            }).select('title sport address sportEmoji profileImage').lean();
+
+            crews = rawCrews.map(c => ({
+                title: c.title,
+                sport: c.sport,
+                address: c.address?.city || '',
+                sportEmoji: c.sportEmoji || '🏅'
+            }));
         }
 
         // 친구 여부 확인
@@ -295,12 +299,13 @@ const getUserProfile = async (req, res) => {
             }
         }
 
-        res.json({ ok: true, user, crews, friendInfo, showManner });
+        res.json({ ok: true, user, crews, friendInfo });
     } catch (err) {
         console.error('getUserProfile:', err);
         res.status(500).json({ ok: false });
     }
 };
+
 //프로필 비공개
 const updatePrivacy = async (req, res) => {
     try {

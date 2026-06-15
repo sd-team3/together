@@ -195,10 +195,10 @@ function _injectHTML() {
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:12px;">+ 친구 추가</button>
-                    <div id="pm-friend-since" style="display:none;font-size:12px;color:var(--text-3);text-align:center;margin-bottom:20px;"></div>
-                    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">가입한 크루</div>
-                    <div id="pm-crew-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+                    <button class="btn btn-outline btn-full" id="pm-friend-btn" style="margin-bottom:8px;">+ 친구 추가</button>
+                    <div id="pm-friend-since" style="display:none;font-size:12px;color:var(--text-3);text-align:center;margin-bottom:12px;"></div>
+                    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">가입한 크루</div>
+                    <div id="pm-crew-list" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;"></div>
                 </div>
             </div>
         </div>
