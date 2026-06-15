@@ -26,6 +26,8 @@ router.post('/create',
 
 router.post('/delete/:crewId',
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     regularController.postMyCrewDelete
 );
 
@@ -37,13 +39,15 @@ router.post('/withdraw/:crewId',
 
 router.post('/application/:crewId', 
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
 router.get('/pending/:crewId', 
     crewMiddleware.loginValidation,
-    crewMiddleware.getPendingValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.getPendingApps
 );
 
@@ -55,6 +59,8 @@ router.get('/relation/:crewId/:userId',
 router.post('/join/:appId/:action',
     crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.joinProcess
 );
 
@@ -64,16 +70,21 @@ router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
-router.get('/manage/:crewId', regularController.getCrewManage);
-router.post('/manage/:crewId/update', 
+router.get('/manage/:crewId',
+    regularController.getCrewManage
+);
+router.post('/manage/:crewId/update',
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost, 
     uploadRegularProfile.single('uploadFile'), 
     regularController.postCrewUpdate
 );
+
 router.get('/api/my', regularController.getMyCrewsApi);
 
 router.get('/activity/:crewId',
-    crewMiddleware.loginValidation, 
+    crewMiddleware.loginValidation,
     regularController.getCrewActivity
 );
 router.post('/list/:crewID/like', regularController.postCrewLike);
