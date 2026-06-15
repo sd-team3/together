@@ -7,6 +7,7 @@ const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
 const chatService = require('../chatService'); //
 const crewApplication = require('../../models/crewApplication');
+const ChatRoom = require('../../models/ChatRoom');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
