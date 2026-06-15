@@ -96,9 +96,9 @@ const kakaoMap = {
                     mapElement, 
                     {
                         center: position,
-                        level: 5,  // 기본 1km
-                        minLevel: 3, // 최대 확대 500m
-                        maxLevel: 8 // 최대 축소 1km
+                        level: 5,  // 기본 250m
+                        minLevel: 3, // 최대 확대 50m
+                        maxLevel: 8 // 최대 축소 2km
                     }
                 );
             } else {
