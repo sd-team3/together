@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="main">
+<%- include('../partials/head', { title: '✉️ 채팅', pageId: 'page-chat', active: '' }) %>
+
+  <div class="page-body-wide" style="flex:1;height:0;overflow:hidden;">
+  <div class="chat-layout" style="height:100%;">
+      <!-- Room List -->
+<div class="chat-rooms">
+  <div class="chat-rooms-header">
+    <div class="chat-rooms-title">채팅방</div>
+  </div>
+
+  <!-- 탭 버튼 -->
+  <div style="display:flex;border-bottom:1px solid #eee;">
+    <button onclick="location.href='/chatRoom/chatPage?crewType=regular'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= !crewType || crewType === 'regular' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      정기모임
+    </button>
+    <button onclick="location.href='/chatRoom/chatPage?crewType=instant'"
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= crewType === 'instant' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      번개모임
+    </button>
+  </div>
+
+  <div class="chat-rooms-list">
+    <% if (!chatRoomList || chatRoomList.length === 0) { %>
+      <div style="padding:40px;text-align:center;color:#999;">
+        <div style="font-size:32px;margin-bottom:12px">📭</div>
+        <div>채팅방이 없습니다</div>
+      </div>
+    <% } else { %>
+      <% chatRoomList.forEach(room => { %>
+        <div class="chat-room-item" data-id="<%= room._id %>" data-last-at="<%= room.lastMessageAt %>" style="cursor:pointer;">
+          <div class="cr-av"><%= room.crewType === 'instant' ? '⚡' : '🏃' %></div>
+          <div class="cr-info">
+            <div class="cr-top">
+              <div class="cr-name"><%= room.name %></div>
+              <span style="font-size:11px;color:#aaa;"><%= room.crewType === 'instant' ? '번개' : '정기' %></span>
+            </div>
+            <div class="cr-preview" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><%= room.lastMessage?.content %></span>
+              <span class="cr-time-ago" style="font-size:11px;color:#aaa;flex-shrink:0;margin-left:8px;"></span>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div class="chat-header">
+        <div class="chat-hd-av" id="chatRoomIcon">
+          <%= room ? (room.crewType === 'instant' ? '⚡' : '🏃') : '💬' %>
+        </div>
+        <div style="flex:1;">
+          <div class="chat-hd-name" id="chatRoomName">
+            <%= room ? room.name : '채팅방을 선택하세요' %>
+          </div>
+        </div>
+
+        <!-- 알림 버튼 -->
+        <button id="muteBtn" data-muted="<%= room && room.isMuted ? 'true' : 'false' %>"
+          style="border:none;background:none;cursor:pointer;font-size:20px;padding:4px 8px;"
+          onclick="toggleMute()">
+          <%= room && room.isMuted ? '🔇' : '🔔' %>
+        </button>
+      </div>
+
+        <div class="chat-msgs" id="chatMessages" style="height:calc(100vh - 120px);overflow-y:auto;">
+          <% if (!room) { %>
+            
+          <% } else { %>
+            <div class="chat-date-divider">오늘</div>
+            <% messages.forEach(msg => { %>
+              <% if (msg.sender && String(msg.sender._id) === String(currentUserId)) { %>
+                <div class="msg-row mine">
+                  <div class="msg-content">
+                    <div class="msg-bubble mine"><%= msg.content %></div>
+                    <div class="msg-time"></div>
+                  </div>
+                </div>
+              <% } else { %>
+                <div class="msg-row">
+                  <div class="msg-content">
+                    <div class="msg-sender"><%= msg.sender ? msg.sender.name : '알 수 없음' %></div>
+                    <div class="msg-bubble theirs"><%= msg.content %></div>
+                    <div class="msg-time"></div>
+                  </div>
+                </div>
+              <% } %>
+            <% }) %>
+          <% } %>
+        </div>
+              
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chatInput" rows="1" 
+            placeholder="<%= room ? '메시지를 입력하세요...' : '채팅방이 선택되지 않았습니다' %>"
+            <%= room ? '' : 'disabled' %>
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMsg()">↑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.main -->
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="/js/regularCrew/api.js"></script>
+
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+
+  const chatUser = '<%- JSON.stringify(user) %>';
+  const roomId = '<%= room ? room._id.toString() : "" %>';
+  const parsedUser = JSON.parse(chatUser);
+
+  let chatSocket = null;
+
+  function formatTime(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleString('ko-KR', {
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  async function connectSocket(roomId) {
+    if (chatSocket) chatSocket.disconnect();
+
+    chatSocket = io('/chat', {
+      auth: { roomId, userId: parsedUser._id, userName: parsedUser.name }
+    });
+    chatSocket.on('connect', () => console.log('소켓연결'));
+    chatSocket.on('connect_error', (error) => console.log('소켓 연결 오류', error));
+    chatSocket.on('disconnect', (reason) => console.log('소켓 연결 끊김', reason));
+    chatSocket.on('join', (data) => inOutMessage(data.chat));
+    chatSocket.on('chat message', (data) => renderChatMessage(data));
+    chatSocket.on('exit', (data) => inOutMessage(data.chat));
+  }
+
+  document.addEventListener('click', async function(e) {
+    const chat = e.target.closest('.chat-room-item');
+    if (!chat) return;
+
+    const chatRoomId = chat.dataset.id;
+    try {
+      const data = await fetchChatRoomData(chatRoomId);
+      if (data && data.success) {
+        renderChatRoomUI(data.room, data.messages, data.currentUserId);
+        window.currentRoomId = data.room._id;
+        connectSocket(chatRoomId);
+      }
+    } catch (error) {
+      console.error('채팅방 불러오기 실패');
+    }
+  });
+
+  async function fetchChatRoomData(roomId) {
+    const params = new URLSearchParams();
+    if (roomId) params.append('roomId', roomId);
+    try {
+      const res = await fetch('/chatRoom/chatList/api?' + params.toString());
+      if (!res.ok) throw new Error(`서버 응답오류 ( 상태 코드 : ${res.status})`);
+      const data = await res.json();
+      if (!data.success) throw new Error('데이터 요청 실패');
+      return data;
+    } catch (error) {
+      console.error('API 통신 에러:', error);
+      throw error;
+    }
+  }
+
+  function renderChatRoomUI(room, messages, currentUserId) {
+    const sportEmojiMap = {
+      soccer: '⚽', basketball: '🏀', baseball: '⚾',
+      tennis: '🎾', badminton: '🏸', tabletennis: '🏓', bowling: '🎳'
+    };
+
+    const icon = document.getElementById('chatRoomIcon');
+    if (icon) icon.textContent = sportEmojiMap[room.sport] || (room.crewType === 'instant' ? '⚡' : '🏃');
+
+    const chatRoomName = document.getElementById('chatRoomName');
+    if (chatRoomName) chatRoomName.innerText = room.name;
+
+    // 뮤트 버튼 상태 초기화
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) {
+      muteBtn.dataset.muted = room.isMuted || false;
+      muteBtn.textContent = room.isMuted ? '🔇' : '🔔';
+    }
+
+    chatMessages.innerHTML = '';
+    chatInput.disabled = false;
+    chatInput.placeholder = '메시지를 입력하세요...';
+    document.getElementById('chatSendBtn').style.display = 'inline-block';
+
+    if (!messages || messages.length === 0) {
+      chatMessages.innerHTML = `<div class="chat-date-divider">메시지를 남기세요!</div>`;
+      
+      return;
+    }
+
+    chatMessages.insertAdjacentHTML('beforeend', `<div class="chat-date-divider">오늘</div>`);
+
+    messages.forEach(msg => {
+      const isMine = msg.sender && String(msg.sender._id) === String(currentUserId);
+      let msgHtml = '';
+      if (isMine) {
+        msgHtml = `
+          <div class="msg-row mine">
+            <div class="msg-content">
+              <div class="msg-bubble mine">${escapeHTML(msg.content)}</div>
+              <div class="msg-time">${formatTime(msg.createdAt)}</div>
+            </div>
+          </div>`;
+      } else {
+        msgHtml = `
+          <div class="msg-row">
+            <div class="msg-content">
+              <div class="msg-sender">${escapeHTML(msg.sender ? msg.sender.name : '알 수 없음')}</div>
+              <div class="msg-bubble theirs">${escapeHTML(msg.content)}</div>
+              <div class="msg-time">${formatTime(msg.createdAt)}</div>
+            </div>
+          </div>`;
+      }
+      chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+    });
+
+    scrollToBottom();
+
+    
+  }
+
+  function sendChatMsg() {
+    const msg = chatInput.value.trim();
+    if (!msg || !window.currentRoomId) return;
+    chatSocket.emit('chat message', msg);
+    chatInput.value = '';
+  }
+
+  function renderChatMessage(data) {
+    const myId = String(data.userId) === String(parsedUser._id);
+    const row = document.createElement('div');
+    if (myId) {
+      row.className = 'msg-row mine';
+      row.innerHTML = `
+        <div class="msg-content">
+          <div class="msg-bubble mine">${escapeHTML(data.chat)}</div>
+          <div class="msg-time">${formatTime(new Date())}</div>
+        </div>`;
+    } else {
+      row.className = 'msg-row';
+      row.innerHTML = `
+        <div class="msg-content">
+          <div class="msg-sender">${escapeHTML(data.userName || '알 수 없음')}</div>
+          <div class="msg-bubble theirs">${escapeHTML(data.chat)}</div>
+          <div class="msg-time">${formatTime(new Date())}</div>
+        </div>`;
+    }
+    chatMessages.appendChild(row);
+    scrollToBottom();
+
+    const targetRoomId = data.roomId || window.currentRoomId;
+    const roomItem = document.querySelector(`.chat-room-item[data-id="${targetRoomId}"]`);
+    if (roomItem) {
+      roomItem.dataset.lastAt = new Date().toISOString();
+      const preview = roomItem.querySelector('.cr-preview span');
+      if (preview) preview.textContent = data.chat;
+      updateAllTimeAgo();
+    }
+  }
+
+  async function toggleMute() {
+    const btn = document.getElementById('muteBtn');
+    if (!window.currentRoomId) return;
+
+    try {
+      const res = await fetch(`/chatRoom/${window.currentRoomId}/mute`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        btn.dataset.muted = data.isMuted;
+        btn.textContent = data.isMuted ? '🔇' : '🔔';
+      }
+    } catch (error) {
+      console.error('뮤트 처리 실패', error);
+    }
+  }
+
+  function inOutMessage(message) {
+    const div = document.createElement('div');
+    div.textContent = message;
+    chatMessages.appendChild(div);
+    scrollToBottom();
+  }
+
+  function timeAgo(dateStr) {
+    if (!dateStr || dateStr === 'null') return '메시지 없음';
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+    if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+    return Math.floor(diff / 86400) + '일 전';
+  }
+
+  function updateAllTimeAgo() {
+    document.querySelectorAll('.chat-room-item').forEach(item => {
+      const lastAt = item.dataset.lastAt;
+      const timeEl = item.querySelector('.cr-time-ago');
+      if (timeEl) timeEl.textContent = timeAgo(lastAt);
+    });
+  }
+
+  updateAllTimeAgo();
+  setInterval(updateAllTimeAgo, 60000);
+
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function escapeHTML(text) {
+    return String(text)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  scrollToBottom();
+
+  if (roomId && roomId !== '') {
+    window.currentRoomId = roomId;
+    connectSocket(roomId);
+  } else {
+    document.getElementById('chatSendBtn').style.display = 'none';
+  }
+  
+</script>
+
+</body>
+</html>

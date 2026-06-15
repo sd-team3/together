@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<!-- ═══════ MAIN ═══════ -->
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+<!-- ──────── COMMUNITY PAGE ──────── -->
+<%- include('../partials/head', { title: '💬 커뮤니티', pageId: 'page-community', active: '' }) %>
+
+  <div class="page-body">
+    <div class="community-layout">
+      <div>
+        <!-- 카테고리 탭 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:0">
+          <div class="comm-tabs" style="margin-bottom:0">
+            <button class="comm-tab active" data-category="all">전체</button>
+            <button class="comm-tab" data-category="question">질문</button>
+            <button class="comm-tab" data-category="tip">팁/정보</button>
+            <button class="comm-tab" data-category="free">자유</button>
+          </div>
+          <!-- 기간 필터 -->
+          <div style="display:flex;gap:5px;align-items:center">
+            <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.5px;text-transform:uppercase"></span>
+            <button class="comm-period-btn active" data-sort="latest">전체</button>
+            <button class="comm-period-btn" data-sort="popular">인기</button>
+          </div>
+        </div>
+        
+        <!-- 기간 필터 레이블 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px">
+          <div id="comm-period-label" style="font-size:12px;color:var(--text-3);font-family:'DM Mono',monospace">📅 최신글</div>
+          <button class="btn btn-primary btn-sm" onclick="location.href='/community/write'">+ 글쓰기</button>
+        </div>
+        <div id="comm-posts"></div>
+        <!-- 페이징  -->
+        <nav aria-label="page" class="mt-4">
+          <ul 
+            id="commPagination" 
+            class="pagination justify-content-center"
+            data-current-page="<%= currentPage %>"
+            data-total-pages="<%= totalPages %>"
+          >
+          </ul>
+        </nav>
+      </div>
+      
+      <!-- Sidebar -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="padding:16px">
+          <div class="section-title">이번 주 인기글</div>
+          <div style="font-size:12.5px;display:flex;flex-direction:column;gap:10px">
+            <% weeklyPopular.forEach((board, index) => { %>
+              <div style="<%= index < weeklyPopular.length - 1 ? 'padding-bottom:10px;border-bottom:1px solid var(--border)' : '' %>">
+                <a href="/community/list/<%= board._id %>" style="text-decoration:none;color:inherit">
+                  <div style="font-weight:600;margin-bottom:3px"><%= board.title %></div>
+                  <div class="text-muted text-xs">❤️ <%= board.reputation || 0 %> · 💬 <%= board.commentsCount %></div>
+                </a>
+              </div>
+            <% }) %>
+            <% if (weeklyPopular.length === 0) { %>
+              <div style="color:var(--text-3);text-align:center;padding:8px">이번 주 인기글이 없습니다.</div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="/js/board/main.js"></script>
+<script src="/js/board/boardLike.js"></script>
+</body>
+</html>

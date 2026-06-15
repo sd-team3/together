@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 설정</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/layouts/setting.css"/>
+</head>
+<body>
+
+<%- include('../partials/navbar') %>
+
+<div class="main">
+
+<%- include('../partials/head', { title: '⚙️ 설정', pageId: 'page-settings', active: '' }) %>
+
+  <div class="page-body page-body-scroll">
+    <div class="settings-wrap">
+
+      <!-- ① 개인정보 보호 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-privacy">🛡️</div>
+          <div>
+            <div class="settings-section-title">개인정보 보호</div>
+            <div class="settings-section-sub">내 정보가 어떻게 표시될지 설정합니다</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">프로필 공개 범위</div>
+            <div class="settings-row-desc">다른 사용자에게 보이는 내 프로필 범위</div>
+          </div>
+          <div class="settings-row-right">
+            <select class="settings-select" id="priv-profile">
+              <option value="all" <%= user.privacy?.profileVisibility === 'all' || !user.privacy ? 'selected' : '' %>>전체 공개</option>
+              
+              <option value="none" <%= user.privacy?.profileVisibility === 'none' ? 'selected' : '' %>>비공개</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">활동 이력 공개</div>
+            <div class="settings-row-desc">참여 경기 수·결과를 프로필에서 공개합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="priv-history" <%= user.privacy?.showHistory !== false ? 'checked' : '' %>>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">매너 점수 공개</div>
+            <div class="settings-row-desc">다른 사용자가 내 매너 점수를 볼 수 있습니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="priv-manner" <%= user.privacy?.showManner !== false ? 'checked' : '' %>>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        
+      </div>
+
+      <!-- ② 앱 설정 (다크모드만) -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-app">📱</div>
+          <div>
+            <div class="settings-section-title">앱 설정</div>
+            <div class="settings-section-sub">화면 표시 설정</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">다크 모드</div>
+            <div class="settings-row-desc">어두운 화면으로 전환합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <label class="toggle-switch">
+              <input type="checkbox" id="app-darkmode" <%= '' %>>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ 계정 관리 (내 정보 수정하기만) -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-account">🔑</div>
+          <div>
+            <div class="settings-section-title">계정 관리</div>
+            <div class="settings-section-sub">계정 및 보안 설정</div>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-edit-profile">
+          <div class="settings-row-left">
+            <div class="settings-row-label">내 정보 수정하기</div>
+            <div class="settings-row-desc">프로필, 비밀번호 등 개인정보를 수정합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ 서비스 (신규) -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-app">📋</div>
+          <div>
+            <div class="settings-section-title">서비스</div>
+            <div class="settings-section-sub">서비스 관련 약관 및 방침</div>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-terms">
+          <div class="settings-row-left">
+            <div class="settings-row-label">서비스 이용약관</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-privacy">
+          <div class="settings-row-left">
+            <div class="settings-row-label">개인정보 처리방침</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ 고객센터 -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-support">🎧</div>
+          <div>
+            <div class="settings-section-title">고객센터</div>
+            <div class="settings-section-sub">문의사항이 있으시면 언제든지 연락주세요</div>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-inquiry">
+          <div class="settings-row-left">
+            <div class="settings-row-label">1:1 문의하기</div>
+            <div class="settings-row-desc">평균 응답 시간 24시간 이내</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-faq">
+          <div class="settings-row-left">
+            <div class="settings-row-label">자주 묻는 질문 (FAQ)</div>
+            <div class="settings-row-desc">빠른 해결을 위해 먼저 확인해보세요</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-link-row" id="btn-notice">
+          <div class="settings-row-left">
+            <div class="settings-row-label">공지사항</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑥ 위험 영역 -->
+      <div class="settings-section settings-section--danger">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-danger">⚠️</div>
+          <div>
+            <div class="settings-section-title settings-section-title--danger">위험 영역</div>
+            <div class="settings-section-sub">되돌릴 수 없는 작업입니다. 신중하게 진행해주세요.</div>
+          </div>
+        </div>
+
+        <div class="settings-danger-row" id="btn-logout">
+          <div class="settings-row-left">
+            <div class="settings-row-label">로그아웃</div>
+            <div class="settings-row-desc">현재 기기에서 로그아웃합니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow settings-link-arrow--danger">›</span>
+          </div>
+        </div>
+
+        <div class="settings-danger-row" id="btn-withdraw">
+          <div class="settings-row-left">
+            <div class="settings-row-label">회원 탈퇴</div>
+            <div class="settings-row-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다</div>
+          </div>
+          <div class="settings-row-right">
+            <span class="settings-link-arrow settings-link-arrow--danger">›</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">SPORTMATCH v1.0.0 · © 2025 SPORTMATCH TEAM</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 1:1 문의 모달 -->
+<div class="modal-overlay" id="inquiry-modal">
+  <div class="modal-box modal-box--sm">
+    <div class="modal-icon">🎧</div>
+    <div class="modal-title">1:1 문의하기</div>
+    <div class="modal-form">
+      <div>
+        <label class="modal-form-label" for="inquiry-type">문의 유형</label>
+        <select id="inquiry-type" class="modal-form-control">
+          <option value="">유형을 선택해주세요</option>
+          <option value="match">매칭 관련</option>
+          <option value="account">계정·로그인</option>
+          <option value="trade">중고 거래</option>
+          <option value="payment">결제·환불</option>
+          <option value="report">신고·제재</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div>
+        <label class="modal-form-label" for="inquiry-title">제목</label>
+        <input id="inquiry-title" type="text" placeholder="문의 제목을 입력하세요" class="modal-form-control">
+      </div>
+      <div>
+        <label class="modal-form-label" for="inquiry-body">내용</label>
+        <textarea id="inquiry-body" placeholder="문의 내용을 자세히 입력해주세요" rows="4" class="modal-form-control modal-form-control--textarea"></textarea>
+      </div>
+      <div class="modal-form-note">📧 답변은 가입하신 이메일로 발송됩니다. 평균 응답 시간은 24시간 이내입니다.</div>
+    </div>
+    <div class="modal-btns modal-btns--mt">
+      <button class="btn btn-outline flex-1" id="inquiry-cancel-btn">취소</button>
+      <button class="btn btn-primary flex-1" id="inquiry-submit-btn">문의 제출</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ 모달 -->
+<div class="modal-overlay" id="faq-modal">
+  <div class="modal-box modal-box--md">
+    <div class="modal-icon">❓</div>
+    <div class="modal-title">자주 묻는 질문</div>
+    <div id="faq-list" class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">매칭 취소는 어떻게 하나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">매칭 상세 페이지 → 하단 '참가 취소' 버튼을 누르시면 됩니다. 단, 매칭 시작 2시간 전부터는 취소가 제한됩니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">매너 점수는 어떻게 쌓이나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">매칭 종료 후 상대방이 남긴 후기 평가를 기반으로 산정됩니다. 시간 약속, 매너 플레이, 긍정적인 태도 등이 반영됩니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">비밀번호를 잊어버렸어요. <span class="faq-arrow">›</span></div>
+        <div class="faq-a">로그인 화면 하단의 '비밀번호 재설정'을 통해 가입 이메일로 재설정 링크를 받으실 수 있습니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">중고 거래 사기가 의심될 때는? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">거래 채팅창 우측 상단 '신고' 버튼을 눌러주세요. 운영팀이 24시간 내 검토 후 조치합니다.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">레벨은 어떻게 결정되나요? <span class="faq-arrow">›</span></div>
+        <div class="faq-a">참여 경기 수, 매칭 후기의 실력 평가, 주최자의 레벨 태깅을 종합해 자동 산정됩니다.</div>
+      </div>
+    </div>
+    <div class="modal-btns modal-btns--mt">
+      <button class="btn btn-outline flex-1" id="faq-close-btn">닫기</button>
+      <button class="btn btn-primary flex-1" id="faq-to-inquiry-btn">1:1 문의하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 공용 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title">완료!</div>
+    <div class="modal-msg" id="modal-msg">처리가 완료되었습니다.</div>
+    <div class="modal-btns">
+      <button class="btn btn-outline flex-1" id="modal-close-btn">닫기</button>
+      <button class="btn btn-primary flex-1" id="modal-ok-btn">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 회원탈퇴 비밀번호 확인 모달 -->
+<div class="modal-overlay" id="withdraw-modal">
+  <div class="modal-box modal-box--sm">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">회원 탈퇴</div>
+    <div class="modal-msg">
+      탈퇴 시 모든 데이터가 영구 삭제됩니다.<br>
+      <% if (user.provider === 'local') { %>
+        비밀번호를 입력해주세요.
+      <% } else { %>
+        정말 탈퇴하시겠습니까?
+      <% } %>
+    </div>
+    <% if (user.provider === 'local') { %>
+      <div style="margin-top:16px;">
+        <input id="withdraw-pw" name="password" type="password" placeholder="비밀번호 입력" class="modal-form-control">
+        <div id="withdraw-error" style="color:#e53e3e;font-size:13px;margin-top:6px;display:none;">비밀번호를 입력해주세요.</div>
+      </div>
+    <% } %>
+    <div class="modal-btns modal-btns--mt">
+      <button class="btn btn-outline flex-1" id="withdraw-cancel-btn">취소</button>
+      <button class="btn btn-primary flex-1" id="withdraw-confirm-btn" data-provider="<%= user.provider %>">탈퇴하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast-notify" id="toast"></div>
+
+<script src="/js/handlers/setting.js"></script>
+
+</body>
+</html>

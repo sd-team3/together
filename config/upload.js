@@ -28,6 +28,16 @@ const boardStorage = multer.diskStorage(
         filename: makeFileName
     }
 );
+
+const regularProfileStorage = multer.diskStorage(
+    {
+        destination: (req, file, cb) => {
+            cb(null, 'public/images/reg-crew/profile');
+        },
+        filename: makeFileName
+    }
+);
+
 //이미지 필터
 const imageFilter = (req, file, cb) =>{
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp','image/jpg']
@@ -56,4 +66,10 @@ const uploadBoard = multer({
     fileFilter : imageFilter
 });
 
-module.exports = {uploadProfile, uploadBoard};
+const uploadRegularProfile = multer({
+    storage : regularProfileStorage,
+    limits : {fileSize : 20 * 1024 * 1024},
+    fileFilter : imageFilter
+});
+
+module.exports = {uploadProfile, uploadBoard, uploadRegularProfile};

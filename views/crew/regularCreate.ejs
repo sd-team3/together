@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="main">
+    <%- include('../partials/head', { title: '정기 모임 만들기', pageId: 'page-regular-create', active: '' }) %>
+
+    <form action="/regular/create" method="POST" class="form-page" id="regCreateForm" enctype="multipart/form-data">
+        <div class="form-max">
+            
+            <div class="form-section">
+                <div class="form-section-title">기본 정보</div>
+                <label class="label">모임 프로필 선택</label>
+                <div class="avatar-section" style="border:none">
+                    
+                    <div class="avatar-preview-wrap">
+                        <div class="avatar-preview">
+                            <img id="profileImage" src="/images/reg-crew/profile/default-profile-image.jpg" alt="profile"/>
+                        </div>
+                        <button type="button" class="avatar-remove-btn" id="profile-reset">x</button>
+                        <label class="avatar-edit-label" for="profile-input">+</label>
+                        <input type="file" id="profile-input" name="uploadFile" accept="image/*" style="display:none">
+                        <input type="hidden" id="removeImage" name="removeImage" value="false">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">종목 선택</label>
+                    <div class="chip-group" id="sportGroup">
+                        <% Object.entries(CONSTANTS.SPORTS).forEach(([key, value]) => { %>
+                            <input type="radio" name="sport" id="sport-<%= key %>" value="<%= key %>" class="hidden-radio">
+                            <label for="sport-<%= key %>" class="chip"><%= value.kr %></label>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <style>
+                    .chip { cursor: pointer; }
+                    .hidden-radio { display: none; }
+                    .hidden-radio:checked + .chip { background: black; border-color: black; color: white; }
+                </style>
+
+                <div class="field">
+                    <label class="label">모임 이름</label>
+                    <input type="text" name="title" class="input" placeholder="모임 이름을 입력하세요." required>
+                </div>
+
+                <div class="field">
+                    <label class="label">소개</label>
+                    <textarea name="intro" class="input" placeholder="당신의 모임을 소개해주세요." required></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">일정 & 조건</div>
+                
+                <div class="input-row mb-12">
+                    <div class="field" style="margin-bottom:0">
+                        <label class="label">주기</label>
+                        <select name="period" class="input">
+                            <option value="week">매주 1회 이상</option>
+                            <option value="2week">격주</option>
+                            <option value="month">매달 1회</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="label">활동 요일 (중복 선택 가능)</label>
+                        <div class="chip-group" id="dayGroup">
+                            <% Object.entries(CONSTANTS.DAYS).forEach(([key, value]) => { %>
+                                <input type="checkbox" name="day" id="day-<%= key %>" value="<%= key %>" class="hidden-radio">
+                                <label for="day-<%= key %>" class="chip"><%= value.kr %></label>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-row mb-12">
+                    <div class="field">
+                        <label class="label">활동 지역</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas='<%- JSON.stringify(CONSTANTS.AREAS) %>'>
+                                <option value="">시/도 선택</option>
+                                <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
+                                    <option value="<%= state %>"><%= state %></option>
+                                <% }); %>
+                            </select>
+
+                            <select id="citySelect" name="city" class="input" style="flex: 1;">
+                                <option value="">시/군/구 선택</option>
+                            </select>
+                        </div>
+                        
+                        <input type="text" name="detail" class="input" placeholder="주로 만날 장소" style="margin-top: 8px;">
+                    </div>
+                    <div class="field" style="margin-bottom:0">
+                        <label class="label">참가비 (회당)</label>
+                        <input type="text" name="fee" class="input" placeholder="미기입 시 0원">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">실력 수준</label>
+                    <div class="chip-group" id="levelGroup">
+                        <input type="radio" name="level" id="level-none" value="none" class="hidden-radio">
+                        <label for="level-none" class="chip">무관</label>
+                        <input type="radio" name="level" id="level-low" value="low" class="hidden-radio">
+                        <label for="level-low" class="chip">초급</label>
+                        <input type="radio" name="level" id="level-mid" value="mid" class="hidden-radio">
+                        <label for="level-mid" class="chip">중급</label>
+                        <input type="radio" name="level" id="level-high" value="high" class="hidden-radio">
+                        <label for="level-high" class="chip">상급</label>
+                    </div>
+                </div>
+
+                <div class="input-row mb-12">
+                    <div class="field" style="margin-bottom:0">
+                        <label class="label">최대 인원</label>
+                        <input type="number" name="capacity" class="input" placeholder="1~50 중 입력" min="1" max="50" oninput="if(this.value > 50) this.value = 50;" required>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="field">
+                        <label class="label">참여 연령대 (중복 선택 가능)</label>
+                        <div class="chip-group" id="ageRangeGroup">
+                            <% Object.entries(CONSTANTS.AGES).forEach(([key, value]) => { %>
+                                <input type="checkbox" name="ageRange" id="ageRange-<%= value.v %>" value="<%= value.v %>" class="hidden-radio">
+                                <label for="ageRange-<%= value.v %>" class="chip"><%= value.kr %></label>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                    <label class="label">자동 가입 여부</label>
+                    <div class="chip-group" id="isAutoAcceptGroup">
+                        <input type="radio" name="isAutoAccept" id="isAutoAccept-enable" value="enable" class="hidden-radio">
+                        <label for="isAutoAccept-enable" class="chip">자동 가입</label>
+                        <input type="radio" name="isAutoAccept" id="isAutoAccept-disable" value="disable" class="hidden-radio">
+                        <label for="isAutoAccept-disable" class="chip">승인 가입</label>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end">
+                <button type="button" class="btn btn-outline" onclick="location.href=''">취소</button>
+                <button type="submit" class="btn btn-primary btn-lg">모임 등록하기</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="/js/handlers/regularCreateHandler.js"></script>
+
+</body>
+</html>

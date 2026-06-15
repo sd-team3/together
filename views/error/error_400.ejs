@@ -21,8 +21,8 @@
       입력값을 다시 확인하고 재시도해 주세요.
     </div>
     <div class="error-actions">
-      <button class="btn btn-primary" onclick="history.back()">← 이전으로</button>
-      <button class="btn btn-outline" onclick="location.href='/'">🏠 홈으로</button>
+      <a href="javascript:history.back()" class="back-btn">← 이전으로</a>
+      <a href="/" class="back-btn">🏠 홈으로</a>
     </div>
 
     <% if (typeof message !== 'undefined' && message) { %>

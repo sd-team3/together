@@ -2,10 +2,26 @@ const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema(
     {
-        state: { type: String, required: true },
-        city: { type: String, required: true },
-        road: { type: String, required: true },
-        detail: { type: String, required: true }
+        state: {
+            type: String,
+            required: true
+        },
+        city: {
+            type: String,
+            required: true
+        },
+        road: {
+            type: String,
+            required: true
+        },
+        detail: {
+            type: String,
+          default: null
+        },
+        zipcode: {
+        type: String,
+        required: true
+    }
     }, {
         _id: false
     }
@@ -13,12 +29,34 @@ const addressSchema = new mongoose.Schema(
 
 const userSchema = new mongoose.Schema(
     {
-        email: { type: String, required: true },
-        password: { type: String, required: true },
-        name: { type: String, required: true },
-        age: { type: Number, required: true },
-        tel: { type: String, required: true },
-        address: { type: addressSchema, required: true },
+        email: {
+            type: String,
+            required: true
+        },
+        password: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        age: {
+            type: Number,
+            required: true
+        },
+        tel: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: addressSchema,
+            required: true
+        },
+        gender: {
+            type: String,
+            required: true
+        },
         profileImage: {
             type: String, 
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
@@ -33,7 +71,35 @@ const userSchema = new mongoose.Schema(
         crews: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'regularCrew'
-        }]
+        }],
+        friends: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            isFavorite: {
+                type: Boolean,
+                default: false
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
+        honor: {
+            type: Number,
+            default: 0
+        },
+        privacy: {
+            profileVisibility: {
+                type: String,
+                enum: ['all', 'matched', 'none'],
+                default: 'all'
+            },
+            showHistory: { type: Boolean, default: true },
+            showManner: { type: Boolean, default: true }
+        }
     }, {
         timestamps: true
     }
