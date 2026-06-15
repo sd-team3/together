@@ -4,20 +4,9 @@ const {signupValidationRules, validate} = require('../middlewares/validationMidd
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
 const {uploadProfile} = require('../config/upload');
-const { loginValidation } = require('../middlewares/crewMiddleware');
 
 //회원가입 페이지
-router.get('/signup', (req, res) => {
-
-    // 소셜회원 객체 가져오기
-    const socialUser = req.session.socialUser || null;
-
-    
-
-    res.render('user/signup', {
-        socialUser
-    });
-});
+router.get('/signup', userController.getSignup);
 
 router.post(
   '/signup',
@@ -26,13 +15,6 @@ router.post(
   validate('user/signup'), 
   userController.postSignup
 );
-//소셜로그인 취소
-router.get('/signup/cancel-social', (req, res) => {
-    if (req.session.socialUser) {
-        delete req.session.socialUser;
-    }
-    res.redirect('/user/signup'); // 또는 로그인 페이지
-});
 
 //로그인 페이지
 router.get('/login', userController.getLogin);
@@ -48,7 +30,7 @@ router.post('/login', passport.authenticate('local', {
 router.get('/logout', userController.logout);
 
 //마이페이지
-router.get('/profile', loginValidation, userController.getProfile);
+router.get('/profile', userController.getProfile);
 
 //회원수정 페이지
 router.get('/edit-profile', userController.getEditProfile);
@@ -62,24 +44,13 @@ router.post('/verify-password', userController.postVerify);
 //회원수정 처리
 router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
 
+//회원탈퇴 페이지
+router.get('/delete', userController.getDelete);
+
 //회원탈퇴 처리
 router.post('/delete', userController.postDelete);
 
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
-
-// 번개모임 페이지
-router.get('/map_create', (req, res) => {
-    res.render('user/map_create');
-});
-
-//설정 페이지
-router.get('/setting', userController.getSetting);
-
-//프로필 api
-router.get('/api/:userId/profile', userController.getUserProfile);
-
-//프로필 비공개
-router.patch('/privacy', loginValidation, userController.updatePrivacy);
 
 module.exports = router;

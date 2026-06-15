@@ -1,20 +1,13 @@
-const notiBtn = document.getElementById('noti-btn');
-const notiPopup = document.getElementById('noti-popup');
-const goPage = (url)=>{ location.href = url };
+let headerSocket = null;
 
-if(document.getElementById('login').innerText === 'true') {
-    document.getElementById('mypage-btn').addEventListener('click', ()=>{ goPage('/user/profile') });
-    document.getElementById('logout-btn').addEventListener('click', ()=>{ goPage('/user/logout') });
-} else {
-    document.getElementById('login-btn').addEventListener('click', ()=>{ goPage('/user/login') });
-    document.getElementById('signup-btn').addEventListener('click', ()=>{ goPage('/user/signup') });
+function initNotiSocket(user) {
+    if (!user || !user._id) {
+        return;
+    }
+
+    socket = io('/noti', { auth: { userId: user._id } });
+
+    socket.on('UNREAD_NOTIFICATION', (notis) => {
+    
+    });
 }
-
-notiBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = notiPopup.style.display === 'block';
-    notiPopup.style.display = isOpen ? 'none' : 'block';
-});
-
-              
-            

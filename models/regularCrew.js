@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { CONSTANTS } = require('../config/constants');
+const { SPORTS_EN } = require('../config/constants');
 
 const memberSchema = new mongoose.Schema(
     {
@@ -21,24 +21,7 @@ const memberSchema = new mongoose.Schema(
 const addressSchema = new mongoose.Schema(
     {
         state: { type: String, required: true },
-        city: { type: String, required: true },
-        detail: { type: String, default: null }
-    }, {
-        _id: false
-    }
-);
-
-const scheduleSchema = new mongoose.Schema(
-    {
-        title: { type: String, default: "정기 모임" },
-        date: { type: Date, required: true },
-        address: { type: addressSchema, required: true },
-        participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-        status: {
-            type: String, 
-            enum: ['모집', '마감', '종료', '취소'], 
-            default: '모집' 
-        }
+        city: { type: String, required: true }
     }, {
         _id: false
     }
@@ -65,7 +48,6 @@ const regularCrewSchema = new mongoose.Schema(
             enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'none'],
             default: ['none']
         },
-        schedule: [scheduleSchema],
         ageRange: {
             type: [String],
             enum: ['all', '10s', '20s', '30s', '40s', '50s', '60+'],
@@ -75,14 +57,9 @@ const regularCrewSchema = new mongoose.Schema(
         sport: {
             type: String,
             required: true,
-            enum: Object.keys(CONSTANTS.SPORTS)
+            enum: SPORTS_EN
         },
         fee: { type: Number, default: 0 },
-        level: {
-            type: String,
-            enum: ['low', 'mid', 'high', 'none'],
-            default: 'none'
-        },
         rating: {
             type: Number,
             default: 0,
@@ -94,11 +71,7 @@ const regularCrewSchema = new mongoose.Schema(
             //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
             //폴더나 파일 명은 적절하다고 생각하는 한도에서 사용 
             default: 'default-crew-profile.jpg'
-        },
-        likedBy: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }]
+        }
     }, {
         timestamps: true
     }
