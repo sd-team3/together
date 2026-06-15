@@ -57,7 +57,7 @@ export function renderRegularCards(regularCrews) {
     return `
       <div class="reg-card" data-id="${crew._id}" style="cursor: pointer;">
         <div class="reg-card-head">
-          <img class="reg-crew-profile-img" src="/images/crew-profile/${escapeHTML(crew.profileImage || 'default-crew-profile.jpg')}" alt="정기모임 이미지">
+          <img class="reg-crew-profile-img" src="${escapeHTML(crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg')}" alt="정기모임 이미지">
           <div>
             <div class="reg-card-title">${escapeHTML(crew.title)}</div>
             <div class="reg-card-sub">${getPeriodText(crew.period)} ${getDayText(crew.day)} · ${escapeHTML(crew.address?.state || '')} ${escapeHTML(crew.address?.city || '')}</div>
@@ -70,7 +70,9 @@ export function renderRegularCards(regularCrews) {
             <span>💰 ${feeText}</span>
             <span>${getAgeText(crew.ageRange)}</span>
           </div>
-          <div class="reg-progress"></div>
+          <div class="reg-progress" data-member="${memberCount}" data-capacity="${capacity}">
+            <div class="reg-progress-fill"></div>
+          </div>
           <div class="reg-progress-label">
             <span>${memberCount}/${capacity}명</span>
             ${remain > 0 ? `<span>${remain} 자리남음</span>` : `<span>모집 마감</span>`}

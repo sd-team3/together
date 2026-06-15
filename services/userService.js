@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const chatService = require('./chatService');
+const friendService = require('./friendService');
 
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
@@ -144,7 +146,7 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
 async function deleteUser(userId, password) {
     const user = await User.findById(userId);
 
-    // 소셜 사용자는 비번 검증 스킵
+    //소셜 사용자는 비번 스킵
     if (user.provider === 'local') {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -154,7 +156,9 @@ async function deleteUser(userId, password) {
         }
     }
 
-    await User.findByIdAndDelete(user.id);
+    await chatService.handleUserDeleted(userId);
+    await friendService.handleUserDeleted(userId);
+    await User.findByIdAndDelete(userId);
 }
 
 async function checkEmail(email) {

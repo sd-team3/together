@@ -49,6 +49,9 @@
         </div>
 
         <div class="detail-section">
+          <% if (board.file) { %>
+					<img alt="게시판 이미지" src="/images/board/<%= board.file %>" class = "img-fluid mb-3">
+          <% } %>
           <div style="font-size:15px;line-height:1.8;color:var(--text-1);white-space:pre-wrap"><%= board.content %></div>
         </div>
 
