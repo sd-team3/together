@@ -280,6 +280,22 @@ async function getCrewActivity(regularCrewId) {
     return crew;
 }
 
+async function handleUserDeleted(userId) {
+    // 탈퇴 유저가 host인 정기모임의 채팅방 삭제
+    const hostCrews = await regularCrew.find({ host: userId }).select('_id');
+    const crewIds = hostCrews.map(c => c._id);
+    await ChatRoom.deleteMany({ crewId: { $in: crewIds } });
+
+    // 정기모임 삭제
+    await regularCrew.deleteMany({ host: userId });
+
+    // 나머지 모임에서 memberList에서 제거
+    await regularCrew.updateMany(
+        { "member.memberList.user": userId },
+        { $pull: { "member.memberList": { user: userId } } }
+    );
+}
+
 module.exports = { 
     createRegCrew, 
     findRegularCrewsByUserId, 
@@ -292,5 +308,6 @@ module.exports = {
     getRegularAPICrews,
     getCrewManage,
     postCrewUpdate,
-    getCrewActivity
+    getCrewActivity,
+    handleUserDeleted
 };

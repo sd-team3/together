@@ -299,7 +299,8 @@ const getUserProfile = async (req, res) => {
             }
         }
 
-        res.json({ ok: true, user, crews, friendInfo });
+        res.json({ ok: true, user, crews, friendInfo, showHistory });
+
     } catch (err) {
         console.error('getUserProfile:', err);
         res.status(500).json({ ok: false });

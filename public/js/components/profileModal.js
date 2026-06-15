@@ -60,7 +60,7 @@ export async function openProfileModal(userId) {
         document.getElementById('pm-meta').textContent = `${genderKor} · ${u.age}세`;
         document.getElementById('pm-score').textContent = u.reputation || 0;
 
-        if (!data.showManner) {
+        if (u.privacy?.showManner === false) {
         document.getElementById('pm-score').textContent = '비공개';
         document.getElementById('pm-score').style.color = 'var(--text-3)';
     }
@@ -86,6 +86,8 @@ export async function openProfileModal(userId) {
                     </div>
                 </div>
             `).join('');
+        } else if (!data.showHistory) {
+            crewList.innerHTML = '<div style="color:var(--text-3);font-size:13px;">활동 이력을 비공개로 설정했습니다</div>';
         } else {
             crewList.innerHTML = '<div style="color:var(--text-3);font-size:13px;">가입한 크루가 없습니다</div>';
         }
@@ -169,10 +171,10 @@ function _injectHTML() {
 
     document.body.insertAdjacentHTML('beforeend', `
         <div class="modal-overlay" id="pm-overlay" style="display:none; z-index:9999;">
-            <div class="modal-box" style="max-width:560px;">
+            <div class="modal-box" style="max-width:560px;position:relative;">
+                <button id="pm-close" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--text-3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
                 <div class="modal-head">
                     <span class="modal-head-title">👤 멤버 프로필</span>
-                    <button class="modal-close" id="pm-close">✕</button>
                 </div>
                 <div class="modal-body" style="padding:20px 24px;">
                     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;position:relative;">
