@@ -111,31 +111,57 @@
 
       <!-- 하단 가입 버튼 -->
       <div class="detail-footer">
-        <%
-          let isMember = false;
+        <div class="detail-footer">
+          <button class="join-btn" id="join-btn" style="display: none;"></button>
+        </div>
 
-          if (userId && crew && crew.member && crew.member.memberList) {
-            for (let i = 0; i < crew.member.memberList.length; i++) {
-              if (crew.member.memberList[i].user.toString() === userId.toString()) {
-                isMember = true;
-                break;
-              }
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const userId = '<%= userId || "" %>';
+            const crewId = '<%= crew._id %>';
+            const joinBtn = document.getElementById('join-btn');
+
+            if (!userId) {
+              joinBtn.textContent = '가입 신청하기';
+              joinBtn.style.display = 'block';
+              joinBtn.onclick = () => {
+                alert('로그인 후 이용할 수 있습니다.');
+                location.href = '/user/login';
+              };
+              return;
             }
-          }
-        %>
-        <% if (!userId) { %>
-          <button class="join-btn" 
-                  id="join-btn" onclick="alert('로그인 후 이용할 수 있습니다.'); 
-                  location.href='/user/login'; return false;">가입 신청하기
-          </button>
-        <% } else if (isMember) { %>
-          <button class="join-btn" 
-                  id="join-btn" disabled 
-                  style="background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;">이미 가입된 크루입니다
-          </button>
-        <% } else { %>
-          <button class="join-btn" id="join-btn" onclick="confirmJoin('<%= crew._id %>')">가입 신청하기</button>
-        <% } %>
+
+            fetch(`/regular/relation/${crewId}/${userId}`)
+              .then(res => res.json())
+              .then(data => {
+                joinBtn.style.display = 'block';
+
+                if (data.relation === 'member') {
+                  // 이미 멤버인 경우
+                  joinBtn.textContent = '이미 가입된 크루입니다';
+                  joinBtn.disabled = true;
+                  joinBtn.style.cssText = "background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;";
+                
+                } else if (data.relation === 'none') {
+                  joinBtn.textContent = '가입 신청하기';
+                  joinBtn.disabled = false;
+                  joinBtn.style.cssText = "";
+                  joinBtn.onclick = () => confirmJoin(crewId);
+                
+                } else {
+                  joinBtn.textContent = '3일에 한 번만 신청 가능합니다.';
+                  joinBtn.disabled = true;
+                  joinBtn.style.cssText = "background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;";
+                }
+              })
+              .catch(err => {
+                console.error("관계 확인 중 에러 발생:", err);
+                joinBtn.textContent = '가입 신청하기';
+                joinBtn.style.display = 'block';
+                joinBtn.onclick = () => confirmJoin(crewId);
+              });
+          });
+        </script>
       </div>
     </div>
   </div>

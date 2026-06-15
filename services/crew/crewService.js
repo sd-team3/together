@@ -1,15 +1,20 @@
 const User = require('../../models/User');
-const regularCrew = require('../../models/regularCrew');
-const instantCrew = require('../../models/instantCrew');
 
 const findHostByCrewId = async (crewModel, crewId)=>{
     const crew = await crewModel.findById(crewId).select('host');
     return crew ? crew.host : null;
-}
+};
 
-const modelMap = {
-    regularCrew: regularCrew,
-    instantCrew: instantCrew
+const userInCrew = async (crewModel, crewId, userId)=>{
+    const result = await crewModel.exists({
+        _id: crewId,
+        $or: [
+            { host: userId },
+            { "member.memberList.user": userId }
+        ]
+    });
+
+    return !!result;
 };
 
 async function addUserToCrew(userId, crewId, crewModel, options = {}) {
@@ -44,4 +49,4 @@ async function addCrewToUser(userId, crewId, options = {}) {
     return result;
 }
 
-module.exports = { findHostByCrewId, addCrewToUser, addUserToCrew };
+module.exports = { findHostByCrewId, addCrewToUser, addUserToCrew, userInCrew };
