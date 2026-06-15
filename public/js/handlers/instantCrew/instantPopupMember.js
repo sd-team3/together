@@ -1,6 +1,7 @@
 import { apiJoinProcess, apiDeleteCrew } from './instantApi.js';
 import { initProfileModal, openProfileModal } from '../../components/profileModal.js';
 
+
 export let _mpCrewId       = null;
 export let _mpCrewData     = null;
 export let _mpIsHost       = false;
@@ -57,7 +58,8 @@ function buildRow(m, crewId, isHost) {
                     </div>
                     <div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                            <span style="font-size:13px;font-weight:600;">${u.name || '멤버'}</span>
+                            <span style="font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px;"
+                                onclick="window.openProfileModal('${uid}')">${u.name || '멤버'}</span>
                         </div>
                         <div style="font-size:11px;color:#aaa;">${u.tel || ''}</div>
                     </div>
@@ -315,7 +317,12 @@ window.deleteCrew = async (crewId) => {
 };
 document.addEventListener('DOMContentLoaded', () => {
     const userId = typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null;
-    initProfileModal(null, userId);
+    if (userId) {
+        const socket = io('/noti', { auth: { userId } });
+        initProfileModal(socket, userId);
+    } else {
+        initProfileModal(null, userId);
+    }
 });
 // profileModal 연결
 window.openProfileModal = (userId) => openProfileModal(userId);

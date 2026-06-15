@@ -269,5 +269,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!isLoggedIn) { window.location.href = '/user/login'; return; }
         window.location.href = '/instant/create';
     });
+    
 });
 
