@@ -67,49 +67,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 장소 목록 표시 ──
   function showPlaceList(results, state, city) {
+    // 선택한 시/도, 시/군/구에 해당하는 결과만 필터링
+    const filtered = results.filter(r =>
+        r.address_name.includes(state) && r.address_name.includes(city)
+    );
+
     let listEl = document.getElementById('place-list');
     if (!listEl) {
-      listEl = document.createElement('div');
-      listEl.id = 'place-list';
-      listEl.style.cssText = `
-        margin-top: 8px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: var(--surface);
-        overflow: hidden;
-      `;
-      document.getElementById('btn-find-addr').insertAdjacentElement('afterend', listEl);
+        listEl = document.createElement('div');
+        listEl.id = 'place-list';
+        listEl.style.cssText = `
+            margin-top: 8px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            overflow: hidden;
+        `;
+        document.getElementById('btn-find-addr').insertAdjacentElement('afterend', listEl);
+    }
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = `
+            <div style="padding:16px 14px;font-size:13px;color:var(--text-3);text-align:center;">
+                ${state} ${city} 내 검색 결과가 없어요
+            </div>`;
+        return;
     }
 
     listEl.innerHTML = `
-      <div style="padding:10px 14px;font-size:11.5px;font-weight:700;color:var(--text-3);
-                  border-bottom:1px solid var(--border);background:var(--bg);">
-        아래 장소 중 선택해주세요
-      </div>
-      ${results.map((r, i) => `
-        <div class="place-item" data-idx="${i}"
-          style="padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);
-                 font-size:13px;transition:background .15s;"
-          onmouseover="this.style.background='var(--bg)'"
-          onmouseout="this.style.background=''"
-        >
-          <div style="font-weight:600;color:var(--text)">${r.place_name}</div>
-          <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">${r.address_name}</div>
+        <div style="padding:10px 14px;font-size:11.5px;font-weight:700;color:var(--text-3);
+                    border-bottom:1px solid var(--border);background:var(--bg);">
+            아래 장소 중 선택해주세요
         </div>
-      `).join('')}
+        ${filtered.map((r, i) => `
+            <div class="place-item" data-idx="${i}"
+                style="padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);
+                       font-size:13px;transition:background .15s;"
+                onmouseover="this.style.background='var(--bg)'"
+                onmouseout="this.style.background=''"
+            >
+                <div style="font-weight:600;color:var(--text)">${r.place_name}</div>
+                <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">${r.address_name}</div>
+            </div>
+        `).join('')}
     `;
 
     listEl.querySelectorAll('.place-item').forEach((el, i) => {
-      el.addEventListener('click', () => {
-          const selectedAddr = results[i].address_name;
-          
-          // 선택한 장소가 시/구 범위 밖이면 경고
-          if (!selectedAddr.includes(state) || !selectedAddr.includes(city)) {
-              if (!confirm(`⚠️ 선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`)) return;
-          }
-          
-          applyLocation(results[i].y, results[i].x, results[i].place_name);
-      });
+        el.addEventListener('click', () => {
+            applyLocation(filtered[i].y, filtered[i].x, filtered[i].place_name);
+        });
     });
   }
 
