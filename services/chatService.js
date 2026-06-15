@@ -89,5 +89,23 @@ async function addMemberToChatRoom(crewId, userId) {
     );
 }
 
-module.exports = { getChatRoomList, getChatRoom, getMessage, sendChat, createChatRoom, addMemberToChatRoom };
+// 회원 탈퇴 시 채팅방 처리
+async function handleUserDeleted(userId) {
+    const objectId = new mongoose.Types.ObjectId(userId);
+    
+    await ChatRoom.updateMany(
+        { "members.user": objectId },
+        { $pull: { members: { user: objectId }, noticeOffMembers: objectId } }
+    );
+
+    await ChatRoom.deleteMany({ members: { $size: 0 } }); // members가 0명이 된 채팅방 삭제
+
+    await Message.updateMany(
+        { sender: objectId },
+        { $set: { sender: null } } //알수없음 표시
+    );
+}
+
+module.exports = { getChatRoomList, getChatRoom, getMessage, sendChat, createChatRoom, addMemberToChatRoom, handleUserDeleted };
+
 
