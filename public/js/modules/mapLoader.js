@@ -96,7 +96,9 @@ const kakaoMap = {
                     mapElement, 
                     {
                         center: position,
-                        level: 3
+                        level: 5,  // 기본 1km
+                        minLevel: 3, // 최대 확대 500m
+                        maxLevel: 8 // 최대 축소 1km
                     }
                 );
             } else {
@@ -121,7 +123,9 @@ const kakaoMap = {
                     mapElement, 
                     {
                         center: position,
-                        level: 3
+                        level: 5,
+                        minLevel: 3,
+                        maxLevel: 8
                     }
                 );
             } else {
@@ -145,13 +149,13 @@ const kakaoMap = {
         if (!window.MAP) {
             window.MAP = new kakao.maps.Map(document.getElementById(MAP_ID), {
                 center: position,
-                level: 3
+                level: 5,
+                minLevel: 3,
+                maxLevel: 8
             });
         } else {
             window.MAP.setCenter(position);
         }
-
-        // 기존 마커 제거 후 새 마커
         if (window.CURRENT_MARKER) {
             window.CURRENT_MARKER.setMap(null);
         }
@@ -163,7 +167,6 @@ const kakaoMap = {
 
     async loadMarker(crews) {
         try {
-            // 기존 오버레이 제거
             KakaoMarkers.forEach(m => m.setMap(null));
             KakaoMarkers = [];
     
