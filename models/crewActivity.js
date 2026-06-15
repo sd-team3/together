@@ -35,7 +35,7 @@ const crewActivitySchema = new mongoose.Schema(
         capacity: { type: Number, required: true },
         status: {
             type: String, 
-            enum: ['모집', '마감', '활동', '종료', '취소'], 
+            enum: ['모집', '마감', '종료'],
             default: '모집' 
         }
     }, {
@@ -44,7 +44,7 @@ const crewActivitySchema = new mongoose.Schema(
 );
 
 crewActivitySchema.virtual('participants').get(function() {
-    return this.gameType === 'solo' ? this.teamBlue : [];
+    return this.gameType === 'solo' ? this.teamBlue : []; // 개인전이면 블루팀을 참여자로 넣는게 기본
 });
 crewActivitySchema.set('toJSON', { virtuals: true });
 
