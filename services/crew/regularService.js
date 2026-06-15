@@ -7,6 +7,7 @@ const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
 const chatService = require('../chatService'); //
 const crewApplication = require('../../models/crewApplication');
+const activityService = require('../crew/activityService');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -276,7 +277,9 @@ async function postCrewUpdate(regularCrewId, updateData, updateFile) {
 }
 
 async function getCrewActivity(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId);
+    const crew = await regularCrew.findById(regularCrewId).lean();
+    const acts = await activityService.findActsByCrewId(regularCrewId);
+    crew.acts = acts;
     return crew;
 }
 

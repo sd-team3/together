@@ -22,7 +22,18 @@ async function findActById(actId) {
     }
 };
 
+async function findActsByCrewId(crewId) {
+    try {
+        const acts = await crewActivity.find({ crewId }).sort({ startTime: -1 });
+        return acts;
+    } catch (error) {
+        console.error("findActivitiesByCrewId:", error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     createActivity,
-    findActById
+    findActById,
+    findActsByCrewId
 };

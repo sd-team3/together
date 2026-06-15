@@ -70,7 +70,7 @@ router.get('/list/:crewId', regularController.getRegularPage);
 
 router.get('/api', regularController.getRegularAPI);
 
-router.get('/manage/:crewId', 
+router.get('/manage/:crewId',
     regularController.getCrewManage
 );
 router.post('/manage/:crewId/update',
@@ -84,7 +84,7 @@ router.post('/manage/:crewId/update',
 router.get('/api/my', regularController.getMyCrewsApi);
 
 router.get('/activity/:crewId',
-    crewMiddleware.loginValidation, 
+    crewMiddleware.loginValidation,
     regularController.getCrewActivity
 );
 router.post('/list/:crewID/like', regularController.postCrewLike);
