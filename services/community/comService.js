@@ -42,5 +42,68 @@ async function boardLike(boardId, userId) {
     );
 }
 
+async function createBoard(title, content, author, category, file) {
+    const newBoard = new Board({
+        title, content, author, category, file: file ? file.filename : null,
+    });
+    await newBoard.save();
+}
+async function getDetail(boardId) {
+    const board = await Board.findById(boardId)
+                            .populate('author', 'name');
+    return board;
+}
 
-module.exports = {getBoard, getBoardByCategory, boardLike};
+async function getComments(boardId) {
+    const comments = await Comment.find(boardId)
+                                  .populate('author', 'name')
+                                  .sort({ createdAt : -1 });
+    return comments;
+}
+
+async function createComment(boardId, content, userId) {
+    const comment = new Comment({
+        content,
+        author : userId,
+        board : boardId
+    });
+    await comment.save();
+    await Board.findByIdAndUpdate(boardId, { $inc: { commentsCount: 1 } });
+    return comment;
+}
+
+async function updateBoard(boardId, title, content) {
+    await Board.findByIdAndUpdate(boardId, { title, content });
+}
+
+async function deleteBoard(boardId) {
+    await Board.findByIdAndDelete(boardId);
+    await Comment.deleteMany({ board: boardId }); // 게시글 삭제 시 댓글도 같이 삭제
+}
+
+async function updateComment(commentId, content) {
+    await Comment.findByIdAndUpdate(commentId, { content });
+}
+
+async function deleteComment(commentId) {
+    await Comment.findByIdAndDelete(commentId);
+    await Board.findByIdAndUpdate(comment.board, { $inc: { commentsCount: -1 } });
+}
+
+async function getWeeklyPopular() {
+    const oneWeek = new Date();
+    oneWeek.setDate(oneWeek.getDate()-7);
+
+    const boards = await Board.find({ createdAt : {$gte : oneWeek }})
+                              .populate('author', 'name')
+                              .sort({ reputation : -1 })
+                              .limit(5);
+    return boards;                          
+}
+
+
+
+module.exports = {
+    getBoard, getBoardByCategory, getDetail, getComments, createBoard ,boardLike, createComment,
+    updateComment,deleteComment,updateBoard ,deleteBoard, getWeeklyPopular
+ };

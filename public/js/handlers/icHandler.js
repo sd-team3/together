@@ -155,7 +155,6 @@ window.mpManageMember = (crewId, userId, userName) => {
     _maCrewId = crewId;
     _maUserId = userId;
     document.getElementById('ma-name').textContent = userName;
-    document.getElementById('ma-sub').textContent  = '멤버 관리';
     document.getElementById('member-action-modal').classList.add('show');
 };
 

@@ -53,6 +53,7 @@ router.get('/relation/:crewId/:userId',
 );
 
 router.post('/join/:appId/:action',
+    crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
     applicationController.joinProcess
 );
@@ -64,7 +65,11 @@ router.get('/list/:crewId', regularController.getRegularPage);
 router.get('/api', regularController.getRegularAPI);
 
 router.get('/manage/:crewId', regularController.getCrewManage);
-router.post('/manage/:crewId/update', regularController.postCrewUpdate);
+router.post('/manage/:crewId/update', 
+    crewMiddleware.loginValidation,
+    uploadRegularProfile.single('uploadFile'), 
+    regularController.postCrewUpdate
+);
 router.get('/api/my', regularController.getMyCrewsApi);
 
 router.get('/activity/:crewId',

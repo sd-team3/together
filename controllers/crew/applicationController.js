@@ -3,7 +3,13 @@ const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
 const crewService = require('../../services/crew/crewService');
 const chatService = require('../../services/chatService');
+const regularCrew = require('../../models/regularCrew');
+const instantCrew = require('../../models/instantCrew');
 
+const modelMap = {
+    regularCrew: regularCrew,
+    instantCrew: instantCrew
+};
 
 const postApplication = async (req, res)=>{
     const userId = req.user._id;
@@ -93,7 +99,7 @@ const joinProcess = async (req, res) => {
         };
 
         if (action === 'accept') {
-            const utc = await crewService.addUserToCrew(app.userId, app.crewId, app.crewType, { session });
+            const utc = await crewService.addUserToCrew(app.userId, app.crewId, req.crewModel, { session });
             const ctu = await crewService.addCrewToUser(app.userId, app.crewId, { session });
             await chatService.addMemberToChatRoom(app.crewId, app.userId);
 

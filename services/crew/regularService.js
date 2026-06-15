@@ -232,7 +232,7 @@ async function getCrewDetail(regularCrewId) {
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
     const periodLabel = period_Kor[obj.period] || obj.period;
     const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = accept_Kor[String(obj.isAutoAccept)] || '자동 승인';
+    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
     return {
         ...obj,
         dayLabel,
@@ -253,16 +253,26 @@ async function crewLike(regularCrewId, userId) {
 }
 
 async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage');
+    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage address');
 
     const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
                                              .populate('userId', 'name age profileImage');
+    console.log('pendingApps:', pendingApps);
     return { crew, pendingApps };
 }
 
-async function postCrewUpdate(regularCrewId, updateData) {
-    const update = await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true })
-    return update;
+async function postCrewUpdate(regularCrewId, updateData, updateFile) {
+    const crew = await regularCrew.findById(regularCrewId);
+    if(updateData.removeImage === 'true' || updateFile) {
+        if(crew.profileImage && crew.profileImage != '/images/reg-crew/profile/default-profile-image.jpg') {
+            const oldPath = path.join(process.cwd(), 'public/images/reg-crew/profile', crew.profileImage);
+            if(fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+        if (updateFile) updateData.profileImage = `/images/reg-crew/profile/${updateFile.filename}`;
+        else updateData.profileImage = '/images/reg-crew/profile/default-profile-image.jpg';
+    }
+    delete updateData.removeImage;
+    return await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true });;
 }
 
 async function getCrewActivity(regularCrewId) {

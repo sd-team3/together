@@ -155,7 +155,7 @@
 
 <!-- ── 호스트/멤버용 팝업 ── -->
 <div class="map-popup-overlay" id="member-popup">
-  <div class="map-popup" style="max-width:600px;width:92%;max-height:85vh;overflow-y:auto;">
+  <div class="map-popup" style="max-width:860px;width:95%;max-height:90vh;overflow-y:auto;">
     <button class="popup-close" id="mp-close-btn">✕</button>
     <div id="mp-body">
       <!-- JS로 채워짐 -->
@@ -169,7 +169,6 @@
 
   <div style="background:#fff;border-radius:16px;padding:24px;width:300px;max-width:90%;">
     <div style="font-size:15px;font-weight:700;margin-bottom:4px;" id="ma-name"></div>
-    <div style="font-size:13px;color:#aaa;margin-bottom:20px;" id="ma-sub"></div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button id="ma-noshow-btn"
         style="padding:12px;border-radius:8px;border:1px solid #fde68a;
@@ -196,6 +195,7 @@
 
 <script id="page-data" type="application/json"><%- JSON.stringify(pageData) %></script>
 <script type="module" src="/js/handlers/icHandler.js"></script>
+<script>const CURRENT_USER_ID = '<%= pageData.currentUserId || "" %>';</script>
 
 </body>
 </html>

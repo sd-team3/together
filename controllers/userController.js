@@ -100,13 +100,15 @@ const logout = (req, res, next) => {
 
 //마이페이지
 const getProfile = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
+    try {
+        const user = await userService.findUserById(req.user.id);
+        const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
+        const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
+        res.render('user/profile', { user, regCrew, instantCrew});
+    } catch (error) {
+        return next(error);
     }
-    const user = await userService.findUserById(req.user.id);
-    const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
-    const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
-    res.render('user/profile', { user, regCrew, instantCrew});
+
 };
 
 

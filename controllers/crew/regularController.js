@@ -156,21 +156,22 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
+        console.log('crewId:', req.params.crewId);
         const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
-        
+        console.log('crew:', crew?._id);
+        console.log('pendingApps:', pendingApps);
         res.render('crew/crewManage', { crew, pendingApps });
     } catch(error) {
-        console.error(error);
+        console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
     }
 }
 
 const postCrewUpdate = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        await regularService.postCrewUpdate(req.params.crewId, req.body);
+        const updateData = {...req.body};
+        if(req.file) updateData.profileImage = req.file.filename;
+        await regularService.postCrewUpdate(req.params.crewId, updateData, req.file);
         res.json({ success: true});
     } catch (error) {
         console.error(error);

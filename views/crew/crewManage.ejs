@@ -53,7 +53,7 @@
           <div class="avatar-section" style="border:none"> 
             <div class="avatar-preview-wrap">
               <div class="avatar-preview">
-                  <img id="profileImage" src="/images/reg-crew/profile/default-profile-image.jpg" alt="profile"/>
+                  <img id="profileImage" src="<%= crew.profileImage %>" alt="profile"/>
               </div>
               <button type="button" class="avatar-remove-btn" id="profile-reset">x</button>
               <label class="avatar-edit-label" for="profile-input">+</label>
@@ -303,7 +303,13 @@
           </div>
           <div class="member-action-btns">
             <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>
-            <button class="approve-btn" onclick="handleRequest('req-<%= app._id %>', 'approve')">✓ 승인</button>
+            <button class="approve-btn"
+              data-name="<%= app.userId.name %>"
+              data-age="<%= app.userId.age %>"
+              data-img="/images/user-profile/<%= app.userId.profileImage %>"
+              data-id="<%= app.userId._id %>"
+              onclick="handleRequest(this, 'req-<%= app._id %>', 'approve')">✓ 승인
+            </button>
             <button class="reject-btn" onclick="handleRequest('req-<%= app._id %>', 'reject')">✗ 거절</button>
           </div>
         </div>
@@ -345,25 +351,51 @@
 
 <script>
 const crewId = '<%= crew._id %>';
+const crewProfileImage = '<%= crew.profileImage %>';
+const profileInput = document.getElementById('profile-input');
+const preview = document.getElementById('profileImage');
+const profileReset = document.getElementById('profile-reset');
+
+profileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  preview.src = URL.createObjectURL(file);
+});
+
+profileReset.addEventListener('click', e => {
+  preview.src = '/images/reg-crew/profile/default-profile-image.jpg';
+  profileInput.value = '';
+  document.getElementById('removeImage').value = 'true';
+});
 
 async function saveCrew() {
+  const formData = new FormData();
+  
+  formData.append('title', document.getElementById('crewTitle').value);
+  formData.append('intro', document.getElementById('crewIntro').value);
+  formData.append('member.capacity', document.getElementById('capacity').value);
+  formData.append('fee', document.getElementById('fee').value);
+  formData.append('address.detail', document.getElementById('detail').value);
+  formData.append('sport', document.getElementById('sport').value);
+  formData.append('period', document.getElementById('period').value);
+  formData.append('level', document.getElementById('level').value);
+  formData.append('day', JSON.stringify(
+    Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val)
+  ));
+  formData.append('ageRange', JSON.stringify(
+    Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val)
+  ));
+  formData.append('isAutoAccept', document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false);
+  formData.append('removeImage', document.getElementById('removeImage').value);
+
+  const file = document.getElementById('profile-input').files[0];
+  if(file) formData.append('uploadFile', file);
+
   const res = await fetch(`/regular/manage/${crewId}/update`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      title: document.getElementById('crewTitle').value,
-      intro: document.getElementById('crewIntro').value,
-      'member.capacity': document.getElementById('capacity').value,
-      fee: document.getElementById('fee').value,
-      'address.detail': document.getElementById('detail').value,
-      sport: document.getElementById('sport').value,
-      period: document.getElementById('period').value,
-      level: document.getElementById('level').value,
-      day: Array.from(document.querySelectorAll('#day .chip.on')).map(d => d.dataset.val),
-      ageRange: Array.from(document.querySelectorAll('#ageRange .chip.on')).map(a => a.dataset.val),
-      isAutoAccept: document.querySelector('#autoAccept .chip.on').dataset.val === 'auto' ? true : false,
-    })
+    body: formData
   });
+
   if(res.ok) {
     showToast('✅ 크루 정보가 저장되었습니다');
   } else {
@@ -458,27 +490,33 @@ function addSchedule() {
   document.getElementById('new-location').value = '';
 
   const dayIdx = DAYS.indexOf(day);
-  const startHour = parseInt(start.split(':')[0]);
-  const endHour = parseInt(end.split(':')[0]);
+  const [startH, startM] = start.split(':').map(Number);
+  const [endH, endM] = end.split(':').map(Number);
+  const startTotal = startH * 60 + startM;
+  const endTotal = endH * 60 + endM;
+  let first = true;
 
-  for (let h = startHour; h < endHour; h++) {
-    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"]`);
+  for (let t = startTotal; t < endTotal; t += 10) {
+    const h = Math.floor(t / 60);
+    const m = t % 60;
+    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"][data-min="${m}"]`);
     if (cell) {
       cell.classList.add('has-event');
-      if (h === startHour) {
+      if (first) {
         cell.textContent = title;
         cell.style.fontSize = '11px';
         cell.style.fontWeight = '700';
         cell.style.color = '#fff';
         cell.style.padding = '4px';
         cell.style.overflow = 'hidden';
+        first = false;
       }
     }
   }
 
   item.dataset.day = dayIdx;
-  item.dataset.start = startHour;
-  item.dataset.end = endHour;
+  item.dataset.start = startTotal;
+  item.dataset.end = endTotal;
 
   toggleAddForm();
   showToast('✅ 일정이 추가되었습니다');
@@ -504,31 +542,37 @@ function saveEdit(idx) {
   const oldStart = parseInt(item.dataset.start);
   const oldEnd = parseInt(item.dataset.end);
 
-  for (let h = oldStart; h < oldEnd; h++) {
-    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"]`);
-    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; }
+  for (let t = oldStart; t < oldEnd; t += 10) {
+    const h = Math.floor(t / 60); const m = t % 60;
+    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"][data-min="${m}"]`);
+    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; cell.style.cssText = ''; }
   }
 
-  const newStartHour = parseInt(newStart.split(':')[0]);
-  const newEndHour = parseInt(newEnd.split(':')[0]);
+  const [nsH, nsM] = newStart.split(':').map(Number);
+  const [neH, neM] = newEnd.split(':').map(Number);
+  const newStartTotal = nsH * 60 + nsM;
+  const newEndTotal = neH * 60 + neM;
+  let first = true;
 
-  for (let h = newStartHour; h < newEndHour; h++) {
-    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"]`);
+  for (let t = newStartTotal; t < newEndTotal; t += 10) {
+    const h = Math.floor(t / 60); const m = t % 60;
+    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"][data-min="${m}"]`);
     if (cell) {
       cell.classList.add('has-event');
-      if (h === newStartHour) {
+      if (first) {
         cell.textContent = newTitle;
         cell.style.fontSize = '11px';
         cell.style.fontWeight = '700';
         cell.style.color = '#fff';
         cell.style.padding = '4px';
         cell.style.overflow = 'hidden';
+        first = false;
       }
     }
   }
 
-  item.dataset.start = newStartHour;
-  item.dataset.end = newEndHour;
+  item.dataset.start = newStartTotal;
+  item.dataset.end = newEndTotal;
   item.querySelector('.event-title').textContent = newTitle;
   item.querySelector('.event-meta').innerHTML = `⏰ ${newStart} – ${newEnd} &nbsp;·&nbsp; 📍 ${newLocation}`;
 
@@ -540,12 +584,13 @@ function deleteSchedule(idx) {
   if (!confirm('이 일정을 삭제할까요?')) return;
   const item = document.getElementById('sch-' + idx);
   const dayIdx = item.dataset.day;
-  const startHour = parseInt(item.dataset.start);
-  const endHour = parseInt(item.dataset.end);
+  const startTotal = parseInt(item.dataset.start);
+  const endTotal = parseInt(item.dataset.end);
   
-  for (let h = startHour; h < endHour; h++) {
-    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"]`);
-    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; }
+  for (let t = startTotal; t < endTotal; t += 10) {
+    const h = Math.floor(t / 60); const m = t % 60;
+    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"][data-min="${m}"]`);
+    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; cell.style.cssText = ''; }
   }
 
   const form = document.getElementById('edit-form-' + idx);
@@ -558,7 +603,16 @@ function deleteSchedule(idx) {
   showToast('🗑️ 일정이 삭제되었습니다');
 }
 
-function handleRequest(elId, action) {
+async function handleRequest(btn, elId, action) {
+  const appId = elId.replace('req-', '');
+  const res = await fetch(`/regular/join/${appId}/${action === 'approve' ? 'accept' : 'reject'}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) {
+    showToast('❌ 처리에 실패했습니다');
+    return;
+  }
   const el = document.getElementById(elId);
   if (el) {
     el.style.transition = 'opacity .3s, transform .3s';
@@ -571,6 +625,38 @@ function handleRequest(elId, action) {
     const cur = parseInt(statVal.textContent);
     if (cur > 0) statVal.textContent = cur - 1;
   }
+
+  if (action === 'approve' && btn) {
+    const name = btn.dataset.name;
+    const age = btn.dataset.age;
+    const img = btn.dataset.img;
+    const today = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' }).replace(/\. /g, '.').replace('.', '');
+    const id = btn.dataset.id;
+
+    const memberList = document.querySelector('#panel-members .manage-section:last-child .manage-section-body') 
+                    || document.querySelector('#panel-members .manage-section:last-child');
+
+    if (memberList) {
+      const newCard = document.createElement('div');
+      newCard.className = 'member-list-item';
+      newCard.innerHTML = `
+        <img src="${img}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+        <div class="member-info">
+          <div class="member-name">${name}</div>
+          <div class="member-meta">${age}세 · 가입 ${today}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="openProfileModal('${id}')">👤 프로필</button>
+        <span class="member-role-tag member">멤버</span>
+        <button class="kick-btn" onclick="kickMember('${name}')">강퇴</button>
+      `;
+      memberList.appendChild(newCard);
+    }
+    const currentMember = document.querySelector('.member-stat-card:first-child .member-stat-val');
+    if (currentMember) {
+      currentMember.textContent = parseInt(currentMember.textContent) + 1;
+    }
+  }
+
   showToast(action === 'approve' ? '✅ 승인되었습니다' : '❌ 거절되었습니다');
 }
 
@@ -587,16 +673,19 @@ const DAYS = ['일','월','화','수','목','금','토'];
 function buildTimetable() {
   const tt = document.getElementById('timetable');
   for (let h = START_HOUR; h < END_HOUR; h++) {
-    const timeCell = document.createElement('div');
-    timeCell.className = 'tt-time-cell';
-    timeCell.textContent = `${String(h).padStart(2,'0')}:00`;
-    tt.appendChild(timeCell);
-    for (let d = 0; d < 7; d++) {
-      const cell = document.createElement('div');
-      cell.className = 'tt-cell';
-      cell.dataset.day = d;
-      cell.dataset.hour = h;
-      tt.appendChild(cell);
+    for (let m = 0; m < 60; m += 10) {
+      const timeCell = document.createElement('div');
+      timeCell.className = 'tt-time-cell';
+      timeCell.textContent = m === 0 ? String(h).padStart(2,'0') + ':00' : '';
+      tt.appendChild(timeCell);
+      for (let d = 0; d < 7; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'tt-cell';
+        cell.dataset.day = d;
+        cell.dataset.hour = h;
+        cell.dataset.min = m;
+        tt.appendChild(cell);
+      }
     }
   }
 }
@@ -609,6 +698,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
 </script>
 <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
 <script src="/socket.io/socket.io.js"></script>

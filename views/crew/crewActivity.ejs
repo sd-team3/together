@@ -34,7 +34,7 @@
 </div>
 
 <!-- ══ 활동 등록 모달 ══ -->
-<div class="modal-overlay" id="modalCreate">
+<div class="2" id="modalCreate">
   <div class="modal-box">
     <div class="modal-head">
       <span class="modal-head-title">📋 활동 등록</span>
@@ -225,7 +225,7 @@ function closeModal(id) {
   el.style.display = 'none';
   document.body.style.overflow=''; 
 }
-document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+document.querySelectorAll('.modal-overlay2').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
 
 function showToast(msg) {
   const t = document.getElementById('actToast');
