@@ -14,7 +14,7 @@
 <%- include('../partials/head', { title: '🔍 크루 관리', pageId: 'page-crew-manage', active: '' }) %>
 
   <div class="page-body">
-  <div class="detail-wrap">
+  <div class="detail-wrap" style="max-width:720px;margin:0 auto;">
 
   <!-- 크루 헤더 요약 -->
   <div class="manage-group" style="margin-bottom:8px;">
@@ -180,95 +180,189 @@
   </div>
 
   <!-- ═══ 탭 2: 스케줄 ═══ -->
-  <div class="manage-panel" id="panel-schedule">
+  <div class="manage-panel" id="panel-schedule" style="max-width:720px;margin:0 auto;width:100%;">
 
-    <div class="manage-section">
+    <div class="manage-section" id="section-timetable">
       <div class="manage-section-header">
         <div class="manage-section-title">📅 정기 스케줄 시간표</div>
         <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="moveWeek(-1)">←</button>
+          <button class="btn btn-outline btn-sm" onclick="moveWeek(1)">→</button>
+          <button class="btn btn-outline btn-sm" id="btn-view-toggle" onclick="toggleScheduleView()">📋 텍스트로 보기</button>
           <button class="btn btn-outline btn-sm" onclick="toggleAddForm()">+ 일정 추가</button>
-          <a href="/regular/activity/<%= crew._id %>" class="btn btn-primary btn-sm" style="text-decoration:none;">+ 크루 활동 기록</a>
         </div>
       </div>
-      <div class="manage-section-body">
+      <div class="manage-section-body" id="timetable-body">
 
-        <!-- 시간표 -->
-        <div class="timetable-wrap">
-          <div class="timetable" id="timetable">
-            <div class="tt-header-cell" style="background:var(--bg)"></div>
-            <div class="tt-header-cell day-sun">일</div>
-            <div class="tt-header-cell">월</div>
-            <div class="tt-header-cell">화</div>
-            <div class="tt-header-cell">수</div>
-            <div class="tt-header-cell">목</div>
-            <div class="tt-header-cell">금</div>
-            <div class="tt-header-cell day-sat">토</div>
+        <!-- 시간표 뷰 -->
+        <div id="view-timetable">
+          <div class="tt-px-wrap">
+            <div class="tt-px-grid" id="timetable">
+              <!-- 헤더 행: JS로 채워짐 -->
+            </div>
+          </div>
+          <div class="timetable-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:rgba(26,92,255,.4);border:1px solid var(--border)"></div>
+              <span>등록된 일정</span>
+            </div>
           </div>
         </div>
 
-        <div class="timetable-legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:rgba(26,92,255,.4);border:1px solid var(--border)"></div>
-            <span>등록된 일정</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:rgba(200,255,0,.5);border:1px solid var(--border)"></div>
-            <span>선택 중</span>
-          </div>
+        <!-- 텍스트(활동 카드) 뷰 -->
+        <div id="view-activity" style="display:none;">
+          <% if (!crew.schedule || crew.schedule.length === 0) { %>
+            <div style="padding:32px;text-align:center;color:var(--text-3);">
+              <div style="font-size:32px;margin-bottom:10px;">📭</div>
+              <div style="font-size:13px;">등록된 활동이 없어요</div>
+            </div>
+          <% } else { %>
+            <% const today = new Date(); today.setHours(0,0,0,0); %>
+            <% crew.schedule.forEach(a => { %>
+              <% const actDate = new Date(a.date); %>
+              <% const isUpcoming = actDate >= today; %>
+              <div class="activity-card">
+                <div class="activity-row">
+                  <% if (isUpcoming) { %>
+                    <span class="type-badge type-internal">예정</span>
+                  <% } else { %>
+                    <span class="type-badge type-battle">완료</span>
+                  <% } %>
+                  <div class="activity-main">
+                    <div class="activity-title"><%= a.title || '활동' %></div>
+                    <div class="activity-meta">
+                      <span>📅 <%= new Date(a.date).toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'}) %></span>
+                      <% if (a.address) { %><span>📍 <%= a.address.state %> <%= a.address.city %></span><% } %>
+                      <span>👥 <%= a.participants ? a.participants.length : 0 %>명</span>
+                    </div>
+                    <% if (a.content) { %><div class="activity-desc"><%= a.content %></div><% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
         </div>
       </div>
     </div>
 
-    <!-- 등록된 일정 목록 -->
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">📌 등록된 정기 일정</div>
-        <span class="tag tag-outline" id="scheduleCount">0개</span>
-      </div>
-      <div class="schedule-event-list" id="scheduleList" style="padding:16px;">
-        <div class="add-schedule-form" id="addScheduleForm">
+    <!-- 일정 추가 폼 -->
+    <div class="add-schedule-form" id="addScheduleForm">
           <div class="add-form-title">📅 새 일정 추가</div>
+
+          <!-- 활동 유형 선택 -->
+          <div class="field" style="margin-bottom:14px;">
+            <label class="label">활동 유형</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <button type="button" class="type-chip sel-battle" id="chip-group" onclick="selectActivityType('group')">👥 단체 활동</button>
+              <button type="button" class="type-chip" id="chip-solo" onclick="selectActivityType('solo')">🏃 개인 활동</button>
+            </div>
+          </div>
+
           <div class="add-form-grid">
             <div class="field full" style="margin-bottom:0">
               <label class="label">일정 이름</label>
               <input type="text" class="manage-input" id="new-title" placeholder="예: 주말 정기 농구">
             </div>
-            <div class="field" style="margin-bottom:0">
-              <label class="label">요일</label>
-              <select class="manage-input" id="new-day">
-                <option value="일">일요일</option>
-                <option value="월">월요일</option>
-                <option value="화">화요일</option>
-                <option value="수">수요일</option>
-                <option value="목">목요일</option>
-                <option value="금">금요일</option>
-                <option value="토">토요일</option>
-              </select>
+            <div class="field full" style="margin-bottom:0">
+              <label class="label">날짜</label>
+              <input type="date" class="manage-input" id="new-date">
             </div>
-            <div class="field" style="margin-bottom:0">
-              <label class="label">장소</label>
-              <input type="text" class="manage-input" id="new-location" placeholder="예: OO 체육관">
+            <div class="field full" style="margin-bottom:0">
+              <div class="form-section-title">장소</div>
+              <div class="field">
+                <label class="label">활동 지역</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                  <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas='<%- JSON.stringify(CONSTANTS.AREAS)%>' required>
+                    <option value="">시/도 선택</option>
+                    <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
+                      <option value="<%= state %>"><%= state %></option>
+                    <% }); %>
+                  </select>
+                  <select id="citySelect" name="city" class="input" style="flex: 1;" required>
+                    <option value="">시/군/구 선택</option>
+                  </select>
+                </div>
+                <input type="text" id="detail-addr" name="detail" class="input" placeholder="상세 장소 (예: 역삼 공원, OO 풋살장)" style="margin-top: 8px;">
+              </div>
+              <div class="field">
+                <button type="button" class="btn btn-outline" id="btn-find-addr" style="width:100%; margin-bottom:10px;">
+                  📍 위치 확인 (지도 표시)
+                </button>
+                <div id="map" style="width:100%; height:220px; border-radius:10px; border:1px solid var(--border); display:none;"></div>
+                <div id="addr-result" style="font-size:13px; color:var(--primary); margin-top:6px; display:none;"></div>
+              </div>
+              <input type="hidden" name="lat" id="lat-input">
+              <input type="hidden" name="lng" id="lng-input">
             </div>
             <div class="field" style="margin-bottom:0">
               <label class="label">시작 시간</label>
-              <input type="time" class="manage-input" id="new-start" value="10:00">
+              <div style="display:flex;gap:6px;">
+                <select class="manage-input" id="new-start-h" style="flex:1">
+                  <% for(let h=4;h<=22;h++){ %>
+                    <option value="<%= h %>" <%= h===10 ? 'selected' : '' %>><%= String(h).padStart(2,'0') %>시</option>
+                  <% } %>
+                </select>
+                <select class="manage-input" id="new-start-m" style="flex:1">
+                  <option value="0">00분</option>
+                  <option value="10">10분</option>
+                  <option value="20">20분</option>
+                  <option value="30">30분</option>
+                  <option value="40">40분</option>
+                  <option value="50">50분</option>
+                </select>
+              </div>
             </div>
             <div class="field" style="margin-bottom:0">
               <label class="label">종료 시간</label>
-              <input type="time" class="manage-input" id="new-end" value="12:00">
+              <div style="display:flex;gap:6px;">
+                <select class="manage-input" id="new-end-h" style="flex:1">
+                  <% for(let h=5;h<=23;h++){ %>
+                    <option value="<%= h %>" <%= h===12 ? 'selected' : '' %>><%= String(h).padStart(2,'0') %>시</option>
+                  <% } %>
+                </select>
+                <select class="manage-input" id="new-end-m" style="flex:1">
+                  <option value="0">00분</option>
+                  <option value="10">10분</option>
+                  <option value="20">20분</option>
+                  <option value="30">30분</option>
+                  <option value="40">40분</option>
+                  <option value="50">50분</option>
+                </select>
+              </div>
             </div>
+
+            <!-- 단체 활동: 레드팀 / 블루팀 -->
+            <div class="field full" id="field-group" style="margin-bottom:0;">
+              <label class="label">팀별 구인 인원</label>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <div style="flex:1;background:#fff1f1;border:1px solid #fecaca;border-radius:var(--radius-sm);padding:10px 12px;">
+                  <div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px;">🔴 레드팀</div>
+                  <input type="number" class="manage-input" id="new-red" min="1" max="50" placeholder="인원 수" style="background:transparent;border-color:#fecaca;">
+                </div>
+                <div style="flex:1;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:10px 12px;">
+                  <div style="font-size:11px;font-weight:700;color:#3b82f6;margin-bottom:6px;">🔵 블루팀</div>
+                  <input type="number" class="manage-input" id="new-blue" min="1" max="50" placeholder="인원 수" style="background:transparent;border-color:#bfdbfe;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 개인 활동: 총 인원 -->
+            <div class="field full" id="field-solo" style="margin-bottom:0;display:none;">
+              <label class="label">구인 인원</label>
+              <input type="number" class="manage-input" id="new-count" min="1" max="50" placeholder="총 구인 인원 수">
+            </div>
+
           </div>
           <div class="add-form-actions">
             <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">취소</button>
             <button class="btn btn-primary btn-sm" onclick="addSchedule()">+ 추가</button>
           </div>
         </div>
-      </div>
     </div>
   </div>
 
   <!-- ═══ 탭 3: 멤버 관리 ═══ -->
-  <div class="manage-panel" id="panel-members">
+  <div class="manage-panel" id="panel-members" style="max-width:720px;margin:0 auto;width:100%;">
 
     <!-- 멤버 통계 -->
     <div class="member-stat-row">
@@ -416,6 +510,33 @@ function selectSingle(el, group) {
   el.classList.add('on');
 }
 
+function toggleScheduleView() {
+  const viewTimetable = document.getElementById('view-timetable');
+  const viewActivity  = document.getElementById('view-activity');
+  const btn = document.getElementById('btn-view-toggle');
+  const isTimetableVisible = viewTimetable.style.display !== 'none';
+
+  if (isTimetableVisible) {
+    viewTimetable.style.display = 'none';
+    viewActivity.style.display  = '';
+    btn.textContent = '🗓️ 시간표로 보기';
+  } else {
+    viewTimetable.style.display = '';
+    viewActivity.style.display  = 'none';
+    btn.textContent = '📋 텍스트로 보기';
+  }
+}
+
+let activityType = 'group';
+
+function selectActivityType(type) {
+  activityType = type;
+  document.getElementById('chip-group').className = 'type-chip' + (type === 'group' ? ' sel-battle' : '');
+  document.getElementById('chip-solo').className  = 'type-chip' + (type === 'solo'  ? ' sel-internal' : '');
+  document.getElementById('field-group').style.display = type === 'group' ? '' : 'none';
+  document.getElementById('field-solo').style.display  = type === 'solo'  ? '' : 'none';
+}
+
 function toggleAddForm() {
   document.getElementById('addScheduleForm').classList.toggle('show');
   document.getElementById('scheduleOverlay').classList.toggle('show');
@@ -423,100 +544,139 @@ function toggleAddForm() {
 
 function addSchedule() {
   const title    = document.getElementById('new-title').value.trim() || '정기 활동';
-  const day      = document.getElementById('new-day').value;
-  const start    = document.getElementById('new-start').value;
-  const end      = document.getElementById('new-end').value;
-  const location = document.getElementById('new-location').value.trim() || '미정';
+  const dateVal  = document.getElementById('new-date').value;
+  if (!dateVal) { showToast('⚠️ 날짜를 선택해주세요'); return; }
+  const dateObj  = new Date(dateVal + 'T00:00:00');
+  const dayIdx   = dateObj.getDay(); // 0=일, 1=월 ... 6=토
+  const day      = DAYS[dayIdx];
+  const location = document.getElementById('detail-addr').value.trim() || '미정';
 
-  if (!start || !end || start >= end) {
-    showToast('⚠️ 올바른 시간을 입력해주세요'); return;
+  const startH = parseInt(document.getElementById('new-start-h').value);
+  const startM = parseInt(document.getElementById('new-start-m').value);
+  const endH   = parseInt(document.getElementById('new-end-h').value);
+  const endM   = parseInt(document.getElementById('new-end-m').value);
+  const start  = String(startH).padStart(2,'0') + ':' + String(startM).padStart(2,'0');
+  const end    = String(endH).padStart(2,'0')   + ':' + String(endM).padStart(2,'0');
+
+  if (startH * 60 + startM >= endH * 60 + endM) {
+    showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다'); return;
   }
 
-  const list = document.getElementById('scheduleList');
-  const idx  = list.querySelectorAll('.schedule-event-item').length;
-  const isSun = day === '일', isSat = day === '토';
-  const badgeClass = isSun ? 'sun' : isSat ? 'sat' : '';
+  // 유형별 유효성 검사 & 메타 텍스트
+  let recruitMeta = '';
+  if (activityType === 'group') {
+    const red  = parseInt(document.getElementById('new-red').value);
+    const blue = parseInt(document.getElementById('new-blue').value);
+    if (!red || !blue || red < 1 || blue < 1) {
+      showToast('⚠️ 레드팀과 블루팀 인원을 입력해주세요'); return;
+    }
+    recruitMeta = `🔴 ${red}명 vs 🔵 ${blue}명`;
+  } else {
+    const count = parseInt(document.getElementById('new-count').value);
+    if (!count || count < 1) {
+      showToast('⚠️ 구인 인원을 입력해주세요'); return;
+    }
+    recruitMeta = `👤 ${count}명 모집`;
+  }
 
-  const item = document.createElement('div');
-  item.className = 'schedule-event-item';
-  item.id = 'sch-' + idx;
-  item.innerHTML = `
-    <div class="event-day-badge ${badgeClass}">${day}</div>
-    <div class="event-info">
-      <div class="event-title">${title}</div>
-      <div class="event-meta">⏰ ${start} – ${end} &nbsp;·&nbsp; 📍 ${location}</div>
-    </div>
-    <div class="event-actions">
-      <button class="event-edit-btn" onclick="toggleEditForm(${idx})">수정</button>
-      <button class="event-del-btn" onclick="deleteSchedule(${idx})">삭제</button>
-    </div>`;
-
-  const editForm = document.createElement('div');
-  editForm.className = 'inline-edit-form';
-  editForm.id = 'edit-form-' + idx;
-  editForm.innerHTML = `
-    <div style="font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:12px;">✏️ 일정 수정</div>
-    <div class="inline-edit-grid">
-      <div class="field full" style="margin-bottom:0">
-        <label class="label">일정 이름</label>
-        <input type="text" class="manage-input" value="${title}">
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label class="label">시작 시간</label>
-        <input type="time" class="manage-input" value="${start}">
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label class="label">종료 시간</label>
-        <input type="time" class="manage-input" value="${end}">
-      </div>
-      <div class="field full" style="margin-bottom:0">
-        <label class="label">장소</label>
-        <input type="text" class="manage-input" value="${location}">
-      </div>
-    </div>
-    <div class="inline-edit-actions">
-      <button class="btn btn-ghost btn-sm" onclick="toggleEditForm(${idx})">취소</button>
-      <button class="btn btn-primary btn-sm" onclick="saveEdit(${idx})">저장</button>
-    </div>`;
-
-  const addForm = document.getElementById('addScheduleForm');
-  list.insertBefore(editForm, addForm);
-  list.insertBefore(item, editForm);
+  const startTotal = toMin(start);
+  const endTotal   = toMin(end);
+  const idx = document.getElementById('view-activity').querySelectorAll('.activity-card').length;
 
   const countEl = document.getElementById('scheduleCount');
-  countEl.textContent = (parseInt(countEl.textContent) + 1) + '개';
+  if (countEl) countEl.textContent = (parseInt(countEl.textContent) + 1) + '개';
 
   document.getElementById('new-title').value = '';
-  document.getElementById('new-location').value = '';
+  document.getElementById('new-date').value = '';
+  document.getElementById('detail-addr').value = '';
+  document.getElementById('new-start-h').value = '10';
+  document.getElementById('new-start-m').value = '0';
+  document.getElementById('new-end-h').value = '12';
+  document.getElementById('new-end-m').value = '0';
+  document.getElementById('new-red').value = '';
+  document.getElementById('new-blue').value = '';
+  document.getElementById('new-count').value = '';
+  selectActivityType('group');
 
-  const dayIdx = DAYS.indexOf(day);
-  const [startH, startM] = start.split(':').map(Number);
-  const [endH, endM] = end.split(':').map(Number);
-  const startTotal = startH * 60 + startM;
-  const endTotal = endH * 60 + endM;
-  let first = true;
-
-  for (let t = startTotal; t < endTotal; t += 10) {
-    const h = Math.floor(t / 60);
-    const m = t % 60;
-    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"][data-min="${m}"]`);
-    if (cell) {
-      cell.classList.add('has-event');
-      if (first) {
-        cell.textContent = title;
-        cell.style.fontSize = '11px';
-        cell.style.fontWeight = '700';
-        cell.style.color = '#fff';
-        cell.style.padding = '4px';
-        cell.style.overflow = 'hidden';
-        first = false;
-      }
-    }
+  // 선택한 날짜가 현재 주 밖이면 해당 주로 이동
+  const selectedSunday = new Date(dateObj);
+  selectedSunday.setDate(dateObj.getDate() - dateObj.getDay());
+  selectedSunday.setHours(0,0,0,0);
+  if (selectedSunday.getTime() !== currentSunday.getTime()) {
+    currentSunday = selectedSunday;
+    buildTimetable();
   }
 
-  item.dataset.day = dayIdx;
-  item.dataset.start = startTotal;
-  item.dataset.end = endTotal;
+  /* 텍스트(활동 카드) 뷰에도 추가 */
+  const activityView = document.getElementById('view-activity');
+  // 빈 상태 메시지 제거
+  const emptyMsg = activityView.querySelector('[style*="padding:32px"]');
+  if (emptyMsg) emptyMsg.remove();
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isUpcoming = dateObj >= today;
+  const dateLabel2 = dateObj.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+  const editStartHOpts = Array.from({length:19},(_,i)=>i+4).map(h=>'<option value="'+h+'"'+(h===startH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
+  const editStartMOpts = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===startM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
+  const editEndHOpts   = Array.from({length:19},(_,i)=>i+5).map(h=>'<option value="'+h+'"'+(h===endH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
+  const editEndMOpts   = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===endM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
+  const actCard = document.createElement('div');
+  actCard.className = 'activity-card';
+  actCard.id = 'act-card-' + idx;
+  actCard.dataset.day = dayIdx;
+  actCard.innerHTML = `
+    <div class="activity-row" id="act-row-${idx}">
+      <span class="type-badge ${isUpcoming ? 'type-internal' : 'type-battle'}">${isUpcoming ? '예정' : '완료'}</span>
+      <div class="activity-main">
+        <div class="activity-title">${title}</div>
+        <div class="activity-meta">
+          <span>📅 ${dateLabel2}</span>
+          <span>⏰ ${start} – ${end}</span>
+          <span>📍 ${location}</span>
+          <span>${recruitMeta}</span>
+        </div>
+      </div>
+      <div class="event-actions">
+        <button class="event-edit-btn" onclick="toggleActEditForm(${idx})">수정</button>
+        <button class="event-del-btn" onclick="deleteSchedule(${idx})">삭제</button>
+      </div>
+    </div>
+    <div class="inline-edit-form" id="act-edit-form-${idx}">
+      <div style="font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:12px;">✏️ 일정 수정</div>
+      <div class="inline-edit-grid">
+        <div class="field full" style="margin-bottom:0">
+          <label class="label">일정 이름</label>
+          <input type="text" class="manage-input" value="${title}">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">시작 시간</label>
+          <div style="display:flex;gap:6px;">
+            <select class="manage-input edit-start-h" style="flex:1">${editStartHOpts}</select>
+            <select class="manage-input edit-start-m" style="flex:1">${editStartMOpts}</select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">종료 시간</label>
+          <div style="display:flex;gap:6px;">
+            <select class="manage-input edit-end-h" style="flex:1">${editEndHOpts}</select>
+            <select class="manage-input edit-end-m" style="flex:1">${editEndMOpts}</select>
+          </div>
+        </div>
+        <div class="field full" style="margin-bottom:0">
+          <label class="label">장소</label>
+          <input type="text" class="manage-input" value="${location}">
+        </div>
+      </div>
+      <div class="inline-edit-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleActEditForm(${idx})">취소</button>
+        <button class="btn btn-primary btn-sm" onclick="saveEdit(${idx})">저장</button>
+      </div>
+    </div>
+  `;
+  activityView.appendChild(actCard);
+
+  /* 시간표에 픽셀 블록 추가 */
+  setTimeout(() => addEventBlock(dayIdx, startTotal, endTotal, title, idx), 0);
 
   toggleAddForm();
   showToast('✅ 일정이 추가되었습니다');
@@ -527,54 +687,49 @@ function toggleEditForm(idx) {
   if (form) form.classList.toggle('show');
 }
 
+function toggleActEditForm(idx) {
+  const form = document.getElementById('act-edit-form-' + idx);
+  if (form) form.classList.toggle('show');
+}
+
 function saveEdit(idx) {
-  const form = document.getElementById('edit-form-' + idx);
-  const inputs = form.querySelectorAll('input');
-  const newTitle    = inputs[0].value.trim() || '정기 활동';
-  const newStart    = inputs[1].value;
-  const newEnd      = inputs[2].value;
-  const newLocation = inputs[3].value.trim() || '미정';
+  const form = document.getElementById('act-edit-form-' + idx);
+  if (!form) return;
+  const titleInput = form.querySelector('input[type="text"]:first-of-type') || form.querySelectorAll('input')[0];
+  const newTitle    = titleInput.value.trim() || '정기 활동';
+  const newStartH   = parseInt(form.querySelector('.edit-start-h').value);
+  const newStartM   = parseInt(form.querySelector('.edit-start-m').value);
+  const newEndH     = parseInt(form.querySelector('.edit-end-h').value);
+  const newEndM     = parseInt(form.querySelector('.edit-end-m').value);
+  const locationInput = form.querySelectorAll('input[type="text"]')[1] || form.querySelectorAll('input')[1];
+  const newLocation = locationInput.value.trim() || '미정';
 
-  if (newStart >= newEnd) { showToast('⚠️ 올바른 시간을 입력해주세요'); return; }
+  const newStart = String(newStartH).padStart(2,'0') + ':' + String(newStartM).padStart(2,'0');
+  const newEnd   = String(newEndH).padStart(2,'0')   + ':' + String(newEndM).padStart(2,'0');
+  const newStartTotal = newStartH * 60 + newStartM;
+  const newEndTotal   = newEndH   * 60 + newEndM;
 
-  const item = document.getElementById('sch-' + idx);
-  const oldDayIdx = item.dataset.day;
-  const oldStart = parseInt(item.dataset.start);
-  const oldEnd = parseInt(item.dataset.end);
+  if (newStartTotal >= newEndTotal) { showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다'); return; }
 
-  for (let t = oldStart; t < oldEnd; t += 10) {
-    const h = Math.floor(t / 60); const m = t % 60;
-    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"][data-min="${m}"]`);
-    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; cell.style.cssText = ''; }
+  /* 시간표 블록 업데이트 */
+  removeEventBlock(idx);
+  const actCard = document.getElementById('act-card-' + idx);
+  if (actCard) {
+    const dayIdx = parseInt(actCard.dataset.day);
+    addEventBlock(dayIdx, newStartTotal, newEndTotal, newTitle, idx);
   }
 
-  const [nsH, nsM] = newStart.split(':').map(Number);
-  const [neH, neM] = newEnd.split(':').map(Number);
-  const newStartTotal = nsH * 60 + nsM;
-  const newEndTotal = neH * 60 + neM;
-  let first = true;
-
-  for (let t = newStartTotal; t < newEndTotal; t += 10) {
-    const h = Math.floor(t / 60); const m = t % 60;
-    const cell = document.querySelector(`.tt-cell[data-day="${oldDayIdx}"][data-hour="${h}"][data-min="${m}"]`);
-    if (cell) {
-      cell.classList.add('has-event');
-      if (first) {
-        cell.textContent = newTitle;
-        cell.style.fontSize = '11px';
-        cell.style.fontWeight = '700';
-        cell.style.color = '#fff';
-        cell.style.padding = '4px';
-        cell.style.overflow = 'hidden';
-        first = false;
-      }
+  /* actCard 화면 업데이트 */
+  if (actCard) {
+    const titleEl = actCard.querySelector('.activity-title');
+    const metaEl  = actCard.querySelector('.activity-meta');
+    if (titleEl) titleEl.textContent = newTitle;
+    if (metaEl) {
+      const spans = metaEl.querySelectorAll('span');
+      if (spans[1]) spans[1].textContent = '⏰ ' + newStart + ' – ' + newEnd;
+      if (spans[2]) spans[2].textContent = '📍 ' + newLocation;
     }
   }
-
-  item.dataset.start = newStartTotal;
-  item.dataset.end = newEndTotal;
-  item.querySelector('.event-title').textContent = newTitle;
-  item.querySelector('.event-meta').innerHTML = `⏰ ${newStart} – ${newEnd} &nbsp;·&nbsp; 📍 ${newLocation}`;
 
   form.classList.remove('show');
   showToast('✅ 일정이 수정되었습니다');
@@ -583,23 +738,18 @@ function saveEdit(idx) {
 function deleteSchedule(idx) {
   if (!confirm('이 일정을 삭제할까요?')) return;
   const item = document.getElementById('sch-' + idx);
-  const dayIdx = item.dataset.day;
-  const startTotal = parseInt(item.dataset.start);
-  const endTotal = parseInt(item.dataset.end);
-  
-  for (let t = startTotal; t < endTotal; t += 10) {
-    const h = Math.floor(t / 60); const m = t % 60;
-    const cell = document.querySelector(`.tt-cell[data-day="${dayIdx}"][data-hour="${h}"][data-min="${m}"]`);
-    if (cell) { cell.classList.remove('has-event'); cell.textContent = ''; cell.style.cssText = ''; }
-  }
-
   const form = document.getElementById('edit-form-' + idx);
+  const actCard = document.getElementById('act-card-' + idx);
+
+  /* 시간표 블록 제거 */
+  removeEventBlock(idx);
+
   if (item) { item.style.opacity='0'; item.style.transition='opacity .3s'; setTimeout(() => item.remove(), 300); }
   if (form) setTimeout(() => form.remove(), 300);
+  if (actCard) { actCard.style.opacity='0'; actCard.style.transition='opacity .3s'; setTimeout(() => actCard.remove(), 300); }
 
   const countEl = document.getElementById('scheduleCount');
-  const cur = parseInt(countEl.textContent);
-  if (cur > 0) countEl.textContent = (cur - 1) + '개';
+  if (countEl) { const cur = parseInt(countEl.textContent); if (cur > 0) countEl.textContent = (cur - 1) + '개'; }
   showToast('🗑️ 일정이 삭제되었습니다');
 }
 
@@ -666,28 +816,112 @@ function kickMember(userId, name) {
   showToast('🚫 멤버가 강퇴되었습니다');
 }
 
-const START_HOUR = 6;
+/* ── 픽셀 기반 시간표 설정 ── */
+const START_HOUR = 4;
+
+let currentSunday = (function() {
+  const t = new Date();
+  t.setDate(t.getDate() - t.getDay());
+  t.setHours(0,0,0,0);
+  return t;
+})();
+
+function moveWeek(dir) {
+  currentSunday.setDate(currentSunday.getDate() + dir * 7);
+  buildTimetable();
+}
 const END_HOUR   = 23;
 const DAYS = ['일','월','화','수','목','금','토'];
+const PX_PER_MIN = 0.8;                          // 1분 = 1.5px  (60분 = 90px)
+const TOTAL_MINS = (END_HOUR - START_HOUR) * 60; // 1020분
+const COL_H = TOTAL_MINS * PX_PER_MIN + 16;      // 하단 여백 16px (마지막 시간선 잘림 방지)
+
+function toMin(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+function fromMin(total) {
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
 
 function buildTimetable() {
   const tt = document.getElementById('timetable');
-  for (let h = START_HOUR; h < END_HOUR; h++) {
-    for (let m = 0; m < 60; m += 10) {
-      const timeCell = document.createElement('div');
-      timeCell.className = 'tt-time-cell';
-      timeCell.textContent = m === 0 ? String(h).padStart(2,'0') + ':00' : '';
-      tt.appendChild(timeCell);
-      for (let d = 0; d < 7; d++) {
-        const cell = document.createElement('div');
-        cell.className = 'tt-cell';
-        cell.dataset.day = d;
-        cell.dataset.hour = h;
-        cell.dataset.min = m;
-        tt.appendChild(cell);
+  tt.innerHTML = '';
+
+  /* 헤더 행 */
+  const emptyHead = document.createElement('div');
+  emptyHead.className = 'tt-px-head-cell';
+  emptyHead.style.background = 'var(--bg)';
+  tt.appendChild(emptyHead);
+  const dayCls = ['day-sun','','','','','','day-sat'];
+  DAYS.forEach((d, i) => {
+    const date = new Date(currentSunday);
+    date.setDate(currentSunday.getDate() + i);
+    const cell = document.createElement('div');
+    cell.className = 'tt-px-head-cell' + (dayCls[i] ? ' ' + dayCls[i] : '');
+    cell.textContent = (date.getMonth()+1) + '/' + date.getDate();
+    tt.appendChild(cell);
+  });
+
+  /* 본문: 시간 레이블 컬럼 + 7 요일 컬럼 */
+  /* 시간 레이블 */
+  const timesCol = document.createElement('div');
+  timesCol.className = 'tt-px-times';
+  timesCol.style.height = COL_H + 'px';
+  for (let h = START_HOUR; h <= END_HOUR; h++) {
+    const lbl = document.createElement('div');
+    lbl.className = 'tt-px-time-label';
+    lbl.style.top = ((h - START_HOUR) * 60 * PX_PER_MIN) + 'px';
+    lbl.textContent = String(h).padStart(2,'0') + ':00';
+    timesCol.appendChild(lbl);
+  }
+  tt.appendChild(timesCol);
+
+  /* 7개 요일 컬럼 */
+  for (let d = 0; d < 7; d++) {
+    const col = document.createElement('div');
+    col.className = 'tt-px-col';
+    col.id = 'tt-col-' + d;
+    col.style.height = COL_H + 'px';
+
+    /* 시간 구분선 */
+    for (let h = 0; h <= (END_HOUR - START_HOUR); h++) {
+      const line = document.createElement('div');
+      line.className = 'tt-px-hour-line';
+      line.style.top = (h * 60 * PX_PER_MIN) + 'px';
+      col.appendChild(line);
+      if (h < END_HOUR - START_HOUR) {
+        const half = document.createElement('div');
+        half.className = 'tt-px-half-line';
+        half.style.top = ((h * 60 + 30) * PX_PER_MIN) + 'px';
+        col.appendChild(half);
       }
     }
+    tt.appendChild(col);
   }
+}
+
+/* 시간표에 이벤트 블록 추가/제거 헬퍼 */
+function addEventBlock(dayIdx, startTotal, endTotal, title, schedIdx) {
+  const col = document.getElementById('tt-col-' + dayIdx);
+  if (!col) return;
+  const top    = (startTotal - START_HOUR * 60) * PX_PER_MIN;
+  const height = (endTotal - startTotal) * PX_PER_MIN;
+  const block  = document.createElement('div');
+  block.className   = 'tt-px-event';
+  block.id          = 'ev-' + schedIdx;
+  block.style.top   = top + 'px';
+  block.style.height = height + 'px';
+  block.innerHTML   = `<div class="tt-px-event-title">${title}</div>`
+    + (height >= 28 ? `<div class="tt-px-event-time">${fromMin(startTotal)}–${fromMin(endTotal)}</div>` : '');
+  col.appendChild(block);
+}
+
+function removeEventBlock(schedIdx) {
+  const el = document.getElementById('ev-' + schedIdx);
+  if (el) el.remove();
 }
 
 buildTimetable();
@@ -699,11 +933,114 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+const stateSelect = document.getElementById('stateSelect');
+const citySelect = document.getElementById('citySelect');
+if (stateSelect) {
+  const AREAS = JSON.parse(stateSelect.dataset.areas);
+  stateSelect.addEventListener('change', () => {
+    const cities = AREAS[stateSelect.value] || [];
+    citySelect.innerHTML =
+      `<option value="">시/군/구 선택</option>` +
+      cities.map(city => `<option value="${city}">${city}</option>`).join('');
+  });
+}
 </script>
 <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
 <script src="/socket.io/socket.io.js"></script>
 <script type="module">
+  import kakaoMap from '/js/modules/mapLoader.js';
   import { initProfileModal, openProfileModal } from '/js/components/profileModal.js';
+
+  // ── 좌표 적용 공통 함수 ──
+  function applyLocation(lat, lng, name) {
+    document.getElementById('lat-input').value = lat;
+    document.getElementById('lng-input').value = lng;
+    document.getElementById('detail-addr').value = name;
+
+    const mapEl = document.getElementById('map');
+    mapEl.style.display = 'block';
+    kakaoMap.loadMapByLatLng(lat, lng);
+
+    const resultEl = document.getElementById('addr-result');
+    resultEl.style.display = 'block';
+    resultEl.textContent = `✅ 위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
+
+    hidePlaceList();
+  }
+
+  // ── 장소 목록 표시 ──
+  function showPlaceList(results, state, city) {
+    let listEl = document.getElementById('place-list');
+    if (!listEl) {
+      listEl = document.createElement('div');
+      listEl.id = 'place-list';
+      listEl.style.cssText = `
+        margin-top: 8px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        overflow: hidden;
+      `;
+      document.getElementById('btn-find-addr').insertAdjacentElement('afterend', listEl);
+    }
+    listEl.innerHTML = `
+      <div style="padding:10px 14px;font-size:11.5px;font-weight:700;color:var(--text-3);
+                  border-bottom:1px solid var(--border);background:var(--bg);">
+        아래 장소 중 선택해주세요
+      </div>
+      ${results.map((r, i) => `
+        <div class="place-item" data-idx="${i}"
+          style="padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);
+                 font-size:13px;transition:background .15s;"
+          onmouseover="this.style.background='var(--bg)'"
+          onmouseout="this.style.background=''"
+        >
+          <div style="font-weight:600;color:var(--text)">${r.place_name}</div>
+          <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">${r.address_name}</div>
+        </div>
+      `).join('')}
+    `;
+    listEl.querySelectorAll('.place-item').forEach((el, i) => {
+      el.addEventListener('click', () => {
+        const selectedAddr = results[i].address_name;
+        const state = document.getElementById('stateSelect').value.trim();
+        const city  = document.getElementById('citySelect').value.trim();
+        if (!selectedAddr.includes(state) || !selectedAddr.includes(city)) {
+          if (!confirm(`⚠️ 선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`)) return;
+        }
+        applyLocation(results[i].y, results[i].x, results[i].place_name);
+      });
+    });
+  }
+
+  function hidePlaceList() {
+    document.getElementById('place-list')?.remove();
+  }
+
+  // ── 위치 확인 버튼 ──
+  document.getElementById('btn-find-addr').addEventListener('click', async () => {
+    const state  = document.getElementById('stateSelect').value.trim();
+    const city   = document.getElementById('citySelect').value.trim();
+    const detail = document.getElementById('detail-addr').value.trim();
+
+    if (!state || !city) {
+      alert('시/도와 구/동을 먼저 선택해주세요.');
+      return;
+    }
+
+    const address = detail ? `${state} ${city} ${detail}` : `${state} ${city}`;
+
+    try {
+      const { lat, lng, name } = await kakaoMap.ADDRtoLatLng(address);
+      applyLocation(lat, lng, name);
+    } catch (err) {
+      if (err.type === 'MULTIPLE') {
+        showPlaceList(err.results, state, city);
+      } else {
+        alert('주소를 찾을 수 없습니다. 상세 장소명을 다시 확인해주세요.');
+      }
+    }
+  });
   <% if (locals.user) { %>
   const socket = io('/noti', { auth: { userId: '<%= user._id %>' } });
   initProfileModal(socket, '<%= user._id %>');

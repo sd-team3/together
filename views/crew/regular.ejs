@@ -149,34 +149,24 @@
       <% regularCrews.forEach(crew => { %>
         <div class="reg-card" data-id="<%= crew._id %>" style="cursor: pointer;">
           <div class="reg-card-head">
-            <img 
-              class="reg-crew-profile-img"
-              
-            >
-<!-- src="/images/crew-profile/<%= crew.profileImage || 'default-crew-profile.jpg' %>" 바로 위에 들어가야됨 경로 설정해서 -->
-            <div>
-              <div class="reg-card-title"><%= crew.title %></div>
-              <% 
-                const dayKorea = {
-                  'mon': '월', 'tue': '화', 'wed': '수', 'thu': '목', 'fri': '금', 'sat': '토', 's  un': '일',
-                };
-              %>
-              <% if (crew.period === "week") { %>
-                <div class="reg-card-sub">매주 <%= dayKorea[crew.day] %> · <%= crew.address.state %> <%= crew.address.city %></div>
-              <% } else if (crew.period === "2week") { %>
-                <div class="reg-card-sub">격주 <%= dayKorea[crew.day] %> · <%= crew.address.state %> <%= crew.address.city %></div>
-              <% } else { %>
-                <div class="reg-card-sub">달 <%= dayKorea[crew.day] %> · <%= crew.address.state %> <%= crew.address.city %></div>
-              <% } %>
-            </div>
-
-            <% if (crew.member.capacity - crew.member.memberList.length === 0 ) { %>
-              <span class="pill pill-warn" style="margin-left:auto">마감</span>
-            <% } else if (crew.member.capacity - crew.member.memberList.length < 4) { %>
-              <span class="pill pill-warn" style="margin-left:auto">마감 임박</span>
-            <% } else { %>
-              <span class="pill pill-warn" style="margin-left:auto">모집 중</span>
-            <% } %>
+              <img 
+                  class="reg-crew-profile-img"
+                  src="<%= crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
+                  alt="정기모임 이미지"
+              >
+              <div>
+                  <div class="reg-card-title"><%= crew.title %></div>
+                  <% const dayKorea = { 'mon':'월','tue':'화','wed':'수','thu':'목','fri':'금','sat':'토','sun':'일' }; %>
+                  <div class="reg-card-sub">
+                      <%= crew.period === 'week' ? '매주' : crew.period === '2week' ? '격주' : '매달' %>
+                      <%= crew.day.map(d => dayKorea[d]).join('·') %> ·
+                      <%= crew.address.state %> <%= crew.address.city %>
+                  </div>
+              </div>
+              <% const remain = crew.member.capacity - crew.member.memberList.length; %>
+              <span class="pill pill-warn" style="margin-left:auto">
+                  <%= remain === 0 ? '마감' : remain < 4 ? '마감 임박' : '모집 중' %>
+              </span>
           </div>
 
           <div class="reg-card-body">
@@ -186,7 +176,11 @@
               <span><%= crew.ageRange %></span>
             </div>
 
-            <div class="reg-progress"></div>
+            <div class="reg-progress" 
+              data-member="<%= crew.member.memberList.length %>" 
+              data-capacity="<%= crew.member.capacity %>">
+              <div class="reg-progress-fill"></div>
+            </div>
 
             <div class="reg-progress-label">
               <span><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</span>

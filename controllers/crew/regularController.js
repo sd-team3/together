@@ -160,7 +160,7 @@ const getCrewManage = async (req, res) => {
         const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
         console.log('crew:', crew?._id);
         console.log('pendingApps:', pendingApps);
-        res.render('crew/crewManage', { crew, pendingApps });
+        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS });
     } catch(error) {
         console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
