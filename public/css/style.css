@@ -2067,7 +2067,12 @@ select.input{cursor:pointer}
 /* 구/군 영역 */
 .district-list {
   flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   min-width: 0;
+  height: auto;
+  overflow: visible;
 }
 
 /* 구/군 선택 전 안내 */
@@ -2088,13 +2093,14 @@ select.input{cursor:pointer}
 }
 
 .district-group.active {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  display: flex;        /* grid → flex */
+  flex-wrap: wrap;      /* 공간 부족하면 줄바꿈 */
   gap: 8px;
 }
 
 /* 구/군 버튼 */
 .district-btn {
+  white-space: nowrap;
   padding: 9px 8px;
   border: 1px solid #e2e2e2;
   border-radius: 10px;
