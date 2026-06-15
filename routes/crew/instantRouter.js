@@ -31,7 +31,9 @@ router.get('/list/:instantId',
 
 //모임 삭제
 router.post('/delete/:instantId', 
-    crewMiddleware.loginValidation, 
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     instantController.deleteInstantCrew
 );
 
@@ -49,19 +51,23 @@ router.post('/list/:instantId/kick/:userId',
 
 router.post('/application/:crewId', 
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
-router.post('/pending/:crewId', 
+router.get('/pending/:crewId', 
     crewMiddleware.loginValidation,
-    crewMiddleware.getPendingValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.getPendingApps
 );
 
 router.post('/join/:appId/:action',
     crewMiddleware.loginValidation,
     crewMiddleware.joinMiddleware,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isHost,
     applicationController.joinProcess
 );
 
