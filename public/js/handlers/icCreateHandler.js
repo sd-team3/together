@@ -158,9 +158,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 제출 전 lat/lng 검증 ──
   document.getElementById('create-form').addEventListener('submit', (e) => {
-    if (!document.getElementById('lat-input').value) {
+    const lat = document.getElementById('lat-input').value;
+    const lng = document.getElementById('lng-input').value;
+
+    if (!lat || !lng) {
       e.preventDefault();
       alert('위치 확인 버튼을 눌러 장소를 지정해주세요.');
+      return;
+    }
+
+    const dateVal = document.getElementById('meetAt_date');
+    const timeVal = document.getElementById('meetAt_time');
+
+    if(!dateVal || !timeVal) {
+      e.preventDefault();
+      alert('모임 날짜와 시간을 모두 입력해주세요');
+      return;
+    }
+
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const [hour, min] = timeVal.split(':').map(Number);
+
+    const selectDateTime = new Date(year, month - 1, day, hour, min, 0);
+    const now = new Date();
+    if(selectDateTime <= now) {
+      e.preventDefault();
+      alert('모임 시간을 다시 입력해주세요');
+      return;
     }
   });
 
