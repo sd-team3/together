@@ -13,7 +13,12 @@ const sendFriendRequest = async (senderId, receiverId) => {
     if (alreadyFriend) throw new Error('이미 친구입니다.');
 
     // 중복 요청 확인
-    const existing = await FriendRequest.findOne({ sender: senderId, receiver: receiverId });
+    const existing = await FriendRequest.findOne({
+        $or: [
+            { sender: senderId, receiver: receiverId },
+            { sender: receiverId, receiver: senderId }
+        ]
+    });
     if (existing) {
         if (existing.status === 'pending') throw new Error('이미 친구 요청을 보냈습니다.');
         existing.status = 'pending';
@@ -63,8 +68,7 @@ const rejectFriendRequest = async (requestId, receiverId) => {
     if (!request) throw new Error('요청을 찾을 수 없습니다.');
     if (request.receiver.toString() !== receiverId.toString()) throw new Error('권한이 없습니다.');
 
-    request.status = 'rejected';
-    await request.save();
+    await request.deleteOne();
     return request;
 };
 

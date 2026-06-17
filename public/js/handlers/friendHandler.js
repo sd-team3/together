@@ -258,7 +258,9 @@ export function initFriendSocket(socket) {
 
         const pendingList = document.getElementById('pending-list');
 
-        // 빈 상태 메시지 제거
+        // 중복 체크
+        if (pendingList.querySelector(`.friend-card[data-request-id="${requestId}"]`)) return;
+
         const emptyEl = pendingList.querySelector('.friend-empty');
         if (emptyEl) emptyEl.remove();
 
