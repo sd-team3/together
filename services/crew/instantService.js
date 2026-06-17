@@ -157,7 +157,16 @@ async function handleUserDeleted(userId) {
         { $pull: { "member.memberList": { user: userId } } }
     );
 }
+// 만료된 번개모임 채팅방 삭제
+async function deleteExpiredInstantChatRooms() {
+    const expiredCrews = await instantCrew.find({ meetAt: { $lt: new Date() } }).select('_id');
+    const crewIds = expiredCrews.map(c => c._id);
 
+    if (crewIds.length === 0) return { deleted: 0 };
+
+    const result = await ChatRoom.deleteMany({ crewId: { $in: crewIds }, crewType: 'instant' });
+    return { deleted: result.deletedCount };
+}
 module.exports = {
     createInstantCrew, 
     getInstantCrew, 
@@ -166,5 +175,6 @@ module.exports = {
     kickMember,
     findInstantCrewsByUserId,
     setNoshow,
-    handleUserDeleted
+    handleUserDeleted,
+    deleteExpiredInstantChatRooms
 };

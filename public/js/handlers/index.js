@@ -237,11 +237,13 @@ function renderRegCards(meetings) {
 
   meetings.forEach(m => {
     const card = document.createElement('div');
-    card.className = 'reg-card';
     // data 속성들 (모달용)
+    card.className = 'reg-card';
     card.dataset.modalTitle = `${m.emoji} ${m.title}`;
     card.dataset.modalBody  = m.modalBody;
-
+    card.dataset.sport      = m.emoji;
+    card.dataset.district   = m.district;
+    card.dataset.title      = m.title;
     card.innerHTML = `
       <div class="reg-card-head">
         <div class="reg-sport-icon">${m.emoji}</div>
