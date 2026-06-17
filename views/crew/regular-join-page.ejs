@@ -12,7 +12,7 @@
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '', pageId: 'page-crew-detail', active: '' }) %>
+<%- include('../partials/head', { title: `✏️ ${crew.title} - 가입 신청`, pageId: 'page-crew-detail', active: '', route: `/regular/list/${crew._id}` }) %>
 
   <div class="page-body">
     <div class="detail-wrap">

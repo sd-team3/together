@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPORTMATCH — 생활 스포츠 매칭 플랫폼</title>
+<title>TOGETHER — 생활 스포츠 매칭 플랫폼</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,7 +14,7 @@
 
 <div class="main">
 
-  <%- include('partials/head', { title: '🏠 홈 피드', pageId: 'page-home', active: '' }) %>
+  <%- include('partials/head', { title: '🏠 홈 피드', pageId: 'page-home', active: '', route: '/' }) %>
 
   <!-- Hero Banner -->
   <div class="home-hero">
@@ -25,7 +25,7 @@
       <div class="hero-title">오늘, 같이 뛸<br><span>팀원</span>을 찾아보세요</div>
       <div class="hero-subtitle">
         내 주변 생활 스포츠 매칭·정기모임을 한 곳에서.<br>
-        클럽 가입부터 장비 거래까지 모두 SPORTMATCH에서.
+        크루 가입부터 장비 거래까지 모두 TOGETHER에서.
       </div>
       <div class="hero-cta">
         <button class="btn btn-accent btn-lg" data-href="/instant/list">🗺️ 지도에서 찾기</button>

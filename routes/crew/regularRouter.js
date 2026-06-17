@@ -64,7 +64,10 @@ router.post('/join/:appId/:action',
     applicationController.joinProcess
 );
 
-router.get('/my', regularController.getMyCrews);
+router.get('/my', 
+    crewMiddleware.loginValidation, 
+    regularController.getMyCrews
+);
 router.get('/list', regularController.getRegular);
 router.get('/list/:crewId', regularController.getRegularPage);
 
@@ -87,6 +90,9 @@ router.get('/activity/:crewId',
     crewMiddleware.loginValidation,
     regularController.getCrewActivity
 );
-router.post('/list/:crewID/like', regularController.postCrewLike);
+router.post('/list/:crewID/like', 
+    crewMiddleware.loginValidation,
+    regularController.postCrewLike
+);
 
 module.exports = router;
