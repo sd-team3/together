@@ -157,7 +157,13 @@ cityBtns.forEach((button) => {
     }
 
     districtGroups.forEach((group) => {
-      group.style.display = (group.dataset.state === state) ? 'flex' : 'none';
+      if (group.dataset.state === state) {
+        group.style.display = 'flex';
+        group.style.flexWrap = 'wrap';  // 추가
+        group.style.gap = '8px';        // 추가
+      } else {
+        group.style.display = 'none';
+      }
     });
     districtBtns.forEach(btn => btn.classList.remove('active'));
 
