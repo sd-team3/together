@@ -11,7 +11,7 @@
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '🔍 크루 관리', pageId: 'page-crew-manage', active: '' }) %>
+<%- include('../partials/head', { title: '🔍 크루 관리', pageId: 'page-crew-manage',active: '', route: `/regular/manage/${crew._id}` }) %>
 
   <div class="page-body">
   <div class="detail-wrap" style="max-width:720px;margin:0 auto;">
@@ -211,29 +211,54 @@
 
         <!-- 텍스트(활동 카드) 뷰 -->
         <div id="view-activity" style="display:none;">
-          <% if (!crew.schedule || crew.schedule.length === 0) { %>
+          <% if (!acts || acts.length === 0) { %>
             <div style="padding:32px;text-align:center;color:var(--text-3);">
               <div style="font-size:32px;margin-bottom:10px;">📭</div>
               <div style="font-size:13px;">등록된 활동이 없어요</div>
             </div>
           <% } else { %>
             <% const today = new Date(); today.setHours(0,0,0,0); %>
-            <% crew.schedule.forEach(a => { %>
-              <% const actDate = new Date(a.date); %>
-              <% const isUpcoming = actDate >= today; %>
+            <% acts.forEach(act => { %>
+              <% 
+              const actStart = new Date(act.startTime);
+              const isUpcoming = actStart >= today;
+              %>
               <div class="activity-card">
                 <div class="activity-row">
-                  <% if (isUpcoming) { %>
-                    <span class="type-badge type-internal">예정</span>
+                  <% if (isUpcoming && !isFull) { %>
+                    <span class="type-badge type-internal">모집</span>
+                  <% } else if (isUpcoming && isFull) { %>
+                    <span class="type-badge type-battle">마감</span>
                   <% } else { %>
-                    <span class="type-badge type-battle">완료</span>
-                  <% } %>
+                    <span class="type-badge type-battle">종료</span>
+                  <% }%>
                   <div class="activity-main">
                     <div class="activity-title"><%= a.title || '활동' %></div>
                     <div class="activity-meta">
-                      <span>📅 <%= new Date(a.date).toLocaleDateString('ko-KR', {month:'long', day:'numeric', weekday:'short'}) %></span>
-                      <% if (a.address) { %><span>📍 <%= a.address.state %> <%= a.address.city %></span><% } %>
-                      <span>👥 <%= a.participants ? a.participants.length : 0 %>명</span>
+                      <span>📅 
+                        <%= new Date(act.startTime).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' }) %> 
+                        <%= new Date(act.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
+                        <%= act.endTime ? ` ~ ${new Date(act.endTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}` : '' %>
+                      </span>
+                      <% if (act.location && act.location.state && act.location.city) { %>
+                        <span>📍 <%= act.location.state %> <%= act.location.city %> <%= act.location.detail || '' %></span>
+                      <% } else { %>
+                        <span>📍 장소 정보 없음</span>
+                      <% } %>
+                      <span>👥 
+                        <% 
+                          let currentCount = 0;
+                          if (act.gameType === 'team') {
+                            const blueCount = act.teamBlue ? act.teamBlue.length : 0;
+                            const redCount = act.teamRed ? act.teamRed.length : 0;
+                            currentCount = blueCount + redCount;
+                          } else {
+                            currentCount = act.participants ? act.participants.length : 0;
+                          }
+                        %>
+                        <%= currentCount %> / <%= act.capacity %>명
+                        <%= act.gameType === 'team' ? '(팀전)' : '(개인전)' %>
+                      </span>
                     </div>
                     <% if (a.content) { %><div class="activity-desc"><%= a.content %></div><% } %>
                   </div>

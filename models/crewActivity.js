@@ -35,7 +35,7 @@ const crewActivitySchema = new mongoose.Schema(
         capacity: { type: Number, required: true },
         status: {
             type: String, 
-            enum: ['모집', '마감', '활동', '종료', '취소'], 
+            enum: ['모집', '마감', '종료'], 
             default: '모집' 
         }
     }, {

@@ -24,7 +24,7 @@ async function findActById(actId) {
 
 async function findActsByCrewId(crewId) {
     try {
-        const acts = await crewActivity.find({ crewId }).sort({ startTime: -1 });
+        const acts = await crewActivity.find({ crewId }).sort({ startTime: -1 }).populate({ path: 'teamBlue teamRed', select: 'name age profileImage' });
         return acts;
     } catch (error) {
         console.error("findActivitiesByCrewId:", error.message);

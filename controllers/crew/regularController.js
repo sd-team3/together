@@ -89,10 +89,6 @@ const getRegularPage = async (req, res, next) => {
 
 const getMyCrews = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        } // 로그인해야 보임
-        
         const userId = req.user._id;
         const role = req.query.role || 'all'; // 디폴트 설정
         const crews = await regularService.getMyCrews(userId, role);
@@ -140,9 +136,6 @@ const postMyCrewWithdraw = async (req, res) => {
 
 const postCrewLike = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
         await regularService.crewLike(req.params.crewId, req.user._id);
         res.json({success: true});
     } catch (error) {
@@ -157,10 +150,11 @@ const getCrewManage = async (req, res) => {
             return res.redirect('/user/login');
         }
         console.log('crewId:', req.params.crewId);
-        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
+        const {crew, pendingApps, acts} = await regularService.getCrewManage(req.params.crewId);
         console.log('crew:', crew?._id);
         console.log('pendingApps:', pendingApps);
-        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS });
+        console.log('acts:', acts);
+        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS, acts });
     } catch(error) {
         console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
