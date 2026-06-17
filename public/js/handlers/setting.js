@@ -74,10 +74,6 @@ function toggleFaq(el) {
   if (!isOpen) el.classList.add('open');
 }
 
-function saveSetting(key, value) {
-  console.log('[설정 저장]', key, ':', value);
-  showToast('설정이 저장되었습니다.');
-}
 
 function toggleDarkMode(on) {
   document.body.classList.toggle('dark', on);
@@ -104,18 +100,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 토글 스위치
   document.getElementById('priv-history').addEventListener('change', function () { 
-      saveSetting('priv-history', this.checked); 
-  });
-  document.getElementById('priv-manner').addEventListener('change', function () { 
-      saveSetting('priv-manner', this.checked); 
-  });
+    saveSetting('priv-history', this.checked);
+    const mannerChecked = document.getElementById('priv-manner').checked;
+    if (!this.checked && !mannerChecked) {
+        document.getElementById('priv-profile').value = 'none';
+        saveSetting('priv-profile', 'none');
+    } else {
+        document.getElementById('priv-profile').value = 'all';
+        saveSetting('priv-profile', 'all');
+    }
+});
+
+document.getElementById('priv-manner').addEventListener('change', function () { 
+    saveSetting('priv-manner', this.checked);
+    const historyChecked = document.getElementById('priv-history').checked;
+    if (!this.checked && !historyChecked) {
+        document.getElementById('priv-profile').value = 'none';
+        saveSetting('priv-profile', 'none');
+    } else {
+        document.getElementById('priv-profile').value = 'all';
+        saveSetting('priv-profile', 'all');
+    }
+});
   
   document.getElementById('app-darkmode').addEventListener('change', function () { toggleDarkMode(this.checked); });
 
   // 셀렉트
-  document.getElementById('priv-profile').addEventListener('change', function () { 
-      saveSetting('priv-profile', this.value); 
-  });
+document.getElementById('priv-profile').addEventListener('change', function () {
+    saveSetting('priv-profile', this.value);
+
+    // 비공개 선택 시 활동이력·매너점수도 자동 비공개
+    if (this.value === 'none') {
+        const historyToggle = document.getElementById('priv-history');
+        const mannerToggle  = document.getElementById('priv-manner');
+
+        historyToggle.checked = false;
+        mannerToggle.checked  = false;
+
+        saveSetting('priv-history', false);
+        saveSetting('priv-manner', false);
+    } else {
+        const historyToggle = document.getElementById('priv-history');
+        const mannerToggle  = document.getElementById('priv-manner');
+
+        historyToggle.checked = true;
+        mannerToggle.checked  = true;
+
+        saveSetting('priv-history', true);
+        saveSetting('priv-manner', true);
+    }
+});
 
   //다크모드
   document.getElementById('app-darkmode').checked = localStorage.getItem('darkMode') === '1';

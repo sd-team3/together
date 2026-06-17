@@ -46,6 +46,10 @@ export async function openProfileModal(userId) {
                 document.getElementById('pm-meta').textContent = '이 사용자는 프로필을 비공개로 설정했습니다';
                 document.getElementById('pm-friend-btn').style.display = 'none';
                 document.getElementById('pm-crew-list').innerHTML = '';
+
+                document.getElementById('pm-score').textContent = '비공개';
+                document.getElementById('pm-score').style.color = 'var(--text-3)';
+                document.getElementById('pm-score').style.fontSize = '13px';
             }
             return;
         }
