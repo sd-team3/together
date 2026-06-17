@@ -1,3 +1,4 @@
+// controllers/crew/instantController.js
 const { CONSTANTS } = require('../../config/constants');
 const instantService = require('../../services/crew/instantService');
 const applicationService = require("../../services/crew/applicationService");
@@ -11,10 +12,9 @@ const getInstant = async (req, res) => {
             isAutoAccept: req.query.isAutoAccept || null,
             isRecruiting: req.query.isRecruiting || null
         };
-        
-        const { crews } = await instantService.getInstantCrew();
 
-        // ── DB에서 넘어온 crews 데이터를 JS에서도 사용 ──
+        const { crews } = await instantService.getInstantCrew(filter);
+
         const crewsJson = crews.map(c => ({
             id:       c._id,
             title:    c.title,
@@ -40,7 +40,7 @@ const getInstant = async (req, res) => {
                 joinedAt: m.createdAt || ''
             }))
         }));
-        //로그인한 유저의 관련 ID 목록
+
         let myCrewIds = [];
         if (req.isAuthenticated()) {
             const userId = req.user._id.toString();
@@ -56,19 +56,18 @@ const getInstant = async (req, res) => {
             crews: crewsJson,
             isLoggedIn: req.isAuthenticated(),
             myCrewIds,
-            currentUserId: req.isAuthenticated() ? req.user._id.toString() : null 
+            currentUserId: req.isAuthenticated() ? req.user._id.toString() : null,
         };
-        res.render('crew/instantCrew', { CONSTANTS, crews, pageData});
+        res.render('crew/instantCrew', { CONSTANTS, crews, pageData });
     } catch (error) {
         console.error(error);
         res.status(500).send('서버 오류가 발생했습니다.');
     }
 };
 
-
 const getInstantCreate = (req, res) => {
-    res.render('crew/instantCreate', {CONSTANTS:CONSTANTS});
-}
+    res.render('crew/instantCreate', { CONSTANTS: CONSTANTS });
+};
 
 const postInstantCreate = async (req, res) => {
     try {
@@ -79,7 +78,7 @@ const postInstantCreate = async (req, res) => {
 
         const result = await instantService.createInstantCrew(data, host);
 
-        if(result.success) {
+        if (result.success) {
             return res.redirect('/');
         } else {
             return res.status(400).send();
@@ -89,32 +88,32 @@ const postInstantCreate = async (req, res) => {
         return res.status(500).send('서버 오류가 발생했습니다.');
     }
 };
- 
-const getInstantDetail = async(req, res, next) => {
+
+const getInstantDetail = async (req, res, next) => {
     try {
         const crew = await instantService.getCrewDetail(req.params.instantId);
-        if(!crew) return res.status(404).send('모임을 찾을 수 없습니다');
+        if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
 
-        if(!req.isAuthenticated()) {
+        if (!req.isAuthenticated()) {
             return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false, currentUserId: null });
         }
         const userId = req.user._id.toString();
         const isHost = crew.host._id.toString() === userId;
-        const isMember = crew.member.memberList.some(m => m.user._id.toString() === userId);
-        res.render('crew/instantMyCrewDetail', {crew, CONSTANTS, isHost, isMember, currentUserId: userId});
+        const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
+        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost, isMember, currentUserId: userId });
     } catch (error) {
         next(error);
     }
 };
-// 번개 모임 삭제
-const deleteInstantCrew = async(req, res, next) => {
+
+const deleteInstantCrew = async (req, res, next) => {
     try {
         const crewId = req.params.instantId;
         const userId = req.user._id;
         const result = await instantService.deleteInstantCrew(crewId, userId);
-        
-        if(!result.success) {
-            return res.status(result.status || 400).json({ success: false, message: result.message});
+
+        if (!result.success) {
+            return res.status(result.status || 400).json({ success: false, message: result.message });
         }
         return res.json({ success: true });
     } catch (error) {
@@ -122,41 +121,40 @@ const deleteInstantCrew = async(req, res, next) => {
     }
 };
 
-//멤버 강퇴
-const kickMember = async(req, res, next) => {
+const kickMember = async (req, res, next) => {
     try {
         const { instantId, userId } = req.params;
         const hostId = req.user._id;
         const result = await instantService.kickMember(instantId, hostId, userId);
 
-        if(!result.success) {
-            return res.status(result.status || 400).json({ success: false, message: result.message});
+        if (!result.success) {
+            return res.status(result.status || 400).json({ success: false, message: result.message });
         }
-        return res.json({success: true});
+        return res.json({ success: true });
     } catch (error) {
         next(error);
     }
 };
 
 const getInstantDetailApi = async (req, res, next) => {
-  try {
-    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+    try {
+        if (!req.isAuthenticated()) return res.status(401).json({ success: false });
 
-    const crew   = await instantService.getCrewDetail(req.params.instantId);
-    if (!crew) return res.status(404).json({ success: false });
+        const crew = await instantService.getCrewDetail(req.params.instantId);
+        if (!crew) return res.status(404).json({ success: false });
 
-    const userId = req.user._id.toString();
-    const isHost = crew.host._id.toString() === userId;
-    const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
+        const userId = req.user._id.toString();
+        const isHost = crew.host._id.toString() === userId;
+        const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
 
-    if (!isHost && !isMember) return res.status(403).json({ success: false });
+        if (!isHost && !isMember) return res.status(403).json({ success: false });
 
-    const pendingApps = await applicationService.findPendingAppsByCrewId(req.params.instantId);
+        const pendingApps = await applicationService.findPendingAppsByCrewId(req.params.instantId);
 
-    res.json({ success: true, crew, isHost, pendingApps });
-  } catch (error) {
-    next(error);
-  }
+        res.json({ success: true, crew, isHost, pendingApps });
+    } catch (error) {
+        next(error);
+    }
 };
 
 const setNoshow = async (req, res, next) => {
@@ -166,17 +164,17 @@ const setNoshow = async (req, res, next) => {
         const hostId = req.user._id;
         const result = await instantService.setNoshow(instantId, hostId, userId);
 
-        if(!result.success) return res.status(result.status || 400).json({ success: false, message: result.message });
+        if (!result.success) return res.status(result.status || 400).json({ success: false, message: result.message });
         return res.json({ success: true });
     } catch (error) {
         next(error);
     }
-}
+};
 
 module.exports = {
-    getInstantCreate, 
-    postInstantCreate, 
-    getInstant, 
+    getInstantCreate,
+    postInstantCreate,
+    getInstant,
     getInstantDetail,
     getInstantDetailApi,
     deleteInstantCrew,
