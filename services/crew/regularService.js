@@ -8,6 +8,7 @@ const { CONSTANTS } = require('../../config/constants');
 const chatService = require('../chatService'); //
 const crewApplication = require('../../models/crewApplication');
 const activityService = require('../crew/activityService');
+const crewActivity = require('../../models/crewActivity');
 
 async function createRegCrew(data, profileFile, host) {
     const { removeImage, sport, title, intro, 
@@ -259,7 +260,9 @@ async function getCrewManage(regularCrewId) {
     const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
                                              .populate('userId', 'name age profileImage');
     console.log('pendingApps:', pendingApps);
-    return { crew, pendingApps };
+
+    const acts = await activityService.findActsByCrewId(regularCrewId);
+    return { crew, pendingApps, acts };
 }
 
 async function postCrewUpdate(regularCrewId, updateData, updateFile) {
