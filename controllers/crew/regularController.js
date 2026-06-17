@@ -157,10 +157,11 @@ const getCrewManage = async (req, res) => {
             return res.redirect('/user/login');
         }
         console.log('crewId:', req.params.crewId);
-        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
+        const {crew, pendingApps, acts} = await regularService.getCrewManage(req.params.crewId);
         console.log('crew:', crew?._id);
         console.log('pendingApps:', pendingApps);
-        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS });
+        console.log('acts:', acts);
+        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS, acts });
     } catch(error) {
         console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
