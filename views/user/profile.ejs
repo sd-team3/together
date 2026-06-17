@@ -25,7 +25,7 @@
         <div class="profile-card">
           <div class="profile-banner"></div>
           <div class="profile-av-wrap">
-            <img src="/images/user-profile/<%= user.profileImage %>" class="profile-big-av">
+            <img src="<%= user.profileImage ? '/images/user-profile/' + user.profileImage : '/images/user-profile/default-profile-image.jpg'%>" class="profile-big-av">
           </div>
           <div class="profile-info">
             <div class="profile-name"><%= user.name %></div>

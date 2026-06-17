@@ -51,19 +51,19 @@ router.get('/logout', userController.logout);
 router.get('/profile', loginValidation, userController.getProfile);
 
 //회원수정 페이지
-router.get('/edit-profile', userController.getEditProfile);
+router.get('/edit-profile', loginValidation, userController.getEditProfile);
 
 // 회원수정 전 비밀번호 인증 페이지
-router.get('/verify-password', userController.getVerify);
+router.get('/verify-password', loginValidation, userController.getVerify);
 
 // 비밀번호 인증 처리
-router.post('/verify-password', userController.postVerify);
+router.post('/verify-password', loginValidation, userController.postVerify);
 
 //회원수정 처리
-router.post('/edit-profile', uploadProfile.single('uploadFile'), userController.postEditProfile);
+router.post('/edit-profile', loginValidation, uploadProfile.single('uploadFile'), userController.postEditProfile);
 
 //회원탈퇴 처리
-router.post('/delete', userController.postDelete);
+router.post('/delete', loginValidation, userController.postDelete);
 
 //이메일 중복확인
 router.get('/check-email', userController.checkEmail);
@@ -74,7 +74,7 @@ router.get('/map_create', (req, res) => {
 });
 
 //설정 페이지
-router.get('/setting', userController.getSetting);
+router.get('/setting', loginValidation, userController.getSetting);
 
 //프로필 api
 router.get('/api/:userId/profile', userController.getUserProfile);

@@ -114,30 +114,21 @@ const getProfile = async (req, res) => {
 
 //회원 수정 페이지
 const getEditProfile = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/user/login');
+    try {
+        const user = await userService.findUserById(req.user.id);
+        res.render('user/edit-profile', { user });
+    } catch (error) {
+        next(error);
     }
-
-    const user = await userService.findUserById(req.user.id);
-
-    res.render('user/edit-profile', {
-        user
-    });
 };
 
 // 회원 수정 전 비밀번호 인증 페이지
 const getVerify = async (req, res) => {
-//    if (!req.isAuthenticated()) {
-//         return res.redirect('/user/login');
-//    }
    res.render('user/verify-password', {error : {} });
 }
 
 // 회원 수정 전 비밀번호 인증 처리
 const postVerify = async (req, res, next) => {
-//    if (!req.isAuthenticated()) {
-//         return res.redirect('/user/login');
-//    }
     const { password }= req.body;
     try {
         await userService.verifyPassword(req.user.id, password);
@@ -152,10 +143,6 @@ const postVerify = async (req, res, next) => {
 
 //회원 수정 처리
 const postEditProfile = async (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: "로그인 필요" });
-    }
-
     const {
         name,
         age,
@@ -223,7 +210,6 @@ const postEditProfile = async (req, res, next) => {
 
 //회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     const password = req.body.password;
     try {
         await userService.deleteUser(req.user.id, password);
@@ -249,9 +235,6 @@ const checkEmail = async (req, res, next) => {
 }
 // 설정 페이지
 const getSetting = (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/user/login');
-  }
   res.render('user/setting', { user: req.user });
 };
 
