@@ -122,6 +122,7 @@ function _showToast(msg) {
 }
 
 function _bindEvents() {
+    
     document.getElementById('pm-overlay').addEventListener('click', (e) => {
         if (e.target === document.getElementById('pm-overlay')) closeProfileModal();
     });

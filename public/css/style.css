@@ -6,7 +6,7 @@
   --border-strong:#C8CAC4;
   --text:#111110;
   --text-2:#555552;
-  --text-3:#999994;
+  --text-3: #777772;
   --accent:#C8FF00;
   --accent-dark:#8FB800;
   --primary:#1A5CFF;
@@ -31,7 +31,7 @@ body.dark {
   --border-strong: #353840;
   --text: #eeeef0;
   --text-2: #9090a0;
-  --text-3: #55555f;
+  --text-3: #888894;
   --primary-soft: #141c35;
   --accent: #C8FF00;
   --accent-dark: #8FB800;
@@ -144,7 +144,7 @@ body.dark .main::-webkit-scrollbar-thumb {
   border:1px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif;
 }
 .btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}
-.btn-primary:hover{background:#222220}
+.btn-primary:hover{background:var(--text)}
 .btn-outline{background:transparent;color:var(--text);border-color:var(--border)}
 .btn-outline:hover{border-color:var(--border-strong)}
 .btn-outline{background:transparent;color:var(--text);border-color:var(--border)}
@@ -297,8 +297,8 @@ select.input{cursor:pointer}
   display:flex;gap:8px;padding:0 28px 4px;overflow-x:auto;
   scrollbar-width:none;
   position: sticky;
-  top: 0;
-  z-index: 100;
+  top: 57px;
+  z-index: 99;
   background: var(--bg);
 }
 .sport-chips::-webkit-scrollbar{display:none}
@@ -845,7 +845,7 @@ select.input{cursor:pointer}
 .chat-input{
   flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);
   font-size:13.5px;font-family:'DM Sans',sans-serif;resize:none;outline:none;
-  background:var(--bg);transition:border-color .15s;
+  background:var(--bg);transition:border-color .15s;color:var(--text);
 }
 .chat-input:focus{border-color:var(--border-strong)}
 .chat-send-btn{
