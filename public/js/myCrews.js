@@ -30,7 +30,7 @@ grid.classList.add('regular-grid');
                     ? `<span class="role-badge host">👑 모임장</span>`
                     : `<span class="role-badge member">🙋 크루원</span>`
                 }
-                <span class="like-font">👍 ${crew.reputation}</span>
+                <span class="like-font">👍 ${crew.rating}</span>
             </div>
             <div class="reg-card-body">
                 <div class="reg-meta-row">

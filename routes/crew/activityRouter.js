@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const activityMiddleware = require('../../middlewares/activityMiddleware');
 const activityController = require('../../controllers/crew/activityController');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
@@ -11,16 +11,15 @@ router.post('/create/:crewId',
     activityController.postActivityCreate
 );
 
-router.post('/progress/:actId/:status',
-    activityMiddleware.isActExist,
-    activityMiddleware.progressMiddleware,
-    crewMiddleware.isHost,
-    activityController.postProgress
-);
-
 router.post('/entry/:actId',
     activityMiddleware.isActExist,
-    crewMiddleware.isMember
+    crewMiddleware.isMember,
+    activityController.postEntry
+);
+
+router.post('/attend/:actId', 
+    activityMiddleware.isActExist,
+    activityController.postAttendance
 );
 
 

@@ -51,6 +51,7 @@ export function renderNoti(noti, notiList) {
     `;  
 
     notiDiv.querySelector('.action-btn').addEventListener('click', async ()=>{
+        e.stopPropagation();
         try {
             const response = await fetch(`/noti/${noti._id}/${noti.isRead ? 'delete' : 'read'}`, {
                 method: `${noti.isRead ? 'DELETE' : 'PATCH'}`,
@@ -67,6 +68,52 @@ export function renderNoti(noti, notiList) {
             
         }
     });
+
+    notiDiv.addEventListener('click', async () => {
+        if (noti.event === 'ACTIVITY_ATTEND') {
+            if (!navigator.geolocation) {
+                alert("이 브라우저에서는 GPS 출석 체크를 지원하지 않습니다.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    try {
+                        const res = await fetch(noti.route, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ lat, lng })
+                        });
+                        
+                        const data = await res.json();
+                        
+                        if (res.ok) {
+                            alert(`✅ 출석 성공!`);
+                            location.reload(); 
+                        } else {
+                            alert(`❌ 출석 실패: ${data.message || '오류가 발생했습니다.'}`);
+                        }
+                    } catch (error) {
+                        console.error('GPS 출석 통신 에러:', error);
+                        alert("서버 통신 중 오류가 발생했습니다.");
+                    }
+                },
+                (error) => {
+                    alert("위치 정보 제공에 동의해야 출석이 가능합니다.");
+                },
+                { enableHighAccuracy: true }
+            );
+            return;
+        }
+
+        if (noti.route) {
+            window.location.href = noti.route;
+        }
+    });
+
     notiList.appendChild(notiDiv);
 }
 
