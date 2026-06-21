@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/sd-team3/together#readme",
   "dependencies": {
+    "axios": "^1.18.0",
     "bcrypt": "^6.0.0",
     "connect-flash": "^0.1.1",
     "dotenv": "^17.4.1",
@@ -33,7 +34,7 @@
     "module": "^2.0.0",
     "mongoose": "^9.4.1",
     "multer": "^2.1.1",
-    "node-cron": "^4.2.1",
+    "node-cron": "^4.4.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",

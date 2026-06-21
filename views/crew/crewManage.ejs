@@ -218,23 +218,31 @@
             </div>
           <% } else { %>
             <% const today = new Date(); today.setHours(0,0,0,0); %>
-            <% acts.forEach(act => { %>
+            <!-- <% acts.forEach(act => { %>
               <% 
-              const actStart = new Date(act.startTime);
-              const isUpcoming = actStart >= today;
+                const actStart = new Date(act.startTime);
+                const isUpcoming = actStart >= today;
+
+                // 인원수 계산 및 마감(isFull) 판단 로직
+                let currentCount = 0;
+                if (act.gameType === 'team') {
+                  currentCount = (act.teamBlue ? act.teamBlue.length : 0) + (act.teamRed ? act.teamRed.length : 0);
+                } else {
+                  currentCount = act.participants ? act.participants.length : 0;
+                }
+                const isFull = currentCount >= act.capacity;
               %>
-              <div class="activity-card">
+              <div class="activity-card" data-id="<%= act._id %>">
                 <div class="activity-row">
                   <% if (isUpcoming && !isFull) { %>
                     <span class="type-badge type-internal">모집</span>
                   <% } else if (isUpcoming && isFull) { %>
                     <span class="type-badge type-battle">마감</span>
                   <% } else { %>
-                    <span class="type-badge type-battle">종료</span>
+                    <span class="type-badge type-disabled">종료</span>
                   <% }%>
                   <div class="activity-main">
-                    <div class="activity-title"><%= a.title || '활동' %></div>
-                    <div class="activity-meta">
+                    <div class="activity-title"><%= act.title || '활동' %></div> <div class="activity-meta">
                       <span>📅 
                         <%= new Date(act.startTime).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' }) %> 
                         <%= new Date(act.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
@@ -245,22 +253,69 @@
                       <% } else { %>
                         <span>📍 장소 정보 없음</span>
                       <% } %>
-                      <span>👥 
-                        <% 
-                          let currentCount = 0;
-                          if (act.gameType === 'team') {
-                            const blueCount = act.teamBlue ? act.teamBlue.length : 0;
-                            const redCount = act.teamRed ? act.teamRed.length : 0;
-                            currentCount = blueCount + redCount;
-                          } else {
-                            currentCount = act.participants ? act.participants.length : 0;
-                          }
-                        %>
-                        <%= currentCount %> / <%= act.capacity %>명
-                        <%= act.gameType === 'team' ? '(팀전)' : '(개인전)' %>
-                      </span>
+                      <span>👥 <%= currentCount %> / <%= act.capacity %>명 <%= act.gameType === 'team' ? '(팀전)' : '(개인전)' %></span>
                     </div>
-                    <% if (a.content) { %><div class="activity-desc"><%= a.content %></div><% } %>
+                    <% if (act.content) { %><div class="activity-desc"><%= act.content %></div><% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %> -->
+            <% acts.forEach(act => { %>
+              <% 
+                const actStart = new Date(act.startTime);
+                const isUpcoming = actStart > today;
+
+                let currentCount = 0;
+                if (act.gameType === 'team') {
+                  currentCount = (act.teamBlue ? act.teamBlue.length : 0) + (act.teamRed ? act.teamRed.length : 0);
+                } else {
+                  currentCount = act.participants ? act.participants.length : 0;
+                }
+                const isFull = currentCount >= act.capacity;
+
+                const dateStr = actStart.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+                const startStr = actStart.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                const endStr = act.endTime ? new Date(act.endTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+                
+                const sH = actStart.getHours().toString().padStart(2, '0');
+                const sM = actStart.getMinutes().toString().padStart(2, '0');
+                const eH = act.endTime ? new Date(act.endTime).getHours().toString().padStart(2, '0') : '';
+                const eM = act.endTime ? new Date(act.endTime).getMinutes().toString().padStart(2, '0') : '';
+              %>
+
+              <div class="activity-card" data-id="<%= act._id %>">
+                
+                <div class="activity-row" id="act-row-<%= act._id %>">
+                  
+                  <% if (isUpcoming && !isFull) { %>
+                    <span class="type-badge type-internal"><%= act.status %></span>
+                  <% } else if (isUpcoming && isFull) { %>
+                    <span class="type-badge type-battle"><%= act.status %></span>
+                  <% } else if (!isUpcoming) { %>
+                    <span class="type-badge type-battle"><%= act.status %></span>
+                  <% } else { %>
+                    <span class="type-badge type-disabled"><%= act.status %></span>
+                  <% } %>
+
+                  <div class="activity-main">
+                    <div class="activity-title"><%= act.title || '활동' %></div>
+                    <div class="activity-meta">
+                      <span>📅 <%= dateStr %></span>
+                      <span>⏰ <%= startStr %><%= endStr ? ' – ' + endStr : '' %></span>
+                      <% if (act.location && act.location.state && act.location.city) { %>
+                        <span>📍 <%= act.location.state %> <%= act.location.city %> <%= act.location.detail || '' %></span>
+                      <% } else { %>
+                        <span>📍 장소 정보 없음</span>
+                      <% } %>
+                      <span>👥 <%= currentCount %> / <%= act.capacity %>명 <%= act.gameType === 'team' ? '(팀전)' : '(개인전)' %></span>
+                    </div>
+                    <% if (act.content) { %><div class="activity-desc"><%= act.content %></div><% } %>
+                  </div>
+
+                  <div class="event-actions">
+                    <button class="event-edit-btn" onclick="entryAct('<%= act._id %>')">참가</button>
+                    <!-- <button class="event-edit-btn" onclick="toggleActEditForm('<%= act._id %>')">수정</button>
+                    <button class="event-del-btn" onclick="deleteSchedule('<%= act._id %>')">삭제</button> -->
                   </div>
                 </div>
               </div>
@@ -269,6 +324,8 @@
         </div>
       </div>
     </div>
+
+
 
     <!-- 일정 추가 폼 -->
     <div class="add-schedule-form" id="addScheduleForm">
@@ -284,9 +341,9 @@
           </div>
 
           <div class="add-form-grid">
-            <div class="field full" style="margin-bottom:0">
-              <label class="label">일정 이름</label>
-              <input type="text" class="manage-input" id="new-title" placeholder="예: 주말 정기 농구">
+            <div class="field full" style="margin-bottom:0; margin-top:14px;">
+              <label class="label">상세 내용 (선택)</label>
+              <textarea id="new-content" class="manage-input" style="height: 80px;" placeholder="활동 내용, 준비물, 특이사항 등을 적어주세요."></textarea>
             </div>
             <div class="field full" style="margin-bottom:0">
               <label class="label">날짜</label>
@@ -357,7 +414,7 @@
             </div>
 
             <!-- 단체 활동: 레드팀 / 블루팀 -->
-            <div class="field full" id="field-group" style="margin-bottom:0;">
+            <!-- <div class="field full" id="field-group" style="margin-bottom:0;">
               <label class="label">팀별 구인 인원</label>
               <div style="display:flex;gap:8px;margin-top:4px;">
                 <div style="flex:1;background:#fff1f1;border:1px solid #fecaca;border-radius:var(--radius-sm);padding:10px 12px;">
@@ -369,9 +426,19 @@
                   <input type="number" class="manage-input" id="new-blue" min="1" max="50" placeholder="인원 수" style="background:transparent;border-color:#bfdbfe;">
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- 개인 활동: 총 인원 -->
+            <!-- <div class="field full" id="field-solo" style="margin-bottom:0;display:none;">
+              <label class="label">구인 인원</label>
+              <input type="number" class="manage-input" id="new-count" min="1" max="50" placeholder="총 구인 인원 수">
+            </div> -->
+
+            <div class="field full" id="field-group" style="margin-bottom:0;">
+              <label class="label">팀 당 구인 인원</label>
+              <input type="number" class="manage-input" id="new-team-count" min="1" max="50" placeholder="예: 5 (5 vs 5 경기의 경우)">
+            </div>
+
             <div class="field full" id="field-solo" style="margin-bottom:0;display:none;">
               <label class="label">구인 인원</label>
               <input type="number" class="manage-input" id="new-count" min="1" max="50" placeholder="총 구인 인원 수">
@@ -567,144 +634,245 @@ function toggleAddForm() {
   document.getElementById('scheduleOverlay').classList.toggle('show');
 }
 
-function addSchedule() {
-  const title    = document.getElementById('new-title').value.trim() || '정기 활동';
-  const dateVal  = document.getElementById('new-date').value;
+async function entryAct(actId) {
+  try {
+    const res = await fetch(`/regular/act/entry/${actId}`, { method: 'POST' });
+    const data = await res.json();
+
+    if (res.ok) {
+      showToast(`✅ ${data.message}`);
+      
+      setTimeout(() => {
+        location.reload(); 
+      }, 1000);
+    } else {
+      showToast(`❌ ${data.message}`);
+    }
+  } catch (error) {
+    console.error('참가 신청 에러:', error);
+    showToast('❌ 통신 중 오류가 발생했습니다.');
+  }
+}
+// function addSchedule() {
+//   const title    = document.getElementById('new-title').value.trim() || '정기 활동';
+//   const dateVal  = document.getElementById('new-date').value;
+//   if (!dateVal) { showToast('⚠️ 날짜를 선택해주세요'); return; }
+//   const dateObj  = new Date(dateVal + 'T00:00:00');
+//   const dayIdx   = dateObj.getDay(); // 0=일, 1=월 ... 6=토
+//   const day      = DAYS[dayIdx];
+//   const location = document.getElementById('detail-addr').value.trim() || '미정';
+
+//   const startH = parseInt(document.getElementById('new-start-h').value);
+//   const startM = parseInt(document.getElementById('new-start-m').value);
+//   const endH   = parseInt(document.getElementById('new-end-h').value);
+//   const endM   = parseInt(document.getElementById('new-end-m').value);
+//   const start  = String(startH).padStart(2,'0') + ':' + String(startM).padStart(2,'0');
+//   const end    = String(endH).padStart(2,'0')   + ':' + String(endM).padStart(2,'0');
+
+//   if (startH * 60 + startM >= endH * 60 + endM) {
+//     showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다'); return;
+//   }
+
+//   // 유형별 유효성 검사 & 메타 텍스트
+//   let recruitMeta = '';
+//   if (activityType === 'group') {
+//     const red  = parseInt(document.getElementById('new-red').value);
+//     const blue = parseInt(document.getElementById('new-blue').value);
+//     if (!red || !blue || red < 1 || blue < 1) {
+//       showToast('⚠️ 레드팀과 블루팀 인원을 입력해주세요'); return;
+//     }
+//     recruitMeta = `🔴 ${red}명 vs 🔵 ${blue}명`;
+//   } else {
+//     const count = parseInt(document.getElementById('new-count').value);
+//     if (!count || count < 1) {
+//       showToast('⚠️ 구인 인원을 입력해주세요'); return;
+//     }
+//     recruitMeta = `👤 ${count}명 모집`;
+//   }
+
+//   const startTotal = toMin(start);
+//   const endTotal   = toMin(end);
+//   const idx = document.getElementById('view-activity').querySelectorAll('.activity-card').length;
+
+//   const countEl = document.getElementById('scheduleCount');
+//   if (countEl) countEl.textContent = (parseInt(countEl.textContent) + 1) + '개';
+
+//   document.getElementById('new-title').value = '';
+//   document.getElementById('new-date').value = '';
+//   document.getElementById('detail-addr').value = '';
+//   document.getElementById('new-start-h').value = '10';
+//   document.getElementById('new-start-m').value = '0';
+//   document.getElementById('new-end-h').value = '12';
+//   document.getElementById('new-end-m').value = '0';
+//   document.getElementById('new-red').value = '';
+//   document.getElementById('new-blue').value = '';
+//   document.getElementById('new-count').value = '';
+//   selectActivityType('group');
+
+//   // 선택한 날짜가 현재 주 밖이면 해당 주로 이동
+//   const selectedSunday = new Date(dateObj);
+//   selectedSunday.setDate(dateObj.getDate() - dateObj.getDay());
+//   selectedSunday.setHours(0,0,0,0);
+//   if (selectedSunday.getTime() !== currentSunday.getTime()) {
+//     currentSunday = selectedSunday;
+//     buildTimetable();
+//   }
+
+//   /* 텍스트(활동 카드) 뷰에도 추가 */
+//   const activityView = document.getElementById('view-activity');
+//   // 빈 상태 메시지 제거
+//   const emptyMsg = activityView.querySelector('[style*="padding:32px"]');
+//   if (emptyMsg) emptyMsg.remove();
+
+//   const today = new Date(); today.setHours(0,0,0,0);
+//   const isUpcoming = dateObj >= today;
+//   const dateLabel2 = dateObj.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+//   const editStartHOpts = Array.from({length:19},(_,i)=>i+4).map(h=>'<option value="'+h+'"'+(h===startH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
+//   const editStartMOpts = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===startM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
+//   const editEndHOpts   = Array.from({length:19},(_,i)=>i+5).map(h=>'<option value="'+h+'"'+(h===endH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
+//   const editEndMOpts   = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===endM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
+//   const actCard = document.createElement('div');
+//   actCard.className = 'activity-card';
+//   actCard.id = 'act-card-' + idx;
+//   actCard.dataset.day = dayIdx;
+//   actCard.innerHTML = `
+//     <div class="activity-row" id="act-row-${idx}">
+//       <span class="type-badge ${isUpcoming ? 'type-internal' : 'type-battle'}">${isUpcoming ? '예정' : '완료'}</span>
+//       <div class="activity-main">
+//         <div class="activity-title">${title}</div>
+//         <div class="activity-meta">
+//           <span>📅 ${dateLabel2}</span>
+//           <span>⏰ ${start} – ${end}</span>
+//           <span>📍 ${location}</span>
+//           <span>${recruitMeta}</span>
+//         </div>
+//       </div>
+//       <div class="event-actions">
+//         <button class="event-edit-btn" onclick="toggleActEditForm(${idx})">수정</button>
+//         <button class="event-del-btn" onclick="deleteSchedule(${idx})">삭제</button>
+//       </div>
+//     </div>
+//     <div class="inline-edit-form" id="act-edit-form-${idx}">
+//       <div style="font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:12px;">✏️ 일정 수정</div>
+//       <div class="inline-edit-grid">
+//         <div class="field full" style="margin-bottom:0">
+//           <label class="label">일정 이름</label>
+//           <input type="text" class="manage-input" value="${title}">
+//         </div>
+//         <div class="field" style="margin-bottom:0">
+//           <label class="label">시작 시간</label>
+//           <div style="display:flex;gap:6px;">
+//             <select class="manage-input edit-start-h" style="flex:1">${editStartHOpts}</select>
+//             <select class="manage-input edit-start-m" style="flex:1">${editStartMOpts}</select>
+//           </div>
+//         </div>
+//         <div class="field" style="margin-bottom:0">
+//           <label class="label">종료 시간</label>
+//           <div style="display:flex;gap:6px;">
+//             <select class="manage-input edit-end-h" style="flex:1">${editEndHOpts}</select>
+//             <select class="manage-input edit-end-m" style="flex:1">${editEndMOpts}</select>
+//           </div>
+//         </div>
+//         <div class="field full" style="margin-bottom:0">
+//           <label class="label">장소</label>
+//           <input type="text" class="manage-input" value="${location}">
+//         </div>
+//       </div>
+//       <div class="inline-edit-actions">
+//         <button class="btn btn-ghost btn-sm" onclick="toggleActEditForm(${idx})">취소</button>
+//         <button class="btn btn-primary btn-sm" onclick="saveEdit(${idx})">저장</button>
+//       </div>
+//     </div>
+//   `;
+//   activityView.appendChild(actCard);
+
+//   /* 시간표에 픽셀 블록 추가 */
+//   setTimeout(() => addEventBlock(dayIdx, startTotal, endTotal, title, idx), 0);
+
+//   toggleAddForm();
+//   showToast('✅ 일정이 추가되었습니다');
+// }
+
+async function addSchedule() {
+  const dateVal = document.getElementById('new-date').value;
   if (!dateVal) { showToast('⚠️ 날짜를 선택해주세요'); return; }
-  const dateObj  = new Date(dateVal + 'T00:00:00');
-  const dayIdx   = dateObj.getDay(); // 0=일, 1=월 ... 6=토
-  const day      = DAYS[dayIdx];
-  const location = document.getElementById('detail-addr').value.trim() || '미정';
 
-  const startH = parseInt(document.getElementById('new-start-h').value);
-  const startM = parseInt(document.getElementById('new-start-m').value);
-  const endH   = parseInt(document.getElementById('new-end-h').value);
-  const endM   = parseInt(document.getElementById('new-end-m').value);
-  const start  = String(startH).padStart(2,'0') + ':' + String(startM).padStart(2,'0');
-  const end    = String(endH).padStart(2,'0')   + ':' + String(endM).padStart(2,'0');
-
-  if (startH * 60 + startM >= endH * 60 + endM) {
-    showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다'); return;
+  // 시작/종료 시간 스키마(Date) 포맷 변환
+  const startH = document.getElementById('new-start-h').value;
+  const startM = document.getElementById('new-start-m').value;
+  const endH = document.getElementById('new-end-h').value;
+  const endM = document.getElementById('new-end-m').value;
+  
+  if (parseInt(startH) * 60 + parseInt(startM) >= parseInt(endH) * 60 + parseInt(endM)) {
+    showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다');
+    return;
   }
 
-  // 유형별 유효성 검사 & 메타 텍스트
-  let recruitMeta = '';
-  if (activityType === 'group') {
-    const red  = parseInt(document.getElementById('new-red').value);
-    const blue = parseInt(document.getElementById('new-blue').value);
-    if (!red || !blue || red < 1 || blue < 1) {
-      showToast('⚠️ 레드팀과 블루팀 인원을 입력해주세요'); return;
+  const startTime = new Date(`${dateVal}T${String(startH).padStart(2,'0')}:${String(startM).padStart(2,'0')}:00`);
+  const endTime = new Date(`${dateVal}T${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}:00`);
+
+  // 정원(capacity) 및 방식 분기
+  let capacity = 0;
+  if (activityType === 'group') { // 팀전일 때
+    const teamCount = parseInt(document.getElementById('new-team-count').value) || 0;
+    if (teamCount < 1) { 
+        showToast('⚠️ 팀 당 구인 인원을 정확히 입력해주세요'); 
+        return; 
     }
-    recruitMeta = `🔴 ${red}명 vs 🔵 ${blue}명`;
-  } else {
-    const count = parseInt(document.getElementById('new-count').value);
-    if (!count || count < 1) {
-      showToast('⚠️ 구인 인원을 입력해주세요'); return;
+    // 스키마의 capacity는 '총 정원'이므로 팀 당 인원 * 2 를 해줍니다.
+    capacity = teamCount * 2; 
+  } else { // 개인전일 때
+    capacity = parseInt(document.getElementById('new-count').value) || 0;
+    if (capacity < 1) { 
+        showToast('⚠️ 구인 인원을 입력해주세요'); 
+        return; 
     }
-    recruitMeta = `👤 ${count}명 모집`;
   }
 
-  const startTotal = toMin(start);
-  const endTotal   = toMin(end);
-  const idx = document.getElementById('view-activity').querySelectorAll('.activity-card').length;
+  // 장소 객체 (친구가 만든 입력창에서 값 가져옴)
+  const state = document.getElementById('stateSelect').value;
+  const city = document.getElementById('citySelect').value;
+  const detail = document.getElementById('detail-addr').value.trim();
+  if (!state || !city) { showToast('⚠️ 장소(지역)를 선택해주세요'); return; }
+  
+  // 백엔드로 보낼 완벽한 스키마 Payload
+  const payload = {
+    crewModel: 'regular',
+    crewId: crewId, 
+    title: '',
+    startTime: startTime,
+    endTime: endTime,
+    content: document.getElementById('new-content') ? document.getElementById('new-content').value : "",
+    gameType: activityType === 'group' ? 'team' : 'solo', // group을 team으로 자동 변환
+    capacity: capacity,
+    location: {
+      state: state,
+      city: city,
+      detail: detail || "상세 주소 없음",
+      lat: parseFloat(document.getElementById('lat-input').value) || 37.5665, // 값 없으면 임시 좌표
+      lng: parseFloat(document.getElementById('lng-input').value) || 126.9780
+    }
+  };
 
-  const countEl = document.getElementById('scheduleCount');
-  if (countEl) countEl.textContent = (parseInt(countEl.textContent) + 1) + '개';
-
-  document.getElementById('new-title').value = '';
-  document.getElementById('new-date').value = '';
-  document.getElementById('detail-addr').value = '';
-  document.getElementById('new-start-h').value = '10';
-  document.getElementById('new-start-m').value = '0';
-  document.getElementById('new-end-h').value = '12';
-  document.getElementById('new-end-m').value = '0';
-  document.getElementById('new-red').value = '';
-  document.getElementById('new-blue').value = '';
-  document.getElementById('new-count').value = '';
-  selectActivityType('group');
-
-  // 선택한 날짜가 현재 주 밖이면 해당 주로 이동
-  const selectedSunday = new Date(dateObj);
-  selectedSunday.setDate(dateObj.getDate() - dateObj.getDay());
-  selectedSunday.setHours(0,0,0,0);
-  if (selectedSunday.getTime() !== currentSunday.getTime()) {
-    currentSunday = selectedSunday;
-    buildTimetable();
+  try {
+    // 백엔드로 POST 전송 (본인의 라우터 주소에 맞게 수정 필요)
+    const res = await fetch(`/regular/act/create/${crewId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('일정이 추가되었습니다');
+      toggleAddForm();
+      location.reload();
+    } else {
+      const errorData = await res.json();
+      showToast(`❌ 추가 실패: ${errorData.message}`);
+    }
+  } catch (error) {
+    showToast('❌ 서버 통신 오류가 발생했습니다.');
   }
-
-  /* 텍스트(활동 카드) 뷰에도 추가 */
-  const activityView = document.getElementById('view-activity');
-  // 빈 상태 메시지 제거
-  const emptyMsg = activityView.querySelector('[style*="padding:32px"]');
-  if (emptyMsg) emptyMsg.remove();
-
-  const today = new Date(); today.setHours(0,0,0,0);
-  const isUpcoming = dateObj >= today;
-  const dateLabel2 = dateObj.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
-  const editStartHOpts = Array.from({length:19},(_,i)=>i+4).map(h=>'<option value="'+h+'"'+(h===startH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
-  const editStartMOpts = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===startM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
-  const editEndHOpts   = Array.from({length:19},(_,i)=>i+5).map(h=>'<option value="'+h+'"'+(h===endH?' selected':'')+'>'+String(h).padStart(2,'0')+'시</option>').join('');
-  const editEndMOpts   = [0,10,20,30,40,50].map(m=>'<option value="'+m+'"'+(m===endM?' selected':'')+'>'+String(m).padStart(2,'0')+'분</option>').join('');
-  const actCard = document.createElement('div');
-  actCard.className = 'activity-card';
-  actCard.id = 'act-card-' + idx;
-  actCard.dataset.day = dayIdx;
-  actCard.innerHTML = `
-    <div class="activity-row" id="act-row-${idx}">
-      <span class="type-badge ${isUpcoming ? 'type-internal' : 'type-battle'}">${isUpcoming ? '예정' : '완료'}</span>
-      <div class="activity-main">
-        <div class="activity-title">${title}</div>
-        <div class="activity-meta">
-          <span>📅 ${dateLabel2}</span>
-          <span>⏰ ${start} – ${end}</span>
-          <span>📍 ${location}</span>
-          <span>${recruitMeta}</span>
-        </div>
-      </div>
-      <div class="event-actions">
-        <button class="event-edit-btn" onclick="toggleActEditForm(${idx})">수정</button>
-        <button class="event-del-btn" onclick="deleteSchedule(${idx})">삭제</button>
-      </div>
-    </div>
-    <div class="inline-edit-form" id="act-edit-form-${idx}">
-      <div style="font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:12px;">✏️ 일정 수정</div>
-      <div class="inline-edit-grid">
-        <div class="field full" style="margin-bottom:0">
-          <label class="label">일정 이름</label>
-          <input type="text" class="manage-input" value="${title}">
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <label class="label">시작 시간</label>
-          <div style="display:flex;gap:6px;">
-            <select class="manage-input edit-start-h" style="flex:1">${editStartHOpts}</select>
-            <select class="manage-input edit-start-m" style="flex:1">${editStartMOpts}</select>
-          </div>
-        </div>
-        <div class="field" style="margin-bottom:0">
-          <label class="label">종료 시간</label>
-          <div style="display:flex;gap:6px;">
-            <select class="manage-input edit-end-h" style="flex:1">${editEndHOpts}</select>
-            <select class="manage-input edit-end-m" style="flex:1">${editEndMOpts}</select>
-          </div>
-        </div>
-        <div class="field full" style="margin-bottom:0">
-          <label class="label">장소</label>
-          <input type="text" class="manage-input" value="${location}">
-        </div>
-      </div>
-      <div class="inline-edit-actions">
-        <button class="btn btn-ghost btn-sm" onclick="toggleActEditForm(${idx})">취소</button>
-        <button class="btn btn-primary btn-sm" onclick="saveEdit(${idx})">저장</button>
-      </div>
-    </div>
-  `;
-  activityView.appendChild(actCard);
-
-  /* 시간표에 픽셀 블록 추가 */
-  setTimeout(() => addEventBlock(dayIdx, startTotal, endTotal, title, idx), 0);
-
-  toggleAddForm();
-  showToast('✅ 일정이 추가되었습니다');
 }
 
 function toggleEditForm(idx) {
@@ -715,49 +883,6 @@ function toggleEditForm(idx) {
 function toggleActEditForm(idx) {
   const form = document.getElementById('act-edit-form-' + idx);
   if (form) form.classList.toggle('show');
-}
-
-function saveEdit(idx) {
-  const form = document.getElementById('act-edit-form-' + idx);
-  if (!form) return;
-  const titleInput = form.querySelector('input[type="text"]:first-of-type') || form.querySelectorAll('input')[0];
-  const newTitle    = titleInput.value.trim() || '정기 활동';
-  const newStartH   = parseInt(form.querySelector('.edit-start-h').value);
-  const newStartM   = parseInt(form.querySelector('.edit-start-m').value);
-  const newEndH     = parseInt(form.querySelector('.edit-end-h').value);
-  const newEndM     = parseInt(form.querySelector('.edit-end-m').value);
-  const locationInput = form.querySelectorAll('input[type="text"]')[1] || form.querySelectorAll('input')[1];
-  const newLocation = locationInput.value.trim() || '미정';
-
-  const newStart = String(newStartH).padStart(2,'0') + ':' + String(newStartM).padStart(2,'0');
-  const newEnd   = String(newEndH).padStart(2,'0')   + ':' + String(newEndM).padStart(2,'0');
-  const newStartTotal = newStartH * 60 + newStartM;
-  const newEndTotal   = newEndH   * 60 + newEndM;
-
-  if (newStartTotal >= newEndTotal) { showToast('⚠️ 종료 시간이 시작 시간보다 늦어야 합니다'); return; }
-
-  /* 시간표 블록 업데이트 */
-  removeEventBlock(idx);
-  const actCard = document.getElementById('act-card-' + idx);
-  if (actCard) {
-    const dayIdx = parseInt(actCard.dataset.day);
-    addEventBlock(dayIdx, newStartTotal, newEndTotal, newTitle, idx);
-  }
-
-  /* actCard 화면 업데이트 */
-  if (actCard) {
-    const titleEl = actCard.querySelector('.activity-title');
-    const metaEl  = actCard.querySelector('.activity-meta');
-    if (titleEl) titleEl.textContent = newTitle;
-    if (metaEl) {
-      const spans = metaEl.querySelectorAll('span');
-      if (spans[1]) spans[1].textContent = '⏰ ' + newStart + ' – ' + newEnd;
-      if (spans[2]) spans[2].textContent = '📍 ' + newLocation;
-    }
-  }
-
-  form.classList.remove('show');
-  showToast('✅ 일정이 수정되었습니다');
 }
 
 function deleteSchedule(idx) {

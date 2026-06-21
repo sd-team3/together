@@ -1,4 +1,6 @@
 const User = require('../../models/User');
+const regularCrew = require('../../models/regularCrew');
+const instantCrew = require('../../models/instantCrew');
 
 const findHostByCrewId = async (crewModel, crewId)=>{
     const crew = await crewModel.findById(crewId).select('host');
@@ -49,4 +51,19 @@ async function addCrewToUser(userId, crewId, options = {}) {
     return result;
 }
 
-module.exports = { findHostByCrewId, addCrewToUser, addUserToCrew, userInCrew };
+async function getCrewName(modelName, crewId) {
+    try {
+        if(modelName === 'instant') {
+            const crew = await instantCrew.findById(crewId).select('title').lean();
+            return crew ? crew.name : '알 수 없는 크루';
+        } else if(modelName === 'regular') {
+            const crew = await regularCrew.findById(crewId).select('title').lean();
+            return crew ? crew.name : '알 수 없는 크루';
+        }
+    } catch (error) {
+        console.error('크루 이름 조회 에러:', error.message);
+        return '알 수 없는 크루';
+    }
+}
+
+module.exports = { findHostByCrewId, addCrewToUser, addUserToCrew, userInCrew, getCrewName };

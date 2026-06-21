@@ -6,11 +6,14 @@ const applicationController = require('../../controllers/crew/applicationControl
 const applicationService = require('../../services/crew/applicationService');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
+const activityRouter = require('../crew/activityRouter');
 
 router.use((req, res, next)=>{ 
     req.crewModel = regularCrew;
     next(); 
 });
+
+router.use('/act', activityRouter);
 
 router.get('/create', 
     crewMiddleware.loginValidation,
