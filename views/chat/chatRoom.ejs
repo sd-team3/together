@@ -11,7 +11,7 @@
 <body>
 <%- include('../partials/navbar') %>
 <div class="main">
-<%- include('../partials/head', { title: '✉️ 채팅', pageId: 'page-chat', active: '' }) %>
+<%- include('../partials/head', { title: '✉️ 채팅', pageId: 'page-chat', active: '', route: '/chatRoom/chatPage' }) %>
 
   <div class="page-body-wide" style="flex:1;height:0;overflow:hidden;">
   <div class="chat-layout" style="height:100%;">
@@ -22,16 +22,16 @@
   </div>
 
   <!-- 탭 버튼 -->
-  <div style="display:flex;border-bottom:1px solid #eee;">
+  <div style="display:flex;border-bottom:1px solid var(--border);">
     <button onclick="location.href='/chatRoom/chatPage?crewType=regular'"
-      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= !crewType || crewType === 'regular' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;color:var(--text);<%= !crewType || crewType === 'regular' ? 'border-bottom:2px solid var(--text);' : 'color:var(--text-3);' %>">
       정기모임
     </button>
     <button onclick="location.href='/chatRoom/chatPage?crewType=instant'"
-      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;<%= crewType === 'instant' ? 'border-bottom:2px solid #000;' : 'color:#aaa;' %>">
+      style="flex:1;padding:10px;border:none;background:none;cursor:pointer;font-weight:600;color:var(--text);<%= crewType === 'instant' ? 'border-bottom:2px solid var(--text);' : 'color:var(--text-3);' %>">
       번개모임
     </button>
-  </div>
+</div>
 
   <div class="chat-rooms-list">
     <% if (!chatRoomList || chatRoomList.length === 0) { %>

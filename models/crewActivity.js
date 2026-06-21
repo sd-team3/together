@@ -32,10 +32,11 @@ const crewActivitySchema = new mongoose.Schema(
         gameType: { type: String, enum: ['solo', 'team'], default: 'solo' },
         teamBlue: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         teamRed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        attender: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         capacity: { type: Number, required: true },
         status: {
             type: String, 
-            enum: ['모집', '마감', '종료'],
+            enum: ['모집', '마감', '활동','종료'], 
             default: '모집' 
         }
     }, {

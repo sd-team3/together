@@ -7,6 +7,7 @@ let isLoggedIn = false;
 let myCrewIds  = [];
 let _maCrewId  = null;
 let _maUserId  = null;
+let currentFilter = 'all';
 
 function timeAgo(dateStr) {
     const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -165,13 +166,13 @@ function setSortTab(el, type) {
     const container = document.querySelector('.map-list-items');
     const items = [...container.querySelectorAll('.map-item')];
 
-    if (type === '시간순') {
+    if (type === 'time') {
         items.sort((a, b) => {
             const aC = crewsData.find(c => String(c.id) === a.dataset.id);
             const bC = crewsData.find(c => String(c.id) === b.dataset.id);
             return new Date(bC.createdAt) - new Date(aC.createdAt);
         });
-    } else if (type === '인원순') {
+    } else if (type === 'member') {
         items.sort((a, b) => {
             const parse = str => str.replace('명', '').split('/').map(Number);
             const [aCur] = parse(a.dataset.members);
@@ -182,15 +183,25 @@ function setSortTab(el, type) {
     items.forEach(item => container.appendChild(item));
     renderCrewList();
 }
+function applyListFilter() {
+    document.querySelectorAll('.map-item').forEach(item => {
+        const visible = currentFilter === 'all' || item.dataset.sport === currentFilter;
+        item.style.display = visible ? '' : 'none';
+    });
+}
 
 function filterToggle(btn, type) {
     document.querySelectorAll('.map-filter-chip').forEach(c => c.classList.remove('on'));
     btn.classList.add('on');
+    currentFilter = type;
+
     kakaoMap.getMarkers().forEach(marker => {
         const crew    = marker._crewData;
         const visible = type === 'all' || crew.sport === type;
         marker.setMap(visible ? window.MAP : null);
     });
+
+    applyListFilter();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -229,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.querySelectorAll('.map-sort-tab').forEach(tab => {
-        tab.addEventListener('click', () => setSortTab(tab, tab.textContent.trim()));
+        tab.addEventListener('click', () => setSortTab(tab, tab.dataset.sort));
     });
 
     const mapPopupEl = document.getElementById('map-popup');
@@ -269,5 +280,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!isLoggedIn) { window.location.href = '/user/login'; return; }
         window.location.href = '/instant/create';
     });
+    
 });
 

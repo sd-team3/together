@@ -5,13 +5,20 @@ const crewService = require('../services/crew/crewService');
 const isHost = async (req, res, next)=>{
     try {
         if (req.isAuthenticated()) {
-            const hostId = req.crew.host;
-            if(!hostId) return res.status(403).json({ message: "존재하지 않는 크루입니다." });
-            return hostId.equals(req.user._id) ? next() : res.status(403).json({ message: "권한이 없습니다." });
+            if(!req.crew) return res.status(403).json({ message: "존재하지 않는 크루입니다." });
+            const hostStr = req.crew.host.toString();
+            const userStr = req.user._id.toString();
+
+            console.log(`${hostStr} / ${userStr}`);
+            if (hostStr === userStr) {
+                return next();
+            } else {
+                return res.status(403).json({ message: "방장만 이용할 수 있는 기능입니다." });
+            }
         }
         return res.redirect('/user/login');
     } catch (error) {
-        return res.status(500).json({ message: "DB오류" });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -22,7 +29,7 @@ const isMember = async (req, res, next)=>{
             return result ? next() : res.status(403).json({ message: "권한이 없습니다." });
         }
     } catch (error) {
-        return res.status(500).json({ message: "DB오류" });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -33,7 +40,7 @@ const isCrewExist = async (req, res, next)=>{
         req.crew = crew;
         next();
     } catch (error) {
-        return res.status(500).json({ message: "DB오류" });
+        return res.status(500).json({ message: error.message });
     }
 };
 

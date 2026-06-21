@@ -6,11 +6,14 @@ const applicationController = require('../../controllers/crew/applicationControl
 const applicationService = require('../../services/crew/applicationService');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
+const activityRouter = require('../crew/activityRouter');
 
 router.use((req, res, next)=>{ 
     req.crewModel = regularCrew;
     next(); 
 });
+
+router.use('/act', activityRouter);
 
 router.get('/create', 
     crewMiddleware.loginValidation,
@@ -64,7 +67,10 @@ router.post('/join/:appId/:action',
     applicationController.joinProcess
 );
 
-router.get('/my', regularController.getMyCrews);
+router.get('/my', 
+    crewMiddleware.loginValidation, 
+    regularController.getMyCrews
+);
 router.get('/list', regularController.getRegular);
 router.get('/list/:crewId', regularController.getRegularPage);
 
@@ -87,6 +93,9 @@ router.get('/activity/:crewId',
     crewMiddleware.loginValidation,
     regularController.getCrewActivity
 );
-router.post('/list/:crewID/like', regularController.postCrewLike);
+router.post('/list/:crewID/like', 
+    crewMiddleware.loginValidation,
+    regularController.postCrewLike
+);
 
 module.exports = router;

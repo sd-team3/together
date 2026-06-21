@@ -19,9 +19,9 @@ const activityCreateMiddleware = (req, res, next) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
 
-    if (start.getTime() - now.getTime() < 24 * 60 * 60 * 1000) {
-        return res.status(400).json({ message: "크루 활동은 24시간 이전에 개설해야 합니다." });
-    }
+    // if (start.getTime() - now.getTime() < 24 * 60 * 60 * 1000) {
+    //     return res.status(400).json({ message: "크루 활동은 24시간 이전에 개설해야 합니다." });
+    // }
 
     if (start >= end) {
         return res.status(400).json({ message: "잘못된 시간 입력입니다." });
@@ -37,10 +37,13 @@ const activityCreateMiddleware = (req, res, next) => {
         return res.status(500).json({ message: "크루 정보가 유효하지 않습니다." });
     }
 
-    const title = `${startTime.split('T')[0]} / ${startTime.split('T')[1]}-${endTime.split('T')[1]} : ${gameType}`;
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    const formatTime = (date) => date.toTimeString().split(' ')[0].slice(0, 5);
+
+    const title = `${formatDate(start)} / ${formatTime(start)}-${formatTime(end)} : ${gameType === 'team' ? '팀전' : '개인전'}`;
 
     req.activityData = {
-        crewModel: req.crewModel.modelName,
+        crewModel: req.body.crewModel,
         crewId: req.crew._id,
         title: title,
         content: content,
@@ -88,6 +91,8 @@ const progressMiddleware = async (req, res, next) => {
     };
     const koreanStatus = statusMap[status];
     req.koreanStatus = koreanStatus;
+
+    next();
 };
 
 module.exports = {

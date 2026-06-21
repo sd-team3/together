@@ -28,6 +28,9 @@ const io = new Server(httpServer);
 const friendRouter = require('./routes/friendRouter');
 
 connectDB();
+const { startScheduler } = require('./utils/scheduler');
+startScheduler(io);
+
 
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));

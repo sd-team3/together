@@ -15,7 +15,7 @@
 
 <div class="main">
 
-<%- include('../partials/head', { title: '📍 새 매칭 만들기', pageId: 'page-map-create', active: '' }) %>
+<%- include('../partials/head', { title: '📍 새 매칭 만들기', pageId: 'page-map-create', active: '', route: '/instant/create' }) %>
 
   <div class="form-page">
     <div class="form-max">
@@ -52,31 +52,39 @@
         <div class="form-section">
           <div class="form-section-title">일정</div>
 
-          <div class="field">
-              <label class="label">모임 날짜</label>
-              <input class="input" type="text" name="meetAt_date" id="meetAt_date" 
-                    placeholder="날짜를 선택해주세요" required readonly>
-          </div>
+        <div class="field" id="datetime-field">
+          <label class="label">모임 날짜 / 시간</label>
 
-        <div class="field">
-          <label class="label">모임 시간</label>
-          <div class="time-select-group">
+          <div id="step-date">
+            <input class="input" type="text" id="meetAt_date_picker"
+                  placeholder="날짜를 선택해주세요" readonly>
+          </div>
+          
+          <div id="step-time" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span id="selected-date-label" style="font-size:13px;font-weight:600;color:var(--primary);"></span>
+              <button type="button" id="btn-change-date" class="btn btn-outline" style="padding:4px 10px;font-size:12px;">날짜 변경</button>
+            </div>
+            <div class="time-select-group">
               <select id="time-ampm" class="input">
-                  <option value="AM">오전</option>
-                  <option value="PM">오후</option>
+                <option value="AM">오전</option>
+                <option value="PM">오후</option>
               </select>
               <select id="time-hour" class="input">
-                  <% for(let h = 1; h <= 12; h++) { %>
-                      <option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
-                  <% } %>
+                <% for(let h = 1; h <= 12; h++) { %>
+                  <option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+                <% } %>
               </select>
               <select id="time-min" class="input">
-                  <% ['00','10','20','30','40','50'].forEach(m => { %>
-                      <option value="<%= m %>"><%= m %></option>
-                  <% }) %>
+                <% ['00','10','20','30','40','50'].forEach(m => { %>
+                  <option value="<%= m %>"><%= m %></option>
+                <% }) %>
               </select>
+            </div>
           </div>
-            <input type="hidden" name="meetAt_time" id="meetAt_time">
+
+          <input type="hidden" name="meetAt_date" id="meetAt_date">
+          <input type="hidden" name="meetAt_time" id="meetAt_time">
         </div>
         
 
@@ -134,7 +142,7 @@
         </div>
 
         <div style="display:flex;gap:10px;justify-content:flex-end">
-          <a href="/instant/instant" class="btn btn-outline">취소</a>
+          <a href="/instant/list" class="btn btn-outline">취소</a>
           <button type="submit" class="btn btn-primary btn-lg">매칭 등록하기</button>
         </div>
 

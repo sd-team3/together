@@ -12,7 +12,7 @@
 
 <div class="main">
 
-<%- include('../partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '' }) %>
+<%- include('../partials/head', { title: '📍 지도 매칭', pageId: 'page-map', active: '', route: '/instant/list' }) %>
 
   <div class="page-body-wide" style="flex:1;min-height:0;overflow:hidden">
     <div class="map-container" style="height:100%;overflow:hidden">
@@ -37,8 +37,8 @@
         <div class="map-list-header">
           <div class="map-list-title"><%= crews.length %>개의 매칭</div>
           <div class="map-sort-tabs">
-            <button class="map-sort-tab">시간순</button>
-            <button class="map-sort-tab">인원순</button>
+            <button class="map-sort-tab on" data-sort="time">시간순</button>
+            <button class="map-sort-tab" data-sort="member">인원순</button>
           </div>
         </div>
 
@@ -106,7 +106,7 @@
           <% }) %>
         </div>
 
-        <div style="padding:16px;background:#fff;border-top:1px solid #eee;z-index:10;">
+        <div style="padding:16px;background:var(--surface);border-top:1px solid var(--border);z-index:10;">
           <button class="btn btn-primary" id="btn-create-match"
             style="width:100%;padding:12px;font-size:15px;border-radius:8px;font-weight:600;">
             ＋ 매칭 만들기

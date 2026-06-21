@@ -31,24 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('accept-input').value = btn.dataset.value;
     });
   });
-  function updateTime() {
-    const ampm = document.getElementById('time-ampm').value;
-    let hour = parseInt(document.getElementById('time-hour').value);
-    const min = document.getElementById('time-min').value;
 
-    if (ampm === 'AM' && hour === 12) hour = 0;
-    if (ampm === 'PM' && hour !== 12) hour += 12;
-
-    document.getElementById('meetAt_time').value = `${String(hour).padStart(2,'0')}:${min}`;
-  }
-
-  ['time-ampm', 'time-hour', 'time-min'].forEach(id => {
-      document.getElementById(id).addEventListener('change', updateTime);
-  });
-  updateTime(); // 초기값 세팅
-
-
-   // ── 좌표 적용 공통 함수 ──
+  // ── 좌표 적용 공통 함수 ──
   function applyLocation(lat, lng, name) {
     document.getElementById('lat-input').value = lat;
     document.getElementById('lng-input').value = lng;
@@ -67,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── 장소 목록 표시 ──
   function showPlaceList(results, state, city) {
-    // 선택한 시/도, 시/군/구에 해당하는 결과만 필터링
     const filtered = results.filter(r =>
         r.address_name.includes(state) && r.address_name.includes(city)
     );
@@ -123,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function hidePlaceList() {
     document.getElementById('place-list')?.remove();
   }
+
   // ── 주소 → 좌표 변환 + 지도 표시 ──
   document.getElementById('btn-find-addr').addEventListener('click', async () => {
     const state = document.getElementById('stateSelect').value.trim();
@@ -141,26 +125,123 @@ document.addEventListener('DOMContentLoaded', () => {
       applyLocation(lat, lng, name);
     } catch (err) {
       if(err.type === 'MULTIPLE') {
-        showPlaceList(err.results, state, city); //검색 결과 목록 표시
-      }else {
+        showPlaceList(err.results, state, city);
+      } else {
         alert('주소를 찾을 수 없습니다. 상세 장소명을 다시 확인해주세요');
       }
-      
     }
   });
-  // 날짜 캘린더 피커
-  flatpickr('#meetAt_date', {
-      locale: 'ko',
-      dateFormat: 'Y-m-d',
-      minDate: 'today', //오늘 날짜 기준 이전 날짜 선택 X
-      disableMobile: true
+
+  // ── 모임 날짜 / 시간: 2단계 선택 ──
+  const stepDate = document.getElementById('step-date');
+  const stepTime = document.getElementById('step-time');
+  const selectedDateLabel = document.getElementById('selected-date-label');
+
+  const fp = flatpickr('#meetAt_date_picker', {
+    locale: 'ko',
+    dateFormat: 'Y-m-d',
+    minDate: 'today',
+    disableMobile: true,
+    onChange: (selectedDates, dateStr) => {
+      if (!selectedDates.length) return;
+
+      document.getElementById('meetAt_date').value = dateStr;
+      selectedDateLabel.textContent = `📅 ${dateStr}`;
+
+      stepDate.style.display = 'none';
+      stepTime.style.display = 'block';
+
+      restrictPastTimesIfToday(dateStr);
+      updateTime();
+    }
   });
 
-  // ── 제출 전 lat/lng 검증 ──
+  document.getElementById('btn-change-date').addEventListener('click', () => {
+    stepTime.style.display = 'none';
+    stepDate.style.display = 'block';
+    fp.open();
+  });
+
+  function updateTime() {
+    const ampm = document.getElementById('time-ampm').value;
+    let hour = parseInt(document.getElementById('time-hour').value);
+    const min = document.getElementById('time-min').value;
+
+    if (ampm === 'AM' && hour === 12) hour = 0;
+    if (ampm === 'PM' && hour !== 12) hour += 12;
+
+    document.getElementById('meetAt_time').value = `${String(hour).padStart(2,'0')}:${min}`;
+  }
+
+  ['time-ampm', 'time-hour', 'time-min'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      restrictPastTimesIfToday(document.getElementById('meetAt_date').value);
+      updateTime();
+    });
+  });
+
+  // 오늘 날짜를 골랐을 때만 현재 시각 이전 시/분 옵션 비활성화
+  function restrictPastTimesIfToday(dateStr) {
+    const hourSelect = document.getElementById('time-hour');
+    const minSelect = document.getElementById('time-min');
+    const ampmSelect = document.getElementById('time-ampm');
+
+    [...hourSelect.options, ...minSelect.options].forEach(opt => opt.disabled = false);
+
+    const todayStr = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+    if (dateStr !== todayStr) return;
+
+    const now = new Date();
+    [...hourSelect.options].forEach(opt => {
+      let h = parseInt(opt.value);
+      if (ampmSelect.value === 'PM' && h !== 12) h += 12;
+      if (ampmSelect.value === 'AM' && h === 12) h = 0;
+      opt.disabled = h < now.getHours();
+    });
+
+    const currentHourSelected = (() => {
+      let h = parseInt(hourSelect.value);
+      if (ampmSelect.value === 'PM' && h !== 12) h += 12;
+      if (ampmSelect.value === 'AM' && h === 12) h = 0;
+      return h === now.getHours();
+    })();
+
+    if (currentHourSelected) {
+      [...minSelect.options].forEach(opt => {
+        opt.disabled = parseInt(opt.value) < now.getMinutes();
+      });
+    }
+  }
+
+  // ── 제출 전 검증 ──
   document.getElementById('create-form').addEventListener('submit', (e) => {
-    if (!document.getElementById('lat-input').value) {
+    const lat = document.getElementById('lat-input').value;
+    const lng = document.getElementById('lng-input').value;
+
+    if (!lat || !lng) {
       e.preventDefault();
       alert('위치 확인 버튼을 눌러 장소를 지정해주세요.');
+      return;
+    }
+
+    const dateVal = document.getElementById('meetAt_date').value;
+    const timeVal = document.getElementById('meetAt_time').value;
+
+    if (!dateVal || !timeVal) {
+      e.preventDefault();
+      alert('모임 날짜와 시간을 모두 입력해주세요');
+      return;
+    }
+
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const [hour, min] = timeVal.split(':').map(Number);
+
+    const selectDateTime = new Date(year, month - 1, day, hour, min, 0);
+    const now = new Date();
+    if (selectDateTime <= now) {
+      e.preventDefault();
+      alert('모임 시간을 다시 입력해주세요');
+      return;
     }
   });
 

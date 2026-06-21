@@ -3,7 +3,6 @@ const ChatRoom = require('../models/ChatRoom');
 
 // 왼쪽 채팅방 리스트 가져오기
 const getChatRoomList = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/user/login');
     try {
         const userId = req.user._id;
         const crewType = req.query.crewType || 'regular';
@@ -36,7 +35,6 @@ const getChatRoomList = async (req, res, next) => {
 };
 
 const openChatRoom = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('user/login');
     try {
         const userId = req.user._id;
         const roomId = req.query.roomId;
