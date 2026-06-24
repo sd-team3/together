@@ -184,6 +184,19 @@ function partAddress(fullAddress) {
     };
 }
 
+async function getUserName(userId) {
+    try {
+        // 🚨 주의: 본인 스키마에 이름이 'name'인지 'nickname'인지에 따라 'name' 부분을 바꿔주세요!
+        const user = await User.findById(userId).select('name').lean();
+        
+        // 유저가 존재하면 이름을, 삭제됐거나 못 찾으면 '알 수 없는 유저' 반환
+        return user ? user.name : '알 수 없는 유저';
+    } catch (error) {
+        console.error('유저 이름 조회 에러:', error.message);
+        return '알 수 없는 유저';
+    }
+}
+
 module.exports = {
     createUser,
     findUserByEmail,
@@ -192,5 +205,6 @@ module.exports = {
     deleteUser,
     checkEmail,
     verifyPassword,
-    findUserById_WithoutPW
+    findUserById_WithoutPW,
+    getUserName
 };

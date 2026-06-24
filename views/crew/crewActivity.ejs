@@ -140,31 +140,54 @@ function renderList() {
     return;
   }
 
-  cont.innerHTML = list.map((a, index)=> {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const actDate = new Date(a.date);
-    const statusBadge = actDate >= today
-      ? `<span class="type-badge type-internal">예정</span>`
-      : `<span class="type-badge type-battle">완료</span>`;
+  // 🚨 스크립트의 renderList() 내부 map 함수 영역 교체
+cont.innerHTML = list.map((a, index) => {
+  
+  // 1. 인원수 및 상태(모집/마감) 계산 (우리가 방금 만든 로직!)
+  const currentCount = a.gameType === 'solo'
+    ? (a.participants?.length || 0)
+    : ((a.teamBlue?.length || 0) + (a.teamRed?.length || 0));
+  
+  // 스키마의 status를 우선 쓰되, 정원이 다 차면 강제로 '마감' 배지 표시
+  let statusText = a.status;
+  let badgeClass = 'type-internal';
+  if (currentCount >= a.capacity || a.status === '마감') {
+    statusText = '마감';
+    badgeClass = 'type-danger';
+  } else if (a.status === '종료') {
+    statusText = '종료';
+    badgeClass = 'type-disabled';
+  }
 
-    return `<div class="activity-card">
+  // 2. 시간 포맷팅 (우리가 만든 시작~종료 시간 로직)
+  const dateStr = new Date(a.startTime).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+  const startStr = new Date(a.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const endStr = a.endTime ? ` ~ ${new Date(a.endTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}` : '';
+
+  // 3. 인원 현황 텍스트 생성 (팀전 블루/레드 분리)
+  const countHTML = a.gameType === 'team' 
+    ? `🔵${a.teamBlue?.length || 0}/${Math.floor(a.capacity/2)} : 🔴${a.teamRed?.length || 0}/${Math.floor(a.capacity/2)} (총 ${currentCount}/${a.capacity}명)` 
+    : `${currentCount}/${a.capacity}명`;
+
+  return `
+    <div class="activity-card" data-id="${a._id}">
       <div class="activity-row">
-        ${statusBadge}
+        <span class="type-badge ${badgeClass}">${statusText}</span>
         <div class="activity-main">
           <div class="activity-title">${a.title}</div>
           <div class="activity-meta">
-            <span>📅 ${fmtDate(a.date)}</span>
-            <span>📍 ${a.address.state} ${a.address.city}</span>
-            <span>👥 ${a.participants.length}명</span>
+            <span>📅 ${dateStr} ${startStr}${endStr}</span>
+            <span>📍 ${a.location?.state || ''} ${a.location?.city || ''} ${a.location?.detail || ''}</span>
+            <span>👥 ${countHTML}</span>
           </div>
-          <div class="activity-desc">${a.content}</div>
+          <div class="activity-desc">${a.content || '내용 없음'}</div>
         </div>
         <button class="btn btn-outline btn-sm">삭제</button>
         <span class="chevron">▼</span>
       </div>
       <div class="apps-panel"></div>
     </div>`;
-  }).join('');
+}).join('');
 }
 cont.addEventListener('click', e => {
   const row = e.target.closest('.activity-row');
@@ -196,21 +219,61 @@ function searchAddress() {
   document.getElementById('new-place').value = fakes[Math.floor(Math.random()*fakes.length)];
   showToast('📍 주소가 선택되었습니다');
 }
-function submitCreate() {
-  const date = document.getElementById('new-date').value;
-  const count = document.getElementById('new-count').value;
+async function submitCreate() {
+  const title = document.getElementById('new-title').value.trim();
+  const startTime = document.getElementById('new-date').value;
+  const capacity = document.getElementById('new-count').value;
   const place = document.getElementById('new-place').value;
-  const detail = document.getElementById('new-place-detail').value;
-  const content = document.getElementById('new-content').value;
-  if (!date) { showToast('⚠️ 날짜를 입력해주세요'); return; }
-  if (!count || count < 2) { showToast('⚠️ 인원수를 입력해주세요 (최소 2명)'); return; }
-  if (!place) { showToast('⚠️ 장소를 검색해서 선택해주세요'); return; }
-  ACTIVITIES.unshift({
-    id:'act_'+Date.now(), crewId:MY_CREW_ID, crewName:'마포 후크슛', crewEmoji:'🏀', crewScore:980,
-    date, place, placeDetail:detail, count:parseInt(count), type:selType,
-    content:content||'활동 내용 없음', region:'city', createdAt:new Date(), applications:[],
-  });
-  closeModal('modalCreate'); renderList();
+  const detail = document.getElementById('new-place-detail').value.trim();
+  const content = document.getElementById('new-content').value.trim();
+
+  // 프론트 유효성 검증
+  if (!title) { showToast('⚠️ 활동 제목을 입력해주세요'); return; }
+  if (!startTime) { showToast('⚠️ 날짜와 시간을 입력해주세요'); return; }
+  if (!capacity || capacity < 2) { showToast('⚠️ 인원수를 입력해주세요 (최소 2명)'); return; }
+  if (!place) { showToast('⚠️ 장소를 검색해주세요'); return; }
+
+  // [수정] 가짜 주소 데이터 대신 새 스키마 location 객체로 조립
+  // (임시로 검색된 주소를 쪼개서 넣음. 실제로는 카카오 우편번호 API 연동 추천)
+  const locationObj = {
+    state: place.split(' ')[0] || '서울', // 예: '서울'
+    city: place.split(' ')[1] || '마포구',  // 예: '마포구'
+    detail: detail,
+    lat: 37.5665, // 가짜 좌표
+    lng: 126.9780
+  };
+
+  // 📦 백엔드 스키마와 완벽히 일치하는 페이로드 생성
+  const payload = {
+    crewModel: 'regular', // 기본값 세팅 (필요시 동적 할당)
+    crewId: crew._id,     // EJS에서 받은 crew 객체의 _id
+    title: title,
+    startTime: startTime, 
+    capacity: parseInt(capacity),
+    location: locationObj,
+    gameType: selType,
+    content: content
+  };
+
+  try {
+    // 백엔드로 POST 전송 (엔드포인트는 실제 라우터 주소에 맞게 변경하세요)
+    const res = await fetch(`/api/activities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('🎉 활동 등록 완료!');
+      // TODO: 모달 닫고 페이지 새로고침 혹은 리스트 다시 불러오기
+      closeModal('modalCreate');
+      location.reload(); 
+    } else {
+      showToast('❌ 등록에 실패했습니다.');
+    }
+  } catch(e) {
+    showToast('❌ 서버 통신 에러');
+  }
 }
 
 function openModal(id) { 

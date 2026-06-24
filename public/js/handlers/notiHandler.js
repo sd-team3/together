@@ -98,4 +98,9 @@ export function initNotiSocket(user) {
         renderChatNoti(data, notiList);
         showToast(`[${data.roomName}] ${data.senderName}: ${data.content}`);
     });
+
+    socket.on('ACTIVITY_ATTEND', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(`활동시간입니다, 출석하세요. '${noti.title}'`);
+    });
 }
