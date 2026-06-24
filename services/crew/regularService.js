@@ -116,6 +116,8 @@ async function getRegularAPICrews(filter, page) {
     }                              
 }
 
+// -------------------- crewActivity 추가에 따른 폐지 예정 --------------------------
+
 async function findRegularCrewsByUserId(userId) {
     const user = await User.findById(userId).populate({
         path: 'crews',
@@ -163,6 +165,8 @@ function sortSchedTime(schedule) {
     }
     return schedule;
 }
+
+// -------------------- crewActivity 추가에 따른 폐지 예정 --------------------------
 
 async function getMyCrews(userId, role) {
     let tab;
@@ -295,6 +299,12 @@ async function handleUserDeleted(userId) {
 
     // 정기모임 삭제
     await regularCrew.deleteMany({ host: userId });
+
+    // CrewActivity에 가입한 유저 삭제
+    await crewActivity.updateMany(
+        { $or: [{ teamBlue : userId }, { teamRed : userId }]},
+        { $pull: { teamBlue : userId, teamRed : userId }}
+    )
 
     // 나머지 모임에서 memberList에서 제거
     await regularCrew.updateMany(
