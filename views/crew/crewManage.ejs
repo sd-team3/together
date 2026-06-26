@@ -16,7 +16,6 @@
   <div class="page-body">
   <div class="detail-wrap" style="max-width:720px;margin:0 auto;">
 
-  <!-- 크루 헤더 요약 -->
   <div class="manage-group" style="margin-bottom:8px;">
     <div class="manage-header" style="border-bottom:none;">
       <img src="<%= crew.profileImage %>" class="manage-sport-icon-emoji">
@@ -27,7 +26,6 @@
     </div>
   </div>
 
-  <!-- 탭 네비게이션 -->
   <div class="manage-tab-bar">
     <button class="manage-tab active" onclick="switchTab('info', this)">
       <span>📋</span> 크루 정보
@@ -40,10 +38,8 @@
     </button>
   </div>
 
-  <!-- ═══ 탭 1: 크루 정보 ═══ -->
   <div class="manage-panel active" id="panel-info">
 
-    <!-- 프로필 이미지 -->
     <div class="manage-section">
       <div class="manage-section-header">
         <div class="manage-section-title">🖼️ 프로필 이미지</div>
@@ -69,7 +65,6 @@
       </div>
     </div>
 
-    <!-- 기본 정보 -->
     <div class="manage-section">
       <div class="manage-section-header">
         <div class="manage-section-title">📝 크루 기본 정보</div>
@@ -86,7 +81,6 @@
       </div>
     </div>
 
-    <!-- 가입 조건 -->
     <div class="manage-section">
       <div class="manage-section-header">
         <div class="manage-section-title">📋 가입 조건 수정</div>
@@ -172,14 +166,12 @@
       </div>
     </div>
 
-    <!-- 저장 -->
     <div class="save-bar">
       <button class="btn btn-outline" onclick="showToast('⚠️ 변경사항이 취소되었습니다')">취소</button>
       <button class="btn btn-primary" onclick="saveCrew()">💾 변경사항 저장</button>
     </div>
   </div>
 
-  <!-- ═══ 탭 2: 스케줄 ═══ -->
   <div class="manage-panel" id="panel-schedule" style="max-width:720px;margin:0 auto;width:100%;">
 
     <div class="manage-section" id="section-timetable">
@@ -194,11 +186,9 @@
       </div>
       <div class="manage-section-body" id="timetable-body">
 
-        <!-- 시간표 뷰 -->
         <div id="view-timetable">
           <div class="tt-px-wrap">
             <div class="tt-px-grid" id="timetable">
-              <!-- 헤더 행: JS로 채워짐 -->
             </div>
           </div>
           <div class="timetable-legend">
@@ -209,7 +199,6 @@
           </div>
         </div>
 
-        <!-- 텍스트(활동 카드) 뷰 -->
         <div id="view-activity" style="display:none;">
           <% if (!acts || acts.length === 0) { %>
             <div style="padding:32px;text-align:center;color:var(--text-3);">
@@ -325,13 +314,9 @@
       </div>
     </div>
 
-
-
-    <!-- 일정 추가 폼 -->
     <div class="add-schedule-form" id="addScheduleForm">
           <div class="add-form-title">📅 새 일정 추가</div>
 
-          <!-- 활동 유형 선택 -->
           <div class="field" style="margin-bottom:14px;">
             <label class="label">활동 유형</label>
             <div style="display:flex;gap:8px;margin-top:6px;">
@@ -453,10 +438,8 @@
     </div>
   </div>
 
-  <!-- ═══ 탭 3: 멤버 관리 ═══ -->
   <div class="manage-panel" id="panel-members" style="max-width:720px;margin:0 auto;width:100%;">
 
-    <!-- 멤버 통계 -->
     <div class="member-stat-row">
       <div class="member-stat-card">
         <span class="member-stat-val"><%= crew.member.memberList.length %></span>
@@ -472,7 +455,6 @@
       </div>
     </div>
 
-    <!-- 가입 신청 대기 -->
     <div class="manage-section">
       <div class="manage-section-header">
         <div class="manage-section-title">⏳ 가입 신청 대기</div>
@@ -502,7 +484,6 @@
       <% }) %>
     </div>
 
-    <!-- 멤버 목록 -->
     <div class="manage-section">
       <div class="manage-section-header">
         <div class="manage-section-title">👥 멤버 목록</div>
@@ -526,11 +507,10 @@
     </div>
   </div>
 
-  </div><!-- /detail-wrap -->
-  </div><!-- /page-body -->
-</div><!-- /main -->
+  </div>
+  </div>
+</div>
 
-<!-- 토스트 -->
 <div class="manage-toast" id="manageToast">
   <span id="toastMsg">저장되었습니다</span>
 </div>
@@ -797,7 +777,6 @@ async function addSchedule() {
   const dateVal = document.getElementById('new-date').value;
   if (!dateVal) { showToast('⚠️ 날짜를 선택해주세요'); return; }
 
-  // 시작/종료 시간 스키마(Date) 포맷 변환
   const startH = document.getElementById('new-start-h').value;
   const startM = document.getElementById('new-start-m').value;
   const endH = document.getElementById('new-end-h').value;
@@ -811,17 +790,15 @@ async function addSchedule() {
   const startTime = new Date(`${dateVal}T${String(startH).padStart(2,'0')}:${String(startM).padStart(2,'0')}:00`);
   const endTime = new Date(`${dateVal}T${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}:00`);
 
-  // 정원(capacity) 및 방식 분기
   let capacity = 0;
-  if (activityType === 'group') { // 팀전일 때
+  if (activityType === 'group') {
     const teamCount = parseInt(document.getElementById('new-team-count').value) || 0;
     if (teamCount < 1) { 
         showToast('⚠️ 팀 당 구인 인원을 정확히 입력해주세요'); 
         return; 
     }
-    // 스키마의 capacity는 '총 정원'이므로 팀 당 인원 * 2 를 해줍니다.
     capacity = teamCount * 2; 
-  } else { // 개인전일 때
+  } else {
     capacity = parseInt(document.getElementById('new-count').value) || 0;
     if (capacity < 1) { 
         showToast('⚠️ 구인 인원을 입력해주세요'); 
@@ -829,13 +806,11 @@ async function addSchedule() {
     }
   }
 
-  // 장소 객체 (친구가 만든 입력창에서 값 가져옴)
   const state = document.getElementById('stateSelect').value;
   const city = document.getElementById('citySelect').value;
   const detail = document.getElementById('detail-addr').value.trim();
   if (!state || !city) { showToast('⚠️ 장소(지역)를 선택해주세요'); return; }
   
-  // 백엔드로 보낼 완벽한 스키마 Payload
   const payload = {
     crewModel: 'regular',
     crewId: crewId, 
@@ -843,19 +818,18 @@ async function addSchedule() {
     startTime: startTime,
     endTime: endTime,
     content: document.getElementById('new-content') ? document.getElementById('new-content').value : "",
-    gameType: activityType === 'group' ? 'team' : 'solo', // group을 team으로 자동 변환
+    gameType: activityType === 'group' ? 'team' : 'solo',
     capacity: capacity,
     location: {
       state: state,
       city: city,
       detail: detail || "상세 주소 없음",
-      lat: parseFloat(document.getElementById('lat-input').value) || 37.5665, // 값 없으면 임시 좌표
+      lat: parseFloat(document.getElementById('lat-input').value) || 37.5665,
       lng: parseFloat(document.getElementById('lng-input').value) || 126.9780
     }
   };
 
   try {
-    // 백엔드로 POST 전송 (본인의 라우터 주소에 맞게 수정 필요)
     const res = await fetch(`/regular/act/create/${crewId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -891,7 +865,6 @@ function deleteSchedule(idx) {
   const form = document.getElementById('edit-form-' + idx);
   const actCard = document.getElementById('act-card-' + idx);
 
-  /* 시간표 블록 제거 */
   removeEventBlock(idx);
 
   if (item) { item.style.opacity='0'; item.style.transition='opacity .3s'; setTimeout(() => item.remove(), 300); }
@@ -962,11 +935,9 @@ async function handleRequest(btn, elId, action) {
 
 function kickMember(userId, name) {
   if (!confirm(`'${name}' 멤버를 정말 강퇴하시겠습니까?`)) return;
-  // TODO: 강퇴 API 연결
   showToast('🚫 멤버가 강퇴되었습니다');
 }
 
-/* ── 픽셀 기반 시간표 설정 ── */
 const START_HOUR = 4;
 
 let currentSunday = (function() {
@@ -982,9 +953,9 @@ function moveWeek(dir) {
 }
 const END_HOUR   = 23;
 const DAYS = ['일','월','화','수','목','금','토'];
-const PX_PER_MIN = 0.8;                          // 1분 = 1.5px  (60분 = 90px)
-const TOTAL_MINS = (END_HOUR - START_HOUR) * 60; // 1020분
-const COL_H = TOTAL_MINS * PX_PER_MIN + 16;      // 하단 여백 16px (마지막 시간선 잘림 방지)
+const PX_PER_MIN = 0.8;
+const TOTAL_MINS = (END_HOUR - START_HOUR) * 60;
+const COL_H = TOTAL_MINS * PX_PER_MIN + 16;
 
 function toMin(t) {
   const [h, m] = t.split(':').map(Number);
@@ -1000,7 +971,6 @@ function buildTimetable() {
   const tt = document.getElementById('timetable');
   tt.innerHTML = '';
 
-  /* 헤더 행 */
   const emptyHead = document.createElement('div');
   emptyHead.className = 'tt-px-head-cell';
   emptyHead.style.background = 'var(--bg)';
@@ -1015,8 +985,6 @@ function buildTimetable() {
     tt.appendChild(cell);
   });
 
-  /* 본문: 시간 레이블 컬럼 + 7 요일 컬럼 */
-  /* 시간 레이블 */
   const timesCol = document.createElement('div');
   timesCol.className = 'tt-px-times';
   timesCol.style.height = COL_H + 'px';
@@ -1029,14 +997,12 @@ function buildTimetable() {
   }
   tt.appendChild(timesCol);
 
-  /* 7개 요일 컬럼 */
   for (let d = 0; d < 7; d++) {
     const col = document.createElement('div');
     col.className = 'tt-px-col';
     col.id = 'tt-col-' + d;
     col.style.height = COL_H + 'px';
 
-    /* 시간 구분선 */
     for (let h = 0; h <= (END_HOUR - START_HOUR); h++) {
       const line = document.createElement('div');
       line.className = 'tt-px-hour-line';
@@ -1053,7 +1019,6 @@ function buildTimetable() {
   }
 }
 
-/* 시간표에 이벤트 블록 추가/제거 헬퍼 */
 function addEventBlock(dayIdx, startTotal, endTotal, title, schedIdx) {
   const col = document.getElementById('tt-col-' + dayIdx);
   if (!col) return;
@@ -1101,7 +1066,6 @@ if (stateSelect) {
   import kakaoMap from '/js/modules/mapLoader.js';
   import { initProfileModal, openProfileModal } from '/js/components/profileModal.js';
 
-  // ── 좌표 적용 공통 함수 ──
   function applyLocation(lat, lng, name) {
     document.getElementById('lat-input').value = lat;
     document.getElementById('lng-input').value = lng;
@@ -1118,7 +1082,6 @@ if (stateSelect) {
     hidePlaceList();
   }
 
-  // ── 장소 목록 표시 ──
   function showPlaceList(results, state, city) {
     let listEl = document.getElementById('place-list');
     if (!listEl) {
@@ -1167,7 +1130,6 @@ if (stateSelect) {
     document.getElementById('place-list')?.remove();
   }
 
-  // ── 위치 확인 버튼 ──
   document.getElementById('btn-find-addr').addEventListener('click', async () => {
     const state  = document.getElementById('stateSelect').value.trim();
     const city   = document.getElementById('citySelect').value.trim();
