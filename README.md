@@ -93,7 +93,8 @@ npm start
 
 ##ERD다이어 그램
 
-![Uploading er다이어그램.png…]()
+<img width="1376" height="728" alt="er다이어그램" src="https://github.com/user-attachments/assets/b4481f01-c328-4792-95be-62bc2d829b9d" />
+
 
 
 ## 레포지토리 구조
