@@ -195,6 +195,7 @@ together/
     ├── error/
     ├── partials/
     └── index.ejs
+```
 
 ## 팀원
 
