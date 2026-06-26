@@ -191,7 +191,7 @@ async function getMyCrews(userId, role) {
         const dayLabel = obj.day
             .filter(day => day !== 'none')
             .map(day => CONSTANTS.DAYS[day]?.short || day)
-            .join('·') || '-';-
+            .join('·') || '-';
         
         return {
             ...obj,
