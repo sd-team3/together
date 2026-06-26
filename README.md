@@ -91,7 +91,7 @@ npm start
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)
 
 
-##ERD다이어 그램
+## ERD다이어 그램
 
 <img width="1376" height="728" alt="er다이어그램" src="https://github.com/user-attachments/assets/b4481f01-c328-4792-95be-62bc2d829b9d" />
 
