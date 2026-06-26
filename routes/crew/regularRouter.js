@@ -8,14 +8,14 @@ const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
 const activityRouter = require('../crew/activityRouter');
 
-router.use((req, res, next)=>{ 
+router.use((req, res, next)=>{
     req.crewModel = regularCrew;
-    next(); 
+    next();
 });
 
 router.use('/act', activityRouter);
 
-router.get('/create', 
+router.get('/create',
     crewMiddleware.loginValidation,
     regularController.getRegularCreate
 );
@@ -34,20 +34,20 @@ router.post('/delete/:crewId',
     regularController.postMyCrewDelete
 );
 
-router.post('/withdraw/:crewId', 
+router.post('/withdraw/:crewId',
     crewMiddleware.loginValidation,
     regularController.postMyCrewWithdraw
 );
 
 
-router.post('/application/:crewId', 
+router.post('/application/:crewId',
     crewMiddleware.loginValidation,
     crewMiddleware.isCrewExist,
     crewMiddleware.applicationValidation,
     applicationController.postApplication
 );
 
-router.get('/pending/:crewId', 
+router.get('/pending/:crewId',
     crewMiddleware.loginValidation,
     crewMiddleware.isCrewExist,
     crewMiddleware.isHost,
@@ -67,8 +67,8 @@ router.post('/join/:appId/:action',
     applicationController.joinProcess
 );
 
-router.get('/my', 
-    crewMiddleware.loginValidation, 
+router.get('/my',
+    crewMiddleware.loginValidation,
     regularController.getMyCrews
 );
 router.get('/list', regularController.getRegular);
@@ -82,8 +82,8 @@ router.get('/manage/:crewId',
 router.post('/manage/:crewId/update',
     crewMiddleware.loginValidation,
     crewMiddleware.isCrewExist,
-    crewMiddleware.isHost, 
-    uploadRegularProfile.single('uploadFile'), 
+    crewMiddleware.isHost,
+    uploadRegularProfile.single('uploadFile'),
     regularController.postCrewUpdate
 );
 
@@ -93,7 +93,7 @@ router.get('/activity/:crewId',
     crewMiddleware.loginValidation,
     regularController.getCrewActivity
 );
-router.post('/list/:crewID/like', 
+router.post('/list/:crewID/like',
     crewMiddleware.loginValidation,
     regularController.postCrewLike
 );
