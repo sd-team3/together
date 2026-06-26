@@ -24,7 +24,6 @@ async function toggleLike(userId) {
     icon.textContent = liked ? '❤️' : '🤍';
     count.textContent = likeCount;
     btn.classList.toggle('liked', liked);
-    // 실패시 되돌림
   }
 }
 
