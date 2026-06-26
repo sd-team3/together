@@ -23,7 +23,7 @@ function notiSocket(noti) {
     noti.on('connection', async (socket)=>{
         const { userId } = socket.handshake.auth;
         
-        // 💡 1. 소켓이 요청을 보내는 순간 바로 터미널에 찍히는 로그 (무조건 찍혀야 함)
+        // 소켓이 요청을 보내는 순간 바로 터미널에 찍히는 로그 (무조건 찍혀야 함)
         console.log(`🔌 [Socket] /noti 네임스페이스에 클라이언트 접근 시도! (유저 ID: ${userId})`);
         
         if(!userId) { 
@@ -48,7 +48,7 @@ function notiSocket(noti) {
             console.log(`✅ [Socket] 크루장(${user._id})이 ${roomName} 방에 안전하게 입장했습니다.`);
             
         } catch (error) {
-            // 💡 2. 그동안 숨겨져 있던 에러의 실체를 터미널에 출력
+            // 그동안 숨겨져 있던 에러를 터미널에 출력
             console.error('💥 [Socket] findUserById 조회 중 치명적인 에러 발생:', error);
             socket.disconnect();
         }
