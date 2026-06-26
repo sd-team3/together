@@ -67,7 +67,7 @@ req.login(result, (err) => {
         });
     } catch (error) {
         
-        if (error.code === 11000) {
+        if (error.status === 400) {
             return res.render('user/signup', {
                 errors: {
                     email: error.message
