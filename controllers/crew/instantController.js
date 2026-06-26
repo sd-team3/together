@@ -13,51 +13,16 @@ const getInstant = async (req, res) => {
             isRecruiting: req.query.isRecruiting || null
         };
 
-        const { crews } = await instantService.getInstantCrew(filter);
-
-        const crewsJson = crews.map(c => ({
-            id:       c._id,
-            title:    c.title,
-            intro:    c.intro || '',
-            sport:    c.sport,
-            sportKr:  CONSTANTS.SPORTS[c.sport]?.kr || c.sport,
-            state:    c.address.state,
-            city:     c.address.city,
-            lat:      c.address.lat,
-            lng:      c.address.lng,
-            current:  c.member.memberList.length,
-            capacity: c.member.capacity,
-            host:     c.host.name || '익명',
-            isAutoAccept: c.isAutoAccept,
-            meetAt: c.meetAt,
-            createdAt: c.createdAt,
-            avgReputation: c.avgReputation || 0,
-            members: c.member.memberList.map(m => ({
-                nickname: m.user?.name || '멤버',
-                gender: m.user?.gender || '',
-                age: m.user?.age || '',
-                role: m.role === 'host' ? '모임장' : '참가확정',
-                joinedAt: m.createdAt || ''
-            }))
-        }));
-
-        let myCrewIds = [];
-        if (req.isAuthenticated()) {
-            const userId = req.user._id.toString();
-            myCrewIds = crews
-                .filter(c =>
-                    c.host._id.toString() === userId ||
-                    c.member.memberList.some(m => m.user?._id?.toString() === userId)
-                )
-                .map(c => c._id.toString());
-        }
+        const { crews, crewsJson, myCrewIds, currentUserId } =
+            await instantService.getInstantPageData(filter, req.isAuthenticated() ? req.user : null);
 
         const pageData = {
             crews: crewsJson,
             isLoggedIn: req.isAuthenticated(),
             myCrewIds,
-            currentUserId: req.isAuthenticated() ? req.user._id.toString() : null,
+            currentUserId
         };
+
         res.render('crew/instantCrew', { CONSTANTS, crews, pageData });
     } catch (error) {
         console.error(error);
