@@ -105,12 +105,6 @@ const getProfile = async (req, res, next) => {
         const user = await userService.findUserById(req.user.id);
         const regularActs = await activityService.findActsByUserId(req.user.id, 'regular');
         const instantActs = await activityService.findActsByUserId(req.user.id, 'instant');
-
-        console.log("-------- 레귤러 --------");
-        console.log(JSON.stringify(regularActs, null, 2));
-        console.log("-------- 인스턴트 --------");
-        console.log(JSON.stringify(instantActs, null, 2));
-        
         
         res.render('user/profile', { user, regularActs, instantActs });
     } catch (error) {

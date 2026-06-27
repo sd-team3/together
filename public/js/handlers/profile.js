@@ -1,7 +1,7 @@
 const profileData = JSON.parse(
     document.getElementById("profile-data").textContent
 );
-const { regCrew, instantCrew } = profileData;
+const { regularActs, instantActs } = profileData;
 
 document.addEventListener("DOMContentLoaded", () => {
 // 정기 모임, 실시간 모임 전체화면, 접기 버튼
@@ -65,11 +65,9 @@ function createRegularCalendar() {
         const day = new Date(monday);
         day.setDate(monday.getDate() + i);
 
-        const daySchedules = regCrew.flatMap(crew => {
-            return crew.schedule
-            .filter(sched => new Date(sched.date).toDateString() === day.toDateString())
-            .map(sched => ({ title : sched.title, sport : crew.sport }))
-        });
+        const dayActs = regularActs
+            .filter(act => new Date(act.startTime).toDateString() === day.toDateString())
+            .map(act => ({ title : act.crewId.title, sport : act.crewId.sport }));
         
         html += 
         `
@@ -83,12 +81,12 @@ function createRegularCalendar() {
             </div>
 
             <div class="regular-events">
-                ${(daySchedules
+                ${(dayActs
                     .slice(0, 2)
-                    .map(sched => `<div class="calendar-event">${sportIcon[sched.sport]} ${sched.title}</div>`)
+                    .map(act => `<div class="calendar-event">${sportIcon[act.sport]} ${act.title}</div>`)
                     .join('')
                     )}
-                ${daySchedules.length > 2 ? `<div class="calendar-more">+${daySchedules.length - 2}개 더...</div>` : ''}
+                ${dayActs.length > 2 ? `<div class="calendar-more">+${dayActs.length - 2}개 더...</div>` : ''}
             </div>
         </div>
         `;
@@ -122,17 +120,19 @@ function createInstantCalendar() {
     for(let day=1; day<=lastDate; day++) {
         const isToday = 
             calendarYear === today.getFullYear() && calendarMonth === today.getMonth() && day === today.getDate();
-        const dayCrews = instantCrew.filter(crew => {
-                const meetDate = new Date(crew.meetAt);
-                return calendarYear === meetDate.getFullYear() && calendarMonth === meetDate.getMonth() && day === meetDate.getDate()
-                }).map(crew => ({ title : crew.title, sport : crew.sport }));
+        const dayActs = instantActs.filter(act => {
+                const startTime = new Date(act.startTime);
+                return calendarYear === startTime.getFullYear() 
+                && calendarMonth === startTime.getMonth() 
+                && day === startTime.getDate()
+                }).map(act => ({ title : act.crewId.title, sport : act.crewId.sport }));
         html += `
             <div class="calendar-cell ${isToday ? 'today' : ''}" data-year="${calendarYear}" data-month="${calendarMonth}" data-day="${day}">
                 <div class="calendar-date">${day}</div>
-                ${dayCrews.slice(0, 2)
-                .map(sched => `<div class="calendar-event"> ${sportIcon[sched.sport]} ${sched.title} </div>`)
+                ${dayActs.slice(0, 2)
+                .map(act => `<div class="calendar-event"> ${sportIcon[act.sport]} ${act.title} </div>`)
                 .join('')}
-                ${dayCrews.length > 2 ? `<div class="calendar-more">+${dayCrews.length - 2}개 더...</div>` : ''}
+                ${dayActs.length > 2 ? `<div class="calendar-more">+${dayActs.length - 2}개 더...</div>` : ''}
             </div>
         `;
     }
@@ -172,7 +172,7 @@ function openCalendarModal(title, list) {
     modalBody.innerHTML = list.map(item => 
         `<div class="modal-item">
         <div class="modal-item-left">${sportIcon[item.sport]} ${item.title}</div>
-        <div class="modal-item-time">${item.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
+        <div class="modal-item-time">${item.date}</div>
         </div>`
     ).join('');
     }
@@ -183,7 +183,7 @@ const modalClose = document.getElementById("modal-close-btn");
 modalClose.addEventListener('click', () => { modalCalendar.classList.remove("show"); });
 modalCalendar.addEventListener('click', e => { 
     if(e.target === modalCalendar) modalCalendar.classList.remove('show');
-})
+});
 
 
 const regularCalendar = document.getElementById("regular-calendar");
@@ -193,14 +193,15 @@ regularCalendar.addEventListener('click', e => {
     if(!regularDay) return;
     const clickedDate = new Date(regularDay.dataset.date);
 
-    const schedules = regCrew.flatMap(crew => 
-        crew.schedule.filter(sched => {
-        const d = new Date(sched.date);
-        return d.getFullYear() === clickedDate.getFullYear() && d.getMonth() === clickedDate.getMonth() && d.getDate() === clickedDate.getDate();
-        }).map(sched => ({sport : crew.sport, title : sched.title, date : new Date(sched.date)}))
-    );
-
-    openCalendarModal(`${clickedDate.getMonth() + 1}월 ${clickedDate.getDate()}일 정기 모임`, schedules);
+    const calendarActs = regularActs
+    .filter(act => {
+        const startTime = new Date(act.startTime);
+        return startTime.getFullYear() === clickedDate.getFullYear() 
+        && startTime.getMonth() === clickedDate.getMonth() 
+        && startTime.getDate() === clickedDate.getDate();
+    })
+    .map(act => ({sport: act.crewId.sport, title: act.crewId.title, date: act.title}));
+    openCalendarModal(`${clickedDate.getMonth() + 1}월 ${clickedDate.getDate()}일 정기 모임`, calendarActs);
 });
 
 const instantCalendar = document.getElementById("instant-calendar");
@@ -211,13 +212,15 @@ instantCalendar.addEventListener('click', e => {
     const year = Number(cell.dataset.year);
     const month = Number(cell.dataset.month);
     const day = Number(cell.dataset.day);
-    
-    const crews = instantCrew.filter(crew => {
-        const d = new Date(crew.meetAt);
-        return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
-    }).map(crew => ({sport : crew.sport, title : crew.title, date : new Date(crew.meetAt)}));
 
-    openCalendarModal(`${month + 1}월 ${day}일 실시간 모임`, crews);
+    const calendarActs = instantActs.filter(act => {
+        const startTime = new Date(act.startTime);
+        return startTime.getFullYear() === year
+        && startTime.getMonth() === month
+        && startTime.getDate() === day;
+    })
+    .map(act => ({sport: act.crewId.sport, title: act.crewId.title, date: act.title}));
+    openCalendarModal(`${month + 1}월 ${day}일 실시간 모임`, calendarActs);
 });
 
 // 정기모임 실시간모임 전환

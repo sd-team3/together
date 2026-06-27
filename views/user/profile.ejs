@@ -34,27 +34,27 @@
               <div class="profile-badge">🎂 <%= user.age %> 세</div>
               <div class="profile-badge">👤 <%= user.gender === 'male' ? '남성' : '여성' %></div> 
               <div class="profile-badge">🏠 <%= user.address.state %> <%= user.address.city %></div>
-              <div class="profile-badge">⚡ <%= user.sports %>축구</div>
+              <div class="profile-badge">👥 <%= user.crews.length %> 개 정기크루</div>
+              <div class="profile-badge">🤝 <%= user.sports %>명</div>
             </div>
           </div>
           <div class="profile-divider"></div>
           <div class="profile-stat-row">
             <div class="ps-item"><span class="ps-val">
-              <% const regularCrewCount = regularActs.reduce((sum, crew) => sum + crew.schedule.length, 0) %>
-              <%= regularCrewCount + instantActs.length %>
+              <%= regularActs.length + instantActs.length %>
             </span>
-              <span class="ps-label">총 참여중인 모임</span></div>
+              <span class="ps-label">총 활동</span></div>
             <div class="ps-item">
-              <span class="ps-val"><%= regularCrewCount %></span>
-              <span class="ps-label">참여중인 정기모임</span>
+              <span class="ps-val"><%= regularActs.length %></span>
+              <span class="ps-label">정기 활동</span>
             </div>
             <div class="ps-item"><span class="ps-val"><%= instantActs.length %></span>
-              <span class="ps-label">참여중인 실시간모임</span>
+              <span class="ps-label">실시간 활동</span>
             </div>
           </div>
           <div class="rank-info-box">
-            <div style="font-size:12px;opacity:.6;letter-spacing:1px;margin-bottom:3px">참여중인 정기모임</div>
-            <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-2px;line-height:1"><%= regularCrewCount %></div>
+            <div style="font-size:12px;opacity:.6;letter-spacing:1px;margin-bottom:3px">명예 점수</div>
+            <div style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-2px;line-height:1"><%= user.honor %>점</div>
           </div>
         </div>
         <div class="card" style="overflow:hidden">
@@ -71,81 +71,74 @@
       <div id="regular-section">
         <div class="mypage-card" style="margin-bottom: 16px;">
           <div class="mypage-card-header">
-          <div class="mypage-card-title">📅 정기 모임 일정</div>
+          <div class="mypage-card-title">📅 정기 활동 일정</div>
         </div>
         <div id="regular-calendar" class="regular-calendar"></div>
       </div>
 
         <!-- Upcoming Schedule -->
         <div id="regular-card" class="mypage-card">
-          <div class="mypage-card-header"><div class="mypage-card-title">📅 계획중인 정기 모임 </div>
-          <% if(regularCrewCount > 4) { %>
+          <div class="mypage-card-header"><div class="mypage-card-title">📅 정기 활동 목록 </div>
+          <% const now = new Date() %>
+          <% const upcomingRegularActs = regularActs.filter(act => new Date(act.startTime) >= now) %>
+          <% if(upcomingRegularActs.length > 4) { %>
           <button type="button" id="regular-all-btn" class="mypage-card-action">전체보기</button>
           <button type="button" id="regular-four-btn" class="mypage-card-action" style="display: none">접기</button>
           <% } %>
         </div>
           <div class="mypage-card-body">
-            <% if(regularCrewCount === 0 || !regularActs) { %>
+            <% if(upcomingRegularActs.length === 0 || !upcomingRegularActs) { %>
                 <div class="no-data-container">
                   <div class="no-data-item">🔍</div>
-                  <p class="no-data-item" style="font-weight: 700;">정기 모임에서 가입한 모임이 없어요</p>
-                  <p class="no-data-item">나의 정기 모임에서 계획된 모임을 확인해보세요!</p>
-                  <a href="/regular/my" class="no-data-button">정기 모임 계획 확인하기</a>
+                  <p class="no-data-item" style="font-weight: 700;">정기 모임에서 가입한 활동이 없어요</p>
+                  <p class="no-data-item">나의 정기 모임에서 활동을 확인해보세요!</p>
+                  <a href="/regular/my" class="no-data-button">정기 모임 활동 확인하기</a>
                 </div>
             <% } else { %>
-            <% let scheduleCounter = 0 %>
-            <% regularActs.forEach(crew => { %>
-              <% crew.schedule.forEach(sched => { %>
+            <% upcomingRegularActs.forEach((act, index) => { %>
+              <% const startTime = new Date(act.startTime) %>
                 <div class="schedule-item 
-                            <%= scheduleCounter === 3 ? 'schedule-item-last' : '' %>
-                            <%= scheduleCounter > 3 ? 'schedule-item-hidden' : '' %>">
-                    <% if(crew.day[0] === '미정') { %>
-                    <div class="sched-time"> <%= crew.day[0] %> --:-- </div>
-                    <% } else {%>
-                    <div class="sched-time"> 
-                      <%= crew.day[0] %> <%= sched.date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
+                            <%= index === 3 ? 'schedule-item-last' : '' %>
+                            <%= index > 3 ? 'schedule-item-hidden' : '' %>">
+                    <div class="sched-time">
+                      <%= startTime.toDateString() === now.toDateString() ? '오늘' : ' '%> 
+                      <%= startTime.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })%>
                     </div>
-                    <% } %>
                     <div class="sched-dot" style="background:var(--primary)"></div>
 
                     
                     <div class="sched-info">
                         <div class="sched-title-row">
-                            <span class="sched-title"><%= crew.title %></span>
-                            <span class="sched-title" style="font-weight: 400;"> - <%= sched.title %></span>
+                            <span class="sched-title"><%= act.crewId.title %></span>
+                            <% if(act.content) { %>
+                                <span class="sched-title" style="font-weight: 400;"> - <%= act.content %></span>
+                            <% } %>
                             <span class="sched-owner">
-                              👑 <%= crew.host.name %> 
-                              <%= String(user.id) === String(crew.host._id) ? "(나)" : "" %>
+                              👑 <%= act.crewId.host.name %> 
+                              <%= String(user.id) === String(act.crewId.host._id) ? "(나)" : "" %>
                             </span>
                         </div>
-                        <div class="sched-sub">📌 <%= sched.address.state %> <%= sched.address.city %> </div>
+                        <div class="sched-sub">📌 <%= act.location.state %> <%= act.location.city %> </div>
                     </div>
 
                     <div class="sched-manage">
                         <div class="manage-top">
-                            <% if (crew.day[0] === '미정') {%> 
-                              <span class="sched-days" style="color: red">미정</span>
-                            <% } else { %>
-                              <span class="sched-days">매주 <%= crew.day.join(', ');%></span>
-                            <% } %>
-                            <span class="sched-count">👤 <%= sched.participants.length %>/<%= crew.member.capacity %></span>
+                              <span class="sched-days"><%= startTime.toLocaleDateString('ko-KR', { weekday: 'short' })%></span>
+                            <span class="sched-count">👤 <%= act.attender.length %>/<%= act.capacity %></span>
                         </div>
                         <div class="manage-bottom">
-                        <% if (sched.status === '마감') { %>
-                          <span class="sched-joined" style="color: #d0b134"><%= sched.status %></span>
-                        <% } else if(sched.status === '종료') { %>
-                          <span class="sched-joined" style="color: red"><%= sched.status %></span>
-                        <% } else if(sched.status === '취소') { %>
-                          <span class="sched-joined" style="color: gray"><%= sched.status %></span>
+                        <% if (act.gameType === 'solo') { %>
+                          <span class="sched-joined" style="color: #22C55E">개인전</span>
+                        <% } else if(act.gameType === 'team') { %>
+                          <span class="sched-joined" style="color: #F97316">팀전</span>
                         <% } else { %>
-                          <span class="sched-joined"><%= sched.status %></span>
+                          <span class="sched-joined"><%= act.gameType %></span>
                         <% } %>
                         </div>
                     </div>
-                </div>
-                <% scheduleCounter++ %>
+                  </div>
                 <% });%>
-              <% });}%>
+              <% }%>
           </div>
         </div>
         </div>
@@ -153,7 +146,7 @@
         <div id="instant-section" style="display: none">
         <div class="mypage-card" style="margin-bottom: 16px;">
             <div class="mypage-card-header">
-                <div class="mypage-card-title">⚡ 실시간 모임 캘린더</div>
+                <div class="mypage-card-title">⚡ 실시간 활동 달력</div>
             </div>
 
             <div class="calendar-month-header">
@@ -167,14 +160,15 @@
 
         <div id="instant-card" class="mypage-card">
           <div class="mypage-card-header">
-            <div class="mypage-card-title">⚡ 실시간 모임</div>
-            <% if(instantActs.length > 4) { %>
+            <div class="mypage-card-title">⚡ 실시간 활동 목록</div>
+            <% const upcomingInstantActs = instantActs.filter(act => new Date(act.startTime) >= now) %>
+            <% if(upcomingInstantActs.length > 4) { %>
             <button type="button" id="instant-all-btn" class="mypage-card-action">전체보기</button>
             <button type="button" id="instant-four-btn" class="mypage-card-action" style="display: none">접기</button>
             <% } %>
           </div>
           <div class="mypage-card-body">
-            <% if(instantActs.length === 0 || !instantActs) { %>
+            <% if(upcomingInstantActs.length === 0 || !upcomingInstantActs) { %>
                   <div class="no-data-container">
                     <div class="no-data-item">🔍</div>
                     <p class="no-data-item" style="font-weight: 700;">아직 가입한 실시간 모임이 없어요</p>
@@ -182,8 +176,7 @@
                     <a href="/instant/list" class="no-data-button">모임 둘러보기</a>
                   </div>
               <% } else { %>
-                <% instantActs.forEach((act, index) => { %>
-                  <% const now = new Date() %>
+                <% upcomingInstantActs.forEach((act, index) => { %>
                   <% const startTime = new Date(act.startTime) %>
                 <div class="schedule-item 
                             <%= index === 3 ? 'schedule-item-last' : '' %>
@@ -195,22 +188,25 @@
                   <div class="sched-dot" style="background:var(--red)"></div>
                   <div class="sched-info">
                       <div class="sched-title-row">
-                          <span class="sched-title"><%= crew.title %></span>
+                          <span class="sched-title"><%= act.crewId.title %></span>
+                          <% if(act.content) { %>
+                              <span class="sched-title" style="font-weight: 400;"> - <%= act.content %></span>
+                          <% } %>
                           <span class="sched-owner">
                             👑 <%= act.crewId.host.name %>
-                                <%= String(user.id) === String(crew.host._id) ? "(나)" : "" %>
+                                <%= String(user.id) === String(act.crewId.host._id) ? "(나)" : "" %>
                           </span>
                       </div>
-                      <div class="sched-sub">📌 <%= crew.address.state %> <%= crew.address.city %></div>
+                      <div class="sched-sub">📌 <%= act.location.state %> <%= act.location.city %></div>
                   </div>
 
                   <div class="sched-manage">
                       <div class="manage-top">
                           <span class="sched-days">
-                            <%= crew.meetAt.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0) < 0 ? 'D +' : 'D -' %>
-                            <%= Math.abs((crew.meetAt.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0))/86400000) %>
+                            <%= startTime.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0) < 0 ? 'D +' : 'D -' %>
+                            <%= Math.abs((startTime.setHours(0, 0, 0, 0) - now.setHours(0, 0, 0, 0))/86400000) %>
                           </span>
-                          <span class="sched-count">👤 <%= crew.member.memberList.length %>/<%= crew.member.capacity %></span>
+                          <span class="sched-count">👤 <%= act.attender.length %>/<%= act.capacity %></span>
                       </div>
                   </div>
               </div>

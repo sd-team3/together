@@ -116,58 +116,6 @@ async function getRegularAPICrews(filter, page) {
     }                              
 }
 
-// -------------------- crewActivity 추가에 따른 폐지 예정 --------------------------
-
-async function findRegularCrewsByUserId(userId) {
-    const user = await User.findById(userId).populate({
-        path: 'crews',
-        populate: { path: 'host', select: 'name' }
-    }).lean();
-
-    if(!user) return null;
-
-    let crew = user.crews.filter(crew => 
-        crew.schedule?.some(sched => 
-            sched.participants?.some(p => String(p) === String(userId)))
-    );
-
-    crew = sortCrewByDay(crew);
-    return crew.map(c => {
-        return { ...c, day : c.day.map(d => CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
-});
-}
-
-
-function sortCrewByDay(crews) {
-    const today = new Date().getDay();
-    const dayMap = {'sun' : 0, 'mon' : 1, 'tue' : 2, 'wed' : 3, 'thu' : 4, 'fri' : 5, 'sat' : 6, 'none' : 7};
-
-    sortDay = (day, today) => {
-        day = dayMap[day];
-        if(day === 7 || day === undefined) return 7; 
-        return day - today >= 0 ? day - today : (day + 7) - today;
-    }
-
-    crews = crews.map(c => {
-        c.day.sort((a, b) => sortDay(a, today) - sortDay(b, today));
-        return { ...c, day : c.day};
-    });
-    return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
-}
-
-function sortSchedTime(schedule) {
-    const now = Date.now();
-    if(schedule && schedule.length > 0) {
-        schedule.sort((a, b) => {
-            if((a.date < now) === (b.date < now)) return a.date - b.date;
-            return a.date < now ? 1 : -1;
-        });
-    }
-    return schedule;
-}
-
-// -------------------- crewActivity 추가에 따른 폐지 예정 --------------------------
-
 async function getMyCrews(userId, role) {
     let tab;
 
@@ -314,8 +262,7 @@ async function handleUserDeleted(userId) {
 }
 
 module.exports = { 
-    createRegCrew, 
-    findRegularCrewsByUserId, 
+    createRegCrew,
     getMyCrews, 
     deleteMyCrew, 
     getCrewDetail, 
