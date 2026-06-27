@@ -83,7 +83,7 @@ export function renderRegularCards(regularCrews) {
   }).join('');
 }
 
-// 📌 선택된 필터 칩 렌더링 함수 (추가)
+// 선택된 필터 칩 렌더링 함수
 export function renderSelectedChips() {
   const panel = document.getElementById('reg-filter-panel');
   if (!panel) return;

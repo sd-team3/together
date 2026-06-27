@@ -28,7 +28,7 @@ const boardStorage = multer.diskStorage(
         filename: makeFileName
     }
 );
-
+// 정기모임 이미지 저장 경로 설정
 const regularProfileStorage = multer.diskStorage(
     {
         destination: (req, file, cb) => {
@@ -45,7 +45,9 @@ const imageFilter = (req, file, cb) =>{
     if(allowedMimeTypes.includes(file.mimetype)){//허용된 파일 형식
         cb(null, true);
     }else{
-        cb(new Error('이미지 파일만 업로드 가능합니다.'));
+        const err = new Error('jpeg, png, webp, jpg 형식의 이미지 파일만 업로드 가능합니다.')
+        err.status = 400;
+        cb(err);
     }
 };
 
@@ -66,6 +68,7 @@ const uploadBoard = multer({
     fileFilter : imageFilter
 });
 
+// 정기모임 사진
 const uploadRegularProfile = multer({
     storage : regularProfileStorage,
     limits : {fileSize : 20 * 1024 * 1024},

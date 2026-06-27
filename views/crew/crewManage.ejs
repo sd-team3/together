@@ -57,7 +57,7 @@
               </div>
               <button type="button" class="avatar-remove-btn" id="profile-reset">x</button>
               <label class="avatar-edit-label" for="profile-input">+</label>
-              <input type="file" id="profile-input" name="uploadFile" accept="image/*" style="display:none">
+              <input type="file" id="profile-input" name="uploadFile" accept="image/jpeg,image/jpg,image/png,image/jpg" style="display:none">
               <input type="hidden" id="removeImage" name="removeImage" value="false">
             </div>
           </div>
@@ -209,6 +209,7 @@
           </div>
         </div>
 
+        
         <!-- 텍스트(활동 카드) 뷰 -->
         <div id="view-activity" style="display:none;">
           <% if (!acts || acts.length === 0) { %>
@@ -545,6 +546,17 @@ const profileReset = document.getElementById('profile-reset');
 profileInput.addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert('5MB 이하의 이미지 파일만 가능합니다.');
+    e.target.value = '';
+    return;
+  }
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+  if (!allowedTypes.includes(file.type)) {
+      alert('이미지 파일(jpg, jpeg, png, webp)만 업로드 가능합니다.');
+      e.target.value = '';
+      return;
+  }
   preview.src = URL.createObjectURL(file);
 });
 

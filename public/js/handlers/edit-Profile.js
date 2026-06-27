@@ -75,6 +75,17 @@ imageChanged = true;
 fileInput.addEventListener('change', (e) => {
 const file = e.target.files[0];
 if (!file) return;
+if (file.size > 5 * 1024 * 1024) {
+    alert('5MB 이하의 이미지 파일만 가능합니다.');
+    e.target.value = '';
+    return;
+}
+const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+if (!allowedTypes.includes(file.type)) {
+    alert('이미지 파일(jpg, jpeg, png, webp)만 업로드 가능합니다.');
+    e.target.value = '';
+    return;
+}
 const reader = new FileReader();
 reader.onload = (ev) => { avatarImg.src = ev.target.result; };
 reader.readAsDataURL(file);
