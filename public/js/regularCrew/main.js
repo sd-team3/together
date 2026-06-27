@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// DOM 요소 선택
+// DOM 요소
 const filterTabs = document.querySelectorAll('.filter-tab');
 const filterOptionPanel = document.getElementById('filterOptionPanel');
 const filterOptionTitle = document.getElementById('filterOptionTitle');
@@ -38,7 +38,6 @@ if (btnRecruitingOnly) {
     btnRecruitingOnly.classList.toggle('active');
     // 상태 객체에 true/false 저장
     selectedFilters.isRecruiting = btnRecruitingOnly.classList.contains('active');
-    // 1페이지부터 다시 데이터 불러오기
     loadRegularCrews(1);
   });
 }
@@ -159,8 +158,8 @@ cityBtns.forEach((button) => {
     districtGroups.forEach((group) => {
       if (group.dataset.state === state) {
         group.style.display = 'flex';
-        group.style.flexWrap = 'wrap';  // 추가
-        group.style.gap = '8px';        // 추가
+        group.style.flexWrap = 'wrap';
+        group.style.gap = '8px';
       } else {
         group.style.display = 'none';
       }
@@ -231,14 +230,9 @@ if (pagination) {
 document.addEventListener('click', function(e) {
   // 클릭된 요소부터 부모로 거슬러 올라가며 .reg-card 클래스를 가진 요소를 찾음
   const card = e.target.closest('.reg-card');
-  
-  // 카드가 아닌 다른 곳을 클릭했다면 무시
   if (!card) return; 
 
   const regularID = card.dataset.id;
-  console.log("찾아낸 ID:", regularID); // 여기서 정상적인 문자열이 찍히는지 확인!
-  
-  // 페이지 이동 혹은 API 호출
   window.location.href = `/regular/list/${regularID}`;
 });
 function renderProgressBars() {

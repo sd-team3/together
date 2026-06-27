@@ -167,7 +167,6 @@ async function toggleLike() {
             headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
-        // 실패 시 되돌림
         liked = !liked;
         likeCount += liked ? 1 : -1;
         icon.textContent = liked ? '\u2764\uFE0F' : '\u{1F90D}';
