@@ -32,8 +32,22 @@ async function findActsByCrewId(crewId) {
     }
 }
 
+async function findActsByUserId(userId, crewType) {
+    try {
+        const acts = await crewActivity
+        .find({ crewModel: crewType, attender: {$in: [userId]}})
+        .populate({ path: 'crewId', model: crewType+'Crew', populate: { path: 'host', select: 'name'}})
+        .sort({ startTime: -1})
+        .lean();
+        return acts;
+    } catch (error) {
+        console.error("findActsByUserId: ", error.message);
+    }
+}
+ 
 module.exports = {
     createActivity,
     findActById,
-    findActsByCrewId
+    findActsByCrewId,
+    findActsByUserId
 };

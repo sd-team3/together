@@ -3,6 +3,19 @@ const notFoundHandler = (req, res, next) =>{
     error.status = 404;
     return next(error);
 }
+const multer = require('multer');
+const uploadErrorHandler = (err, req, res, next) => {
+    if(!(err instanceof multer.MulterError)) return next(err);
+    switch (err.code) {
+        case 'LIMIT_FILE_SIZE' : 
+            err.status = 400;
+            err.message = '파일 용량을 초과하였습니다.';
+            break;
+        default :
+            err.status = 400;
+    }
+    return next(err);
+}
 
 const errorHandler = (err, req, res, next) => {
 
@@ -20,4 +33,4 @@ const errorHandler = (err, req, res, next) => {
     }
     return res.status(500).render('error/error_500', { statusCode, message });
 }
-module.exports = {notFoundHandler, errorHandler};
+module.exports = {notFoundHandler, errorHandler, uploadErrorHandler};

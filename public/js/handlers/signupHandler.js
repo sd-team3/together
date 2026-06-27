@@ -322,6 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
     avatarFile.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert('5MB 이하의 이미지 파일만 가능합니다.');
+            this.value = '';
+            return;
+        }
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('이미지 파일(jpg, jpeg, png, webp)만 업로드 가능합니다.');
+            this.value = '';
+            return;
+        }
         const reader = new FileReader();
         reader.onload = (e) => {
             avatarImg.src = e.target.result;

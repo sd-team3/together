@@ -84,13 +84,7 @@
         <div class="form-group">
           <label class="form-label">이미지 첨부 <span class="optional">(선택)</span></label>
           <label class="file-upload-label" id="fileLabel">
-            <input
-              type="file"
-              name="file"
-              id="fileInput"
-              accept="image/*"
-              style="display:none"
-            >
+            <input type="file" name="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
             <span class="file-icon">📎</span>
             <span id="fileName">파일을 선택하거나 여기에 드래그하세요</span>
           </label>
@@ -147,6 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('5MB 이하의 이미지 파일만 가능합니다.');
+      fileInput.value = '';
+      return;
+    }
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('이미지 파일(jpg, jpeg, png, webp)만 업로드 가능합니다.');
+        fileInput.value = '';
+        return;
+    }
     fileName.textContent = file.name;
     const reader = new FileReader();
     reader.onload = e => {

@@ -164,6 +164,7 @@ async function deleteUser(userId, password) {
     await instantService.handleUserDeleted(userId);
     await regularService.handleUserDeleted(userId);
     await boardService.handleUserDeleted(userId);
+    await notiService.handleUserDeleted(userId);
     await User.findByIdAndDelete(userId);
 }
 

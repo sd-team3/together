@@ -19,7 +19,7 @@ const instantRouter = require('./routes/crew/instantRouter');
 const notiRouter = require('./routes/notiRouter');
 const indexRouter = require('./routes/indexRouter.js');
 const comRouter = require('./routes/community/comRouter.js');
-const {notFoundHandler, errorHandler} = require('./middlewares/errorMiddleware');
+const {notFoundHandler, errorHandler, uploadErrorHandler} = require('./middlewares/errorMiddleware');
 // 웹소켓
 const chatRouter = require('./routes/chatRouter');
 const {initSocket} = require('./config/socket');
@@ -49,7 +49,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
 app.set('io', io);
 initSocket(io);
 
@@ -78,6 +77,7 @@ app.use('/community', comRouter)
 app.use('/chatRoom', chatRouter);
 app.use('/friends', friendRouter);
 
+app.use(uploadErrorHandler);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
