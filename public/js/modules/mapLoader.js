@@ -189,7 +189,7 @@ const kakaoMap = {
                 const ringClass = isAlmost ? 'pulse-ring fast' : 'pulse-ring';
                 const wrapClass = isFull   ? 'pulse-wrap closed' : 'pulse-wrap';
     
-                // 1. 문자열 대신 DOM 객체를 직접 생성 (안전한 이벤트 바인딩을 위해)
+                // DOM 객체 생성
                 const contentEl = document.createElement('div');
                 contentEl.className = wrapClass;
                 contentEl.setAttribute('data-crew-id', crew.id);
@@ -199,7 +199,7 @@ const kakaoMap = {
                     <div class="pulse-dot"   style="background:${color}"></div>
                 `;
  
-                // 2. 엘리먼트 생성 즉시 클릭 이벤트 할당 (setTimeout 300ms 제거 가능)
+                // 엘리먼트 생성 즉시 클릭 시 이벤트 할당
                 if (crew.onClick) {
                     contentEl.addEventListener('click', (e) => {
                         // 카카오맵 자체 클릭 이벤트와 충돌 방지
