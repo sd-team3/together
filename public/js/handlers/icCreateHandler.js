@@ -2,7 +2,7 @@ import kakaoMap from '/js/modules/mapLoader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── 종목 chip ──
+  // 종목
   document.querySelectorAll('[data-chip]').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('[data-chip]').forEach(c => c.classList.remove('on'));
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ── 자동/수동 수락 ──
+  //자동/수동 수락 
   document.querySelectorAll('[data-accept]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-accept]').forEach(b => b.classList.remove('on'));
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── 좌표 적용 공통 함수 ──
+  //좌표 적용 공통 함수
   function applyLocation(lat, lng, name) {
     document.getElementById('lat-input').value = lat;
     document.getElementById('lng-input').value = lng;
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hidePlaceList();
   }
 
-  // ── 장소 목록 표시 ──
+  // 장소 목록 표시
   function showPlaceList(results, state, city) {
     const filtered = results.filter(r =>
         r.address_name.includes(state) && r.address_name.includes(city)
@@ -102,12 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── 장소 목록 숨기기 ──
+  //장소 목록 숨기기
   function hidePlaceList() {
     document.getElementById('place-list')?.remove();
   }
 
-  // ── 주소 → 좌표 변환 + 지도 표시 ──
+  //주소 -> 좌표 변환 + 지도 표시
   document.getElementById('btn-find-addr').addEventListener('click', async () => {
     const state = document.getElementById('stateSelect').value.trim();
     const city  = document.getElementById('citySelect').value.trim();
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── 모임 날짜 / 시간: 2단계 선택 ──
+  //모임 날짜 / 시간
   const stepDate = document.getElementById('step-date');
   const stepTime = document.getElementById('step-time');
   const selectedDateLabel = document.getElementById('selected-date-label');
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── 제출 전 검증 ──
+  //제출 전 검증
   document.getElementById('create-form').addEventListener('submit', (e) => {
     const lat = document.getElementById('lat-input').value;
     const lng = document.getElementById('lng-input').value;

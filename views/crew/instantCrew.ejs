@@ -17,7 +17,6 @@
   <div class="page-body-wide" style="flex:1;min-height:0;overflow:hidden">
     <div class="map-container" style="height:100%;overflow:hidden">
 
-      <!-- Map Area -->
       <div class="map-area" style="position:relative;flex:1">
         <div id="map" style="width:100%; height:100%;"></div>
         <div class="map-filter-bar" style="z-index:1000">
@@ -32,7 +31,6 @@
         </div>
       </div>
 
-      <!-- List Panel -->
       <div class="map-list">
         <div class="map-list-header">
           <div class="map-list-title"><%= crews.length %>개의 매칭</div>
@@ -116,7 +114,7 @@
     </div>
   </div>
 
-</div><!-- /main -->
+</div>
 
 <!-- ── 비회원/미가입자용 팝업 ── -->
 <div class="map-popup-overlay" id="map-popup">
@@ -157,9 +155,7 @@
 <div class="map-popup-overlay" id="member-popup">
   <div class="map-popup" style="max-width:860px;width:95%;max-height:90vh;overflow-y:auto;">
     <button class="popup-close" id="mp-close-btn">✕</button>
-    <div id="mp-body">
-      <!-- JS로 채워짐 -->
-    </div>
+    <div id="mp-body"></div>
   </div>
 </div>
 

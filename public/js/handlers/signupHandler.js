@@ -358,4 +358,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
  
-}); // DOMContentLoaded 끝
+});
