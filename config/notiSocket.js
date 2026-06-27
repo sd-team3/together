@@ -23,20 +23,19 @@ function notiSocket(noti) {
     noti.on('connection', async (socket)=>{
         const { userId } = socket.handshake.auth;
         
-        // 💡 1. 소켓이 요청을 보내는 순간 바로 터미널에 찍히는 로그 (무조건 찍혀야 함)
-        console.log(`🔌 [Socket] /noti 네임스페이스에 클라이언트 접근 시도! (유저 ID: ${userId})`);
+        // 1. 소켓이 요청을 보내는 순간 바로 터미널에 찍히는 로그 (무조건 찍혀야 함)
+        console.log(`[Socket] /noti 네임스페이스에 클라이언트 접근 시도! (유저 ID: ${userId})`);
         
         if(!userId) { 
-            console.log('❌ [Socket] userId가 전달되지 않아 소켓을 차단합니다.');
+            console.log('[Socket] userId가 전달되지 않아 소켓을 차단합니다.');
             return socket.disconnect(); 
         }
     
         try {
-            // 이 서비스 함수 내부에서 에러가 나는지 확인해야 합니다.
             const user = await userService.findUserById_WithoutPW(userId);
             
             if (!user) {
-                console.log(`❌ [Socket] DB에서 유저(${userId})를 찾을 수 없어 연결을 종료합니다.`);
+                console.log(`[Socket] DB에서 유저(${userId})를 찾을 수 없어 연결을 종료합니다.`);
                 return socket.disconnect();
             }
             
@@ -45,11 +44,10 @@ function notiSocket(noti) {
             const roomName = `user:${user._id.toString()}`; //개인 방 입장
             socket.join(roomName);
             
-            console.log(`✅ [Socket] 크루장(${user._id})이 ${roomName} 방에 안전하게 입장했습니다.`);
+            console.log(`[Socket] 크루장(${user._id})이 ${roomName} 방에 안전하게 입장했습니다.`);
             
         } catch (error) {
-            // 💡 2. 그동안 숨겨져 있던 에러의 실체를 터미널에 출력
-            console.error('💥 [Socket] findUserById 조회 중 치명적인 에러 발생:', error);
+            console.error('[Socket] findUserById 조회 중 치명적인 에러 발생:', error);
             socket.disconnect();
         }
     });
