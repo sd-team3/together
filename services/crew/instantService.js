@@ -2,6 +2,7 @@
 const instantCrew = require('../../models/instantCrew');
 const chatService = require('../chatService');
 const ChatRoom = require('../../models/ChatRoom');
+const { CONSTANTS } = require('../../config/constants');
 
 async function getInstantCrew(filter = {}) {
     const query = { meetAt: { $gte: new Date() } };
@@ -20,6 +21,55 @@ async function getInstantCrew(filter = {}) {
         .populate('member.memberList.user', 'name age gender');
 
     return { crews };
+}
+
+
+async function getInstantPageData(filter, currentUser) {
+    const { crews } = await getInstantCrew(filter);
+
+    const crewsJson = crews.map(c => ({
+        id:           c._id,
+        title:        c.title,
+        intro:        c.intro || '',
+        sport:        c.sport,
+        sportKr:      CONSTANTS.SPORTS[c.sport]?.kr || c.sport,
+        state:        c.address.state,
+        city:         c.address.city,
+        lat:          c.address.lat,
+        lng:          c.address.lng,
+        current:      c.member.memberList.length,
+        capacity:     c.member.capacity,
+        host:         c.host.name || '익명',
+        isAutoAccept: c.isAutoAccept,
+        meetAt:       c.meetAt,
+        createdAt:    c.createdAt,
+        avgReputation: c.avgReputation || 0,
+        members: c.member.memberList.map(m => ({
+            nickname: m.user?.name || '멤버',
+            gender:   m.user?.gender || '',
+            age:      m.user?.age || '',
+            role:     m.role === 'host' ? '모임장' : '참가확정',
+            joinedAt: m.createdAt || ''
+        }))
+    }));
+
+    let myCrewIds = [];
+    if (currentUser) {
+        const userId = currentUser._id.toString();
+        myCrewIds = crews
+            .filter(c =>
+                c.host._id.toString() === userId ||
+                c.member.memberList.some(m => m.user?._id?.toString() === userId)
+            )
+            .map(c => c._id.toString());
+    }
+
+    return {
+        crews,        // EJS render용 raw 데이터
+        crewsJson,
+        myCrewIds,
+        currentUserId: currentUser ? currentUser._id.toString() : null
+    };
 }
 
 async function createInstantCrew(data, host) {
@@ -150,6 +200,7 @@ module.exports = {
     getInstantCrew,
     getCrewDetail,
     deleteInstantCrew,
+    getInstantPageData,
     kickMember,
     findInstantCrewsByUserId,
     setNoshow,

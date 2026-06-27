@@ -80,7 +80,7 @@ async function getRegularAPICrews(filter, page) {
     const query = {};
     const limit = 9;
     const skip = (page-1) * limit;
-    // $in : 몽고 DB에게 여러개의 값을 가져오라는 것 
+ 
     if (filter.day) {
         query.day = { $in : filter.day };
     }
@@ -100,7 +100,6 @@ async function getRegularAPICrews(filter, page) {
         query['address.city'] = filter.city;
     }
     if (filter.isRecruiting) {
-        // 가져오는 속도를 높이기 위해 memberList.length < capacity를 몽고 DB 언어로 직역한 것이다.
         query.$expr = { 
             $lt: [ { $size: "$member.memberList" }, "$member.capacity" ] 
         };
