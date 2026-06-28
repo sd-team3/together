@@ -45,12 +45,7 @@ const openChatRoom = async (req, res, next) => {
         // sport 조회
         let sport = null;
         if (room && room.crewId) {
-            const InstantCrew = require('../models/instantCrew');
-            const RegularCrew = require('../models/regularCrew');
-            const crew = room.crewType === 'instant'
-                ? await InstantCrew.findById(room.crewId).select('sport')
-                : await RegularCrew.findById(room.crewId).select('sport');
-            sport = crew?.sport || null;
+            sport = await chatService.getCrewSport(room.crewId, room.crewType);
         }
 
         // isMuted 조회
@@ -69,6 +64,7 @@ const openChatRoom = async (req, res, next) => {
         next(error);
     }
 };
+
 const toggleMute = async (req, res, next) => {
     try {
         const { roomId } = req.params;

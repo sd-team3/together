@@ -36,3 +36,14 @@ exports.getHome = async (req, res, next) => {
         next(err);
     }
 };
+
+// 정기모임-api
+exports.getRegularMeetingsApi = async (req, res, next) => {
+    try {
+        const sport = req.query.sport || '';
+        const meetings = await homeService.getRegularMeetings(sport);
+        res.json({ ok: true, meetings });
+    } catch (err) {
+        next(err);
+    }
+};

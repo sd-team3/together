@@ -21,27 +21,18 @@ async function getChatRoomList(userId, crewType = null) {
         ];
     }
 
-    console.log('[getChatRoomList] userId:', userId, 'crewType:', crewType, 'query:', JSON.stringify(query));
+    // console.log('[getChatRoomList] userId:', userId, 'crewType:', crewType, 'query:', JSON.stringify(query));
 
     const chatRoom = await ChatRoom.find(query)
         .populate('members.user', 'name')
         .populate('lastMessage', 'content')
         .sort({ lastMessageAt: -1 });
 
-    console.log('[getChatRoomList] 결과 개수:', chatRoom.length);
+    // console.log('[getChatRoomList] 결과 개수:', chatRoom.length);
 
     return chatRoom;
 }
 
-async function getChatRoom (roomId, userId) {
-    if (!roomId) {
-        const error = new Error ('존재하지 않는 방입니다.');
-        error.status = 400;
-        throw error;
-    }
-    const room = await ChatRoom.findById(new mongoose.Types.ObjectId(roomId));
-    return room;
-}
 
 async function getMessage (roomId) {
     if (!roomId) {
@@ -109,6 +100,28 @@ async function handleUserDeleted(userId) {
     );
 }
 
-module.exports = { getChatRoomList, getChatRoom, getMessage, sendChat, createChatRoom, addMemberToChatRoom, handleUserDeleted };
+// roomId에 해당하는 채팅방 단건 조회
+async function getChatRoom (roomId, userId) {
+    // roomId 없으면 에러
+    if (!roomId) {
+        const error = new Error ('존재하지 않는 방입니다.');
+        error.status = 400;
+        throw error;
+    }
+    // roomId로 채팅방 조회 후 반환
+    const room = await ChatRoom.findById(new mongoose.Types.ObjectId(roomId));
+    return room;
+}
+
+async function getCrewSport(crewId, crewType) {
+    const InstantCrew = require('../models/instantCrew');
+    const RegularCrew = require('../models/regularCrew');
+    const crew = crewType === 'instant'
+        ? await InstantCrew.findById(crewId).select('sport')
+        : await RegularCrew.findById(crewId).select('sport');
+    return crew?.sport || null;
+}
+
+module.exports = { getChatRoomList, getChatRoom, getMessage, sendChat, createChatRoom, addMemberToChatRoom, handleUserDeleted, getCrewSport };
 
 

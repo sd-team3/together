@@ -261,17 +261,7 @@ const getUserProfile = async (req, res) => {
         // 크루 정보
         let crews = [];
         if (showHistory) {
-            const regularCrew = require('../models/regularCrew');
-            const rawCrews = await regularCrew.find({
-                'member.memberList.user': targetId
-            }).select('title sport address sportEmoji profileImage').lean();
-
-            crews = rawCrews.map(c => ({
-                title: c.title,
-                sport: c.sport,
-                address: c.address?.city || '',
-                sportEmoji: c.sportEmoji || '🏅'
-            }));
+            crews = await userService.findCrewsByUserId(targetId);
         }
 
         // 친구 여부 확인
@@ -305,9 +295,8 @@ const updatePrivacy = async (req, res) => {
             'priv-manner':  'privacy.showManner'
         };
 
-        await User.findByIdAndUpdate(req.user._id, {
-            $set: { [fieldMap[key]]: value }
-        });
+        await userService.updatePrivacy(req.user._id, fieldMap[key], value);
+        
         res.json({ ok: true });
     } catch (err) {
         res.status(500).json({ ok: false });
