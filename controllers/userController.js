@@ -261,7 +261,7 @@ const getUserProfile = async (req, res) => {
         // 크루 정보
         let crews = [];
         if (showHistory) {
-            crews = await regularService.findCrewsByUserId(targetId);
+            crews = await userService.findCrewsByUserId(targetId);
         }
 
         // 친구 여부 확인
