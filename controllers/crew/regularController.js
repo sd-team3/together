@@ -171,7 +171,7 @@ const postCrewUpdate = async (req, res) => {
         const updateData = {...req.body};
         if(req.file) updateData.profileImage = req.file.filename;
         await regularService.postCrewUpdate(req.params.crewId, updateData, req.file);
-        res.json({ success: true});
+        res.json({ success: true });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
