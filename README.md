@@ -33,9 +33,16 @@ npm install
 
 루트 디렉토리에 `.env` 파일을 생성하고 아래 항목을 설정.
 
-MONGO_URI=your_mongodb_uri
-SESSION_SECRET=your_secret
-KAKAO_CLIENT_ID=your_kakao_key
+PORT=3000
+KAKAO_JS_KEY={your_kakao_js_key}
+MONGODB_URI={your_mongodb_uri}
+SESSION_SECRET = secret
+
+GOOGLE_CLIENT_ID = {your_google_client_id}
+GOOGLE_CLIENT_SECRET = {your_google_client_secret}
+
+NAVER_CLIENT_ID = {your_naver_client_id}
+NAVER_CLIENT_SECRET = {your_naver_client_secret}
 
 bash
 npm start
