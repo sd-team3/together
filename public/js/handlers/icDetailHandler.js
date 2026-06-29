@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initProfileModal(null, CURRENT_USER_ID);
 
     if (!IS_HOST && !IS_MEMBER) {
-        // 미가입자 - 참가 신청만
+        // 미가입자: 참가 신청만
         document.getElementById('btn-apply')?.addEventListener('click', async () => {
             try {
                 const res = await fetch(`/instant/${CREW_ID}/apply`, { method: 'POST' });
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // ── 멤버/호스트 공통 ──
+    //멤버/호스트 공통
     const members = MEMBERS_DATA;
     let currentFilter = 'all', searchVal = '', selectedId = null;
     const searchInput = document.getElementById('search-input');
@@ -154,8 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else alert(data.message || '처리에 실패했습니다');
         } catch (e) { alert('서버 오류가 발생했습니다'); }
     }
-
-    // 이벤트 리스너
+    
     document.getElementById('member-tbody').addEventListener('click', e => {
         const btn = e.target.closest('[data-action]');
         if (btn) {

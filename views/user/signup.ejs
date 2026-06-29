@@ -42,7 +42,7 @@
             </div>
             <% const isSocialLogin = !!socialUser; %>
             <form action="/user/signup" method="post" id="signup" enctype="multipart/form-data">
-                <input type="file" id="avatar-file" name="uploadFile" accept="image/*" style="display:none">
+                <input type="file" id="avatar-file" name="uploadFile" accept="image/jpg,image/png,image/jpeg,image/webp" style="display:none">
                 <input type="hidden" id="removeImage" name="removeImage" value="false">
                 <div class="form-group">
                     <label class="label">이름 <span class="req">*</span></label>

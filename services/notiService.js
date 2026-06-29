@@ -58,8 +58,23 @@ const readAllNotiByUserId = async (userId) => {
     }
 };
 
+const handleUserDeleted = async (userId) => {
+    try {
+        return await Notification.deleteMany({
+            $or: [{ sender : userId }, { receiver : userId }]
+        });
+    } catch (error) {
+        console.error('handleUserDeletedNoti:', error);
+        throw error;
+    }
+}
+
 module.exports = { 
     createNoti,
-    findUnReadNotiByUserId, findReadNotiByUserId,
-    readNotiByNotiId, readAllNotiByUserId, deleteNotiByNotiId
+    findUnReadNotiByUserId, 
+    findReadNotiByUserId,
+    readNotiByNotiId, 
+    readAllNotiByUserId, 
+    deleteNotiByNotiId, 
+    handleUserDeleted
 };

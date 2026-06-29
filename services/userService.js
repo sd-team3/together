@@ -6,6 +6,7 @@ const friendService = require('./friendService');
 const instantService = require('./crew/instantService');
 const regularService = require('./crew/regularService');
 const boardService = require('./community/comService'); 
+const notiService = require('./notiService'); // 추가
 
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
@@ -164,6 +165,7 @@ async function deleteUser(userId, password) {
     await instantService.handleUserDeleted(userId);
     await regularService.handleUserDeleted(userId);
     await boardService.handleUserDeleted(userId);
+    await notiService.handleUserDeleted(userId);
     await User.findByIdAndDelete(userId);
 }
 
@@ -196,6 +198,35 @@ async function getUserName(userId) {
     }
 }
 
+//크루 조회
+async function findCrewsByUserId(userId) {
+    const regularCrew = require('../models/regularCrew');
+    const crews = await regularCrew.find({
+        'member.memberList.user': userId
+    }).select('title sport address sportEmoji profileImage').lean();
+
+    return crews.map(c => ({
+        title: c.title,
+        sport: c.sport,
+        address: c.address?.city || '',
+        sportEmoji: c.sportEmoji || '🏅'
+    }));
+}
+
+//친구 여부 확인
+async function getFriendInfo(myId, targetId) {
+    const me = await User.findById(myId);
+    const friendEntry = me.friends?.find(f => f.user.toString() === targetId.toString());
+    return friendEntry ? { since: friendEntry.createdAt || null } : null;
+}
+
+async function updatePrivacy(userId, field, value) {
+    await User.findByIdAndUpdate(userId, {
+        $set: { [field]: value }
+    });
+}
+
+
 module.exports = {
     createUser,
     findUserByEmail,
@@ -205,5 +236,8 @@ module.exports = {
     checkEmail,
     verifyPassword,
     findUserById_WithoutPW,
-    getUserName
+    getUserName,
+    findCrewsByUserId,
+    getFriendInfo,
+    updatePrivacy
 };

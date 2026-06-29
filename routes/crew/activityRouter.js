@@ -17,10 +17,10 @@ router.post('/entry/:actId',
     activityController.postEntry
 );
 
-router.post('/attend/:actId', 
-    activityMiddleware.isActExist,
-    activityController.postAttendance
-);
+// router.post('/attend/:actId', 
+//     activityMiddleware.isActExist,
+//     activityController.postAttendance
+// );
 
 
 

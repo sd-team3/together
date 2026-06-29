@@ -785,7 +785,7 @@ select.input{cursor:pointer}
 #modal-close-btn{ border:none; background:none; cursor:pointer; font-size:18px;}
 .modal-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
 .modal-item-left{flex:1;font-size:14px;font-weight:500;}
-.modal-item-time{flex-shrink:0;margin-left:15px;font-size:13px;color:var(--text-3);font-family:'DM Mono', monospace;}
+.modal-item-time{flex-shrink:0;margin-left:15px;font-size:13px;color:var(--text-3);}
 /* ═══════════════════════════════════════
    CHAT PAGE
 ═══════════════════════════════════════ */

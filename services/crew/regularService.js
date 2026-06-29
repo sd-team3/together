@@ -80,7 +80,7 @@ async function getRegularAPICrews(filter, page) {
     const query = {};
     const limit = 9;
     const skip = (page-1) * limit;
-    // $in : 몽고 DB에게 여러개의 값을 가져오라는 것 
+ 
     if (filter.day) {
         query.day = { $in : filter.day };
     }
@@ -100,7 +100,6 @@ async function getRegularAPICrews(filter, page) {
         query['address.city'] = filter.city;
     }
     if (filter.isRecruiting) {
-        // 가져오는 속도를 높이기 위해 memberList.length < capacity를 몽고 DB 언어로 직역한 것이다.
         query.$expr = { 
             $lt: [ { $size: "$member.memberList" }, "$member.capacity" ] 
         };
@@ -114,54 +113,6 @@ async function getRegularAPICrews(filter, page) {
     return {
         regularCrews, totalPages, currentPage: page
     }                              
-}
-
-async function findRegularCrewsByUserId(userId) {
-    const user = await User.findById(userId).populate({
-        path: 'crews',
-        populate: { path: 'host', select: 'name' }
-    }).lean();
-
-    if(!user) return null;
-
-    let crew = user.crews.filter(crew => 
-        crew.schedule?.some(sched => 
-            sched.participants?.some(p => String(p) === String(userId)))
-    );
-
-    crew = sortCrewByDay(crew);
-    return crew.map(c => {
-        return { ...c, day : c.day.map(d => CONSTANTS.DAYS[d]?.short || '미정'), schedule : sortSchedTime(c.schedule)};
-});
-}
-
-
-function sortCrewByDay(crews) {
-    const today = new Date().getDay();
-    const dayMap = {'sun' : 0, 'mon' : 1, 'tue' : 2, 'wed' : 3, 'thu' : 4, 'fri' : 5, 'sat' : 6, 'none' : 7};
-
-    sortDay = (day, today) => {
-        day = dayMap[day];
-        if(day === 7 || day === undefined) return 7; 
-        return day - today >= 0 ? day - today : (day + 7) - today;
-    }
-
-    crews = crews.map(c => {
-        c.day.sort((a, b) => sortDay(a, today) - sortDay(b, today));
-        return { ...c, day : c.day};
-    });
-    return crews.sort((a, b) => sortDay(a.day[0], today) - sortDay(b.day[0], today));
-}
-
-function sortSchedTime(schedule) {
-    const now = Date.now();
-    if(schedule && schedule.length > 0) {
-        schedule.sort((a, b) => {
-            if((a.date < now) === (b.date < now)) return a.date - b.date;
-            return a.date < now ? 1 : -1;
-        });
-    }
-    return schedule;
 }
 
 async function getMyCrews(userId, role) {
@@ -296,6 +247,12 @@ async function handleUserDeleted(userId) {
     // 정기모임 삭제
     await regularCrew.deleteMany({ host: userId });
 
+    // CrewActivity에 가입한 유저 삭제
+    await crewActivity.updateMany(
+        { $or: [{ teamBlue : userId }, { teamRed : userId }]},
+        { $pull: { teamBlue : userId, teamRed : userId }}
+    )
+
     // 나머지 모임에서 memberList에서 제거
     await regularCrew.updateMany(
         { "member.memberList.user": userId },
@@ -304,8 +261,7 @@ async function handleUserDeleted(userId) {
 }
 
 module.exports = { 
-    createRegCrew, 
-    findRegularCrewsByUserId, 
+    createRegCrew,
     getMyCrews, 
     deleteMyCrew, 
     getCrewDetail, 

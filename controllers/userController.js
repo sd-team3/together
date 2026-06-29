@@ -1,6 +1,7 @@
 const userService = require('../services/userService');
 const regularService = require('../services/crew/regularService');
 const instantService = require('../services/crew/instantService');
+const activityService = require('../services/crew/activityService');
 const User = require('../models/User');
 
 //# 회원 가입 페이지
@@ -67,7 +68,7 @@ req.login(result, (err) => {
         });
     } catch (error) {
         
-        if (error.code === 11000) {
+        if (error.status === 400) {
             return res.render('user/signup', {
                 errors: {
                     email: error.message
@@ -99,12 +100,13 @@ const logout = (req, res, next) => {
 }
 
 //마이페이지
-const getProfile = async (req, res) => {
+const getProfile = async (req, res, next) => {
     try {
         const user = await userService.findUserById(req.user.id);
-        const regCrew = await regularService.findRegularCrewsByUserId(req.user.id);
-        const instantCrew = await instantService.findInstantCrewsByUserId(req.user.id);
-        res.render('user/profile', { user, regCrew, instantCrew});
+        const regularActs = await activityService.findActsByUserId(req.user.id, 'regular');
+        const instantActs = await activityService.findActsByUserId(req.user.id, 'instant');
+        
+        res.render('user/profile', { user, regularActs, instantActs });
     } catch (error) {
         return next(error);
     }
@@ -259,17 +261,7 @@ const getUserProfile = async (req, res) => {
         // 크루 정보
         let crews = [];
         if (showHistory) {
-            const regularCrew = require('../models/regularCrew');
-            const rawCrews = await regularCrew.find({
-                'member.memberList.user': targetId
-            }).select('title sport address sportEmoji profileImage').lean();
-
-            crews = rawCrews.map(c => ({
-                title: c.title,
-                sport: c.sport,
-                address: c.address?.city || '',
-                sportEmoji: c.sportEmoji || '🏅'
-            }));
+            crews = await userService.findCrewsByUserId(targetId);
         }
 
         // 친구 여부 확인
@@ -303,9 +295,8 @@ const updatePrivacy = async (req, res) => {
             'priv-manner':  'privacy.showManner'
         };
 
-        await User.findByIdAndUpdate(req.user._id, {
-            $set: { [fieldMap[key]]: value }
-        });
+        await userService.updatePrivacy(req.user._id, fieldMap[key], value);
+        
         res.json({ ok: true });
     } catch (err) {
         res.status(500).json({ ok: false });
