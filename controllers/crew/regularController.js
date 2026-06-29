@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
+const activityService = require('../../services/crew/activityService');
 
 const getRegularCreate = (req, res)=>{
     res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
@@ -157,7 +158,8 @@ const getCrewManage = async (req, res) => {
             return res.redirect('/user/login');
         }
         const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
-        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS });
+        const acts = await activityService.findActsByCrewId(req.params.crewId);
+        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS, acts });
     } catch(error) {
         console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');

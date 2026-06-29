@@ -135,8 +135,6 @@ async function getMyCrews(userId, role) {
     return crews.map(crew => {
         const obj = crew.toObject();
 
-        const period_Kor = { week: '매주', '2week': '격주', month: '매달' };
-
         const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member';
 
         const dayLabel = obj.day
@@ -148,7 +146,7 @@ async function getMyCrews(userId, role) {
             ...obj,
             crewRole,
             dayLabel,
-            periodLabel : period_Kor[obj.period] || obj.period,
+            periodLabel : CONSTANTS.PERIODS[obj.period]?.kr || obj.period,
             pct: Math.round(obj.member.memberList.length / obj.member.capacity * 100) + '%'
         };
     });
@@ -167,10 +165,6 @@ async function getCrewDetail(regularCrewId) {
 
     const obj = crew.toObject();
 
-    const period_Kor = { week: '매주', '2week': '격주', month: '매달' };
-    const level_Kor = {none : '무관', low : '초급', mid : '중급', high : '상급'};
-    const accept_Kor = { true: '자동 승인', false: '수동 승인' };
-
     const dayLabel = obj.day
             .filter(day => day !== 'none')
             .map(day => CONSTANTS.DAYS[day]?.short || day)
@@ -184,9 +178,9 @@ async function getCrewDetail(regularCrewId) {
             .join(' · ');
 
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
-    const periodLabel = period_Kor[obj.period] || obj.period;
-    const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
+    const periodLabel = CONSTANTS.PERIODS[obj.period]?.kr || obj.period;
+    const levelLabel  = CONSTANTS.LEVELS[obj.level]?.kr  || obj.level;
+    const acceptLabel = CONSTANTS.ACCEPT[obj.isAutoAccept]?.kr || '';
     return {
         ...obj,
         dayLabel,
