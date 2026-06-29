@@ -121,35 +121,33 @@ async function getMyCrews(userId, role) {
     if(role === 'host') {
         tab = { host : userId };
     } else if(role === 'member') {
-        tab = { 'member.memberList.user' : userId, host : { $ne : userId } }; // $ne : 몽고DB 연산자. not equal의 줄임말
+        tab = { 'member.memberList.user' : userId, host : { $ne : userId } };
     } else {
         tab = {
-            $or: [ // $or : 똑같이 몽고DB 연산자
+            $or: [
                 {host : userId}, {'member.memberList.user' : userId}
             ]
         };
-    } //
+    }
 
     const crews = await regularCrew.find(tab).populate('host', 'name').sort({createdAt : -1});
 
     return crews.map(crew => {
-        const obj = crew.toObject(); // JS 객체로 변환함
+        const obj = crew.toObject();
 
-        const period_Kor = { week: '매주', '2week': '격주', month: '매달' }; // 한글 변환
-
-        const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member'; // 크루장인지 크루원인지 구분
+        const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member';
 
         const dayLabel = obj.day
-            .filter(day => day !== 'none') // none이 아닌 것만 남김
-            .map(day => CONSTANTS.DAYS[day]?.short || day) // day_Kor의 mon, tue 같은 것들을 한글로 변환함
-            .join('·') || '-'; // 배열 이어붙이기 ex)화·목, 월·금, 요일 없으면 -
+            .filter(day => day !== 'none')
+            .map(day => CONSTANTS.DAYS[day]?.short || day)
+            .join('·') || '-';
         
         return {
             ...obj,
             crewRole,
-            dayLabel, // obj(크루 데이터) 펼치고, role과 dayLabel을 추가
-            periodLabel : period_Kor[obj.period] || obj.period, // period 한글 변환
-            pct: Math.round(obj.member.memberList.length / obj.member.capacity * 100) + '%' // 인원 수를 퍼센트로 계산해서 게이지로 표현
+            dayLabel,
+            periodLabel : CONSTANTS.PERIODS[obj.period]?.kr || obj.period,
+            pct: Math.round(obj.member.memberList.length / obj.member.capacity * 100) + '%'
         };
     });
 }
@@ -167,10 +165,6 @@ async function getCrewDetail(regularCrewId) {
 
     const obj = crew.toObject();
 
-    const period_Kor = { week: '매주', '2week': '격주', month: '매달' };
-    const level_Kor = {none : '무관', low : '초급', mid : '중급', high : '상급'};
-    const accept_Kor = { true: '자동 승인', false: '수동 승인' };
-
     const dayLabel = obj.day
             .filter(day => day !== 'none')
             .map(day => CONSTANTS.DAYS[day]?.short || day)
@@ -184,9 +178,9 @@ async function getCrewDetail(regularCrewId) {
             .join(' · ');
 
     const sportLabel = CONSTANTS.SPORTS[obj.sport]?.kr || obj.sport;
-    const periodLabel = period_Kor[obj.period] || obj.period;
-    const levelLabel = level_Kor[obj.level] || obj.level;
-    const acceptLabel = obj.isAutoAccept ? '자동 승인' : '수동 승인';
+    const periodLabel = CONSTANTS.PERIODS[obj.period]?.kr || obj.period;
+    const levelLabel  = CONSTANTS.LEVELS[obj.level]?.kr  || obj.level;
+    const acceptLabel = CONSTANTS.ACCEPT[obj.isAutoAccept]?.kr || '';
     return {
         ...obj,
         dayLabel,
@@ -203,7 +197,7 @@ async function crewLike(regularCrewId, userId) {
     const isLiked = crew.likedBy.some(id => id.toString() === userId.toString());
     await regularCrew.findByIdAndUpdate(regularCrewId,
         isLiked ? { $pull: {likedBy: userId}, $inc: {reputation: -1} } : { $push: {likedBy: userId}, $inc: {reputation: 1}}
-    ); // $inc : 몽고DB 숫자 필드 증가 연산자
+    );
 }
 
 async function getCrewManage(regularCrewId) {

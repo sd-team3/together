@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
+const activityService = require('../../services/crew/activityService');
 
 const getRegularCreate = (req, res)=>{
     res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
@@ -89,8 +90,12 @@ const getRegularPage = async (req, res, next) => {
 
 const getMyCrews = async (req, res) => {
     try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
+        
         const userId = req.user._id;
-        const role = req.query.role || 'all'; // 디폴트 설정
+        const role = req.query.role || 'all';
         const crews = await regularService.getMyCrews(userId, role);
         res.render('crew/my', { crews, role });
     } catch (error) {
@@ -136,6 +141,9 @@ const postMyCrewWithdraw = async (req, res) => {
 
 const postCrewLike = async (req, res) => {
     try {
+        if (!req.isAuthenticated()) {
+            return res.redirect('/user/login');
+        }
         await regularService.crewLike(req.params.crewId, req.user._id);
         res.json({success: true});
     } catch (error) {
@@ -149,11 +157,8 @@ const getCrewManage = async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.redirect('/user/login');
         }
-        console.log('crewId:', req.params.crewId);
-        const {crew, pendingApps, acts} = await regularService.getCrewManage(req.params.crewId);
-        console.log('crew:', crew?._id);
-        console.log('pendingApps:', pendingApps);
-        console.log('acts:', acts);
+        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
+        const acts = await activityService.findActsByCrewId(req.params.crewId);
         res.render('crew/crewManage', { crew, pendingApps, CONSTANTS, acts });
     } catch(error) {
         console.error('getCrewManage 에러:', error);
@@ -166,7 +171,7 @@ const postCrewUpdate = async (req, res) => {
         const updateData = {...req.body};
         if(req.file) updateData.profileImage = req.file.filename;
         await regularService.postCrewUpdate(req.params.crewId, updateData, req.file);
-        res.json({ success: true});
+        res.json({ success: true });
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -186,7 +191,7 @@ const getCrewActivity = async (req, res) => {
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
-    getMyCrews, // 불러오기
+    getMyCrews,
     postMyCrewDelete,
     postMyCrewWithdraw,
     postCrewLike,
