@@ -35,7 +35,97 @@ const calcDday = (date) => {
     return `D+${Math.abs(diff)}`;
 };
 
-// // ── 정기모임 카드 ──────────────────────────────
+// 크루 1개를 카드 데이터로 변환 (정기모임/AI추천 공통 사용)
+const formatMeetingCard = (crew) => {
+
+    const memberList = crew.member?.memberList || [];
+
+    const current = memberList.length;
+    const total = crew.member?.capacity || 0;
+
+    const fillPct = total > 0
+        ? Math.round((current / total) * 100)
+        : 0;
+
+    const meta = SPORTS_META[crew.sport] || {
+        emoji: '🏃',
+        color: '#999'
+    };
+
+    const ALL_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+    const dayLabel = ALL_DAYS.every(d => (crew.day || []).includes(d))
+        ? '매일'
+        : (crew.day || []).every(d => d === 'none')
+            ? '비정기'
+            : (crew.day || []).map(d => DAY_MAP[d] || d).join('·');
+
+    const isFull = current >= total;
+    const isAlmost = fillPct >= 75;
+
+    const nextSchedule = (crew.schedule || [])
+        .filter(s => new Date(s.date) > new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+
+    const timeLabel = nextSchedule
+        ? new Date(nextSchedule.date).toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+        : '';
+
+    const PERIOD_MAP = { week: '매주', '2week': '격주', month: '매월' };
+    const periodLabel = PERIOD_MAP[crew.period] || '매주';
+
+    return {
+        emoji: meta.emoji,
+        title: crew.title,
+        schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
+        district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
+
+        filterTags: [
+            crew.fee > 0 ? 'paid' : 'free',
+            (crew.day || []).some(d =>
+                ['sat', 'sun'].includes(d)
+            ) ? 'weekend' : 'weekday',
+            isAlmost ? 'warn' : ''
+        ].join(' ').trim(),
+
+        pillType: isFull
+            ? 'danger'
+            : isAlmost
+                ? 'warn'
+                : 'success',
+
+        pillLabel: isFull
+            ? '마감'
+            : isAlmost
+                ? '마감임박'
+                : '모집중',
+
+        time: timeLabel,
+
+        fee: crew.fee > 0
+            ? `${crew.fee.toLocaleString()}원/회`
+            : '무료',
+
+        level: LEVEL_MAP[crew.level] || '누구나',
+
+        fillPct,
+        current,
+        total,
+
+        modalBody:
+            `📍 ${crew.address?.city || ''} ${crew.address?.detail || ''} / ` +
+            `${periodLabel} ${dayLabel} ${timeLabel} / ` +
+            `${current}/${total}명 / ` +
+            `${crew.fee > 0
+                ? crew.fee.toLocaleString() + '원/회'
+                : '무료'}`
+    };
+};
+
+// ── 정기모임 카드 ──────────────────────────────
 const getRegularMeetings = async (sport = '') => {
   const query = sport ? { sport } : {};
 
@@ -43,95 +133,7 @@ const getRegularMeetings = async (sport = '') => {
         .sort({ createdAt: -1 })
         .limit(15);
 
-    return crews.map(crew => {
-
-        const memberList = crew.member?.memberList || [];
-
-        const current = memberList.length;
-        const total = crew.member?.capacity || 0;
-
-        const fillPct = total > 0
-            ? Math.round((current / total) * 100)
-            : 0;
-
-        const meta = SPORTS_META[crew.sport] || {
-            emoji: '🏃',
-            color: '#999'
-        };
-
-        const ALL_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-
-        const dayLabel = ALL_DAYS.every(d => (crew.day || []).includes(d))
-            ? '매일'
-            : (crew.day || []).every(d => d === 'none')
-                ? '비정기'
-                : (crew.day || []).map(d => DAY_MAP[d] || d).join('·');
-
-        const isFull = current >= total;
-        const isAlmost = fillPct >= 75;
-
-        const nextSchedule = (crew.schedule || [])
-            .filter(s => new Date(s.date) > new Date())
-            .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
-
-        const timeLabel = nextSchedule
-            ? new Date(nextSchedule.date).toLocaleTimeString('ko-KR', {
-                hour: '2-digit',
-                minute: '2-digit'
-            })
-            : '';
-
-        const PERIOD_MAP = { week: '매주', '2week': '격주', month: '매월' };
-        const periodLabel = PERIOD_MAP[crew.period] || '매주';
-
-        return {
-            emoji: meta.emoji,
-            title: crew.title,
-            schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
-            district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
-            
-
-            filterTags: [
-                crew.fee > 0 ? 'paid' : 'free',
-                (crew.day || []).some(d =>
-                    ['sat', 'sun'].includes(d)
-                ) ? 'weekend' : 'weekday',
-                isAlmost ? 'warn' : ''
-            ].join(' ').trim(),
-
-            pillType: isFull
-                ? 'danger'
-                : isAlmost
-                    ? 'warn'
-                    : 'success',
-
-            pillLabel: isFull
-                ? '마감'
-                : isAlmost
-                    ? '마감임박'
-                    : '모집중',
-
-            time: timeLabel,
-
-            fee: crew.fee > 0
-                ? `${crew.fee.toLocaleString()}원/회`
-                : '무료',
-
-            level: LEVEL_MAP[crew.level] || '누구나',
-
-            fillPct,
-            current,
-            total,
-
-            modalBody:
-                `📍 ${crew.address?.city || ''} ${crew.address?.detail || ''} / ` +
-                `${periodLabel} ${dayLabel} ${timeLabel} / ` +
-                `${current}/${total}명 / ` +
-                `${crew.fee > 0
-                    ? crew.fee.toLocaleString() + '원/회'
-                    : '무료'}`
-        };
-    });
+    return crews.map(formatMeetingCard);
 };
 
 
@@ -387,10 +389,132 @@ const getSportChips = () => {
   }));
 };
 
+// 유저 나이 -> AGES 버킷 변환 (예: 23 -> '20s')
+const getAgeBucket = (age) => {
+    if (!age) return null;
+    if (age < 20) return '10s';
+    if (age < 30) return '20s';
+    if (age < 40) return '30s';
+    if (age < 50) return '40s';
+    if (age < 60) return '50s';
+    return '60+';
+};
+
+// 크루의 요일+시간을 '평일오전' 같은 선호시간대 라벨로 역산
+const getCrewTimeLabels = (crew) => {
+    const days = crew.day || [];
+    const isWeekend = days.some(d => ['sat', 'sun'].includes(d));
+    const isWeekday = days.some(d => !['sat', 'sun', 'none'].includes(d));
+
+    const nextSchedule = (crew.schedule || [])
+        .filter(s => new Date(s.date) > new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+
+    let timeOfDay = null; // 오전 | 오후 | 저녁
+    if (nextSchedule) {
+        const hour = new Date(nextSchedule.date).getHours();
+        timeOfDay = hour < 12 ? '오전' : hour < 18 ? '오후' : '저녁';
+    }
+
+    const labels = [];
+    if (timeOfDay) {
+        if (isWeekday) labels.push(`평일${timeOfDay}`);
+        if (isWeekend) labels.push(`주말${timeOfDay}`);
+    } else {
+        // 시간 정보가 없는 크루는 넓게 다 후보로 인정 (매칭 기회 자체를 차단하지 않기 위함)
+        ['오전', '오후', '저녁'].forEach(t => {
+            if (isWeekday) labels.push(`평일${t}`);
+            if (isWeekend) labels.push(`주말${t}`);
+        });
+    }
+    return labels;
+};
+
+// 유저 선호도 기반 크루 스코어 계산 + 추천 사유(종목40 + 지역30 + 나이15 + 시간대15)
+const scoreCrewForUser = (crew, user) => {
+    let score = 0;
+    const reasons = [];
+
+    if (user.preferredSport?.includes(crew.sport)) {
+        score += 40;
+        reasons.push({ icon: '🎯', label: '선호 종목과 일치해요' });
+    }
+
+    if (user.address?.state && user.address.state === crew.address?.state) {
+        score += 20;
+        if (user.address?.city && user.address.city === crew.address?.city) {
+            score += 10;
+            reasons.push({ icon: '📍', label: '우리 동네 모임이에요' });
+        } else {
+            reasons.push({ icon: '📍', label: '가까운 지역이에요' });
+        }
+    }
+
+    const userAgeBucket = getAgeBucket(user.age);
+    if (crew.ageRange?.length && userAgeBucket && crew.ageRange.includes(userAgeBucket)) {
+        score += 15;
+        reasons.push({ icon: '🎂', label: '내 연령대에 맞아요' });
+    } else if (!crew.ageRange?.length || crew.ageRange.includes('all')) {
+        score += 15;
+    }
+
+    const crewTimeLabels = getCrewTimeLabels(crew);
+    if (user.preferredTime?.some(t => crewTimeLabels.includes(t))) {
+        score += 15;
+        reasons.push({ icon: '⏰', label: '선호 시간대와 딱 맞아요' });
+    }
+
+    return { score, reasons: reasons.slice(0, 3) }; // 카드가 지저분해지지 않게 최대 3개만
+};
+
+// AI 추천 정기모임 - 로그인 유저의 선호정보 기반 스코어링
+const getAIRecommendedMeetings = async (userId, limit = 6) => {
+    if (!userId) return getRegularMeetings();
+
+    const user = await User.findById(userId).lean();
+    if (!user) return getRegularMeetings();
+
+    const crews = await RegularCrew.find({}).sort({ createdAt: -1 }).limit(50);
+
+    const scored = crews
+        .map(crew => ({ crew, ...scoreCrewForUser(crew, user) }))
+        .sort((a, b) => b.score - a.score);
+
+    return scored.slice(0, limit).map(({ crew, score, reasons }) => ({
+        ...formatMeetingCard(crew),
+        matchScore: score,
+        matchReasons: reasons
+    }));
+};
+
+// AI 자연어 검색
+const searchCrewsByAI = async (filter, limit = 20) => {
+    const query = {};
+
+    if (filter.sport) query.sport = filter.sport;
+    if (filter.state) query['address.state'] = filter.state;
+    if (filter.city) query['address.city'] = filter.city;
+    if (filter.day && filter.day.length) query.day = { $in: filter.day };
+    if (filter.ageRange) query.ageRange = { $in: [filter.ageRange, 'all'] };
+    if (filter.keyword) {
+        query.$or = [
+            { title: { $regex: filter.keyword, $options: 'i' } },
+            { intro: { $regex: filter.keyword, $options: 'i' } }
+        ];
+    }
+
+    const crews = await RegularCrew.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit);
+
+    return crews.map(formatMeetingCard);
+};
 
 
 module.exports = {
     getRegularMeetings,
+    getAIRecommendedMeetings,
+    searchCrewsByAI,
     getLeafletMatches,
     getMySchedule,
     getMyStats,

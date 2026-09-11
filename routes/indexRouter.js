@@ -16,4 +16,7 @@ router.get('/', indexController.getHome);
 // 정기모임-api
 router.get('/api/regular-meetings', indexController.getRegularMeetingsApi);
 
+// AI 자연어 검색-api
+router.get('/api/search/ai', indexController.aiSearch);
+
 module.exports = router;

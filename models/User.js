@@ -53,6 +53,15 @@ const userSchema = new mongoose.Schema(
             type: addressSchema,
             required: true
         },
+        preferredTime: [{
+            type: String,
+            enum: ['평일오전', '평일오후', '평일저녁', '주말오전', '주말오후', '주말저녁'],
+            //AI 추천용 - 다중선택 가능하게 배열로
+        }],
+        preferredSport: [{
+            type: String,
+            //홈 화면 sportChips 이모지(⚽🏀⚾🎾🏸🏓🎳)랑 값 맞춰야함
+        }],
         gender: {
             type: String,
             required: true

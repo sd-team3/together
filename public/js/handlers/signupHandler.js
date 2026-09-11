@@ -66,6 +66,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleAll(cb) {
         document.querySelectorAll('.agree-check').forEach(c => c.checked = cb.checked);
     }
+
+    // 선호 시간대 / 선호 종목 드롭다운
+    function setupPrefDropdowns() {
+        document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            const textEl = dropdown.querySelector('.dropdown-toggle-text');
+            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+            const placeholder = textEl.textContent;
+
+            toggle.addEventListener('click', function () {
+                const isOpen = menu.classList.contains('open');
+                document.querySelectorAll('.dropdown-menu.open').forEach(function (openMenu) {
+                    openMenu.classList.remove('open');
+                    openMenu.closest('.dropdown').querySelector('.dropdown-toggle').classList.remove('active');
+                });
+                if (!isOpen) {
+                    menu.classList.add('open');
+                    toggle.classList.add('active');
+                }
+            });
+
+            function updateText() {
+                const checked = Array.from(checkboxes).filter(function (c) { return c.checked; });
+                if (checked.length === 0) {
+                    textEl.textContent = placeholder;
+                    toggle.classList.remove('has-value');
+                } else {
+                    textEl.textContent = checked.map(function (c) { return c.nextElementSibling.textContent; }).join(', ');
+                    toggle.classList.add('has-value');
+                }
+            }
+
+            checkboxes.forEach(function (cb) {
+                cb.addEventListener('change', updateText);
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.open').forEach(function (openMenu) {
+                    openMenu.classList.remove('open');
+                    openMenu.closest('.dropdown').querySelector('.dropdown-toggle').classList.remove('active');
+                });
+            }
+        });
+    }
  
     function showToast(msg) {
         const t = document.getElementById('toast');
@@ -131,6 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const genderChecked = document.querySelector('input[name="gender"]:checked');
         if (!genderChecked) {
             setFeedback(document.getElementById('genderFeedBack'), '성별을 선택해주세요', 'error');
+            hasError = true;
+        }
+
+        // 선호 시간대
+        const timeChecked = document.querySelector('input[name="preferredTime"]:checked');
+        if (!timeChecked) {
+            setFeedback(document.getElementById('preferredTimeFeedBack'), '선호 시간대를 1개 이상 선택해주세요', 'error');
+            hasError = true;
+        }
+
+        // 선호 종목
+        const sportChecked = document.querySelector('input[name="preferredSport"]:checked');
+        if (!sportChecked) {
+            setFeedback(document.getElementById('preferredSportFeedBack'), '선호 종목을 1개 이상 선택해주세요', 'error');
             hasError = true;
         }
  
@@ -345,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('agreeAll').addEventListener('change', function () { toggleAll(this); });
     document.getElementById('addrSearchBtn').addEventListener('click', searchAddress);
     document.getElementById('signup').addEventListener('submit', handleSignup);
+    setupPrefDropdowns();
     document.querySelector('.avatar-remove-btn').addEventListener('click', function () {
         avatarImg.src = '/images/user-profile/default-profile-image.jpg';
         avatarFile.value = '';

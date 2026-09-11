@@ -27,7 +27,6 @@
             justify-content: center;
             min-height: 100vh;
             padding: 15px;
-            /* 페이지 전체 스크롤 허용 (모바일 대응) */
             overflow-y: auto; 
         }
 
@@ -85,18 +84,16 @@
         }
         .visual-desc { font-size: 18px; opacity: 0.8; line-height: 1.6; }
 
-        /* --- 오른쪽 폼 영역 수정 --- */
         .auth-form-side {
             padding: 40px 50px;
             display: flex;
             flex-direction: column;
             height: 100%;
-            overflow-y: auto; /* 내부 스크롤 활성화 */
-            scrollbar-width: thin; /* Firefox 스크롤바 디자인 */
+            overflow-y: auto;
+            scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
         }
         
-        /* Chrome, Safari 스크롤바 디자인 */
         .auth-form-side::-webkit-scrollbar { width: 6px; }
         .auth-form-side::-webkit-scrollbar-thumb { 
             background-color: var(--border); 
@@ -134,7 +131,6 @@
             font-size: 15px; display: flex; align-items: center; padding: 0;
         }
 
-        /* Address Search */
         .address-wrap { display: flex; gap: 8px; margin-bottom: 8px; }
         .btn-search {
             white-space: nowrap; padding: 0 15px; background: var(--primary-soft);
@@ -143,7 +139,6 @@
         }
         .btn-search:hover { background: var(--primary); color: white; }
 
-        /* PW Strength */
         .pw-strength { margin-top: 6px; }
         .pw-bars { display: flex; gap: 4px; margin-bottom: 4px; }
         .pw-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); }
@@ -152,7 +147,6 @@
         .pw-bar.strong { background: var(--green); }
         .pw-label { font-size: 10.5px; color: var(--text-muted); }
 
-        /* Agree Section */
         .agree-section {
             background: var(--bg); border: 1px solid var(--border);
             border-radius: 10px; padding: 15px; margin: 10px 0 20px 0;
@@ -188,7 +182,6 @@
 
         .link { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
 
-        /* Toast & Overlays */
         .toast {
             position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: var(--text); color: white;
@@ -211,7 +204,6 @@
         }
         @keyframes popIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 
-        /* 반응형 모바일 최적화 */
         @media (max-width: 900px) {
             body { padding: 10px; }
             .auth-container { height: auto; max-height: none; grid-template-columns: 1fr; border-radius: 20px; }
@@ -219,7 +211,6 @@
             .auth-form-side { padding: 30px 20px; height: auto; overflow-y: visible; }
         }
 
-        /* 세로가 짧은 노트북 기기 대응 */
         @media (max-height: 800px) and (min-width: 901px) {
             .auth-container { height: 96vh; }
             .visual-title { font-size: 40px; }
@@ -227,19 +218,17 @@
             .form-header { margin-bottom: 15px; }
             .form-group { margin-bottom: 10px; }
         }
-        /* 이메일 입력창과 버튼을 한 줄로 배치 */
     .email-input-group {
         display: flex;
-        gap: 8px; /* 입력창과 버튼 사이 간격 */
+        gap: 8px;
         align-items: center;
     }
 
     .email-input-group .input {
-        flex: 1; /* 입력창이 남은 공간을 다 차지하도록 설정 */
-        margin-bottom: 0; /* 기존 마진 제거 */
+        flex: 1;
+        margin-bottom: 0;
     }
 
-    /* 중복확인 버튼 스타일 (기본 btn-search 스타일 활용) */
     #emailCheckBtn {
         padding: 10px 14px;
         background: transparent;
@@ -248,12 +237,12 @@
         font-size: 13px;
         color: var(--text-2);
         cursor: pointer;
-        white-space: nowrap; /* 글자 줄바꿈 방지 */
+        white-space: nowrap;
         font-family: 'DM Sans', sans-serif;
         font-weight: 600;
         transition: all .2s;
-        flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 고정 */
-        height: 41px; /* 입력창 높이와 통일 (필요시 조정) */
+        flex-shrink: 0;
+        height: 41px;
     }
 
     #emailCheckBtn:hover {
@@ -262,11 +251,9 @@
         background: var(--primary-soft);
     }
 
-    /* 에러 메시지 마진 조정 */
     #emailFeedBack, .form-text.text-danger {
         margin-top: 6px;
     }
-    /* 피드백 텍스트 공통 */
     .feedback-text {
         font-size: 12px;
         margin-top: 5px;
@@ -277,7 +264,6 @@
     .feedback-text.error { color: #E24B4A; }
     .feedback-text.success { color: #639922; }
 
-    /* 인풋 테두리 */
     .input-error {
         border-color: #E24B4A !important;
         box-shadow: 0 0 0 2px rgba(226, 75, 74, 0.15);
@@ -396,7 +382,6 @@
     color: white !important;
     border-color: #111 !important;
 }
-/* 성별 칩 */
 .chip-group {
     display: flex;
     gap: 8px;
@@ -420,4 +405,112 @@
     background: black;
     border-color: black;
     color: white;
+}
+
+/* 선호 시간대 / 선호 종목 드롭다운 */
+.pref-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pref-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 13.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dropdown-toggle-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--text-muted);
+}
+
+.dropdown-toggle.has-value .dropdown-toggle-text {
+    color: var(--text);
+}
+
+.dropdown-toggle.active {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(26, 92, 255, 0.1);
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.dropdown-toggle.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    z-index: 20;
+    max-height: 210px;
+    overflow-y: auto;
+}
+
+.dropdown-menu.open {
+    display: block;
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-soft);
+    cursor: pointer;
+}
+
+.dropdown-option:hover {
+    background: var(--primary-soft);
+}
+
+.dropdown-option input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.dropdown-option input[type="checkbox"]:checked ~ span {
+    color: var(--primary);
+    font-weight: 600;
 }

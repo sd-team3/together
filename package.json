@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/sd-team3/together#readme",
   "dependencies": {
+    "@google/genai": "^2.22.0",
     "axios": "^1.18.0",
     "bcrypt": "^6.0.0",
     "connect-flash": "^0.1.1",

@@ -1,11 +1,25 @@
 const homeService = require('../services/indexService');
+const aiSearchService = require('../services/aiSearchService');
+
+exports.aiSearch = async (req, res, next) => {
+    try {
+        const q = (req.query.q || '').trim();
+        if (!q) return res.json({ ok: true, meetings: [], filter: null });
+
+        const filter = await aiSearchService.parseSearchQuery(q);
+        const meetings = await homeService.searchCrewsByAI(filter);
+        res.json({ ok: true, meetings, filter });
+    } catch (err) {
+        next(err);
+    }
+};
 
 exports.getHome = async (req, res, next) => {
     try {
         
         const [regularMeetings, leafletMatches, stats, sportChips, liveFeed] =
         await Promise.all([
-            homeService.getRegularMeetings(),
+            homeService.getAIRecommendedMeetings(req.user?._id),
             homeService.getLeafletMatches(),
             homeService.getStats(),
             homeService.getSportChips(),
@@ -28,7 +42,8 @@ exports.getHome = async (req, res, next) => {
             sportChips,
             mySchedule,
             myStats,
-            liveFeed
+            liveFeed,
+            isAIRecommended: !!req.user
 
         });
 
