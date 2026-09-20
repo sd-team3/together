@@ -87,6 +87,8 @@ const getRegularMeetings = async (sport = '') => {
         return {
             emoji: meta.emoji,
             title: crew.title,
+            profileImage: crew.profileImage || '',
+            intro: crew.intro || '',
             schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
             district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
             

@@ -461,50 +461,21 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    REGULAR MEETINGS PAGE
 ═══════════════════════════════════════ */
-.regular-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-.reg-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .18s;
-}
-.reg-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow);transform:translateY(-1px)}
-.reg-card-head{
-  padding:18px;background:linear-gradient(135deg,rgba(26,92,255,.08),rgba(0,200,212,.06));
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;
-}
-
-.reg-card-head > div {
-    min-width: 0;
-}
-.reg-sport-icon{
-  width:46px;height:46px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;background:var(--surface);border:1px solid var(--border);
-}
-.reg-card-title{
-  font-size:14px;
-  font-weight:700;
-  margin-bottom:3px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.reg-card-sub{font-size:12px;color:var(--text-3)}
-.reg-card-body{padding:14px 18px}
-.reg-meta-row{display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-2)}
-.reg-meta-row span{display:flex;align-items:center;gap:5px}
-.reg-members{display:flex;align-items:center;gap:-4px;margin-bottom:10px}
-.reg-member-av{
-  width:26px;height:26px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;color:#fff;
-  border:2px solid var(--surface);margin-left:-6px;
-}
-.reg-member-av:first-child{margin-left:0}
-.reg-member-more{background:var(--bg);color:var(--text-3);border:1px solid var(--border);font-size:10px;font-weight:600}
-.reg-progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
-.reg-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:2px}
-.reg-progress-label{font-size:10.5px;color:var(--text-3);display:flex;justify-content:space-between}
+.regular-grid{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.reg-card{display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.reg-card:last-child{border-bottom:none}
+.reg-card:hover{background:var(--bg)}
+.reg-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.reg-title-row{display:flex;align-items:center;gap:8px}
+.reg-card-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-meta-row{font-size:11.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-meta-row .dot{opacity:.5;margin:0 2px}
+.reg-thumb-img{width:64px;height:64px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0;background:var(--bg);border:1px solid var(--border)}
+.reg-intro{font-size:11.5px;color:var(--text-3);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reg-meta-row{display:flex;align-items:center;gap:8px}
+.reg-meta-left{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;color:var(--text-3)}
+.reg-meta-left .dot{opacity:.5;margin:0 2px}
+.reg-meta-right{flex-shrink:0;font-size:10.5px;color:var(--text-3);font-family:'DM Mono',monospace;white-space:nowrap}
 
 /* ═══════════════════════════════════════
    TRADE (MARKETPLACE) PAGE
@@ -1944,63 +1915,62 @@ select.input{cursor:pointer}
   gap: 10px;
 }
 
-/* 요일 / 운동 / 연령 / 지역 탭 버튼 */
+/* 요일 / 운동 / 연령 / 지역 탭 버튼 — 박스형으로 변경 */
 .filter-tab {
   min-width: 92px;
   padding: 11px 18px;
   border: 1px solid #ddd;
-  border-radius: 999px;
+  border-radius: 8px;
   background-color: var(--surface);
   color: var(--text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
   transition: 0.15s ease;
 }
-
 .filter-tab:hover {
-  background-color: #f6f6f6;
-  border-color: #aaa;
+  border-color: #5d5dff;
+  color: #5d5dff;
 }
-
 .filter-tab.active {
-  background-color: #222;
-  border-color: #222;
+  background-color: #5d5dff;
+  border-color: #5d5dff;
   color: #fff;
 }
 
-/* 초기화 버튼 */
+/* 초기화 버튼 — 모임 만들기 버튼이랑 같은 박스, 색만 중립 */
 .reset-filter-btn {
-  margin-top: 10px;
-  padding: 8px 14px;
-  border: 1px solid #ddd;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
   background-color: var(--surface);
   color: var(--text-2);
-  font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition: all 0.2s ease;
 }
-
 .reset-filter-btn:hover {
-  background-color: #f6f6f6;
-  border-color: #aaa;
+  background-color: #f1f1f1;
+  color: var(--text);
 }
-
 /* ==============================
    옵션 패널
-
+ ================================*/
 .filter-option-panel {
   display: none;
   margin-top: 16px;
+  margin-bottom: 24px;
   padding: 20px;
   border: 1px solid #eee;
   border-radius: 18px;
   background-color: var(--surface);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
-
 .filter-option-panel.active {
   display: block;
 }
@@ -2028,7 +1998,7 @@ select.input{cursor:pointer}
 .filter-option-group {
   display: none;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .filter-option-group.active {
@@ -2039,23 +2009,23 @@ select.input{cursor:pointer}
 .filter-option-btn {
   padding: 9px 15px;
   border: 1px solid #ddd;
-  border-radius: 999px;
+  border-radius: 8px;
   background-color: var(--surface);
   color: var(--text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
   transition: 0.15s ease;
 }
 
 .filter-option-btn:hover {
-  background-color: #f5f5f5;
-  border-color: #aaa;
+  border-color: #5d5dff;
+  color: #5d5dff;
 }
-
 .filter-option-btn.active {
-  background-color: #222;
-  border-color: #222;
+  background-color: #5d5dff;
+  border-color: #5d5dff;
   color: #fff;
 }
 
@@ -2094,7 +2064,7 @@ select.input{cursor:pointer}
 .city-list {
   display: flex;
   flex: 1;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
   padding-bottom: 8px;
 }
@@ -2113,23 +2083,23 @@ select.input{cursor:pointer}
   flex-shrink: 0;
   padding: 9px 15px;
   border: 1px solid #ddd;
-  border-radius: 999px;
+  border-radius: 8px;
   background-color: var(--surface);
   color: var(--text);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
   transition: 0.15s ease;
 }
-
 .city-btn:hover {
-  background-color: #f5f5f5;
-  border-color: #aaa;
+  background-color: #f1f1f1;
+  border-color: #5d5dff;
+  color: #5d5dff;
 }
-
 .city-btn.active {
-  background-color: #222;
-  border-color: #222;
+  background-color: #5d5dff;
+  border-color: #5d5dff;
   color: #fff;
 }
 
@@ -2138,7 +2108,7 @@ select.input{cursor:pointer}
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   height: auto;
   overflow: visible;
@@ -2162,38 +2132,61 @@ select.input{cursor:pointer}
 }
 
 .district-group.active {
-  display: flex;        /* grid → flex */
-  flex-wrap: wrap;      /* 공간 부족하면 줄바꿈 */
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* 구/군 버튼 */
 .district-btn {
   white-space: nowrap;
-  padding: 9px 8px;
-  border: 1px solid #e2e2e2;
-  border-radius: 10px;
-  background-color: #fafafa;
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: var(--surface);
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
   transition: 0.15s ease;
 }
-
 .district-btn:hover {
-  background-color: #f0f0f0;
-  border-color: #bbb;
+  background-color: #f1f1f1;
+  border-color: #5d5dff;
+  color: #5d5dff;
 }
-
 .district-btn.active {
-  background-color: #222;
-  border-color: #222;
+  background-color: #5d5dff;
+  border-color: #5d5dff;
   color: #fff;
 }
 /* ────────────────────────────────────
    정기모임 페이지네이션 스타일 
 ──────────────────────────────────── */
+
+.empty-regular-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 20px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  text-align: center;
+}
+.empty-regular-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+.empty-regular-text {
+  color: #8b8b8b;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
 
 /* 1. 보기 싫은 검은 점(bullet) 제거 및 가로 정렬 */
 .pagination {
@@ -2240,17 +2233,24 @@ select.input{cursor:pointer}
 /* 양끝 정렬을 위한 컨테이너 */
 .filter-header-row {
   display: flex;
-  justify-content: space-between; /* 왼쪽(필터)과 오른쪽(버튼)을 양 끝으로 밀어냅니다 */
-  align-items: center; /* 세로 높이를 중앙으로 맞춥니다 */
-  margin-bottom: 15px; /* 아래 여백 */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-/* 모임 만들기 버튼 꾸미기 */
+.filter-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* 모임 만들기 버튼 — 기존 그대로 */
 .reg-create-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  background-color: #5d5dff; /* 프로젝트 메인 컬러로 변경하세요! */
+  background-color: #5d5dff;
   color: #ffffff;
   font-weight: 600;
   font-size: 14px;
@@ -2258,10 +2258,8 @@ select.input{cursor:pointer}
   border-radius: 8px;
   transition: background-color 0.2s ease;
 }
-
-/* 모임 만들기 버튼에 마우스 올렸을 때 */
 .reg-create-btn:hover {
-  background-color: #4b4bee; /* 살짝 더 진한 색으로 */
+  background-color: #4b4bee;
   color: #ffffff;
 }
 /* 토글 버튼 기본 스타일 */
@@ -2270,14 +2268,13 @@ select.input{cursor:pointer}
   background-color: #f1f1f1;
   color: #555;
   border: 1px solid #ddd;
-  border-radius: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
-/* 버튼이 켜졌을 때 (active) */
 .filter-toggle-btn.active {
-  background-color: #5d5dff; /* 활성화 색상 */
+  background-color: #5d5dff;
   color: #fff;
   border-color: #5d5dff;
 }

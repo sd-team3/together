@@ -103,41 +103,33 @@
       </div>
       <div class="regular-grid">
         <% regularMeetings.forEach(function(meeting) { %>
-          <div class="reg-card"
-               data-filter="<%= meeting.filterTags %>"
-               data-sport="<%= meeting.emoji %>"
-               data-district="<%= meeting.district %>"
-               data-title="<%= meeting.title %>"
-               data-modal-title="<%= meeting.emoji %> <%= meeting.title %>"
-               data-modal-body="<%= meeting.modalBody %>">
-            <div class="reg-card-head">
-              <div class="reg-sport-icon"><%= meeting.emoji %></div>
-              <div>
-                <div class="reg-card-title"><%= meeting.title %></div>
-                <div class="reg-card-sub"><%= meeting.district %></div>
-              </div>
-              <span class="pill pill-<%= meeting.pillType %>" style="margin-left:auto">
-                <%= meeting.pillLabel %>
-              </span>
+        <div class="reg-card"
+            data-filter="<%= meeting.filterTags %>"
+            data-sport="<%= meeting.emoji %>"
+            data-district="<%= meeting.district %>"
+            data-title="<%= meeting.title %>"
+            data-modal-title="<%= meeting.emoji %> <%= meeting.title %>"
+            data-modal-body="<%= meeting.modalBody %>">
+          <img class="reg-thumb-img"
+              src="<%= meeting.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
+              alt="<%= meeting.title %>">
+          <div class="reg-info">
+            <div class="reg-title-row">
+              <span class="reg-card-title"><%= meeting.title %></span>
+              <span class="pill pill-<%= meeting.pillType %>"><%= meeting.pillLabel %></span>
             </div>
-
-            <div class="reg-card-body">
-              <div class="reg-meta-row">
-              <div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0">
-                <span style="white-space:nowrap">🗓️ <%= meeting.schedule %></span>
-                <span style="white-space:nowrap">💰 <%= meeting.fee %></span>
+            <p class="reg-intro"><%= meeting.intro && meeting.intro.trim() ? meeting.intro : `${meeting.title} 모임입니다. 참여해보세요.` %></p>
+            <div class="reg-meta-row">
+              <div class="reg-meta-left">
+                📍 <%= meeting.district %> <span class="dot">·</span>
+                🗓️ <%= meeting.schedule %> <span class="dot">·</span>
+                💰 <%= meeting.fee %> <span class="dot">·</span>
+                📊 <%= meeting.level %>
               </div>
-              <span style="white-space:nowrap;margin-top:2px">📊 <%= meeting.level %></span>
-            </div>
-              <div class="reg-progress">
-                <div class="reg-progress-fill" style="width:<%= meeting.fillPct %>%"></div>
-              </div>
-              <div class="reg-progress-label">
-                <span><%= meeting.current %>/<%= meeting.total %>명</span>
-                <span><%= meeting.total - meeting.current %>자리 남음</span>
-              </div>
+              <span class="reg-meta-right"><%= meeting.current %>/<%= meeting.total %>명 · <%= meeting.total - meeting.current %>자리</span>
             </div>
           </div>
+        </div>
         <% }); %>
       </div>
       <div style="text-align:center; margin-top:16px;">
