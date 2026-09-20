@@ -1,0 +1,177 @@
+<div class="manage-group" style="margin-bottom:8px;">
+  <div class="manage-header" style="border-bottom:none;">
+    <img
+      src="<%= crew.profileImage %>"
+      class="manage-sport-icon-emoji"
+      alt="<%= crew.title %>"
+    >
+
+    <div class="manage-header-info">
+      <div class="manage-title">
+        <%= crew.title %>
+      </div>
+
+      <div class="manage-sub">
+        <%= crew.address.state %>
+        ·
+        <%= crew.address.city %>
+      </div>
+    </div>
+
+    <% if (isOwner) { %>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        id="crew-edit-btn"
+      >
+        ✏️ 크루 수정
+      </button>
+    <% } %>
+
+    <% if (userId) { %>
+      <button
+        type="button"
+        class="detail-like-btn"
+        id="like-btn"
+        data-id="<%= crew._id %>"
+        onclick="toggleLike('<%= userId %>')"
+      >
+        <span class="like-icon">🤍</span>
+        <span class="like-count" id="like-count">
+          <%= crew.reputation %>
+        </span>
+      </button>
+    <% } else { %>
+      <button
+        type="button"
+        class="detail-like-btn"
+        id="like-btn"
+        data-id="<%= crew._id %>"
+        onclick="
+          alert('로그인 먼저 하세요');
+          return false;
+        "
+      >
+        <span class="like-icon">🤍</span>
+        <span class="like-count" id="like-count">
+          <%= crew.reputation %>
+        </span>
+      </button>
+    <% } %>
+  </div>
+</div>
+
+<div class="manage-section">
+  <div class="manage-section-header">
+    <div class="manage-section-title">
+      🖼️ 프로필
+    </div>
+  </div>
+
+  <div
+    class="manage-section-body"
+    style="padding:12px 20px;"
+  >
+    <div class="img-upload-area">
+      <div class="avatar-section" style="border:none;">
+        <div class="avatar-preview-wrap">
+          <div class="avatar-preview">
+            <img
+              src="<%= crew.profileImage %>"
+              alt="<%= crew.title %>"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="img-upload-info">
+        <div class="img-upload-title">
+          <%= crew.title %>
+        </div>
+
+        <div class="img-upload-sub">
+          <%= crew.address.state %>
+          ·
+          <%= crew.address.city %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="manage-section">
+  <div class="manage-section-header">
+    <div class="manage-section-title">
+      📝 크루 소개
+    </div>
+  </div>
+
+  <div class="manage-section-body">
+    <div class="detail-intro">
+      <%= crew.intro || '등록된 소개가 없습니다.' %>
+    </div>
+  </div>
+</div>
+
+<div class="manage-section">
+  <div class="manage-section-header">
+    <div class="manage-section-title">
+      📋 안내사항
+    </div>
+  </div>
+
+  <div class="manage-section-body">
+    <div class="manage-cond-list">
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">🏃</span>
+        <span class="manage-cond-label">경기 종목</span>
+        <span class="manage-cond-value">
+          <%= crew.sportLabel %>
+        </span>
+      </div>
+
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">⭐</span>
+        <span class="manage-cond-label">실력 수준</span>
+        <span class="manage-cond-value">
+          <%= crew.levelLabel %>
+        </span>
+      </div>
+
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">💰</span>
+        <span class="manage-cond-label">참가비</span>
+        <span class="manage-cond-value">
+          <%= crew.fee > 0
+            ? crew.fee.toLocaleString() + '원/회'
+            : '무료'
+          %>
+        </span>
+      </div>
+
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">📍</span>
+        <span class="manage-cond-label">주 모임 장소</span>
+        <span class="manage-cond-value">
+          <%= crew.address.detail || '-' %>
+        </span>
+      </div>
+
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">📅</span>
+        <span class="manage-cond-label">활동 요일</span>
+        <span class="manage-cond-value">
+          <%= crew.dayLabel %>
+        </span>
+      </div>
+
+      <div class="manage-cond-item">
+        <span class="manage-cond-icon">👥</span>
+        <span class="manage-cond-label">연령대</span>
+        <span class="manage-cond-value">
+          <%= crew.ageLabel %>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

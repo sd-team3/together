@@ -2,208 +2,116 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPORTMATCH — 모임 상세</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css"/>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>SPORTMATCH — 모임 상세</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-<%- include('../partials/navbar') %>
+  <%- include('../partials/navbar') %>
 
-<div class="main">
-<%- include('../partials/head', { title: `📋 ${crew.title}`, pageId: 'page-crew-detail', active: '', route: `/regular/list/${crew._id}` }) %>
+  <%
+    const currentUserId = userId
+      ? userId.toString()
+      : '';
 
-  <div class="page-body">
-  <div class="detail-wrap" style="max-width:720px;margin:0 auto;">
+    const hostId = crew.host && crew.host._id
+      ? crew.host._id.toString()
+      : crew.host?.toString();
 
-  <a href="/regular/list" class="goback-btn">← 목록으로</a>
+    const isOwner = Boolean(
+      currentUserId &&
+      currentUserId === hostId
+    );
 
-  <div class="manage-group" style="margin-bottom:8px;">
-    <div class="manage-header" style="border-bottom:none;">
-      <img src="<%= crew.profileImage %>" class="manage-sport-icon-emoji">
-      <div class="manage-header-info">
-        <div class="manage-title"><%= crew.title %></div>
-        <div class="manage-sub"><%= crew.address.state %> · <%= crew.address.city %></div>
+    const isMember = Boolean(
+      currentUserId &&
+      !isOwner &&
+      crew.member.memberList.some(member => {
+        const memberId = member.user && member.user._id
+          ? member.user._id.toString()
+          : member.user?.toString();
+
+        return memberId === currentUserId;
+      })
+    );
+
+    const hasReviewed = Boolean(
+      currentUserId &&
+      reviews.some(review => {
+        const authorId =
+          review.author && review.author._id
+            ? review.author._id.toString()
+            : review.author?.toString();
+
+        return authorId === currentUserId;
+      })
+    );
+  %>
+
+  <div class="main">
+    <%- include('../partials/head', {
+      title: `📋 ${crew.title}`,
+      pageId: 'page-crew-detail',
+      active: '',
+      route: `/regular/list/${crew._id}`
+    }) %>
+
+    <div class="page-body">
+      <div
+        class="detail-wrap"
+        style="max-width:720px;margin:0 auto;"
+      >
+        <a href="/regular/list" class="goback-btn">
+          ← 목록으로
+        </a>
+
+        <!-- 공통 크루 정보 -->
+        <%- include('./partials/crew-info', {
+          crew,
+          userId,
+          isOwner
+        }) %>
+
+        <!-- 크루장 정보 수정 -->
+        <% if (isOwner) { %>
+          <%- include('./partials/crew-edit', {
+            crew
+          }) %>
+        <% } %>
+
+        <!-- 후기 목록 및 작성 -->
+        <%- include('./partials/crew-reviews', {
+          crew,
+          reviews,
+          isMember,
+          hasReviewed
+        }) %>
+
+        <!-- 가입 신청 및 가입 상태 -->
+        <%- include('./partials/crew-join-status', {
+          crew,
+          userId,
+          isOwner,
+          isMember
+        }) %>
       </div>
-      <% if (userId) { %>
-        <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="toggleLike('<%= userId %>')">
-          <span class="like-icon">🤍</span>
-          <span class="like-count" id="like-count"><%= crew.reputation %></span>
-        </button>
-      <% } else { %>
-        <button class="detail-like-btn" id="like-btn" data-id="<%= crew._id %>" onclick="alert('로그인 먼저 하세요'); return false;">
-          <span class="like-icon">🤍</span>
-          <span class="like-count" id="like-count"><%= crew.reputation %></span>
-        </button>
-      <% } %>
     </div>
   </div>
 
-  <div class="manage-tab-bar">
-    <button class="manage-tab active" onclick="switchTab('info', this)">
-      <span>📋</span> 크루 정보
-    </button>
-    <button class="manage-tab" onclick="switchTab('members', this)">
-      <span>👥</span> 멤버
-    </button>
-  </div>
-
-  <!-- ===================== 크루 정보 탭 ===================== -->
-  <div class="manage-panel active" id="panel-info">
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">🖼️ 프로필</div>
-      </div>
-      <div class="manage-section-body" style="padding: 12px 20px;">
-        <div class="img-upload-area">
-          <div class="avatar-section" style="border:none">
-            <div class="avatar-preview-wrap">
-              <div class="avatar-preview">
-                <img src="<%= crew.profileImage %>" alt="profile"/>
-              </div>
-            </div>
-          </div>
-          <div class="img-upload-info">
-            <div class="img-upload-title"><%= crew.title %></div>
-            <div class="img-upload-sub"><%= crew.address.state %> · <%= crew.address.city %></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">📝 크루 소개</div>
-      </div>
-      <div class="manage-section-body">
-        <div class="detail-intro"><%= crew.intro %></div>
-      </div>
-    </div>
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">
-          <span class="section-icon">📋</span>
-          안내사항
-        </div>
-      </div>
-      <div class="manage-section-body">
-        <div class="manage-cond-list">
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">🏃</span>
-            <span class="manage-cond-label">경기 종목</span>
-            <span class="manage-cond-value"><%= crew.sportLabel %></span>
-          </div>
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">⭐</span>
-            <span class="manage-cond-label">실력 수준</span>
-            <span class="manage-cond-value"><%= crew.levelLabel %></span>
-          </div>
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">💰</span>
-            <span class="manage-cond-label">참가비</span>
-            <span class="manage-cond-value"><%= crew.fee > 0 ? crew.fee.toLocaleString() + '원/회' : '무료' %></span>
-          </div>
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">📍</span>
-            <span class="manage-cond-label">주 모임 장소</span>
-            <span class="manage-cond-value"><%= crew.address.detail %></span>
-          </div>
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">📅</span>
-            <span class="manage-cond-label">활동 요일</span>
-            <span class="manage-cond-value"><%= crew.dayLabel %></span>
-          </div>
-          <div class="manage-cond-item">
-            <span class="manage-cond-icon">👥</span>
-            <span class="manage-cond-label">연령대</span>
-            <span class="manage-cond-value"><%= crew.ageLabel %></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">
-          <span class="section-icon">📋</span>
-          리뷰 <span id="reviewTotalCount"><%= reviews.length %></span>개
-        </div>
-      </div>
-      <div class="manage-section-body">
-        <div class="review-list" id="reviewList"></div>
-        <button class="review-more-btn" id="reviewMoreBtn" style="display:none;">
-          더보기 <span class="review-more-arrow">›</span>
-        </button>
-      </div>
-    </div>
-
-    <script>
-      window.__ALL_REVIEWS__ = <%- JSON.stringify(reviews) %>;
-    </script>
-
-
-  </div>
-
-  <!-- ===================== 멤버 탭 ===================== -->
-  <div class="manage-panel" id="panel-members" style="max-width:720px;margin:0 auto;width:100%;">
-
-    <div class="member-stat-row">
-      <div class="member-stat-card">
-        <span class="member-stat-val"><%= crew.member.memberList.length %></span>
-        <span class="member-stat-label">현재 멤버</span>
-      </div>
-      <div class="member-stat-card">
-        <span class="member-stat-val"><%= crew.member.capacity %></span>
-        <span class="member-stat-label">최대 인원</span>
-      </div>
-    </div>
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">👑 모임장</div>
-      </div>
-      <div class="member-list-item">
-        <img src="/images/user-profile/<%= crew.host.profileImage && crew.host.profileImage !== 'default-profile-image.jpg' ? crew.host.profileImage : 'default-profile-image.jpg' %>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-        <div class="member-info">
-          <div class="member-name"><%= crew.host.name %></div>
-        </div>
-        <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= crew.host._id %>')">👤 프로필</button>
-      </div>
-    </div>
-
-    <div class="manage-section">
-      <div class="manage-section-header">
-        <div class="manage-section-title">👥 멤버 목록</div>
-      </div>
-      <% crew.member.memberList.forEach(member => { %>
-        <div class="member-list-item">
-          <img src="/images/user-profile/<%= member.user.profileImage && member.user.profileImage !== 'default-profile-image.jpg' ? member.user.profileImage : 'default-profile-image.jpg' %>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-          <div class="member-info">
-            <div class="member-name"><%= member.user.name %></div>
-            <div class="member-meta">가입 <%= new Date(member.joinedAt).toLocaleDateString('ko-KR') %></div>
-          </div>
-          <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= member.user._id %>')">👤 프로필</button>
-          <% if (member.user._id.toString() === crew.host._id.toString()) { %>
-            <span class="member-role-tag host">👑 크루장</span>
-          <% } else { %>
-            <span class="member-role-tag member">멤버</span>
-          <% } %>
-        </div>
-      <% }) %>
-    </div>
-  </div>
-
-  <!-- 하단 가입 버튼 -->
-  <div class="detail-footer">
-    <button class="join-btn" id="join-btn" style="display: none;"></button>
-  </div>
-
-  </div>
-  </div>
-</div>
+<script src="/js/like.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
 function switchTab(name, btn) {
@@ -218,40 +126,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const crewId = '<%= crew._id %>';
   const joinBtn = document.getElementById('join-btn');
 
+  // 크루장이나 멤버에게는 가입 버튼이 없음
+  if (!joinBtn) return;
+
   if (!userId) {
     joinBtn.textContent = '가입 신청하기';
     joinBtn.style.display = 'block';
+
     joinBtn.onclick = () => {
       alert('로그인 후 이용할 수 있습니다.');
       location.href = '/user/login';
     };
+
     return;
   }
 
   fetch(`/regular/relation/${crewId}/${userId}`)
-    .then(res => res.json())
+    .then(async response => {
+      if (!response.ok) {
+        throw new Error('관계 확인 실패');
+      }
+
+      return response.json();
+    })
     .then(data => {
       joinBtn.style.display = 'block';
 
-      if (data.relation === 'member') {
-        joinBtn.textContent = '이미 가입된 크루입니다';
-        joinBtn.disabled = true;
-        joinBtn.style.cssText = "background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;";
-      } else if (data.relation === 'none') {
+      if (data.relation === 'none') {
         joinBtn.textContent = '가입 신청하기';
         joinBtn.disabled = false;
-        joinBtn.style.cssText = "";
         joinBtn.onclick = () => confirmJoin(crewId);
-      } else {
-        joinBtn.textContent = '3일에 한 번만 신청 가능합니다.';
-        joinBtn.disabled = true;
-        joinBtn.style.cssText = "background-color: #a0a0a0; color: #ffffff; cursor: not-allowed; border: none;";
+        return;
       }
+
+      if (data.relation === 'pending') {
+        joinBtn.textContent = '가입 승인 대기 중입니다';
+        joinBtn.disabled = true;
+        return;
+      }
+
+      joinBtn.textContent = '3일에 한 번만 신청할 수 있습니다';
+      joinBtn.disabled = true;
     })
-    .catch(err => {
-      console.error("관계 확인 중 에러 발생:", err);
-      joinBtn.textContent = '가입 신청하기';
+    .catch(error => {
+      console.error('관계 확인 오류:', error);
       joinBtn.style.display = 'block';
+      joinBtn.textContent = '가입 신청하기';
       joinBtn.onclick = () => confirmJoin(crewId);
     });
 });
@@ -279,8 +199,7 @@ async function confirmJoin(crewId) {
 let liked = <%= isLiked === true ? 'true' : 'false' %>;
 let likeCount = <%= crew.reputation %>;
 </script>
-<script src="/js/like.js"></script>
-<script src="/socket.io/socket.io.js"></script>
+
 <script type="module">
   import { initProfileModal, openProfileModal } from '/js/components/profileModal.js';
   <% if (locals.user) { %>
@@ -290,6 +209,81 @@ let likeCount = <%= crew.reputation %>;
   initProfileModal(null, null);
   <% } %>
   window.openProfileModal = openProfileModal;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const openReviewBtn = document.getElementById('open-review-btn');
+  const cancelReviewBtn = document.getElementById('cancel-review-btn');
+  const reviewForm = document.getElementById('review-form');
+
+  if (!reviewForm) return;
+
+  openReviewBtn.addEventListener('click', () => {
+    const hasReviewed =
+      openReviewBtn.dataset.hasReviewed === 'true';
+
+    if (hasReviewed) {
+      alert('이미 후기를 등록하셨습니다.');
+      return;
+    }
+
+    reviewForm.style.display = 'block';
+    openReviewBtn.style.display = 'none';
+  });
+
+  cancelReviewBtn.addEventListener('click', () => {
+    reviewForm.reset();
+    reviewForm.style.display = 'none';
+    openReviewBtn.style.display = 'inline-flex';
+  });
+
+  reviewForm.addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const rating = Number(
+      document.getElementById('review-rating').value
+    );
+
+    const content = document
+      .getElementById('review-content')
+      .value
+      .trim();
+
+    if (!rating || !content) {
+      alert('평점과 후기 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        '/regular/review/<%= crew._id %>',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            rating,
+            content
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || '후기 등록에 실패했습니다.');
+        return;
+      }
+
+      alert('후기가 등록되었습니다.');
+      window.location.reload();
+    } catch (error) {
+      console.error('후기 등록 오류:', error);
+      alert('서버 오류가 발생했습니다.');
+    }
+  });
+});
+
 </script>
 </body>
 </html>

@@ -185,6 +185,55 @@ const getCrewActivity = async (req, res) => {
     }
 }
 
+// 후기 작성 컨트롤러
+const postCrewReview = async (req, res) => {
+    try {
+        const score = Number(req.body.rating);
+
+        const content = typeof req.body.content == 'string' ? req.body.content.trim() : '';
+
+        if (!Number.isInteger(score) || score < 1 || score > 5) {
+            return res.status(400).json({
+                success : false,
+                message : '평점은 1에서 5점 사이여야 합니다'
+            });
+        }
+
+        if (!content) {
+            return res.status(400).json({
+                success : false,
+                message : '후기 내용을 입력해주세요'
+            });
+        }
+
+        if (content.length > 500) {
+            return res.status(400).json({
+                success : false,
+                message : '후기는 최대 500자까지 작성할 수 있습니다'
+            });
+        }
+        
+        const review = await regularService.postCrewReview(
+            req.params.crewId,
+            req.user._id,
+            {
+                score,
+                content
+            }
+        );
+
+        return res.status(201).json({
+            success : true,
+            message: '후기가 등록되었습니다.',
+            review
+        });
+
+    } catch(error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
@@ -198,5 +247,6 @@ module.exports = {
     getCrewManage,
     postCrewUpdate,
     getRegularPage,
-    getCrewActivity
+    getCrewActivity,
+    postCrewReview
 };

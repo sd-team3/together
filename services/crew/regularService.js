@@ -262,12 +262,32 @@ async function handleUserDeleted(userId) {
     );
 }
 
+// 리뷰 조회 기능
 async function getCrewReview(crewId) {
     const reviews = await regularCrewReview.find({ crew: crewId })
                         .populate('author', 'name profileImage')
                         .sort({ createdAt: -1 });
 
     return reviews;
+}
+
+async function postCrewReview(crewId, authorId, {score, content}) {
+    const review = await regularCrewReview.create({
+        crew: crewId,
+        author : authorId,
+        score,
+        title : '크루 활동 후기',
+        content,
+        images : []
+    });
+
+    await review.populate(
+        'author',
+        'name profileImage'
+    );
+
+    return review;
+
 }
 
 module.exports = { 
@@ -283,5 +303,6 @@ module.exports = {
     postCrewUpdate,
     getCrewActivity,
     handleUserDeleted,
-    getCrewReview
+    getCrewReview,
+    postCrewReview
 };
