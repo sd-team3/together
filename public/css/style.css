@@ -2891,21 +2891,40 @@ select.input{cursor:pointer}
 #liveFeed {
   display: flex;
   flex-direction: column;
+  padding: 6px 0 2px;
 }
 
 .live-feed-item {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.05);
+  padding: 11px 16px 11px 36px;
+  position: relative;
   transition: .18s ease;
   cursor: pointer;
 }
-
-.live-feed-item:last-child {
-  border-bottom: none;
+.live-feed-item::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 19px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
 }
-
+.live-feed-item::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 27px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(255,255,255,.08);
+}
+.live-feed-item:last-child::after {
+  display: none;
+}
 .live-feed-item:hover {
-  background: rgba(255,255,255,.03);
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
 }
 
 .live-feed-text {
