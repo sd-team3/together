@@ -12,19 +12,31 @@ function escapeHTML(value) {
     .replaceAll("'", '&#039;');
 }
 
+function getLevelText(level) {
+  return CONSTANTS.LEVELS[level]?.kr || '무관';
+}
+function getPillType(remain) {
+  if (remain === 0) return 'danger';
+  if (remain < 4) return 'warn';
+  return 'success';
+}
+
 function getSportText(sport) { return CONSTANTS.SPORTS[sport]?.kr || sport; }
 
 function getDayText(day) {
   const days = Array.isArray(day) ? day : [day];
   return days.map(item => CONSTANTS.DAYS[item]?.short || item).join(', ');
 }
+
 function getAgeText(ageRange) {
   const ages = Array.isArray(ageRange) ? ageRange : [ageRange];
+  if (ages.length === 0 || ages.includes('all')) return '전체';
   return ages.map(ageValue => {
     const age = Object.values(CONSTANTS.AGES).find(item => item.v === ageValue);
     return age ? age.kr : ageValue;
   }).join(', ');
 }
+
 function getPeriodText(period) {
   if (period === 'week') return '매주';
   if (period === '2week') return '격주';
@@ -43,7 +55,12 @@ export function renderRegularCards(regularCrews) {
   if (!cardList) return;
 
   if (!regularCrews || regularCrews.length === 0) {
-    cardList.innerHTML = `<div class="empty-regular-list">조건에 맞는 정기모임이 없습니다.</div>`;
+    cardList.innerHTML = `
+      <div class="empty-regular-list">
+        <div class="empty-regular-icon">🔍</div>
+        <p class="empty-regular-text">조건에 맞는 정기모임이 없습니다.</p>
+      </div>
+    `;
     return;
   }
 
@@ -51,31 +68,30 @@ export function renderRegularCards(regularCrews) {
     const capacity = crew.member?.capacity || 0;
     const memberCount = crew.member?.memberList?.length || 0;
     const remain = Math.max(capacity - memberCount, 0);
-
     const feeText = crew.fee === 0 ? '무료' : `${Number(crew.fee).toLocaleString()}원/회`;
+    const introText = crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.`;
 
     return `
-      <div class="reg-card" data-id="${crew._id}" style="cursor: pointer;">
-        <div class="reg-card-head">
-          <img class="reg-crew-profile-img" src="${escapeHTML(crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg')}" alt="정기모임 이미지">
-          <div>
-            <div class="reg-card-title">${escapeHTML(crew.title)}</div>
-            <div class="reg-card-sub">${getPeriodText(crew.period)} ${getDayText(crew.day)} · ${escapeHTML(crew.address?.state || '')} ${escapeHTML(crew.address?.city || '')}</div>
+      <div class="reg-card" data-id="${crew._id}">
+        <img class="reg-thumb-img" src="${escapeHTML(crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg')}" alt="${escapeHTML(crew.title)}">
+        <div class="reg-info">
+          <div class="reg-title-row">
+            <span class="reg-card-title">${escapeHTML(crew.title)}</span>
+            <span class="pill pill-${getPillType(remain)}">${getStatusText(remain)}</span>
           </div>
-          <span class="pill pill-warn" style="margin-left:auto">${getStatusText(remain)}</span>
-        </div>
-        <div class="reg-card-body">
+          <p class="reg-intro">${escapeHTML(introText)}</p>
           <div class="reg-meta-row">
-            <span>${getSportText(crew.sport)}</span>
-            <span>💰 ${feeText}</span>
-            <span>${getAgeText(crew.ageRange)}</span>
+            <div class="reg-meta-left">
+              📍 ${escapeHTML(crew.address?.state || '')} ${escapeHTML(crew.address?.city || '')} <span class="dot">·</span>
+              🗓️ ${getPeriodText(crew.period)} ${getDayText(crew.day)} <span class="dot">·</span>
+              ${getSportText(crew.sport)} <span class="dot">·</span>
+              💰 ${feeText}
+            </div>
+            <span class="reg-meta-right">${memberCount}/${capacity}명${remain === 0 ? ' · 마감' : ' · ' + remain + '자리'}</span>
           </div>
-          <div class="reg-progress" data-member="${memberCount}" data-capacity="${capacity}">
-            <div class="reg-progress-fill"></div>
-          </div>
-          <div class="reg-progress-label">
-            <span>${memberCount}/${capacity}명</span>
-            ${remain > 0 ? `<span>${remain} 자리남음</span>` : `<span>모집 마감</span>`}
+          <div class="crew-tags">
+            <span class="crew-tag">${getAgeText(crew.ageRange)}</span>
+            <span class="crew-tag">${getLevelText(crew.level)}</span>
           </div>
         </div>
       </div>
