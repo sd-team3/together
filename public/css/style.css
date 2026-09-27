@@ -4473,3 +4473,275 @@ body.dark .tt-px-event {
 #manageToast {
     z-index: 99999;
 }
+
+.manage-cond-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.manage-cond-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.manage-cond-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.manage-cond-label {
+  color: var(--text);
+  min-width: 88px;
+  flex-shrink: 0;
+}
+
+.manage-cond-value {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.cond-icon {
+  width: 28px;
+  height: 28px;
+  background: #f2f2f2;
+  border-radius: 50%;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.review-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  background: var(--surface);
+}
+
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.review-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-3);
+}
+
+.review-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-head-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.review-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.review-stars {
+  color: #f5a623;
+  letter-spacing: 1px;
+}
+
+.review-stars-empty {
+  color: var(--border-strong);
+}
+
+.review-date {
+  color: var(--text-3);
+}
+
+.review-photos {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.review-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.review-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-text {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.review-more-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.review-more-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.review-more-arrow {
+  font-size: 14px;
+}
+
+/* 후기 작성 영역 */
+.review-write-box {
+  margin-bottom: 28px;
+}
+
+.review-form {
+  margin-top: 16px;
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.review-form-group + .review-form-group {
+  margin-top: 20px;
+}
+
+.review-form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.review-form-select,
+.review-form-textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid #d7dce3;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.review-form-select {
+  height: 46px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.review-form-textarea {
+  min-height: 150px;
+  padding: 14px;
+  line-height: 1.65;
+  resize: vertical;
+}
+
+.review-form-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.review-form-select:focus,
+.review-form-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 92, 255, 0.12);
+}
+
+/* 입력 공간과 버튼 사이 구분 */
+.review-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.review-form-actions .btn {
+  min-width: 96px;
+  min-height: 42px;
+}
+
+/* 작성 폼과 기존 후기 목록 사이 여백 */
+.review-write-box + .review-list {
+  margin-top: 28px;
+}
+
+@media (max-width: 520px) {
+  .review-form {
+    padding: 18px 15px;
+  }
+
+  .review-form-textarea {
+    min-height: 170px;
+  }
+
+  .review-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .review-form-actions .btn {
+    width: 100%;
+  }
+}

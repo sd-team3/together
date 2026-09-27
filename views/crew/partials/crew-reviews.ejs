@@ -1,0 +1,112 @@
+<div class="manage-section">
+  <div class="manage-section-header">
+    <div class="manage-section-title">
+      📝 리뷰
+      <span id="reviewTotalCount">
+        <%= reviews.length %>
+      </span>개
+    </div>
+  </div>
+
+  <div class="manage-section-body">
+    <% if (isMember) { %>
+      <div class="review-write-box">
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="open-review-btn"
+          data-has-reviewed="<%= hasReviewed %>"
+        >
+          ✍️ 후기 작성하기
+        </button>
+  <form
+    id="review-form"
+    class="review-form"
+    style="display:none;"
+  >
+    <div class="review-form-group">
+      <label
+        for="review-rating"
+        class="review-form-label"
+      >
+        평점
+      </label>
+
+      <select
+        id="review-rating"
+        name="rating"
+        class="review-form-select"
+        required
+      >
+        <option value="">평점을 선택하세요</option>
+        <option value="5">⭐⭐⭐⭐⭐ 5점</option>
+        <option value="4">⭐⭐⭐⭐ 4점</option>
+        <option value="3">⭐⭐⭐ 3점</option>
+        <option value="2">⭐⭐ 2점</option>
+        <option value="1">⭐ 1점</option>
+      </select>
+    </div>
+
+    <div class="review-form-group">
+      <label
+        for="review-content"
+        class="review-form-label"
+      >
+        후기 내용
+      </label>
+
+      <textarea
+        id="review-content"
+        name="content"
+        class="review-form-textarea"
+        maxlength="500"
+        rows="6"
+        placeholder="크루 활동은 어떠셨나요? 다른 멤버들에게 도움이 될 후기를 남겨주세요."
+        required
+      ></textarea>
+    </div>
+
+    <div class="review-form-actions">
+      <button
+        type="button"
+        class="btn btn-outline"
+        id="cancel-review-btn"
+      >
+        취소
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        후기 등록
+      </button>
+    </div>
+      </form>
+    </div>
+  <% } %>
+
+  <div
+    class="review-list"
+    id="reviewList"
+  ></div>
+
+  <button
+    type="button"
+    class="review-more-btn"
+    id="reviewMoreBtn"
+    style="display:none;"
+  >
+    더보기
+    <span class="review-more-arrow">›</span>
+  </button>
+</div>
+
+</div>
+
+<script>
+  window.__ALL_REVIEWS__ =
+    <%- JSON.stringify(reviews) %>;
+</script>
+
+<script src="/js/regularCrew/review.js"></script>

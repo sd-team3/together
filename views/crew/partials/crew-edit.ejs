@@ -1,0 +1,135 @@
+<div
+  id="crew-edit-area"
+  data-crew-id="<%= crew._id %>"
+  style="display:none;"
+>
+  <div class="manage-section">
+    <div class="manage-section-header">
+      <div class="manage-section-title">
+        ✏️ 크루 정보 수정
+      </div>
+    </div>
+
+
+    <div class="manage-section">
+      <div class="manage-section-header">
+        <div class="manage-section-title">📝 크루 기본 정보</div>
+      </div>
+      <div class="manage-section-body">
+        <div class="field">
+          <label class="label">크루 이름</label>
+          <input type="text" class="manage-input" id="crewTitle" value="<%= crew.title %>" placeholder="크루 이름을 입력하세요">
+        </div>
+        <div class="field">
+          <label class="label">크루 소개글</label>
+          <textarea class="manage-input" id="crewIntro" style="min-height:110px;"><%= crew.intro %></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="manage-section">
+      <div class="manage-section-header">
+        <div class="manage-section-title">📋 가입 조건 수정</div>
+      </div>
+      <div class="manage-section-body">
+        <div class="input-row" style="margin-bottom:12px; grid-template-columns: repeat(3, 1fr);">
+          <div class="field" style="margin-bottom:0">
+            <label class="label">최대 인원 (2 ~ 50)</label>
+            <input type="number" class="manage-input" id="capacity" value="<%= crew.member.capacity %>" min="2" max="50">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">참가비 (원)</label>
+            <input type="number" class="manage-input" id="fee" value="<%= crew.fee %>" min="0">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">주 모임 장소</label>
+            <input type="text" class="manage-input" id="detail" value="<%= crew.address.detail %>">
+          </div>
+        </div>
+        <div class="input-row" style="margin-bottom:12px; grid-template-columns: repeat(3, 1fr);">
+          <div class="field" style="margin-bottom:0">
+            <label class="label">종목</label>
+            <select class="manage-input" id="sport">
+              <option value="soccer" <%= crew.sport === 'soccer' ? 'selected' : '' %>>축구</option>
+              <option value="baseball" <%= crew.sport === 'baseball' ? 'selected' : '' %>>야구</option>
+              <option value="basketball" <%= crew.sport === 'basketball' ? 'selected' : '' %>>농구</option>
+              <option value="bowling" <%= crew.sport === 'bowling' ? 'selected' : '' %>>볼링</option>
+              <option value="tennis" <%= crew.sport === 'tennis' ? 'selected' : '' %>>테니스</option>
+              <option value="badminton" <%= crew.sport === 'badminton' ? 'selected' : '' %>>배드민턴</option>
+              <option value="tabletennis" <%= crew.sport === 'tabletennis' ? 'selected' : '' %>>탁구</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">주기</label>
+            <select class="manage-input" id="period">
+              <option value="week" <%= crew.period === 'week' ? 'selected' : '' %>>매주</option>
+              <option value="2week" <%= crew.period === '2week' ? 'selected' : '' %>>격주</option>
+              <option value="month" <%= crew.period === 'month' ? 'selected' : '' %>>매달</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">실력 수준</label>
+            <select class="manage-input" id="level">
+              <option value="none" <%= crew.level === 'none' ? 'selected' : '' %>>무관</option>
+              <option value="low" <%= crew.level === 'low' ? 'selected' : '' %>>초보</option>
+              <option value="mid" <%= crew.level === 'mid' ? 'selected' : '' %>>중급</option>
+              <option value="high" <%= crew.level === 'high' ? 'selected' : '' %>>고급</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">활동 요일</label>
+          <div class="chip-group" style="margin-top:6px;" id="day">
+            <button type = "button" class="chip <%= crew.day.includes('mon') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="mon">월</button>
+            <button type = "button" class="chip <%= crew.day.includes('tue') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="tue">화</button>
+            <button type = "button" class="chip <%= crew.day.includes('wed') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="wed">수</button>
+            <button type = "button" class="chip <%= crew.day.includes('thu') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="thu">목</button>
+            <button type = "button" class="chip <%= crew.day.includes('fri') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="fri">금</button>
+            <button type = "button" class="chip <%= crew.day.includes('sat') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="sat">토</button>
+            <button type = "button" class="chip <%= crew.day.includes('sun') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="sun">일</button>
+          </div>
+        </div>
+        <br>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">연령대</label>
+          <div class="chip-group" style="margin-top:6px;" id="ageRange">
+            <button type = "button" class="chip <%= crew.ageRange.includes('10s') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="10s">10대</button>
+            <button type = "button" class="chip <%= crew.ageRange.includes('20s') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="20s">20대</button>
+            <button type = "button" class="chip <%= crew.ageRange.includes('30s') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="30s">30대</button>
+            <button type = "button" class="chip <%= crew.ageRange.includes('40s') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="40s">40대</button>
+            <button type = "button" class="chip <%= crew.ageRange.includes('50s') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="50s">50대</button>
+            <button type = "button" class="chip <%= crew.ageRange.includes('60+') ? 'on' : '' %>" onclick="toggleChip(this)" data-val="60+">60대 이상</button>
+          </div>
+        </div>
+        <br>
+        <div class="field" style="margin-bottom:0">
+          <label class="label">가입 승인 방식</label>
+          <div class="chip-group" style="margin-top:6px;" id="autoAccept">
+            <button type = "button" class="chip <%= crew.isAutoAccept ? 'on' : '' %>" onclick="selectSingle(this, 'accept-group')" data-group="accept-group" data-val="auto">자동 승인</button>
+            <button type = "button" class="chip <%= !crew.isAutoAccept ? 'on' : '' %>" onclick="selectSingle(this, 'accept-group')" data-group="accept-group" data-val="manual">수동 승인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="save-bar">
+    <button
+      type="button"
+      class="btn btn-outline"
+      id="crew-edit-cancel-btn"
+    >
+      취소
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      id="crew-save-btn"
+    >
+      💾 변경사항 저장
+    </button>
+  </div>
+</div>
+</div>
+
+<script src="/js/regularCrew/crew-edit.js"></script>

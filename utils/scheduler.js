@@ -20,7 +20,6 @@ function startScheduler(io) {
 
     
     cron.schedule('* * * * *', async () => {
-        console.log('되긴해');
         try {
             const now = new Date();
 
