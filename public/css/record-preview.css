@@ -1,0 +1,806 @@
+/* 운동 기록 페이지 — 공통 */
+.record-preview {
+  font-family: 'DM Sans','Segoe UI','Malgun Gothic',sans-serif;
+}
+
+.record-preview a {
+  text-decoration: none;
+}
+
+.record-preview button,
+.record-preview input,
+.record-preview textarea,
+.record-preview select {
+  font: inherit;
+}
+
+.record-preview button {
+  cursor: pointer;
+}
+
+.record-preview .main {
+  min-width: 0;
+}
+
+.preview-label {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.record-body {
+  padding: 34px 30px 18px;
+  max-width: 1680px;
+  width: 100%;
+  margin: auto;
+}
+
+/* 페이지 소개 */
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+  gap: 20px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+.intro h1 {
+  font-size: 30px;
+  letter-spacing: -1.5px;
+  line-height: 1.35;
+}
+
+.intro p {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 9px;
+}
+
+.mobile-break {
+  display: none;
+}
+
+/* 월별 기록 요약 */
+.overview {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  margin-bottom: 26px;
+  padding: 20px 25px;
+  gap: 30px;
+}
+
+.overview>div:not(:last-child) {
+  min-width: 140px;
+  border-right: 1px solid var(--border);
+  padding-right: 35px;
+}
+
+.overview span {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.overview strong {
+  display: block;
+  font-size: 29px;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+
+.overview strong b {
+  font-weight: 700;
+}
+
+.overview small {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 400;
+  margin-left: 7px;
+}
+
+.overview-message {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.overview .mini-spark {
+  background: var(--accent);
+  color: #111;
+  font-size: 24px;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+}
+
+.overview-message p {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.9;
+}
+
+.overview-message b {
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+/* 기록 목록 · 작성 영역 · AI 패널 배치 */
+.workspace {
+  display: grid;
+  grid-template-columns: 230px minmax(320px,1fr) 310px;
+  gap: 18px;
+  align-items: start;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+
+.panel-heading h2 {
+  font-size: 14px;
+  letter-spacing: -.3px;
+}
+
+.muted {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+/* 종목 필터와 기록 목록 */
+.record-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 16px 15px 10px;
+}
+
+.record-tabs button {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 9px;
+  font-size: 10px;
+  background: var(--surface);
+  color: var(--text-2);
+}
+
+.record-tabs button.selected {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.record-list {
+  padding: 4px 10px 14px;
+  min-height: 285px;
+}
+
+.record-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 15px 12px;
+  display: block;
+  margin: 4px 0;
+  color: var(--text);
+}
+
+.record-item.selected {
+  background: var(--primary-soft);
+  border-color: #cddcff;
+}
+
+.record-item:hover {
+  border-color: var(--border-strong);
+}
+
+.record-item .date {
+  font-size: 10px;
+  color: var(--text-3);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.record-item strong {
+  font-size: 12px;
+  line-height: 1.6;
+  display: block;
+}
+
+.record-item p {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 7px;
+}
+
+.journal-note {
+  font-size: 10px;
+  color: var(--text-3);
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.private-pill,
+.demo-badge {
+  font-size: 9px;
+  color: var(--text-3);
+  background: var(--bg);
+  padding: 4px 7px;
+  border-radius: 4px;
+}
+
+/* 선택한 운동과 자기 피드백 입력 */
+.activity-banner {
+  margin: 20px 20px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.activity-banner>span:first-child {
+  font-size: 26px;
+}
+
+.activity-banner h3 {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.activity-banner p {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.activity-badge {
+  font-size: 8px;
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+#record-form {
+  padding: 22px 20px;
+}
+
+.mood-field {
+  border: 0;
+  margin-bottom: 25px;
+}
+
+.mood-field legend,
+#record-form label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.moods {
+  display: flex;
+  gap: 6px;
+}
+
+.moods button {
+  flex: 1;
+  min-width: 0;
+  font-size: 9px;
+  padding: 11px 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-3);
+}
+
+.moods button span {
+  display: block;
+  font-size: 23px;
+  margin-bottom: 6px;
+}
+
+.moods button.selected {
+  background: #f6ffdf;
+  border-color: #b3d960;
+  color: #3e550a;
+}
+
+.label-icon {
+  margin-right: 5px;
+}
+
+.blue {
+  color: var(--primary);
+}
+
+.orange {
+  color: var(--orange);
+}
+
+.green {
+  color: #6b9416;
+}
+
+#record-form textarea,
+#record-form input,
+#record-form select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.85;
+  width: 100%;
+  resize: vertical;
+}
+
+#record-form textarea {
+  margin-bottom: 20px;
+}
+
+textarea::placeholder,
+input::placeholder {
+  color: var(--text-3);
+}
+
+#record-form #goal {
+  background: #fbfdf5;
+  border-color: #dce6c7;
+  color: #283618;
+}
+
+.save-row {
+  border-top: 1px solid var(--border);
+  padding-top: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.save-row span {
+  font-size: 9px;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
+.save-row button {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* AI 대화와 다음 목표 제안 */
+.ai-panel {
+  border-top: 3px solid var(--accent);
+}
+
+.ai-mark {
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.ai-content {
+  padding: 18px;
+}
+
+.ai-intro {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-2);
+}
+
+.context-pill {
+  font-size: 9px;
+  color: var(--text-3);
+  margin: 15px 0 20px;
+  padding: 9px;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.conversation {
+  max-height: 300px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.ai-bubble {
+  font-size: 12px;
+  line-height: 1.9;
+  background: var(--bg);
+  padding: 15px;
+  border-radius: 0 12px 12px;
+  margin-bottom: 12px;
+}
+
+.ai-bubble strong {
+  font-size: 12px;
+}
+
+.ai-bubble p {
+  color: var(--text-2);
+  margin-top: 7px;
+}
+
+.user-bubble {
+  font-size: 12px;
+  line-height: 1.8;
+  background: var(--primary-soft);
+  padding: 12px;
+  border-radius: 12px 0 12px 12px;
+  margin: 12px 0 12px 22px;
+  overflow-wrap: anywhere;
+}
+
+.goal-suggestion {
+  border: 1px solid #d9e5bc;
+  background: #faffef;
+  color: #283618;
+  border-radius: 9px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+.goal-suggestion>span {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.goal-suggestion p {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+
+.goal-suggestion button {
+  font-size: 10px;
+  color: #283618;
+}
+
+.suggested-questions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 20px 0;
+}
+
+.suggested-questions button {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  font-size: 10px;
+  padding: 8px 10px;
+  color: var(--text-2);
+}
+
+.question-form {
+  position: relative;
+}
+
+.question-form textarea {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 42px 12px 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  width: 100%;
+  line-height: 1.8;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.question-form button {
+  position: absolute;
+  bottom: 12px;
+  right: 9px;
+  width: 29px;
+  height: 29px;
+  border: 0;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 7px;
+  font-size: 18px;
+}
+
+.demo-note {
+  font-size: 9px;
+  text-align: center;
+  color: var(--text-3);
+  line-height: 1.8;
+  margin-top: 11px;
+}
+
+.page-foot {
+  margin-top: 27px;
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.page-foot span {
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-left: 12px;
+}
+
+.record-toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-size: 12px;
+  z-index: 500;
+  box-shadow: var(--shadow-lg);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.new-row {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 20px;
+}
+
+[hidden] {
+  display: none!important;
+}
+
+.record-preview :focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.empty-records {
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 30px 10px;
+  text-align: center;
+}
+
+@media (min-width: 1550px) {
+  /* 기록 목록 · 작성 영역 · AI 패널 배치 */
+.workspace {
+    grid-template-columns: 260px minmax(380px,1fr) 350px;
+  }
+
+  .record-body {
+    padding: 38px 40px;
+  }
+
+  .record-item strong {
+    font-size: 13px;
+  }
+
+}
+
+@media (max-width: 1250px) {
+  /* 기록 목록 · 작성 영역 · AI 패널 배치 */
+.workspace {
+    grid-template-columns: 200px minmax(300px,1fr);
+  }
+
+  /* AI 대화와 다음 목표 제안 */
+.ai-panel {
+    grid-column: 2;
+  }
+
+  .overview-message {
+    display: none;
+  }
+
+  .overview>div:not(:last-child) {
+    border: 0;
+  }
+
+  .record-body {
+    padding: 25px 22px;
+  }
+
+  .intro h1 {
+    font-size: 26px;
+  }
+
+}
+
+@media (max-width: 850px) {
+  .logo-sub,
+  .nav-section-label,
+  .sidenav-footer,
+  /* 기록 목록 · 작성 영역 · AI 패널 배치 */
+.workspace {
+    grid-template-columns: 1fr;
+  }
+
+  /* AI 대화와 다음 목표 제안 */
+.ai-panel {
+    grid-column: auto;
+  }
+
+  .record-list {
+    display: flex;
+    min-height: 0;
+    overflow: auto;
+    padding-bottom: 10px;
+  }
+
+  .record-item {
+    min-width: 180px;
+    flex: 1;
+  }
+
+  .journal-note {
+    display: none;
+  }
+
+  /* 종목 필터와 기록 목록 */
+.record-tabs {
+    padding-top: 10px;
+  }
+
+  .panel-heading {
+    padding: 15px 18px;
+  }
+
+  .intro p {
+    max-width: 290px;
+    line-height: 1.8;
+  }
+
+  /* 월별 기록 요약 */
+.overview {
+    padding: 15px 20px;
+    gap: 15px;
+  }
+
+  .overview>div:not(:last-child) {
+    min-width: 110px;
+    padding-right: 10px;
+  }
+
+  .topbar {
+    padding: 15px;
+  }
+
+  .preview-label {
+    font-size: 9px;
+  }
+
+}
+
+@media (max-width: 520px) {
+  .record-body {
+    padding: 22px 15px;
+  }
+
+  .intro h1 {
+    font-size: 27px;
+  }
+
+  .mobile-break {
+    display: block;
+  }
+
+  /* 페이지 소개 */
+.intro {
+    align-items: flex-start;
+  }
+
+  .intro>.btn {
+    font-size: 11px;
+    padding: 9px 12px;
+    margin-top: 22px;
+  }
+
+  .intro p {
+    font-size: 11px;
+  }
+
+  .activity-badge {
+    display: none;
+  }
+
+  .save-row {
+    align-items: flex-end;
+  }
+
+  .topbar-title {
+    font-size: 12px;
+  }
+
+  .preview-label {
+    font-size: 8px;
+  }
+
+  .moods button {
+    font-size: 9px;
+  }
+
+  .page-foot span {
+    font-size: 9px;
+  }
+
+}
+
+
+/* 실제 기록 조회: 필터, 페이지 이동, 읽기 전용 상태 */
+.record-tabs select {
+  max-width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.record-tabs label {
+  align-self: center;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.record-excerpt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  font-size: 12px;
+}
+
+.record-pagination a {
+  color: var(--primary);
+}
+
+.record-preview button:disabled {
+  cursor: not-allowed;
+}
+
+.record-preview .btn:disabled {
+  opacity: 0.5;
+}

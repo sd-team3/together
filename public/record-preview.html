@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TOGETHER — 운동 기록 안내</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main class="page-body">
+      <section class="card" style="max-width: 560px; padding: 28px; margin: 40px auto;">
+        <h1 class="page-heading">실제 운동 기록은 서버에서 확인해요.</h1>
+        <p class="page-subheading">이 HTML 파일의 예시 데이터는 제거했어요. 서버를 실행하고 로그인한 뒤 운동 기록 페이지를 열어주세요.</p>
+        <a id="record-link" class="btn btn-primary" href="/record">나의 운동 기록 열기</a>
+        <p style="margin-top: 16px; font-size: 12px;">서버 포트를 변경했다면 실행 중인 서버 주소의 /record로 접속해주세요.</p>
+      </section>
+    </main>
+    <script>
+      if (location.protocol === 'file:') {
+        document.getElementById('record-link').href = 'http://localhost:3000/record';
+      }
+    </script>
+  </body>
+</html>
