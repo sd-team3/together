@@ -9,6 +9,31 @@
   </div>
 
   <div class="manage-section-body">
+    <section
+      class="review-summary-card"
+      id="reviewSummary"
+      data-crew-id="<%= crew._id %>"
+      data-review-count="<%= reviews.length %>"
+      aria-label="AI 후기 요약"
+      aria-live="polite"
+    >
+      <% if (reviews.length < 3) { %>
+        <div class="review-summary-state">
+          <div>
+            <strong>✨ AI 요약 준비 중</strong>
+            <p>후기가 3개 이상 모이면 핵심 내용을 요약해드려요.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="review-summary-state" role="status">
+          <div>
+            <span class="review-summary-loader" aria-hidden="true"></span>
+            <strong>후기 내용을 분석하고 있어요.</strong>
+          </div>
+        </div>
+      <% } %>
+    </section>
+
     <% if (isMember) { %>
       <div class="review-write-box">
         <button
@@ -109,4 +134,5 @@
     <%- JSON.stringify(reviews) %>;
 </script>
 
+<script src="/js/regularCrew/reviewSummary.js"></script>
 <script src="/js/regularCrew/review.js"></script>
