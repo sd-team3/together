@@ -31,7 +31,7 @@
             </h1>
             <p>함께 운동한 순간을 돌아보고, 나만의 다음 목표를 남겨보세요.</p>
           </div>
-          <button class="btn btn-primary" id="new-record" disabled title="기록 저장 기능 연결 후 사용할 수 있어요">＋ 새 기록 (준비 중)</button>
+          <button class="btn btn-primary" id="new-record">＋ 작성하기</button>
         </section>
 
         <section class="overview" aria-label="기록 요약">
@@ -58,7 +58,27 @@
             </p>
           </div>
         </section>
-        <div class="workspace">
+        <nav id="flow-nav" class="flow-nav" aria-label="기록 작성 단계" hidden>
+          <button type="button" class="btn btn-outline btn-sm" id="back-to-list">← 기록 목록</button>
+          <span id="flow-step" role="status">1. 모임·날짜 선택 → 2. 기록 작성</span>
+        </nav>
+        <section id="activity-picker" class="card" aria-labelledby="picker-title" hidden>
+          <div class="panel-heading"><h2 id="picker-title" tabindex="-1">어떤 운동을 기록할까요?</h2></div>
+          <form id="activity-form" class="activity-picker-body">
+            <p>참여한 모임과 운동한 날짜를 선택해주세요.</p>
+            <p class="picker-note">정기 모임은 출석한 활동, 번개 모임은 시간이 지난 확정 참여 내역을 표시해요.</p>
+            <p id="activity-status" role="status"></p>
+            <label for="crew-select">참여한 모임</label>
+            <select id="crew-select" required disabled><option value="">모임 선택</option></select>
+            <label for="date-select">운동 날짜 · 활동</label>
+            <select id="date-select" required disabled><option value="">모임을 먼저 선택해주세요</option></select>
+            <div class="picker-actions">
+              <button type="button" class="btn btn-outline" id="retry-activities" hidden>다시 불러오기</button>
+              <button type="submit" class="btn btn-primary" id="start-writing" disabled>기록 작성하기 →</button>
+            </div>
+          </form>
+        </section>
+        <div class="workspace" data-view="list">
 
           <section class="journal card">
             <div class="panel-heading">
@@ -89,6 +109,7 @@
                 <button type="button" class="record-item" data-record-id="<%= record._id %>">
                   <span class="date"><%= record.exerciseDate %></span>
                   <strong><%= sports[record.sport]?.kr || record.sport %></strong>
+                  <% if (record.crewTitle) { %><p class="record-excerpt"><%= record.crewTitle %></p><% } %>
                   <p class="record-excerpt"><%= record.good || record.improve || record.goal || '남긴 메모가 없어요.' %></p>
                 </button>
               <% }); %>
@@ -108,9 +129,9 @@
             <div class="journal-note">🔒 기록과 AI 대화는 나만 볼 수 있어요.</div>
           </section>
 
-          <section class="editor card" aria-label="운동 돌아보기">
+          <section class="editor card" aria-label="운동 돌아보기" hidden>
             <div class="panel-heading">
-              <h2>운동 돌아보기</h2>
+              <h2 id="editor-title" tabindex="-1">운동 돌아보기</h2>
               <span class="private-pill">나만 보기</span>
             </div>
             <div class="activity-banner">
@@ -119,7 +140,7 @@
                 <h3 id="activity-title">선택한 기록이 없어요</h3>
                 <p id="activity-meta">기록을 선택하면 내용을 확인할 수 있어요.</p>
               </div>
-              <span class="activity-badge">개인 기록</span>
+              <button type="button" class="btn btn-outline btn-sm" id="change-activity" hidden>모임 변경</button>
             </div>
             <form id="record-form">
 
@@ -166,12 +187,12 @@
               <textarea id="goal" readonly rows="2" maxlength="1000" placeholder="다음에 해볼 작은 목표 하나"></textarea>
               <div class="save-row">
                 <span id="save-status" role="status">현재는 저장된 기록 조회만 가능해요.</span>
-                <button class="btn btn-primary" type="submit" disabled>기록 저장 (준비 중)</button>
+                <button class="btn btn-primary" id="save-record" type="submit" disabled>기록 저장</button>
               </div>
             </form>
           </section>
 
-          <aside class="ai-panel card" aria-label="AI 피드백">
+          <aside class="ai-panel card" aria-label="AI 피드백" hidden>
             <div class="panel-heading">
               <h2>
                 <span class="ai-mark">✦</span>

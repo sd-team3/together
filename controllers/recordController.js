@@ -29,5 +29,24 @@ const getRecordWrite = async (req, res, next) => {
 }
 
 module.exports = {
-    getRecordWrite
+    getRecordWrite,
+    createRecord: async (req, res) => {
+        try {
+            const record = await recordService.createRecord(req.user._id, req.body);
+            const page = await recordService.getRecordPage(req.user._id, record);
+            res.status(201).json({ redirect: `/record?page=${page}&saved=${record._id}` });
+        } catch (error) {
+            const status = [400, 403, 409].includes(error.status) ? error.status : 500;
+            res.status(status).json({ message: status === 500
+                ? '저장을 완료하지 못했어요. 잠시 후 다시 시도해주세요.' : error.message });
+        }
+    },
+    getMyActivities: async (req, res, next) => {
+        try {
+            res.set('Cache-Control', 'no-store');
+            res.json(await recordService.getMyActivities(req.user._id));
+        } catch (error) {
+            next(error);
+        }
+    }
 }
