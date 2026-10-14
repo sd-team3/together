@@ -103,4 +103,9 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`활동시간입니다, 출석하세요. '${noti.title}'`);
     });
+
+    socket.on('ACTIVITY_MANNER_REVIEW', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(`경기가 종료됐습니다. '${noti.title}'`);
+    });
 }

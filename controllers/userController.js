@@ -105,8 +105,12 @@ const getProfile = async (req, res, next) => {
         const user = await userService.findUserById(req.user.id);
         const regularCrews = await regularService.getMyCrews(req.user.id, 'all');
         const instantCrews = await instantService.getMyCrews(req.user.id, 'all');
+        const [regularGameRecords, instantGameRecords] = await Promise.all([
+            activityService.findGameRecordsByUserId(req.user.id, 'regular'),
+            activityService.findGameRecordsByUserId(req.user.id, 'instant')
+        ]);
         
-        res.render('user/profile', { user, regularCrews, instantCrews });
+        res.render('user/profile', { user, regularCrews, instantCrews, regularGameRecords, instantGameRecords });
     } catch (error) {
         return next(error);
     }

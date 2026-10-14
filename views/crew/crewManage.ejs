@@ -302,7 +302,13 @@
                   </div>
 
                   <div class="event-actions">
-                    <button class="event-edit-btn" onclick="entryAct('<%= act._id %>')">참가</button>
+                    <% const didAttend = user && (act.attender || []).some(person => (person._id || person).toString() === user._id.toString()); %>
+                    <% const isParticipant = user && [...(act.teamBlue || []), ...(act.teamRed || [])].some(person => (person._id || person).toString() === user._id.toString()); %>
+                    <% if (act.status === '활동' && isParticipant) { %>
+                      <button class="event-edit-btn" <%= didAttend ? 'disabled' : '' %> onclick="attendAct('<%= act._id %>')"><%= didAttend ? '출석 완료' : '출석 체크' %></button>
+                    <% } else if (act.status !== '종료') { %>
+                      <% if (!isParticipant) { %><button class="event-edit-btn" onclick="entryAct('<%= act._id %>')">참가</button><% } %>
+                    <% } %>
                     <!-- <button class="event-edit-btn" onclick="toggleActEditForm('<%= act._id %>')">수정</button>
                     <button class="event-del-btn" onclick="deleteSchedule('<%= act._id %>')">삭제</button> -->
                   </div>
@@ -643,6 +649,29 @@ async function entryAct(actId) {
     console.error('참가 신청 에러:', error);
     showToast('❌ 통신 중 오류가 발생했습니다.');
   }
+}
+
+async function attendAct(actId) {
+  if (!navigator.geolocation) {
+    showToast('❌ 이 브라우저에서는 위치 확인을 지원하지 않아.');
+    return;
+  }
+  showToast('📍 현재 위치를 확인하고 있어.');
+  navigator.geolocation.getCurrentPosition(async position => {
+    try {
+      const res = await fetch(`/regular/act/attend/${actId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat: position.coords.latitude, lng: position.coords.longitude })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || '출석 처리에 실패했어.');
+      showToast(`✅ ${data.message}`);
+      setTimeout(() => location.reload(), 900);
+    } catch (error) {
+      showToast(`❌ ${error.message}`);
+    }
+  }, () => showToast('❌ 위치 권한을 허용해야 출석 체크할 수 있어.'), { enableHighAccuracy: true, timeout: 10000 });
 }
 // function addSchedule() {
 //   const title    = document.getElementById('new-title').value.trim() || '정기 활동';

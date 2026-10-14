@@ -24,7 +24,7 @@ async function findActById(actId) {
 
 async function findActsByCrewId(crewId) {
     try {
-        const acts = await crewActivity.find({ crewId }).sort({ startTime: -1 }).populate({ path: 'teamBlue teamRed', select: 'name age profileImage' });
+        const acts = await crewActivity.find({ crewId }).sort({ startTime: -1 }).populate({ path: 'teamBlue teamRed attender', select: 'name age profileImage' });
         return acts;
     } catch (error) {
         console.error("findActivitiesByCrewId:", error.message);
@@ -44,10 +44,29 @@ async function findActsByUserId(userId, crewType) {
         console.error("findActsByUserId: ", error.message);
     }
 }
+
+async function findGameRecordsByUserId(userId, crewType) {
+    const crewModelName = crewType === 'regular' ? 'regularCrew' : 'instantCrew';
+    const acts = await crewActivity
+        .find({
+            crewModel: crewType,
+            $or: [{ teamBlue: userId }, { teamRed: userId }]
+        })
+        .populate({ path: 'crewId', model: crewModelName, select: 'title' })
+        .sort({ startTime: -1 })
+        .lean();
+
+    return acts.map(act => {
+        const attended = (act.attender || []).some(id => id.toString() === userId.toString());
+        const hasReviewed = (act.mannerReviews || []).some(review => review.reviewer.toString() === userId.toString());
+        return { ...act, attended, hasReviewed };
+    });
+}
  
 module.exports = {
     createActivity,
     findActById,
     findActsByCrewId,
-    findActsByUserId
+    findActsByUserId,
+    findGameRecordsByUserId
 };

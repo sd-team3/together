@@ -376,20 +376,45 @@ instantCalendar.addEventListener('click', e => {
 // 정기모임 실시간모임 전환
 const regularTab = document.getElementById("regular-tab");
 const instantTab = document.getElementById("instant-tab");
+const historyTab = document.getElementById("history-tab");
 const regularSection = document.getElementById("regular-section");
 const instantSection = document.getElementById("instant-section");
+const historySection = document.getElementById("history-section");
 
 regularTab.addEventListener('click', () => {
     regularSection.style.display = "block";
     instantSection.style.display = "none";
+    historySection.style.display = "none";
     regularTab.classList.add("active");
     instantTab.classList.remove("active");
+    historyTab.classList.remove("active");
 });
 instantTab.addEventListener('click', () => {
     instantSection.style.display = "block";
     regularSection.style.display = "none";
+    historySection.style.display = "none";
     instantTab.classList.add("active");
     regularTab.classList.remove("active");
+    historyTab.classList.remove("active");
 });
+historyTab.addEventListener('click', () => {
+    historySection.style.display = "block";
+    regularSection.style.display = "none";
+    instantSection.style.display = "none";
+    historyTab.classList.add("active");
+    regularTab.classList.remove("active");
+    instantTab.classList.remove("active");
+});
+
+const historyTypeTabs = document.querySelectorAll('[data-history-type]');
+const regularHistory = document.getElementById('regular-game-history');
+const instantHistory = document.getElementById('instant-game-history');
+historyTypeTabs.forEach(tab => tab.addEventListener('click', () => {
+    historyTypeTabs.forEach(item => item.classList.remove('active'));
+    tab.classList.add('active');
+    const showRegular = tab.dataset.historyType === 'regular';
+    regularHistory.style.display = showRegular ? 'block' : 'none';
+    instantHistory.style.display = showRegular ? 'none' : 'block';
+}));
 
 });

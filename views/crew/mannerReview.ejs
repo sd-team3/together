@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매너 평가 | SPORTMATCH</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('../partials/navbar') %>
+<div class="main">
+  <%- include('../partials/head', { title: '⭐ 경기 매너 평가', pageId: 'page-manner-review', active: '' }) %>
+  <main class="page-body manner-review-page">
+    <section class="manner-review-card">
+      <h1 class="manner-review-title"><%= act.title %></h1>
+      <div class="manner-review-sub">경기에 함께한 참가자를 평가해주세요. 좋은 매너는 +1점, 아쉬운 매너는 -1점, 보통은 0점이 반영됩니다.</div>
+      <% if (attendees.length === 0) { %>
+        <div class="manner-review-empty">평가할 다른 출석 참가자가 없습니다.</div>
+      <% } else if (myReviews.length > 0) { %>
+        <div class="manner-review-empty">이 경기의 평가를 이미 제출했습니다. 점수는 참가자의 매너 점수에 반영됐습니다.</div>
+        <% attendees.forEach(person => { const review = myReviews.find(item => item.reviewee.toString() === person._id.toString()); if (review) { %>
+          <div class="manner-review-person"><img src="/images/user-profile/<%= person.profileImage || 'default-profile-image.jpg' %>" alt=""><span class="manner-review-person-name"><%= person.name %></span><strong><%= review.score > 0 ? '+1점' : review.score < 0 ? '-1점' : '0점' %></strong></div>
+        <% } }) %>
+      <% } else { %>
+        <form id="manner-review-form">
+          <% attendees.forEach(person => { %>
+            <div class="manner-review-person">
+              <img src="/images/user-profile/<%= person.profileImage || 'default-profile-image.jpg' %>" alt="">
+              <span class="manner-review-person-name"><%= person.name %></span>
+              <div class="manner-review-scores" role="radiogroup" aria-label="<%= person.name %> 매너 평가">
+                <input type="radio" id="positive-<%= person._id %>" name="score-<%= person._id %>" value="1" required>
+                <label for="positive-<%= person._id %>">좋음 +1</label>
+                <input type="radio" id="neutral-<%= person._id %>" name="score-<%= person._id %>" value="0">
+                <label for="neutral-<%= person._id %>">보통 0</label>
+                <input type="radio" id="negative-<%= person._id %>" name="score-<%= person._id %>" value="-1">
+                <label for="negative-<%= person._id %>">나쁨 -1</label>
+              </div>
+            </div>
+          <% }) %>
+          <div class="manner-review-actions"><button class="btn btn-primary" type="submit">평가 제출</button></div>
+        </form>
+      <% } %>
+    </section>
+  </main>
+</div>
+<script>
+const attendeeIds = <%- JSON.stringify(attendees.map(person => person._id.toString())) %>;
+const form = document.getElementById('manner-review-form');
+if (form) form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const ratings = attendeeIds.map(revieweeId => ({
+    revieweeId,
+    score: Number(form.querySelector(`input[name="score-${revieweeId}"]:checked`)?.value)
+  }));
+  if (ratings.some(rating => ![-1, 0, 1].includes(rating.score))) {
+    alert('출석한 참가자를 모두 평가해주세요.');
+    return;
+  }
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  try {
+    const response = await fetch(`/regular/act/review/<%= act._id %>`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ratings })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || '평가 저장에 실패했습니다.');
+    alert(result.message);
+    location.reload();
+  } catch (error) {
+    alert(error.message);
+    button.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

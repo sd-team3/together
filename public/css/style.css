@@ -683,6 +683,51 @@ select.input{cursor:pointer}
   font-size:12px;color:var(--text-3);cursor:pointer;transition:color .15s}
 .mypage-card-action:hover{color:var(--text)}
 .mypage-card-body{padding:16px}
+
+/* 마이페이지 경기 기록 */
+.game-history-tabs{
+  display:flex;
+  gap:8px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.game-history-tabs button{
+  padding:8px 14px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:var(--surface);
+  color:var(--text-2);
+  cursor:pointer;
+  transition:all .15s;
+}
+.game-history-tabs button:hover{border-color:var(--border-strong);color:var(--text)}
+.game-history-tabs button.active{
+  border-color:var(--primary);
+  background:var(--primary);
+  color:#fff;
+}
+.game-record{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px;
+  border-bottom:1px solid var(--border);
+}
+.game-record:last-child{border-bottom:0}
+.game-record-info{flex:1;min-width:0}
+.game-record-title{margin-bottom:5px;font-weight:700}
+.game-record-meta{font-size:12px;color:var(--text-3);line-height:1.7}
+.game-record-state{font-size:12px;font-weight:700;white-space:nowrap}
+.game-record-state.attended{color:var(--green)}
+.game-record-state.absent{color:var(--red)}
+.game-record-action{white-space:nowrap}
+
+@media(max-width:560px){
+  .game-record{align-items:flex-start;flex-wrap:wrap}
+  .game-record-info{width:calc(100% - 30px)}
+  .game-record-action{margin-left:44px}
+}
+
 .history-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
 .history-item:last-child{border-bottom:none}
 .hi-sport{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid var(--border);flex-shrink:0}
@@ -4513,6 +4558,61 @@ body.dark .tt-px-event {
   height: 28px;
   background: #f2f2f2;
   border-radius: 50%;
+}
+
+/* 경기 매너 평가 */
+.manner-review-page{max-width:680px;margin:0 auto;padding:24px 16px}
+.manner-review-card{
+  margin-bottom:16px;
+  padding:22px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  background:var(--surface);
+}
+.manner-review-title{margin:0 0 8px;font-size:22px;font-weight:700}
+.manner-review-sub{margin-bottom:22px;color:var(--text-3);font-size:14px}
+.manner-review-person{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 0;
+  border-top:1px solid var(--border);
+}
+.manner-review-person img{
+  width:46px;
+  height:46px;
+  flex:0 0 46px;
+  border-radius:50%;
+  background:var(--bg);
+  object-fit:cover;
+}
+.manner-review-person-name{flex:1;font-weight:700}
+.manner-review-scores{display:flex;flex-wrap:wrap;gap:7px}
+.manner-review-scores input{position:absolute;opacity:0;pointer-events:none}
+.manner-review-scores label{
+  padding:8px 12px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  font-size:13px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.manner-review-scores label:hover{border-color:var(--border-strong)}
+.manner-review-scores input:checked+label{
+  border-color:var(--primary);
+  background:var(--primary);
+  color:#fff;
+}
+.manner-review-scores input:focus-visible+label{outline:2px solid var(--primary);outline-offset:2px}
+.manner-review-scores input:disabled+label{cursor:default;opacity:.7}
+.manner-review-actions{display:flex;justify-content:flex-end;margin-top:20px}
+.manner-review-empty{padding:24px;color:var(--text-3);text-align:center}
+
+@media(max-width:540px){
+  .manner-review-card{padding:18px 16px}
+  .manner-review-person{align-items:flex-start;flex-wrap:wrap}
+  .manner-review-person-name{padding-top:12px}
+  .manner-review-scores{width:100%;padding-left:60px}
 }
 
 .review-list {

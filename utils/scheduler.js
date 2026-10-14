@@ -112,6 +112,25 @@ function startScheduler(io) {
                     act.status = '종료';
                     await act.save();
 
+                    if (attendedUsers.length > 1) {
+                        await Promise.all(attendedUsers.map(async (pId) => {
+                            try {
+                                const newNoti = await notiService.createNoti({
+                                    sender: null,
+                                    receiver: pId,
+                                    title: `${act.title} 매너 평가를 남겨주세요`,
+                                    content: '함께 출석한 참가자들의 매너를 평가해주세요.',
+                                    event: 'ACTIVITY_MANNER_REVIEW',
+                                    route: `/${act.crewModel}/act/review/${act._id}`,
+                                    target: []
+                                });
+                                if (io) io.of('/noti').to(`user:${pId}`).emit(newNoti.event, newNoti);
+                            } catch (notiErr) {
+                                console.error(`[매너 평가 알림 발송 실패 - 유저:${pId}]`, notiErr.message);
+                            }
+                        }));
+                    }
+
                     console.log(`🏁 [정산완료] ${act.title}`);
                     console.log(`   - 출석: ${attendedCount}명 (+1점) / 노쇼: ${noShowUsers.length}명 (-1점)`);
 

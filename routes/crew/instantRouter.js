@@ -4,12 +4,15 @@ const instantCrew = require('../../models/instantCrew');
 const instantController = require('../../controllers/crew/instantController');
 const applicationController = require('../../controllers/crew/applicationController');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
+const activityRouter = require('../crew/activityRouter');
 
 router.use((req, res, next)=>{ 
     req.crewModel = instantCrew;
     req.crewType = 'instantCrew';
     next(); 
 });
+
+router.use('/act', activityRouter);
 
 //번개 모임 페이지
 router.get('/list', instantController.getInstant);

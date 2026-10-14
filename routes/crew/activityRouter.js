@@ -17,6 +17,24 @@ router.post('/entry/:actId',
     activityController.postEntry
 );
 
+router.post('/attend/:actId',
+    crewMiddleware.loginValidation,
+    activityMiddleware.isActExist,
+    activityController.postAttendance
+);
+
+router.get('/review/:actId',
+    crewMiddleware.loginValidation,
+    activityMiddleware.isActExist,
+    activityController.getMannerReview
+);
+
+router.post('/review/:actId',
+    crewMiddleware.loginValidation,
+    activityMiddleware.isActExist,
+    activityController.postMannerReview
+);
+
 // router.post('/attend/:actId', 
 //     activityMiddleware.isActExist,
 //     activityController.postAttendance

@@ -58,6 +58,7 @@
           <div class="mypage-nav">
             <button id="regular-tab" class="mypage-nav-item active"><span>📅</span> 정기 모임</button>
             <button id="instant-tab" class="mypage-nav-item"><span>⚡</span> 실시간 모임</button>
+            <button id="history-tab" class="mypage-nav-item"><span>🏟️</span> 경기 기록</button>
             <a href="/user/edit-profile" class="mypage-nav-item"><span>⭐</span> 프로필 수정</a>
           </div>
         </div>
@@ -210,6 +211,51 @@
           </div>
           <div class="pagination-row" id="instant-pagination"></div>
         </div>
+        </div>
+
+        <div id="history-section" style="display:none">
+          <div class="mypage-card">
+            <div class="mypage-card-header">
+              <div class="mypage-card-title">🏟️ 내 경기 기록</div>
+              <span style="font-size:12px;color:var(--text-3)"><%= regularGameRecords.length + instantGameRecords.length %>경기</span>
+            </div>
+            <div class="game-history-tabs">
+              <button type="button" class="active" data-history-type="regular">📅 정기모임 경기</button>
+              <button type="button" data-history-type="instant">⚡ 실시간 모임 경기</button>
+            </div>
+            <div id="regular-game-history">
+              <% if (!regularGameRecords || regularGameRecords.length === 0) { %>
+                <div class="no-data-container"><p>정기모임 경기 기록이 없습니다.</p></div>
+              <% } else { regularGameRecords.forEach(act => { %>
+                <div class="game-record">
+                  <div class="game-record-info">
+                    <div class="game-record-title"><%= act.title || '정기모임 경기' %></div>
+                    <div class="game-record-meta"><%= act.crewId?.title || '정기모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br>📍 <%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
+                  </div>
+                  <span class="game-record-state <%= act.attended ? 'attended' : 'absent' %>"><%= act.attended ? '출석' : '미출석' %></span>
+                  <% if (act.status === '종료' && act.attended) { %>
+                    <a class="btn btn-primary btn-sm game-record-action" href="/regular/act/review/<%= act._id %>"><%= act.hasReviewed ? '평가 확인' : '매너 평가' %></a>
+                  <% } %>
+                </div>
+              <% }) } %>
+            </div>
+            <div id="instant-game-history" style="display:none">
+              <% if (!instantGameRecords || instantGameRecords.length === 0) { %>
+                <div class="no-data-container"><p>실시간 모임 경기 기록이 없습니다.</p></div>
+              <% } else { instantGameRecords.forEach(act => { %>
+                <div class="game-record">
+                  <div class="game-record-info">
+                    <div class="game-record-title"><%= act.title || '실시간 모임 경기' %></div>
+                    <div class="game-record-meta"><%= act.crewId?.title || '실시간 모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br>📍 <%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
+                  </div>
+                  <span class="game-record-state <%= act.attended ? 'attended' : 'absent' %>"><%= act.attended ? '출석' : '미출석' %></span>
+                  <% if (act.status === '종료' && act.attended) { %>
+                    <a class="btn btn-primary btn-sm game-record-action" href="/instant/act/review/<%= act._id %>"><%= act.hasReviewed ? '평가 확인' : '매너 평가' %></a>
+                  <% } %>
+                </div>
+              <% }) } %>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "seed:manner": "node scripts/seedMannerTestData.js",
+    "seed:manner-notification": "node scripts/seedMannerNotificationTestData.js"
   },
   "repository": {
     "type": "git",
