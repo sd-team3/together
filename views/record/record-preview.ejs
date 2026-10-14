@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TOGETHER — 나의 운동 기록</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/record-preview.css">
+  </head>
+  <body class="record-preview">
+
+    <%- include('../partials/navbar') %>
+    <main class="main">
+
+      <header class="topbar">
+        <span class="topbar-title">✎ 나의 운동 기록</span>
+        <div class="topbar-actions">
+          <span class="preview-label">나의 운동 기록</span>
+          <button class="btn btn-outline btn-sm" id="theme" aria-label="화면 테마 전환">◐</button>
+        </div>
+      </header>
+      <div class="record-body">
+
+        <section class="intro">
+          <div>
+            <div class="eyebrow">MY PLAYBOOK</div>
+            <h1>
+              오늘의 운동이,
+              <br class="mobile-break">
+              다음의 나에게.
+            </h1>
+            <p>함께 운동한 순간을 돌아보고, 나만의 다음 목표를 남겨보세요.</p>
+          </div>
+          <button class="btn btn-primary" id="new-record" disabled title="기록 저장 기능 연결 후 사용할 수 있어요">＋ 새 기록 (준비 중)</button>
+        </section>
+
+        <section class="overview" aria-label="기록 요약">
+          <div>
+            <span>전체 운동 기록</span>
+            <strong>
+              <b id="record-count"><%= allRecordCount %></b>
+              <small>회</small>
+            </strong>
+          </div>
+          <div>
+            <span>함께한 종목</span>
+            <strong>
+              <%= sportCount %>
+              <small>종목</small>
+            </strong>
+          </div>
+          <div class="overview-message">
+            <span class="mini-spark">✦</span>
+            <p>
+              잘한 것도, 아쉬운 것도 괜찮아요.
+              <br>
+              <b>기록하는 순간부터 다음 운동은 달라지니까.</b>
+            </p>
+          </div>
+        </section>
+        <div class="workspace">
+
+          <section class="journal card">
+            <div class="panel-heading">
+              <h2>나의 기록</h2>
+              <span class="muted"><%= totalRecords %>개 기록</span>
+            </div>
+            <!-- 필터를 바꾸면 서버에서 해당 종목의 기록을 다시 조회한다. -->
+            <form class="record-tabs" method="get" action="/record">
+              <label for="sport-filter">종목</label>
+              <select id="sport-filter" name="sport">
+                <option value="">전체 종목</option>
+                <% Object.entries(sports).forEach(([code, sport]) => { %>
+                  <option value="<%= code %>" <%= selectedSport === code ? 'selected' : '' %>>
+                    <%= sport.kr %>
+                  </option>
+                <% }); %>
+              </select>
+              <button type="submit">조회</button>
+            </form>
+            <!-- EJS가 DB에서 가져온 목록을 먼저 표시한다. -->
+            <div id="record-list" class="record-list">
+              <% if (records.length === 0) { %>
+                <p class="empty-records">
+                  <%= selectedSport ? '이 종목으로 남긴 기록이 없어요.' : '아직 남긴 운동 기록이 없어요.' %>
+                </p>
+              <% } %>
+              <% records.forEach(record => { %>
+                <button type="button" class="record-item" data-record-id="<%= record._id %>">
+                  <span class="date"><%= record.exerciseDate %></span>
+                  <strong><%= sports[record.sport]?.kr || record.sport %></strong>
+                  <p class="record-excerpt"><%= record.good || record.improve || record.goal || '남긴 메모가 없어요.' %></p>
+                </button>
+              <% }); %>
+            </div>
+
+            <% if (totalPages > 1) { %>
+              <nav class="record-pagination" aria-label="기록 페이지 이동">
+                <% if (currentPage > 1) { %>
+                  <a href="/record?page=<%= currentPage - 1 %>&amp;sport=<%= selectedSport %>">이전</a>
+                <% } %>
+                <span><%= currentPage %> / <%= totalPages %></span>
+                <% if (currentPage < totalPages) { %>
+                  <a href="/record?page=<%= currentPage + 1 %>&amp;sport=<%= selectedSport %>">다음</a>
+                <% } %>
+              </nav>
+            <% } %>
+            <div class="journal-note">🔒 기록과 AI 대화는 나만 볼 수 있어요.</div>
+          </section>
+
+          <section class="editor card" aria-label="운동 돌아보기">
+            <div class="panel-heading">
+              <h2>운동 돌아보기</h2>
+              <span class="private-pill">나만 보기</span>
+            </div>
+            <div class="activity-banner">
+              <span id="activity-icon">✎</span>
+              <div>
+                <h3 id="activity-title">선택한 기록이 없어요</h3>
+                <p id="activity-meta">기록을 선택하면 내용을 확인할 수 있어요.</p>
+              </div>
+              <span class="activity-badge">개인 기록</span>
+            </div>
+            <form id="record-form">
+
+              <fieldset class="mood-field">
+                <legend>오늘 운동, 어땠나요?</legend>
+                <div class="moods">
+                  <button type="button" data-mood="1" disabled>
+                    <span>😮‍💨</span>
+                    아쉬워요
+                  </button>
+                  <button type="button" data-mood="2" disabled>
+                    <span>😐</span>
+                    그저 그래요
+                  </button>
+                  <button type="button" data-mood="3" disabled>
+                    <span>🙂</span>
+                    괜찮아요
+                  </button>
+                  <button type="button" data-mood="4" disabled>
+                    <span>😊</span>
+                    좋았어요
+                  </button>
+                  <button type="button" data-mood="5" disabled>
+                    <span>🤩</span>
+                    최고예요
+                  </button>
+                </div>
+              </fieldset>
+
+              <label for="good">
+                <span class="label-icon blue">↗</span>
+                오늘 잘한 점
+              </label>
+              <textarea id="good" readonly rows="2" maxlength="1000" placeholder="작은 시도도 좋아요. 잘한 점을 남겨보세요."></textarea>
+              <label for="improve">
+                <span class="label-icon orange">↺</span>
+                조금 아쉬웠던 점
+              </label>
+              <textarea id="improve" readonly rows="2" maxlength="1000" placeholder="다음에 바꾸고 싶은 점이 있나요?"></textarea>
+              <label for="goal">
+                <span class="label-icon green">⚑</span>
+                다음 운동의 나에게
+              </label>
+              <textarea id="goal" readonly rows="2" maxlength="1000" placeholder="다음에 해볼 작은 목표 하나"></textarea>
+              <div class="save-row">
+                <span id="save-status" role="status">현재는 저장된 기록 조회만 가능해요.</span>
+                <button class="btn btn-primary" type="submit" disabled>기록 저장 (준비 중)</button>
+              </div>
+            </form>
+          </section>
+
+          <aside class="ai-panel card" aria-label="AI 피드백">
+            <div class="panel-heading">
+              <h2>
+                <span class="ai-mark">✦</span>
+                AI와 돌아보기
+              </h2>
+              <span class="demo-badge">체험</span>
+            </div>
+            <div class="ai-content">
+              <p class="ai-intro">
+                혼자 정리하기 어려웠던 생각,
+                <br>
+                오늘의 기록에서 함께 찾아봐요.
+              </p>
+              <div class="context-pill">✎ 현재 선택한 기록을 바탕으로 대화해요</div>
+              <div id="conversation" class="conversation" role="log" aria-live="polite">
+                <div class="ai-bubble">
+                  <strong>오늘 운동은 어땠나요? ✦</strong>
+                  <p>기록을 남기고 궁금한 점을 물어보세요. 다음 운동에서 시도할 작은 목표를 함께 생각해볼게요.</p>
+                </div>
+              </div>
+
+              <div id="goal-suggestion" class="goal-suggestion" hidden>
+                <span>⚑ 다음 목표 제안</span>
+                <p id="suggested-goal"></p>
+                <button class="btn btn-outline btn-sm" id="apply-goal" disabled>목표 저장 (준비 중)</button>
+              </div>
+              <div class="suggested-questions">
+                <button data-question="다음 운동 목표를 같이 정해줘">다음 목표를 같이 정해줘 ↗</button>
+                <button data-question="내 기록을 돌아볼 질문을 해줘">돌아볼 질문을 해줘 ↗</button>
+              </div>
+
+              <form id="question-form" class="question-form">
+                <label class="sr-only" for="question">AI에게 질문하기</label>
+                <textarea id="question" rows="2" maxlength="500" placeholder="오늘 운동에 대해 궁금한 점을 적어보세요"></textarea>
+                <button type="submit" aria-label="질문 보내기">↑</button>
+              </form>
+              <p class="demo-note">
+                현재는 예시 답변으로 대화 흐름을 체험해요.
+                <br>
+                입력한 내용은 서버에 전송되지 않아요.
+              </p>
+            </div>
+          </aside>
+        </div>
+        <div class="page-foot">
+          TOGETHER
+          <span>함께하는 운동, 나에게 남는 변화.</span>
+        </div>
+      </div>
+    </main>
+    <div id="notice" class="record-toast" role="status" hidden></div>
+    <!-- JSON은 실행 코드가 아니라 선택한 기록을 표시하기 위한 데이터다. -->
+    <script id="record-data" type="application/json"><%- recordsJson %></script>
+    <script src="/js/record-preview.js"></script>
+  </body>
+</html>
+

@@ -109,6 +109,11 @@ router.post('/review/:crewId',
     crewMiddleware.isCrewExist,
     crewMiddleware.isMember,
     regularController.postCrewReview
-)
+);
+
+router.get('/review/:crewId/summary',
+    crewMiddleware.isCrewExist,
+    regularController.getCrewReviewSummary
+);
 
 module.exports = router;

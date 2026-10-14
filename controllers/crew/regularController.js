@@ -3,6 +3,10 @@ const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
 const activityService = require('../../services/crew/activityService');
+const { MIN_REVIEW_COUNT } = require('../../services/ai/reviewSummaryService');
+const {
+    getOrCreateReviewSummary
+} = require('../../services/ai/reviewSummaryCacheService');
 
 const getRegularCreate = (req, res)=>{
     res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
@@ -234,6 +238,39 @@ const postCrewReview = async (req, res) => {
     }
 }
 
+// AI 후기 요약 컨트롤러
+const getCrewReviewSummary = async (req, res) => {
+    try {
+        const reviews = await regularService.getCrewReview(req.params.crewId);
+
+        if (reviews.length < MIN_REVIEW_COUNT) {
+            return res.json({
+                success: true,
+                summary: null,
+                message: `후기가 ${MIN_REVIEW_COUNT}개 이상일 때 AI 요약을 제공합니다.`
+            });
+        }
+
+        const { summary, cacheHit } = await getOrCreateReviewSummary(
+            req.params.crewId,
+            reviews
+        );
+
+        return res.json({
+            success: true,
+            cached: cacheHit,
+            summary
+        });
+    } catch (error) {
+        console.error('AI 후기 요약 오류:', error.message);
+
+        return res.status(503).json({
+            success: false,
+            message: 'AI 후기 요약을 잠시 사용할 수 없습니다.'
+        });
+    }
+};
+
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
@@ -248,5 +285,6 @@ module.exports = {
     postCrewUpdate,
     getRegularPage,
     getCrewActivity,
-    postCrewReview
+    postCrewReview,
+    getCrewReviewSummary
 };
