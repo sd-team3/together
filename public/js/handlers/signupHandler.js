@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarImg.src = e.target.result;
             document.getElementById('removeImage').value = 'false';
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file);C
     });
  
     // 기타

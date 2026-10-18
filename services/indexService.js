@@ -27,6 +27,17 @@ const LEVEL_MAP = {
     low: '초급', mid: '중급', high: '고급', none: '누구나'
 };
 
+// ── 추천 설정 ──────────────────────────────────
+const FEATURED_COUNT = 10;   // 왼쪽 큰 카드(캐러셀)
+const GRID_COUNT     = 40;   // 오른쪽 카드 그리드
+const CANDIDATE_POOL = 200;  // 점수 계산 전 후보 수 (기존 50은 너무 작았음)
+
+// 스코어 가중치 (합 100)
+const WEIGHTS = { sport: 40, state: 20, city: 10, age: 15, time: 15 };
+
+// 나이 버킷 전체 (이 전부가 들어있으면 '제한 없음'으로 간주)
+const AGE_BUCKETS = ['10s', '20s', '30s', '40s', '50s', '60+'];
+
 // D-day 계산
 const calcDday = (date) => {
     const diff = Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
@@ -78,6 +89,9 @@ const formatMeetingCard = (crew) => {
     const periodLabel = PERIOD_MAP[crew.period] || '매주';
 
     return {
+        id: crew._id ? crew._id.toString() : '',   // 상세 페이지 링크용
+        intro: crew.intro || '',                   // 왼쪽 큰 카드 소개글
+        sportKey: crew.sport || '',                // 종목 칩 필터용 (data-sport-key)
         emoji: meta.emoji,
         title: crew.title,
         schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
@@ -126,12 +140,12 @@ const formatMeetingCard = (crew) => {
 };
 
 // ── 정기모임 카드 ──────────────────────────────
-const getRegularMeetings = async (sport = '') => {
-  const query = sport ? { sport } : {};
+const getRegularMeetings = async (sport = '', limit = 15) => {
+    const query = sport ? { sport } : {};
 
     const crews = await RegularCrew.find(query)
         .sort({ createdAt: -1 })
-        .limit(15);
+        .limit(limit);
 
     return crews.map(formatMeetingCard);
 };
@@ -347,46 +361,44 @@ const getMySchedule = async (userId) => {
 
 // 내 활동 요약
 const getMyStats = async (userId) => {
-    const user       = await User.findById(userId);
-    const clubsCount = user?.crews?.length || 0;
+    const user = await User.findById(userId);
 
     return {
         manner: user?.manner || 0,
         clubs: user?.crews?.length || 0
-        
     };
 };
 
 // 플랫폼 통계
 const getStats = async () => {
-    const [weeklyMatches, activeClubs, regularMembers, instantMembers,totalUsers] = await Promise.all([
-    InstantCrew.countDocuments(),
-    RegularCrew.countDocuments(),
-    RegularCrew.aggregate([
-        { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
-    ]),
-    InstantCrew.aggregate([
-        { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
-    ]),
-    User.countDocuments()
-]);
+    const [weeklyMatches, activeClubs, regularMembers, instantMembers, totalUsers] = await Promise.all([
+        InstantCrew.countDocuments(),
+        RegularCrew.countDocuments(),
+        RegularCrew.aggregate([
+            { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
+        ]),
+        InstantCrew.aggregate([
+            { $group: { _id: null, total: { $sum: { $size: '$member.memberList' } } } }
+        ]),
+        User.countDocuments()
+    ]);
 
-return {
-    weeklyMatches,
-    activeClubs,
-    totalMembers: (regularMembers[0]?.total || 0) + (instantMembers[0]?.total || 0),
-    totalUsers
-};
+    return {
+        weeklyMatches,
+        activeClubs,
+        totalMembers: (regularMembers[0]?.total || 0) + (instantMembers[0]?.total || 0),
+        totalUsers
+    };
 };
 
 // 종목 칩
 const getSportChips = () => {
-  return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
-    key,               
-    emoji: SPORTS_META[key]?.emoji || '🏃',
-    label: val.kr,
-    active: idx === 0
-  }));
+    return Object.entries(CONSTANTS.SPORTS).map(([key, val], idx) => ({
+        key,
+        emoji: SPORTS_META[key]?.emoji || '🏃',
+        label: val.kr,
+        active: idx === 0
+    }));
 };
 
 // 유저 나이 -> AGES 버킷 변환 (예: 23 -> '20s')
@@ -399,6 +411,13 @@ const getAgeBucket = (age) => {
     if (age < 60) return '50s';
     return '60+';
 };
+
+// 크루가 나이 제한이 없는지 판별
+// (비어있음 / 'all' / 전 연령대가 전부 체크된 경우 모두 '제한 없음')
+const isNoAgeLimit = (ageRange) =>
+    !ageRange?.length ||
+    ageRange.includes('all') ||
+    AGE_BUCKETS.every(b => ageRange.includes(b));
 
 // 크루의 요일+시간을 '평일오전' 같은 선호시간대 라벨로 역산
 const getCrewTimeLabels = (crew) => {
@@ -430,61 +449,87 @@ const getCrewTimeLabels = (crew) => {
     return labels;
 };
 
-// 유저 선호도 기반 크루 스코어 계산 + 추천 사유(종목40 + 지역30 + 나이15 + 시간대15)
+// 유저 선호도 기반 크루 스코어 계산 + 추천 사유
+// (종목40 + 지역30(시/도20 + 시/군/구10) + 나이15 + 시간대15 = 100)
 const scoreCrewForUser = (crew, user) => {
     let score = 0;
     const reasons = [];
 
+    // 종목
     if (user.preferredSport?.includes(crew.sport)) {
-        score += 40;
+        score += WEIGHTS.sport;
         reasons.push({ icon: '🎯', label: '선호 종목과 일치해요' });
     }
 
+    // 지역
     if (user.address?.state && user.address.state === crew.address?.state) {
-        score += 20;
+        score += WEIGHTS.state;
         if (user.address?.city && user.address.city === crew.address?.city) {
-            score += 10;
+            score += WEIGHTS.city;
             reasons.push({ icon: '📍', label: '우리 동네 모임이에요' });
         } else {
             reasons.push({ icon: '📍', label: '가까운 지역이에요' });
         }
     }
 
+    // 나이: 제한 없음이면 점수만 주고 사유는 붙이지 않음
     const userAgeBucket = getAgeBucket(user.age);
-    if (crew.ageRange?.length && userAgeBucket && crew.ageRange.includes(userAgeBucket)) {
-        score += 15;
+    if (isNoAgeLimit(crew.ageRange)) {
+        score += WEIGHTS.age;
+    } else if (userAgeBucket && crew.ageRange.includes(userAgeBucket)) {
+        score += WEIGHTS.age;
         reasons.push({ icon: '🎂', label: '내 연령대에 맞아요' });
-    } else if (!crew.ageRange?.length || crew.ageRange.includes('all')) {
-        score += 15;
     }
 
+    // 시간대
     const crewTimeLabels = getCrewTimeLabels(crew);
     if (user.preferredTime?.some(t => crewTimeLabels.includes(t))) {
-        score += 15;
+        score += WEIGHTS.time;
         reasons.push({ icon: '⏰', label: '선호 시간대와 딱 맞아요' });
     }
 
     return { score, reasons: reasons.slice(0, 3) }; // 카드가 지저분해지지 않게 최대 3개만
 };
 
+// 배열을 { featured, grid }로 분리
+const splitMeetings = (list, featuredCount = FEATURED_COUNT, gridCount = GRID_COUNT) => ({
+    featured: list.slice(0, featuredCount),
+    grid: list.slice(featuredCount, featuredCount + gridCount)
+});
+
 // AI 추천 정기모임 - 로그인 유저의 선호정보 기반 스코어링
-const getAIRecommendedMeetings = async (userId, limit = 6) => {
-    if (!userId) return getRegularMeetings();
+// 반환: { featured: 상위 10개(왼쪽 캐러셀), grid: 그 다음 40개(오른쪽 그리드) }
+const getAIRecommendedMeetings = async (
+    userId,
+    featuredCount = FEATURED_COUNT,
+    gridCount = GRID_COUNT
+) => {
+    const total = featuredCount + gridCount;
+
+    // 비로그인 / 유저 없음: 점수 없이 최신순
+    const fallback = async () =>
+        splitMeetings(await getRegularMeetings('', total), featuredCount, gridCount);
+
+    if (!userId) return fallback();
 
     const user = await User.findById(userId).lean();
-    if (!user) return getRegularMeetings();
+    if (!user) return fallback();
 
-    const crews = await RegularCrew.find({}).sort({ createdAt: -1 }).limit(50);
+    const crews = await RegularCrew.find({})
+        .sort({ createdAt: -1 })
+        .limit(CANDIDATE_POOL);
 
-    const scored = crews
+    const ranked = crews
         .map(crew => ({ crew, ...scoreCrewForUser(crew, user) }))
-        .sort((a, b) => b.score - a.score);
+        .sort((a, b) => b.score - a.score)
+        .slice(0, total)
+        .map(({ crew, score, reasons }) => ({
+            ...formatMeetingCard(crew),
+            matchScore: score,
+            matchReasons: reasons
+        }));
 
-    return scored.slice(0, limit).map(({ crew, score, reasons }) => ({
-        ...formatMeetingCard(crew),
-        matchScore: score,
-        matchReasons: reasons
-    }));
+    return splitMeetings(ranked, featuredCount, gridCount);
 };
 
 // AI 자연어 검색
