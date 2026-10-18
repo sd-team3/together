@@ -107,7 +107,7 @@
         </div>
         <button class="btn btn-ghost btn-sm" data-href="/regular/list">전체보기 →</button>
       </div>
-      <div class="regular-grid">
+      <div class="regular-grid home-reg-grid">
         <% regularMeetings.forEach(function(meeting) { %>
           <div class="reg-card <%= isAIRecommended ? 'reg-card-ai' : '' %>"
                data-filter="<%= meeting.filterTags %>"
@@ -154,7 +154,6 @@
               <% } %>
             </div>
           </div>
-        
         <% }); %>
       </div>
       <div style="text-align:center; margin-top:16px;">
