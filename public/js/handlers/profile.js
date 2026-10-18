@@ -1,44 +1,9 @@
-const profileData = JSON.parse(
-    document.getElementById("profile-data").textContent
-);
-const { regularActs, instantActs } = profileData;
+const profileData = JSON.parse(document.getElementById("profile-data").textContent);
+const { regularCrews, instantCrews } = profileData;
 
 document.addEventListener("DOMContentLoaded", () => {
-// 정기 모임, 실시간 모임 전체화면, 접기 버튼
-const regularSeeAllBtn = document.getElementById('regular-all-btn');
-const regularSee4Btn = document.getElementById('regular-four-btn');
-const instantSeeAllBtn = document.getElementById('instant-all-btn');
-const instantSee4Btn = document.getElementById('instant-four-btn');
 
-if(regularSeeAllBtn) regularSeeAllBtn.addEventListener('click', () => seeBtn(true, "regular"));
-if(regularSee4Btn) regularSee4Btn.addEventListener('click', () =>  seeBtn(false, "regular"));
-if(instantSeeAllBtn) instantSeeAllBtn.addEventListener('click', () => seeBtn(true, "instant"));
-if(instantSee4Btn) instantSee4Btn.addEventListener('click', () =>  seeBtn(false, "instant"));
 
-function seeBtn(bool, crew) {
-if(crew === 'regular') {
-    regularSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
-    regularSee4Btn.style.display = !bool ? 'none' : 'inline-block';
-} else if(crew === 'instant') {
-    instantSeeAllBtn.style.display = bool ? 'none' : 'inline-block';
-    instantSee4Btn.style.display = !bool ? 'none' : 'inline-block';
-} else return;
-
-let mainCard = null;
-if(crew === 'regular') mainCard = document.querySelector('#regular-card');
-else if(crew === 'instant') mainCard = document.querySelector('#instant-card');
-else return;
-
-const scheduleItem = mainCard.querySelectorAll('.schedule-item');
-const scheduleHidden = mainCard.querySelectorAll('.schedule-item-hidden');
-
-scheduleHidden.forEach(item => item.classList.toggle('show', bool));
-scheduleItem.forEach(item => item.classList.remove('schedule-item-last'));
-
-const lastSchedule = scheduleItem[scheduleItem.length - 1]
-if(lastSchedule && bool) lastSchedule.classList.add('schedule-item-last');
-else if(scheduleItem[3]) scheduleItem[3].classList.add('schedule-item-last');
-}
 const sportIcon = {
         soccer: "⚽",
         baseball: "⚾",
@@ -48,30 +13,55 @@ const sportIcon = {
         badminton: "🏸",
         tabletennis: "🏓"
 };
-// 정기 모임 주간 달력
+
 const today = new Date();
+let monday = new Date(today);
+if (today.getDay() === 0) monday.setDate(today.getDate() - 6);
+else monday.setDate(today.getDate() - today.getDay() + 1);
+monday.setHours(0, 0, 0, 0);
+
+function getMonday(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    if (day === 0) d.setDate(d.getDate() - 6);
+    else d.setDate(d.getDate() - day + 1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+// 주간 달력 주기 계산
+function isCrewActiveThisWeek(crew, weekMonday) {
+    if (crew.period === 'week') return true;
+    const createdMonday = getMonday(new Date(crew.createdAt));
+    if (crew.period === '2week') {
+        const diffWeeks = Math.round((weekMonday - createdMonday) / (7 * 86400000));
+        return ((diffWeeks % 2) + 2) % 2 === 0;
+    }
+    if (crew.period === 'month') {
+        const weekOfMonth = (mondayDate) => Math.ceil(mondayDate.getDate() / 7);
+        return weekOfMonth(weekMonday) === weekOfMonth(createdMonday);
+    }
+    return true;
+}
+
+// 정기 모임 주간 달력
 function createRegularCalendar() {
     const calendar = document.getElementById("regular-calendar");
-    const monday = new Date(today);
-
-    if(today.getDay() === 0) monday.setDate(today.getDate() - 6);
-    else monday.setDate(today.getDate() - today.getDay() + 1);
-
+    const dayCodes = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
     const dayNames = ["월", "화", "수", "목", "금", "토", "일"];
+    const activeCrews = regularCrews.filter(crew => isCrewActiveThisWeek(crew, monday));
 
     let html = "";
-
     for(let i = 0; i<7; i++) {
         const day = new Date(monday);
         day.setDate(monday.getDate() + i);
+        const dayCode = dayCodes[i];
 
-        const dayActs = regularActs
-            .filter(act => new Date(act.startTime).toDateString() === day.toDateString())
-            .map(act => ({ title : act.crewId.title, sport : act.crewId.sport }));
-        
-        html += 
-        `
-        <div class="regular-day ${day.toDateString() === today.toDateString() ? 'regular-today' : ''}" data-date="${day.toISOString()}">
+        const dayCrews = activeCrews
+            .filter(crew => crew.day.includes(dayCode))
+            .map(crew => ({ title: crew.title, sport: crew.sport }));
+
+        html += `
+        <div class="regular-day ${day.toDateString() === today.toDateString() ? 'regular-today' : ''}" data-day="${dayCode}">
             <div class="regular-day-header">
                 <span class="regular-day-name">${dayNames[i]}</span>
                 <span class="regular-day-date">
@@ -79,20 +69,14 @@ function createRegularCalendar() {
                     ${String(day.getDate()).padStart(2,'0')}
                 </span>
             </div>
-
             <div class="regular-events">
-                ${(dayActs
-                    .slice(0, 2)
-                    .map(act => `<div class="calendar-event">${sportIcon[act.sport]} ${act.title}</div>`)
-                    .join('')
-                    )}
-                ${dayActs.length > 2 ? `<div class="calendar-more">+${dayActs.length - 2}개 더...</div>` : ''}
+                ${dayCrews.slice(0, 2).map(crew => `<div class="calendar-event">${sportIcon[crew.sport]} ${crew.title}</div>`).join('')}
+                ${dayCrews.length > 2 ? `<div class="calendar-more">+${dayCrews.length - 2}개 더...</div>` : ''}
             </div>
         </div>
         `;
     }
     calendar.innerHTML = html;
-
 }
 
 let calendarYear = today.getFullYear();
@@ -105,8 +89,7 @@ function createInstantCalendar() {
     const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
     const lastDate = new Date(calendarYear, calendarMonth + 1, 0).getDate();
 
-    let html =
-    `
+    let html = `
     <div class="calendar-weekday sunday">일</div>
     <div class="calendar-weekday">월</div>
     <div class="calendar-weekday">화</div>
@@ -118,21 +101,18 @@ function createInstantCalendar() {
 
     for(let i=0; i<firstDay; i++) { html += `<div class="calendar-cell empty"></div>`; }
     for(let day=1; day<=lastDate; day++) {
-        const isToday = 
-            calendarYear === today.getFullYear() && calendarMonth === today.getMonth() && day === today.getDate();
-        const dayActs = instantActs.filter(act => {
-                const startTime = new Date(act.startTime);
-                return calendarYear === startTime.getFullYear() 
-                && calendarMonth === startTime.getMonth() 
-                && day === startTime.getDate()
-                }).map(act => ({ title : act.crewId.title, sport : act.crewId.sport }));
+        const isToday = calendarYear === today.getFullYear() && calendarMonth === today.getMonth() && day === today.getDate();
+        const dayCrews = instantCrews.filter(crew => {
+                const meetTime = new Date(crew.meetAt);
+                return calendarYear === meetTime.getFullYear()
+                && calendarMonth === meetTime.getMonth()
+                && day === meetTime.getDate();
+                }).map(crew => ({ title: crew.title, sport: crew.sport }));
         html += `
             <div class="calendar-cell ${isToday ? 'today' : ''}" data-year="${calendarYear}" data-month="${calendarMonth}" data-day="${day}">
                 <div class="calendar-date">${day}</div>
-                ${dayActs.slice(0, 2)
-                .map(act => `<div class="calendar-event"> ${sportIcon[act.sport]} ${act.title} </div>`)
-                .join('')}
-                ${dayActs.length > 2 ? `<div class="calendar-more">+${dayActs.length - 2}개 더...</div>` : ''}
+                ${dayCrews.slice(0, 2).map(crew => `<div class="calendar-event"> ${sportIcon[crew.sport]} ${crew.title} </div>`).join('')}
+                ${dayCrews.length > 2 ? `<div class="calendar-more">+${dayCrews.length - 2}개 더...</div>` : ''}
             </div>
         `;
     }
@@ -141,6 +121,83 @@ function createInstantCalendar() {
 }
 createRegularCalendar();
 createInstantCalendar();
+
+function setupList(cardId, filterId, paginationId, { hasDay }) {
+    const card = document.getElementById(cardId);
+    const filterBox = document.getElementById(filterId);
+    const paginationEl = document.getElementById(paginationId);
+    const tabs = filterBox.querySelectorAll('.filter-tab');
+    const sportSelect = filterBox.querySelector('.filter-sport');
+    const daySelect = hasDay ? filterBox.querySelector('.filter-day') : null;
+    const allItems = Array.from(card.querySelectorAll('.crew-list-item'));
+    const PAGE_SIZE = 4;
+    let activeRole = 'all';
+    let currentPage = 1;
+
+    function getFiltered() {
+        const sport = sportSelect.value;
+        const day = daySelect ? daySelect.value : 'all';
+        return allItems.filter(item => {
+            const roleMatch = activeRole === 'all' || item.dataset.role === activeRole;
+            const sportMatch = sport === 'all' || item.dataset.sport === sport;
+            const dayMatch = !hasDay || day === 'all' || (item.dataset.day || '').split(' ').includes(day);
+            return roleMatch && sportMatch && dayMatch;
+        });
+    }
+
+    function render() {
+        const filtered = getFiltered();
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        allItems.forEach(item => item.classList.add('filter-hidden'));
+        filtered
+            .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+            .forEach(item => item.classList.remove('filter-hidden'));
+
+        if (filtered.length <= PAGE_SIZE) {
+            paginationEl.innerHTML = '';
+            return;
+        }
+        let html = `<button type="button" class="page-arrow" data-dir="prev" ${currentPage === 1 ? 'disabled' : ''}>◀</button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            html += `<button type="button" class="page-num ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`;
+        }
+        html += `<button type="button" class="page-arrow" data-dir="next" ${currentPage === totalPages ? 'disabled' : ''}>▶</button>`;
+        paginationEl.innerHTML = html;
+    }
+
+    paginationEl.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        if (btn.dataset.page) currentPage = Number(btn.dataset.page);
+        else if (btn.dataset.dir === 'prev') currentPage--;
+        else if (btn.dataset.dir === 'next') currentPage++;
+        render();
+    });
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeRole = tab.dataset.role;
+        currentPage = 1;
+        render();
+    }));
+    sportSelect.addEventListener('change', () => { currentPage = 1; render(); });
+    if (daySelect) daySelect.addEventListener('change', () => { currentPage = 1; render(); });
+
+    render();
+}
+
+setupList('regular-card', 'regular-filter', 'regular-pagination', { hasDay: true });
+setupList('instant-card', 'instant-filter', 'instant-pagination', { hasDay: false });
+
+document.getElementById('regular-card').addEventListener('click', e => {
+    const item = e.target.closest('.crew-list-item');
+    if (!item) return;
+    const crewId = item.dataset.crewId;
+    if (crewId) window.location.href = `/regular/manage/${crewId}`;
+});
 
 // 월간 달력 ◀, ▶ 버튼
 const prevMonthBtn = document.getElementById("prev-month-btn");
@@ -185,23 +242,105 @@ modalCalendar.addEventListener('click', e => {
     if(e.target === modalCalendar) modalCalendar.classList.remove('show');
 });
 
+// 정기모임 달력 모달
+function renderRegularModalItem(crew) {
+    const img = crew.profileImage && crew.profileImage.includes('/')
+        ? crew.profileImage
+        : '/images/reg-crew/profile/default-profile-image.jpg';
+
+    return `
+    <div class="modal-crew-item">
+        <img class="modal-crew-thumb" src="${img}" alt="${crew.title}">
+        <div class="modal-crew-info">
+            <div class="modal-crew-title-row">
+                <span class="modal-crew-title">${sportIcon[crew.sport] || ''} ${crew.title}</span>
+                <span class="modal-crew-period">${crew.periodLabel} ${crew.dayLabel}</span>
+            </div>
+            <p class="modal-crew-intro">${crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.`}</p>
+            <div class="modal-crew-meta">
+                <span>📌 ${crew.state} ${crew.city}</span>
+                <span class="dot">·</span>
+                <span>👤 ${crew.memberCount}/${crew.capacity}</span>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+// 실시간 모임 시간 표시용
+function renderInstantModalItem(crew) {
+    return `
+    <div class="modal-crew-item">
+        <div class="modal-crew-icon">${sportIcon[crew.sport] || '🏃'}</div>
+        <div class="modal-crew-info">
+            <div class="modal-crew-title-row">
+                <span class="modal-crew-title">${crew.title}</span>
+                <span class="modal-crew-period">${crew.timeLabel}</span>
+            </div>
+            <div class="modal-crew-host-row">
+                <span class="crew-host-badge">👑 ${crew.host}${crew.crewRole === 'host' ? ' (나)' : ''}</span>
+            </div>
+            <p class="modal-crew-intro">${crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 모임입니다. 참여해보세요.`}</p>
+            <div class="modal-crew-meta">
+                <span>📌 ${crew.state} ${crew.city}</span>
+                <span class="dot">·</span>
+                <span>👤 ${crew.memberCount}/${crew.capacity}</span>
+                <span class="dot">·</span>
+                <span>⭐ ${(crew.avgReputation ?? 0).toFixed(1)}</span>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+function openCalendarModal(title, list, type = 'default') {
+    document.getElementById("modal-title").textContent = title;
+    const modalBody = document.getElementById("modal-body");
+
+    if(list.length === 0) {
+        modalBody.innerHTML = `<div class="modal-item">일정이 없습니다.</div>`;
+    } else if (type === 'regular') {
+        modalBody.innerHTML = list.map(renderRegularModalItem).join('');
+    } else if (type === 'instant') {
+        modalBody.innerHTML = list.map(renderInstantModalItem).join('');
+    } else {
+        modalBody.innerHTML = list.map(item =>
+            `<div class="modal-item">
+            <div class="modal-item-left">${sportIcon[item.sport]} ${item.title}</div>
+            <div class="modal-item-time">${item.date}</div>
+            </div>`
+        ).join('');
+    }
+    document.getElementById("calendar-modal").classList.add("show");
+}
+
 
 const regularCalendar = document.getElementById("regular-calendar");
 // 주간 달력 클릭 이벤트
+const dayFullLabel = { mon:'월요일', tue:'화요일', wed:'수요일', thu:'목요일', fri:'금요일', sat:'토요일', sun:'일요일' };
+
 regularCalendar.addEventListener('click', e => {
     const regularDay = e.target.closest(".regular-day");
     if(!regularDay) return;
-    const clickedDate = new Date(regularDay.dataset.date);
+    const dayCode = regularDay.dataset.day;
 
-    const calendarActs = regularActs
-    .filter(act => {
-        const startTime = new Date(act.startTime);
-        return startTime.getFullYear() === clickedDate.getFullYear() 
-        && startTime.getMonth() === clickedDate.getMonth() 
-        && startTime.getDate() === clickedDate.getDate();
-    })
-    .map(act => ({sport: act.crewId.sport, title: act.crewId.title, date: act.title}));
-    openCalendarModal(`${clickedDate.getMonth() + 1}월 ${clickedDate.getDate()}일 정기 모임`, calendarActs);
+    const activeCrews = regularCrews.filter(crew => isCrewActiveThisWeek(crew, monday));
+    const calendarCrews = activeCrews
+        .filter(crew => crew.day.includes(dayCode))
+        .map(crew => ({
+            sport: crew.sport,
+            title: crew.title,
+            intro: crew.intro,
+            profileImage: crew.profileImage,
+            state: crew.address.state,
+            city: crew.address.city,
+            memberCount: crew.member.memberList.length,
+            capacity: crew.member.capacity,
+            periodLabel: crew.periodLabel,
+            dayLabel: crew.dayLabel
+        }));
+
+    openCalendarModal(`${dayFullLabel[dayCode]} 정기 모임`, calendarCrews, 'regular');
 });
 
 const instantCalendar = document.getElementById("instant-calendar");
@@ -213,14 +352,25 @@ instantCalendar.addEventListener('click', e => {
     const month = Number(cell.dataset.month);
     const day = Number(cell.dataset.day);
 
-    const calendarActs = instantActs.filter(act => {
-        const startTime = new Date(act.startTime);
-        return startTime.getFullYear() === year
-        && startTime.getMonth() === month
-        && startTime.getDate() === day;
-    })
-    .map(act => ({sport: act.crewId.sport, title: act.crewId.title, date: act.title}));
-    openCalendarModal(`${month + 1}월 ${day}일 실시간 모임`, calendarActs);
+    const calendarCrews = instantCrews.filter(crew => {
+        const meetTime = new Date(crew.meetAt);
+        return meetTime.getFullYear() === year
+        && meetTime.getMonth() === month
+        && meetTime.getDate() === day;
+    }).map(crew => ({
+        sport: crew.sport,
+        title: crew.title,
+        intro: crew.intro,
+        state: crew.address.state,
+        city: crew.address.city,
+        memberCount: crew.memberCount,
+        capacity: crew.member.capacity,
+        host: crew.host.name,
+        crewRole: crew.crewRole,
+        avgReputation: crew.avgReputation,
+        timeLabel: new Date(crew.meetAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+    }));
+    openCalendarModal(`${month + 1}월 ${day}일 실시간 모임`, calendarCrews, 'instant');
 });
 
 // 정기모임 실시간모임 전환

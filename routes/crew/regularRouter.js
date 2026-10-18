@@ -72,7 +72,9 @@ router.get('/my',
     regularController.getMyCrews
 );
 router.get('/list', regularController.getRegular);
-router.get('/list/:crewId', regularController.getRegularPage);
+router.get('/list/:crewId', 
+    regularController.getRegularPage
+);
 
 router.get('/api', regularController.getRegularAPI);
 
@@ -100,6 +102,18 @@ router.get('/activity/:crewId',
 router.post('/list/:crewID/like',
     crewMiddleware.loginValidation,
     regularController.postCrewLike
+);
+
+router.post('/review/:crewId',
+    crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isMember,
+    regularController.postCrewReview
+);
+
+router.get('/review/:crewId/summary',
+    crewMiddleware.isCrewExist,
+    regularController.getCrewReviewSummary
 );
 
 module.exports = router;

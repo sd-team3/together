@@ -1,0 +1,34 @@
+<div class="detail-footer">
+  <% if (isOwner) { %>
+    <button
+      type="button"
+      class="join-btn"
+      id="footer-edit-btn"
+    >
+      크루 정보 수정하기
+    </button>
+
+  <% } else if (isMember) { %>
+    <button
+      type="button"
+      class="join-btn"
+      disabled
+      style="
+        background-color:#a0a0a0;
+        color:#fff;
+        cursor:not-allowed;
+        border:none;
+      "
+    >
+      이미 가입된 크루입니다
+    </button>
+
+  <% } else { %>
+    <button
+      type="button"
+      class="join-btn"
+      id="join-btn"
+      style="display:none;"
+    ></button>
+  <% } %>
+</div>

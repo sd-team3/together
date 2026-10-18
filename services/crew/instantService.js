@@ -195,6 +195,42 @@ async function deleteExpiredInstantChatRooms() {
     const result = await ChatRoom.deleteMany({ crewId: { $in: crewIds }, crewType: 'instant' });
     return { deleted: result.deletedCount };
 }
+
+
+// 가입한 실시간 크루 목록
+async function getMyCrews(userId, role) {
+    let tab;
+
+    if(role === 'host') {
+        tab = { host: userId };
+    } else if(role === 'member') {
+        tab = { 'member.memberList.user': userId, host: { $ne: userId } };
+    } else {
+        tab = {
+            $or: [
+                { host: userId }, { 'member.memberList.user': userId }
+            ]
+        };
+    }
+
+    const crews = await instantCrew.find(tab).populate('host', 'name').sort({ meetAt: 1 });
+
+    return crews
+        .map(crew => {
+            const obj = crew.toObject();
+            const crewRole = (obj.host._id.toString() === userId.toString()) ? 'host' : 'member';
+            const myEntry = obj.member.memberList.find(m => m.user.toString() === userId.toString());
+
+            return {
+                ...obj,
+                crewRole,
+                myStatus: myEntry ? myEntry.status : null,
+                memberCount: obj.member.memberList.length
+            };
+        })
+        .filter(crew => crew.crewRole === 'host' || crew.myStatus !== 'noshow');
+}
+
 module.exports = {
     createInstantCrew,
     getInstantCrew,
@@ -206,5 +242,6 @@ module.exports = {
     setNoshow,
     handleUserDeleted,
     findHostByCrewId,
-    deleteExpiredInstantChatRooms
+    deleteExpiredInstantChatRooms,
+    getMyCrews
 };

@@ -111,10 +111,10 @@ const logout = (req, res, next) => {
 const getProfile = async (req, res, next) => {
     try {
         const user = await userService.findUserById(req.user.id);
-        const regularActs = await activityService.findActsByUserId(req.user.id, 'regular');
-        const instantActs = await activityService.findActsByUserId(req.user.id, 'instant');
+        const regularCrews = await regularService.getMyCrews(req.user.id, 'all');
+        const instantCrews = await instantService.getMyCrews(req.user.id, 'all');
         
-        res.render('user/profile', { user, regularActs, instantActs });
+        res.render('user/profile', { user, regularCrews, instantCrews });
     } catch (error) {
         return next(error);
     }

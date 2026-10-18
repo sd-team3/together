@@ -24,24 +24,21 @@
 
       <!-- 필터 종류 버튼 -->
       <div class="filter-header-row">
-  
-      <div class="regular-filter-tabs">
-        <button type="button" class="filter-tab" data-filter="day">요일</button>
-        <button type="button" class="filter-tab" data-filter="sport">운동</button>
-        <button type="button" class="filter-tab" data-filter="ageRange">연령</button>
-        <button type="button" class="filter-tab" data-filter="area">지역</button>
-        <button type="button" id="btnRecruitingOnly" class="filter-toggle-btn">✅ 모집 중만 보기</button>
+
+        <div class="regular-filter-tabs">
+          <button type="button" class="filter-tab" data-filter="day">요일</button>
+          <button type="button" class="filter-tab" data-filter="sport">운동</button>
+          <button type="button" class="filter-tab" data-filter="ageRange">연령</button>
+          <button type="button" class="filter-tab" data-filter="area">지역</button>
+          <button type="button" id="btnRecruitingOnly" class="filter-toggle-btn">✅ 모집 중만 보기</button>
+        </div>
+
+        <div class="filter-header-actions">
+          <button type="button" id="resetFilterBtn" class="reset-filter-btn">초기화</button>
+          <a href="/regular/create" class="reg-create-btn">＋ 모임 만들기</a>
+        </div>
+
       </div>
-
-      <a href="/regular/create" class="reg-create-btn">
-        ＋ 모임 만들기
-      </a>
-
-    </div>
-      <!-- 초기화 버튼 -->
-      <button type="button" id="resetFilterBtn" class="reset-filter-btn">
-        초기화
-      </button>
 
       <!-- 옵션 펼침 영역 -->
       <div class="filter-option-panel" id="filterOptionPanel" style="display:none">
@@ -145,56 +142,46 @@
 
       <div id="reg-filter-panel" class="reg-filter-panel" style="display:none;"></div>
 
-    <div class="regular-grid" id="regularCardList">
-      <% regularCrews.forEach(crew => { %>
-        <div class="reg-card" data-id="<%= crew._id %>" style="cursor: pointer;">
-          <div class="reg-card-head">
-              <img 
-                  class="reg-crew-profile-img"
-                  src="<%= crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
-                  alt="정기모임 이미지"
-              >
-              <div>
-                  <div class="reg-card-title"><%= crew.title %></div>
-                  <% const dayKorea = { 'mon':'월','tue':'화','wed':'수','thu':'목','fri':'금','sat':'토','sun':'일' }; %>
-                  <div class="reg-card-sub">
-                      <%= crew.period === 'week' ? '매주' : crew.period === '2week' ? '격주' : '매달' %>
-                      <%= crew.day.map(d => dayKorea[d]).join('·') %> ·
-                      <%= crew.address.state %> <%= crew.address.city %>
-                  </div>
+      <div class="regular-grid" id="regularCardList">
+        <% regularCrews.forEach(crew => { %>
+          <% const remain = crew.member.capacity - crew.member.memberList.length; %>
+          <% const dayKorea = { 'mon':'월','tue':'화','wed':'수','thu':'목','fri':'금','sat':'토','sun':'일' }; %>
+          <% const ageValues = Array.isArray(crew.ageRange) ? crew.ageRange : [crew.ageRange]; %>
+          <% const ageLabel = (ageValues.length === 0 || ageValues.includes('all'))
+              ? '전체'
+              : ageValues.map(v => Object.values(CONSTANTS.AGES).find(a => a.v === v)?.kr || v).join(', '); %>
+          <% const levelLabel = CONSTANTS.LEVELS[crew.level]?.kr || '무관'; %>
+          <div class="reg-card" data-id="<%= crew._id %>">
+            <img class="reg-thumb-img"
+                src="<%= crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
+                alt="<%= crew.title %>">
+            <div class="reg-info">
+              <div class="reg-title-row">
+                <span class="reg-card-title"><%= crew.title %></span>
+                <span class="pill pill-<%= remain === 0 ? 'danger' : remain < 4 ? 'warn' : 'success' %>">
+                  <%= remain === 0 ? '마감' : remain < 4 ? '마감임박' : '모집중' %>
+                </span>
               </div>
-              <% const remain = crew.member.capacity - crew.member.memberList.length; %>
-              <span class="pill pill-warn" style="margin-left:auto">
-                  <%= remain === 0 ? '마감' : remain < 4 ? '마감 임박' : '모집 중' %>
-              </span>
-          </div>
-
-          <div class="reg-card-body">
-            <div class="reg-meta-row">
-              <span><%= CONSTANTS.SPORTS[crew.sport] ? CONSTANTS.SPORTS[crew.sport].kr : crew.sport %></span>
-              <span>💰 <%= crew.fee %>/회</span>
-              <span><%= crew.ageRange %></span>
-            </div>
-
-            <div class="reg-progress" 
-              data-member="<%= crew.member.memberList.length %>" 
-              data-capacity="<%= crew.member.capacity %>">
-              <div class="reg-progress-fill"></div>
-            </div>
-
-            <div class="reg-progress-label">
-              <span><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</span>
-
-              <% if (crew.member.capacity != crew.member.memberList.length) { %>
-                <span><%= crew.member.capacity - crew.member.memberList.length %> 자리남음</span>
-              <% } else { %>
-                <span>모집 마감</span>
-              <% } %>
+              <p class="reg-intro"><%= crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.` %></p>
+              <div class="reg-meta-row">
+                <div class="reg-meta-left">
+                  📍 <%= crew.address.state %> <%= crew.address.city %> <span class="dot">·</span>
+                  🗓️ <%= crew.period === 'week' ? '매주' : crew.period === '2week' ? '격주' : '매달' %> <%= crew.day.map(d => dayKorea[d]).join('·') %> <span class="dot">·</span>
+                  <%= CONSTANTS.SPORTS[crew.sport] ? CONSTANTS.SPORTS[crew.sport].kr : crew.sport %> <span class="dot">·</span>
+                  💰 <%= crew.fee %>/회
+                </div>
+                <span class="reg-meta-right">
+                  <%= crew.member.memberList.length %>/<%= crew.member.capacity %>명<%= remain === 0 ? ' · 마감' : ' · ' + remain + '자리' %>
+                </span>
+              </div>
+              <div class="crew-tags">
+                <span class="crew-tag"><%= ageLabel %></span>
+                <span class="crew-tag"><%= levelLabel %></span>
+              </div>
             </div>
           </div>
-        </div>
-      <% }) %>
-    </div>
+        <% }) %>
+      </div>
       <!-- 페이징  -->
       <nav aria-label="page" class="mt-4">
         <ul 

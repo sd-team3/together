@@ -3,6 +3,10 @@ const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
 const activityService = require('../../services/crew/activityService');
+const { MIN_REVIEW_COUNT } = require('../../services/ai/reviewSummaryService');
+const {
+    getOrCreateReviewSummary
+} = require('../../services/ai/reviewSummaryCacheService');
 
 const getRegularCreate = (req, res)=>{
     res.render('crew/regularCreate', { CONSTANTS: CONSTANTS });
@@ -71,6 +75,7 @@ const getRegularPage = async (req, res, next) => {
     try {
         const { crewId } = req.params;
         const crew = await regularService.getCrewDetail(crewId);
+        const reviews = await regularService.getCrewReview(crewId);
         let userId;
         let isLiked;
 
@@ -82,7 +87,7 @@ const getRegularPage = async (req, res, next) => {
             userId = null;
         }
 
-        res.render('crew/regular-join-page', { crew, isLiked, userId });
+        res.render('crew/regular-join-page', { crew, isLiked, userId , reviews});
     } catch (error) {
         next(error);
     }
@@ -90,10 +95,6 @@ const getRegularPage = async (req, res, next) => {
 
 const getMyCrews = async (req, res) => {
     try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        
         const userId = req.user._id;
         const role = req.query.role || 'all';
         const crews = await regularService.getMyCrews(userId, role);
@@ -188,6 +189,88 @@ const getCrewActivity = async (req, res) => {
     }
 }
 
+// 후기 작성 컨트롤러
+const postCrewReview = async (req, res) => {
+    try {
+        const score = Number(req.body.rating);
+
+        const content = typeof req.body.content == 'string' ? req.body.content.trim() : '';
+
+        if (!Number.isInteger(score) || score < 1 || score > 5) {
+            return res.status(400).json({
+                success : false,
+                message : '평점은 1에서 5점 사이여야 합니다'
+            });
+        }
+
+        if (!content) {
+            return res.status(400).json({
+                success : false,
+                message : '후기 내용을 입력해주세요'
+            });
+        }
+
+        if (content.length > 500) {
+            return res.status(400).json({
+                success : false,
+                message : '후기는 최대 500자까지 작성할 수 있습니다'
+            });
+        }
+        
+        const review = await regularService.postCrewReview(
+            req.params.crewId,
+            req.user._id,
+            {
+                score,
+                content
+            }
+        );
+
+        return res.status(201).json({
+            success : true,
+            message: '후기가 등록되었습니다.',
+            review
+        });
+
+    } catch(error) {
+        console.error(error);
+        res.status(500).render('error/error_500');
+    }
+}
+
+// AI 후기 요약 컨트롤러
+const getCrewReviewSummary = async (req, res) => {
+    try {
+        const reviews = await regularService.getCrewReview(req.params.crewId);
+
+        if (reviews.length < MIN_REVIEW_COUNT) {
+            return res.json({
+                success: true,
+                summary: null,
+                message: `후기가 ${MIN_REVIEW_COUNT}개 이상일 때 AI 요약을 제공합니다.`
+            });
+        }
+
+        const { summary, cacheHit } = await getOrCreateReviewSummary(
+            req.params.crewId,
+            reviews
+        );
+
+        return res.json({
+            success: true,
+            cached: cacheHit,
+            summary
+        });
+    } catch (error) {
+        console.error('AI 후기 요약 오류:', error.message);
+
+        return res.status(503).json({
+            success: false,
+            message: 'AI 후기 요약을 잠시 사용할 수 없습니다.'
+        });
+    }
+};
+
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
@@ -201,5 +284,7 @@ module.exports = {
     getCrewManage,
     postCrewUpdate,
     getRegularPage,
-    getCrewActivity
+    getCrewActivity,
+    postCrewReview,
+    getCrewReviewSummary
 };
