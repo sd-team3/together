@@ -4971,3 +4971,42 @@ body.dark .tt-px-event {
     width: 100%;
   }
 }
+/* ── 홈 추천 카드 (목록 페이지 .regular-grid / .reg-card 스타일 덮어쓰기) ── */
+.home-reg-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;
+  background:transparent;border:none;border-radius:0;overflow:visible;
+}
+.home-reg-grid .reg-card{
+  display:block;position:relative;padding:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color .15s,box-shadow .15s,transform .15s;
+}
+.home-reg-grid .reg-card:last-child{border-bottom:1px solid var(--border)}
+.home-reg-grid .reg-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow);transform:translateY(-2px);background:var(--surface)}
+.home-reg-grid .reg-card-ai{border-color:rgba(26,92,255,.25)}
+
+.home-reg-grid .reg-card-head{
+  display:flex;align-items:center;gap:12px;padding:16px;
+  background:linear-gradient(135deg,rgba(26,92,255,.10),rgba(0,200,212,.10));
+  border-bottom:1px solid var(--border);
+}
+.home-reg-grid .reg-sport-icon{
+  width:52px;height:52px;border-radius:12px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;
+}
+.home-reg-grid .reg-card-sub{font-size:12.5px;color:var(--text-3);margin-top:3px}
+
+.home-reg-grid .reg-card-body{padding:14px 16px 16px}
+.home-reg-grid .reg-meta-row{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;
+  font-size:12px;color:var(--text-2);margin-bottom:12px;
+  white-space:normal;overflow:visible;
+}
+.home-reg-grid .reg-progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.home-reg-grid .reg-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:3px}
+.home-reg-grid .reg-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:6px}
+
+/* 상태 pill (style.css에 success/danger가 없음) */
+.pill-success{background:#E8FAF0;color:#007A33}.pill-success::before{background:#00C853}
+.pill-danger{background:#FFF0EE;color:#CC2900}.pill-danger::before{background:#FF3B30}
