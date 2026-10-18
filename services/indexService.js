@@ -85,6 +85,9 @@ const getRegularMeetings = async (sport = '') => {
         const periodLabel = PERIOD_MAP[crew.period] || '매주';
 
         return {
+            id: String(crew._id),
+            sportLabel: CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport,
+            approval: crew.isAutoAccept ? '자동 승인' : '모임장 승인',
             emoji: meta.emoji,
             title: crew.title,
             profileImage: crew.profileImage || '',

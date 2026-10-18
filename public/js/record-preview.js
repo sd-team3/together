@@ -88,7 +88,9 @@
         showView('pick');
         loadActivities();
     });
+
     getElement('retry-activities').addEventListener('click', loadActivities);
+    
     getElement('crew-select').addEventListener('change', () => {
         const select = getElement('date-select');
         select.replaceChildren(new Option('운동 날짜를 선택해주세요', ''));
@@ -97,9 +99,11 @@
         select.disabled = !getElement('crew-select').value;
         getElement('start-writing').disabled = true;
     });
+
     getElement('date-select').addEventListener('change', () => {
         getElement('start-writing').disabled = !getElement('date-select').value;
     });
+
     getElement('activity-form').addEventListener('submit', event => {
         event.preventDefault();
         const activity = activities.find(item => item.id === getElement('date-select').value
@@ -114,7 +118,9 @@
         resetConversation();
         showView('detail');
     });
+
     getElement('change-activity').addEventListener('click', () => showView('pick'));
+
     getElement('back-to-list').addEventListener('click', () => {
         if (saving) return;
         if (writing && (['good', 'improve', 'goal'].some(field => getElement(field).value.trim())
@@ -126,6 +132,7 @@
         showView('list');
         returnFocus.focus();
     });
+    
     document.querySelectorAll('[data-mood]').forEach(button => {
         button.addEventListener('click', () => {
             if (!writing) return;
@@ -135,6 +142,7 @@
             });
         });
     });
+
     const icons = {
         soccer: '⚽',
         baseball: '⚾',
@@ -203,23 +211,28 @@
         event.preventDefault();
         if (!writing || !draft || saving) return;
         const mood = document.querySelector('[data-mood].selected');
+
         if (!mood) {
             getElement('save-status').textContent = '오늘 운동의 만족도를 선택해주세요.';
             document.querySelector('[data-mood]').focus();
             return;
         }
+
         const payload = {
             submissionId, activityId: draft.id, crewKey: draft.crewKey,
             mood: Number(mood.dataset.mood),
             good: getElement('good').value, improve: getElement('improve').value, goal: getElement('goal').value
         };
+
         saving = true;
         getElement('record-form').setAttribute('aria-busy', 'true');
+
         const controls = document.querySelectorAll('#record-form button, #change-activity, #back-to-list');
         controls.forEach(control => { control.disabled = true; });
         ['good', 'improve', 'goal'].forEach(field => { getElement(field).readOnly = true; });
         getElement('save-record').textContent = '저장 중…';
         getElement('save-status').textContent = '기록을 저장하고 있어요.';
+
         try {
             const response = await fetch('/record', {
                 method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -289,7 +302,9 @@
     showView('list');
     getElement('save-record').hidden = true;
     resetConversation();
+    
     const savedId = new URLSearchParams(window.location.search).get('saved');
+
     if (records.some(record => record._id === savedId)) {
         getElement('notice').textContent = '운동 기록을 저장했어요.';
         getElement('notice').hidden = false;
