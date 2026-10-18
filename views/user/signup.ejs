@@ -74,6 +74,64 @@
                     <div id="genderFeedBack"></div>
                 </div>
 
+                                <div class="pref-row">
+                    <div class="form-group">
+                        <label class="label">선호 시간대 <span class="req">*</span></label>
+                        <div class="dropdown" id="timeDropdown">
+                            <button type="button" class="dropdown-toggle">
+                                <span class="dropdown-toggle-text">선택하세요</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="평일오전">
+                                    <span>평일오전</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="평일오후">
+                                    <span>평일오후</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="평일저녁">
+                                    <span>평일저녁</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="주말오전">
+                                    <span>주말오전</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="주말오후">
+                                    <span>주말오후</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredTime" value="주말저녁">
+                                    <span>주말저녁</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="preferredTimeFeedBack"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">선호 종목 <span class="req">*</span></label>
+                        <div class="dropdown" id="sportDropdown">
+                            <button type="button" class="dropdown-toggle">
+                                <span class="dropdown-toggle-text">선택하세요</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <% sportChips.forEach(function(chip) { %>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" name="preferredSport" value="<%= chip.key %>">
+                                    <span><%= chip.emoji %> <%= chip.label %></span>
+                                </label>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <div id="preferredSportFeedBack"></div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="label">이메일 <span class="req">*</span></label>
                     <div class="email-input-group">

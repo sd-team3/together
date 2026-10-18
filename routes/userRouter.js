@@ -7,17 +7,7 @@ const {uploadProfile} = require('../config/upload');
 const { loginValidation } = require('../middlewares/crewMiddleware');
 
 //회원가입 페이지
-router.get('/signup', (req, res) => {
-
-    // 소셜회원 객체 가져오기
-    const socialUser = req.session.socialUser || null;
-
-    
-
-    res.render('user/signup', {
-        socialUser
-    });
-});
+router.get('/signup', userController.getSignup);
 
 router.post(
   '/signup',

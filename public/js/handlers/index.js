@@ -220,6 +220,25 @@ async function fetchAndRenderMeetings(sportKey = '') {
   }
 }
 
+// AI 자연어 검색
+async function performAiSearch() {
+  const input = document.getElementById('ai-search-input');
+  const q = input?.value.trim() || '';
+  const grid = document.querySelector('.regular-grid');
+  if (!q) return;
+
+  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">🤖 AI가 찾아보는 중...</div>';
+
+  try {
+    const res  = await fetch(`/api/search/ai?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (data.ok) renderRegCards(data.meetings);
+  } catch (err) {
+    console.error('AI 검색 실패:', err);
+    if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">검색에 실패했어요 😢</div>';
+  }
+}
+
 // filterSport
 function filterSport(el) {
   document.querySelectorAll('.sport-chip').forEach(c => c.classList.remove('active'));
@@ -320,25 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  
-  // Quick Search
-  // 버튼 클릭
-document.getElementById('qs-search-btn')?.addEventListener('click', searchRegCards);
-
-// 엔터키
-['qs-district', 'qs-keyword'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') searchRegCards();
+  // AI 검색
+  document.getElementById('ai-search-btn')?.addEventListener('click', performAiSearch);
+  document.getElementById('ai-search-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') performAiSearch();
   });
-});
-
-  ['qs-district', 'qs-keyword'].forEach(id => {
-    document.getElementById(id)?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') searchRegCards();
-    });
-  });
-
-  
 
 });
 //랭킹(테스트용)
