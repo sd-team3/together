@@ -39,6 +39,14 @@ body.dark {
   --shadow-lg: 0 2px 8px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.4);
 }
 
+.crew-detail-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;flex-shrink:0}
+.crew-detail-actions .btn{min-height:34px;white-space:nowrap}
+.crew-detail-actions a{text-decoration:none}
+.crew-detail-actions .btn:disabled{cursor:not-allowed;color:var(--text-3)}
+@media(max-width:600px){
+  .manage-header:has(.crew-detail-actions){flex-wrap:wrap;gap:12px}
+  .crew-detail-actions{margin-left:auto;flex-shrink:1}
+}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow-x:hidden}
 

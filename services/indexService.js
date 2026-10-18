@@ -96,6 +96,9 @@ const formatMeetingCard = (crew) => {
         title: crew.title,
         schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
         district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
+        sportLabel: CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport,
+        approval: crew.isAutoAccept ? '자동 승인' : '모임장 승인',
+        profileImage: crew.profileImage || '',
 
         filterTags: [
             crew.fee > 0 ? 'paid' : 'free',

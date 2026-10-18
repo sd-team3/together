@@ -33,6 +33,8 @@ const crewActivitySchema = new mongoose.Schema(
         teamBlue: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         teamRed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         attender: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        attendanceQrHash: { type: String, select: false },
+        attendanceQrExpiresAt: { type: Date, select: false },
         capacity: { type: Number, required: true },
         status: {
             type: String, 

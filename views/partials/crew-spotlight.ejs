@@ -1,0 +1,13 @@
+<section class="crew-spotlight" aria-label="추천 정기 모임" aria-roledescription="캐러셀">
+  <div class="spotlight-heading">
+    <div><div class="spotlight-eyebrow">FIND YOUR TEAM</div><h2>추천하는 모임이에요</h2><p>어떤 크루인지 천천히 읽고, 나에게 맞는 모임을 찾아보세요.</p></div>
+    <a href="/regular/list">전체 모임 보기 ↗</a>
+  </div>
+  <div class="spotlight-stage">
+    <button class="spotlight-arrow" data-crew-step="-1" aria-label="이전 모임">←</button>
+    <div id="crew-spotlight-card"></div>
+    <button class="spotlight-arrow" data-crew-step="1" aria-label="다음 모임">→</button>
+  </div>
+  <div class="spotlight-pagination"><span id="crew-position" role="status" aria-live="polite"></span><span>양옆 화살표로 다른 크루를 만나보세요</span></div>
+</section>
+<script id="crew-spotlight-data" type="application/json"><%- JSON.stringify(regularMeetings).replace(/</g, '\\u003c') %></script>

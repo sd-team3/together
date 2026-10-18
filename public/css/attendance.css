@@ -1,0 +1,58 @@
+.attendance-page{width:100%;max-width:1080px;margin:0 auto;padding:36px 32px 60px}
+.attendance-heading,.attendance-date-header,.attendance-calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}
+.attendance-eyebrow{font-size:10px;letter-spacing:2px;font-weight:700;color:var(--primary);margin-bottom:12px}
+.attendance-heading h1{font-size:28px;letter-spacing:-1px;overflow-wrap:anywhere}
+.attendance-page p{font-size:12px;color:var(--text-3);line-height:1.8;margin-top:8px}
+.attendance-badge{border:1px solid var(--border);border-radius:24px;padding:8px 16px;font-size:12px;white-space:nowrap}
+.attendance-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.attendance-calendar-toolbar{padding:26px 28px;margin:0;background:linear-gradient(120deg,var(--primary-soft),var(--surface))}
+.attendance-calendar-toolbar h2,.attendance-date-header h2{font-size:23px}
+.attendance-month-nav,.attendance-actions{display:flex;align-items:center;gap:8px}
+.attendance-month-nav a{display:grid;place-items:center;min-width:34px;min-height:34px;border:1px solid var(--border);background:var(--surface);border-radius:8px;color:var(--text);text-decoration:none}
+.attendance-month-nav .attendance-today{font-size:11px;padding:0 10px;white-space:nowrap}
+.attendance-weekdays,.attendance-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.attendance-weekdays span{text-align:center;padding:16px 0;font-size:11px;color:var(--text-3)}
+.attendance-weekdays span:first-child{color:var(--red)}
+.attendance-day,.attendance-day-blank{min-height:110px;border-top:1px solid var(--border);border-right:1px solid var(--border)}
+.attendance-day{display:flex;flex-direction:column;gap:10px;padding:12px;color:var(--text);text-decoration:none;min-width:0}
+.attendance-day:nth-child(7n),.attendance-day-blank:nth-child(7n){border-right:0}
+.attendance-day:hover{background:var(--primary-soft)}
+.attendance-day-number{font-size:12px;display:grid;place-items:center;width:26px;height:26px}
+.is-today .attendance-day-number{background:var(--text);color:var(--bg);border-radius:50%}
+.attendance-day-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attendance-day-count{font-size:10px;color:var(--primary)}
+.attendance-day-blank{background:var(--bg)}
+.attendance-calendar-note{padding:18px 24px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--text-3)}
+.attendance-calendar-note span:first-child{color:var(--primary)}
+.attendance-back{display:inline-block;color:var(--text-3);font-size:12px;text-decoration:none;margin-bottom:20px}
+.attendance-actions .btn{text-decoration:none;white-space:nowrap}
+.attendance-actions .btn:disabled{opacity:.45;cursor:not-allowed}
+.attendance-activity-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.attendance-activity-tabs a{font-size:12px;padding:11px 16px;border:1px solid var(--border);border-radius:24px;text-decoration:none;color:var(--text-2);background:var(--surface)}
+.attendance-activity-tabs a.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.attendance-activity-info{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:20px 24px;background:var(--primary-soft);border-radius:12px;font-size:13px}
+.attendance-activity-info span{font-size:12px;color:var(--text-3)}
+.attendance-summary{display:flex;gap:24px;flex-wrap:wrap;margin:28px 0 18px;font-size:13px}
+.attendance-summary span{color:var(--text-3)}
+.attendance-rosters{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.attendance-roster-heading{display:flex;align-items:center;gap:10px;padding:22px 24px;border-bottom:1px solid var(--border)}
+.attendance-roster-heading h3{font-size:15px}
+.attendance-count{font-size:11px;background:var(--primary-soft);color:var(--primary);border-radius:20px;padding:4px 8px}
+.attendance-member-list{list-style:none;padding:0 24px}
+.attendance-member-list li{display:flex;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid var(--border);font-size:13px}
+.attendance-member-list li:last-child{border-bottom:0}
+.attendance-member-list strong{overflow-wrap:anywhere;min-width:0}
+.attendance-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg);display:grid;place-items:center;flex-shrink:0}
+.attendance-member-state{margin-left:auto;font-size:10px;white-space:nowrap;color:var(--text-3)}
+.attendance-member-state.attended{color:var(--primary)}
+.attendance-page .attendance-empty-list{padding:38px 20px;text-align:center}
+.attendance-empty,.attendance-check{padding:60px 24px;text-align:center}
+.attendance-qr{padding:24px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:20px}
+.attendance-qr img{max-width:100%;height:auto;background:white;border-radius:8px}
+.attendance-qr[hidden],.attendance-qr img[hidden]{display:none}
+.attendance-check-icon{font-size:40px;display:block;margin-bottom:20px}
+.attendance-check .btn{margin:24px 0 8px}
+.attendance-check .attendance-back{display:block;margin-top:24px}
+.attendance-page :focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+.crew-detail-actions a{text-decoration:none}
+@media(max-width:650px){.attendance-page{padding:24px 14px}.attendance-heading h1{font-size:23px}.attendance-calendar-toolbar{padding:20px 14px;align-items:flex-start;flex-direction:column}.attendance-day,.attendance-day-blank{min-height:82px}.attendance-day{padding:6px;gap:7px}.attendance-day-title{display:none}.attendance-rosters{grid-template-columns:1fr}.attendance-date-header{align-items:flex-start;flex-wrap:wrap}.attendance-qr{flex-direction:column}.attendance-heading{align-items:flex-start}}

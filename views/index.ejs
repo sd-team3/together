@@ -6,6 +6,7 @@
 <title>TOGETHER — 생활 스포츠 매칭 플랫폼</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/crew-spotlight.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -78,89 +79,10 @@
   </div>
 </div>
 
-  <!-- Sport Filter Chips -->
-  <div class="sport-chips" style="padding:0 28px 16px; margin-bottom:20px;">
-    <button class="sport-chip active" data-sport="">
-        전체
-    </button>
-    <% sportChips.forEach(function(chip) { %>
-      <button class="sport-chip" 
-        data-sport="<%= chip.emoji %>" 
-        data-sport-key="<%= chip.key %>">
-        <span class="emoji"><%= chip.emoji %></span> <%= chip.label %>
-      </button>
-    <% }); %>
-  </div>
-
   <!-- Content Grid -->
-  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;padding:0 28px 28px">
+  <div class="home-content-grid">
 
-    <!-- Regular Meetings -->
-    <div>
-      <div class="flex justify-between items-center mb-12">
-        <div class="section-title" style="margin-bottom:0">
-          <% if (isAIRecommended) { %>
-            🤖 AI 추천 정기 모임
-          <% } else { %>
-            🔁 추천 정기 모임
-          <% } %>
-        </div>
-        <button class="btn btn-ghost btn-sm" data-href="/regular/list">전체보기 →</button>
-      </div>
-      <div class="regular-grid home-reg-grid">
-        <% regularMeetings.forEach(function(meeting) { %>
-          <div class="reg-card <%= isAIRecommended ? 'reg-card-ai' : '' %>"
-               data-filter="<%= meeting.filterTags %>"
-               data-sport="<%= meeting.emoji %>"
-               data-district="<%= meeting.district %>"
-               data-title="<%= meeting.title %>"
-               data-modal-title="<%= meeting.emoji %> <%= meeting.title %>"
-               data-modal-body="<%= meeting.modalBody %>">
-            <% if (isAIRecommended && meeting.matchScore !== undefined) { %>
-              <div class="ai-match-ribbon"><%= meeting.matchScore %>%</div>
-            <% } %>
-            <div class="reg-card-head">
-              <div class="reg-sport-icon"><%= meeting.emoji %></div>
-              <div>
-                <div class="reg-card-title"><%= meeting.title %></div>
-                <div class="reg-card-sub"><%= meeting.district %></div>
-              </div>
-              <span class="pill pill-<%= meeting.pillType %>" style="margin-left:auto">
-                <%= meeting.pillLabel %>
-              </span>
-            </div>
-
-            <div class="reg-card-body">
-              <div class="reg-meta-row">
-                <div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0">
-                  <span style="white-space:nowrap">🗓️ <%= meeting.schedule %></span>
-                  <span style="white-space:nowrap">💰 <%= meeting.fee %></span>
-                </div>
-                <span style="white-space:nowrap;margin-top:2px">📊 <%= meeting.level %></span>
-              </div>
-              <div class="reg-progress">
-                <div class="reg-progress-fill" style="width:<%= meeting.fillPct %>%"></div>
-              </div>
-              <div class="reg-progress-label">
-                <span><%= meeting.current %>/<%= meeting.total %>명</span>
-                <span><%= meeting.total - meeting.current %>자리 남음</span>
-              </div>
-              <% if (isAIRecommended && meeting.matchReasons && meeting.matchReasons.length) { %>
-                <div class="ai-reasons">
-                  <% meeting.matchReasons.forEach(function(r) { %>
-                    <span class="ai-reason-chip"><%= r.icon %> <%= r.label %></span>
-                  <% }); %>
-                </div>
-              <% } %>
-            </div>
-          </div>
-        <% }); %>
-      </div>
-      <div style="text-align:center; margin-top:16px;">
-        <button class="btn-more" data-href="/regular/list">모임 더 찾아보기 →</button>
-    </div>
-    </div>
-    
+    <%- include('partials/crew-spotlight', { regularMeetings }) %>
 
     <!-- Right Panel -->
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -300,6 +222,7 @@
   <%- JSON.stringify(leafletMatches) %>
 </script>
 
+<script src="/js/crew-spotlight.js"></script>
 <script src="/js/handlers/index.js"></script>
 
 </body>

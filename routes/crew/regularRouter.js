@@ -14,6 +14,7 @@ router.use((req, res, next)=>{
 });
 
 router.use('/act', activityRouter);
+router.use('/:crewId/attendance', require('./attendanceRouter'));
 
 router.get('/create',
     crewMiddleware.loginValidation,

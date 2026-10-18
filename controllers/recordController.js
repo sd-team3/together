@@ -4,12 +4,8 @@ const { CONSTANTS } = require('../config/constants');
 const getRecordWrite = async (req, res, next) => {
     try {
         const requestedPage = Number(req.query.page);
-        const page = Number.isSafeInteger(requestedPage) && requestedPage > 0
-            ? requestedPage
-            : 1;
-        const sport = Object.hasOwn(CONSTANTS.SPORTS, req.query.sport)
-            ? req.query.sport
-            : '';
+        const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+        const sport = Object.hasOwn(CONSTANTS.SPORTS, req.query.sport) ? req.query.sport : '';
 
         // 주소에서 받은 ID 대신 인증된 사용자의 ID로 조회한다.
         const result = await recordService.getMyRecords(req.user._id, page, sport);

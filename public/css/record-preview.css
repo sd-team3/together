@@ -1,20 +1,20 @@
 /* 운동 기록 페이지 — 공통 */
-.record-preview {
+.record-preview .main {
   font-family: 'DM Sans','Segoe UI','Malgun Gothic',sans-serif;
 }
 
-.record-preview a {
+.record-preview :where(.main) a {
   text-decoration: none;
 }
 
-.record-preview button,
-.record-preview input,
-.record-preview textarea,
-.record-preview select {
+.record-preview :where(.main) button,
+.record-preview :where(.main) input,
+.record-preview :where(.main) textarea,
+.record-preview :where(.main) select {
   font: inherit;
 }
 
-.record-preview button {
+.record-preview :where(.main) button {
   cursor: pointer;
 }
 

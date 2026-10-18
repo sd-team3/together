@@ -97,6 +97,15 @@ function regFilter(type) {
   });
 }
 
+// 정기모임 검색
+function searchRegCards() {
+  const sport    = document.getElementById('qs-sport')?.value.trim()    || '';
+  const district = document.getElementById('qs-district')?.value.trim() || '';
+  const keyword  = document.getElementById('qs-keyword')?.value.trim()  || '';
+
+  window.crewSpotlight?.filter({ sport, district, keyword });
+}
+
 // ── Leaflet 지도 ──────────────────────────────
 let leafletMap     = null;
 let leafletMarkers = [];
@@ -191,102 +200,23 @@ function leafletFilterToggle(type) {
   });
 }
 
-// 카드 HTML 생성 함수 (AI 리본/사유 지원)
+// 카드 HTML 생성 함수 (새로 추가)
+let meetingRequest = 0;
 function renderRegCards(meetings) {
-  const grid = document.querySelector('.regular-grid');
-  if (!grid) return;
-
-  grid.innerHTML = ''; // 기존 카드 전부 지우기
-
-  if (meetings.length === 0) {
-    grid.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:40px 0;
-                  color:var(--text-3);font-size:14px">
-        조건에 맞는 모임이 없어요 🥲
-      </div>`;
-    return;
-  }
-
-  meetings.forEach(m => {
-    const isAi = m.matchScore !== undefined;
-
-    const card = document.createElement('div');
-    card.className = 'reg-card' + (isAi ? ' reg-card-ai' : '');
-    card.dataset.modalTitle = `${m.emoji} ${m.title}`;
-    card.dataset.modalBody  = m.modalBody;
-    card.dataset.sport      = m.emoji;
-    card.dataset.district   = m.district;
-    card.dataset.title      = m.title;
-
-    const topbarHtml = isAi ? `
-      <div class="ai-card-topbar">
-        <span class="ai-card-tag">AI MATCH</span>
-        <div class="ai-score-badge">
-          <span class="ai-score-num">${m.matchScore}</span><span class="ai-score-pct">%</span>
-        </div>
-      </div>` : '';
-
-    const reasonsHtml = (isAi && m.matchReasons && m.matchReasons.length) ? `
-      <div class="ai-reasons">
-        ${m.matchReasons.map(r => `<span class="ai-reason-tag"><span class="ai-reason-icon">${r.icon}</span>${escapeHtml(r.label)}</span>`).join('')}
-      </div>` : '';
-
-    card.innerHTML = `
-      ${topbarHtml}
-      <div class="reg-card-head">
-        <div class="reg-sport-icon">${m.emoji}</div>
-        <div>
-          <div class="reg-card-title">${m.title}</div>
-          <div class="reg-card-sub">${m.district}</div>
-        </div>
-        <span class="pill pill-${m.pillType}" style="margin-left:auto">
-          ${m.pillLabel}
-        </span>
-      </div>
-      <div class="reg-card-body">
-        <div class="reg-meta-row">
-          <span>🗓️ ${m.schedule}</span>
-          <span>💰 ${m.fee}</span>
-          <span>📊 ${m.level}</span>
-        </div>
-        <div class="reg-progress">
-          <div class="reg-progress-fill" style="width:${m.fillPct}%"></div>
-        </div>
-        <div class="reg-progress-label">
-          <span>${m.current}/${m.total}명</span>
-          <span>${m.total - m.current}자리 남음</span>
-        </div>
-        ${reasonsHtml}
-      </div>`;
-
-    // 카드 클릭 → 모달
-    card.addEventListener('click', () => {
-      showModal(card.dataset.modalTitle, card.dataset.modalBody, () =>
-        showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
-      );
-    });
-
-    grid.appendChild(card);
-  });
+  window.crewSpotlight?.setMeetings(meetings);
 }
 
-// API 호출 함수 (종목칩용 - 기존)
 async function fetchAndRenderMeetings(sportKey = '') {
-  const grid = document.querySelector('.regular-grid');
-  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오는 중...</div>';
-
+  const request = ++meetingRequest;
+  window.crewSpotlight?.setMessage('모임을 불러오는 중이에요…');
   try {
-    const url = sportKey
-      ? `/api/regular-meetings?sport=${sportKey}`
-      : `/api/regular-meetings`;
-
-    const res  = await fetch(url);
+    const res = await fetch('/api/regular-meetings' + (sportKey ? '?sport=' + encodeURIComponent(sportKey) : ''));
+    if (!res.ok) throw new Error('모임 조회 실패');
     const data = await res.json();
-
-    if (data.ok) renderRegCards(data.meetings);
+    if (!data.ok || !Array.isArray(data.meetings)) throw new Error('모임 조회 실패');
+    if (request === meetingRequest) renderRegCards(data.meetings);
   } catch (err) {
-    console.error('모임 불러오기 실패:', err);
-    if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오기에 실패했어요 😢</div>';
+    if (request === meetingRequest) window.crewSpotlight?.setMessage('모임을 불러오지 못했어요. 종목을 다시 선택해 주세요.');
   }
 }
 
