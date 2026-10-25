@@ -75,9 +75,13 @@ test('activity from another crew is rejected', async t => {
 test('calendar, empty day, multiple activities, check page and member/host views render', () => {
   const filename = path.resolve('views/crew/attendance.ejs');
   const source = fs.readFileSync(filename, 'utf8');
-  const render = data => ejs.render(source, { user: null, csrf: 'test', crew, isOwner: true, ...data }, { filename });
+  const render = data => ejs.render(source, { CONSTANTS: require('../config/constants').CONSTANTS, user: null, csrf: 'test', crew, isOwner: true, ...data }, { filename });
   const calendar = render({ mode: 'calendar', month: service.monthInfo('2026-10'), dates: { '2026-10-13': [activity] }, today: '2026-10-13' });
   assert(calendar.includes('/attendance/day/2026-10-13'));
+  assert(calendar.includes('id="addScheduleForm"'));
+  const memberCalendar = render({mode:'calendar', month:service.monthInfo('2026-10'), dates:{}, today:'2026-10-13', isOwner:false});
+  assert(!memberCalendar.includes('id="addScheduleForm"'));
+  assert(!memberCalendar.includes('+ 일정 추가'));
   assert(render({ mode: 'day', date: '2026-10-13', activity: null, activities: [], members: [], canIssue: false }).includes('등록된 활동이 없어요'));
   const data = { mode: 'day', date: '2026-10-13', activity, activities: [activity, { ...activity, _id: host, title: '두 번째 활동' }], members: [{ id: member, name: '<script>bad</script>', attended: false }], canIssue: true };
   assert(render(data).includes('id="generate-qr"'));

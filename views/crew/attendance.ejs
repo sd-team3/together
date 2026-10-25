@@ -9,17 +9,18 @@
   <script src="/js/attendance.js" defer></script>
 </head>
 <body>
+<% const instant = typeof instantAttendance !== 'undefined' && instantAttendance; %>
   <%- include('../partials/navbar') %>
   <main class="main">
-    <header class="topbar"><span class="topbar-title">📋 출석부</span><a class="btn btn-outline btn-sm" href="<%= typeof crew !== 'undefined' ? '/regular/list/' + crew._id : '/regular/list' %>">모임 상세로</a></header>
+    <header class="topbar"><span class="topbar-title">📋 출석부</span><a class="btn btn-outline btn-sm" href="<%= typeof crew !== 'undefined' ? (instant ? '/instant/list/' : '/regular/list/') + crew._id : '/regular/list' %>">모임 상세로</a></header>
     <div class="attendance-page">
     <% if (mode === 'error') { %>
       <section class="attendance-card attendance-empty"><h1>출석부 안내</h1><p><%= message %></p></section>
-    <% } else { const base = '/regular/' + crew._id + '/attendance'; %>
+    <% } else { const base = (instant ? '/instant/' : '/regular/') + crew._id + '/attendance'; %>
       <div class="attendance-heading"><div><div class="attendance-eyebrow">TOGETHER / ATTENDANCE</div><h1><%= crew.title %></h1><p>함께한 운동, 출석부에서 확인해요.</p></div><span class="attendance-badge"><%= isOwner ? '모임장' : '모임원' %></span></div>
       <% if (mode === 'calendar') { %>
         <section class="attendance-card">
-          <div class="attendance-calendar-toolbar"><div><h2><%= month.year %>년 <%= month.month %>월</h2><p>날짜를 선택하면 활동별 출석 현황을 볼 수 있어요.</p></div><div class="attendance-month-nav"><a href="<%= base %>?month=<%= month.previous %>" aria-label="이전 달">←</a><a href="<%= base %>" class="attendance-today">이번 달</a><a href="<%= base %>?month=<%= month.next %>" aria-label="다음 달">→</a></div></div>
+          <div class="attendance-calendar-toolbar"><div><h2><%= month.year %>년 <%= month.month %>월</h2><p>날짜를 선택하면 활동별 출석 현황을 볼 수 있어요.</p></div><div class="attendance-month-nav"><% if (isOwner) { %><button type="button" class="btn btn-primary btn-sm" onclick="toggleAddForm()">+ 일정 추가</button><% } %><a href="<%= base %>?month=<%= month.previous %>" aria-label="이전 달">←</a><a href="<%= base %>" class="attendance-today">이번 달</a><a href="<%= base %>?month=<%= month.next %>" aria-label="다음 달">→</a></div></div>
           <div class="attendance-weekdays" aria-hidden="true"><% ['일','월','화','수','목','금','토'].forEach(day => { %><span><%= day %></span><% }); %></div>
           <div class="attendance-calendar" aria-label="활동 달력">
             <% for (let cell = 0; cell < Math.ceil((month.offset + month.days) / 7) * 7; cell++) { const day = cell - month.offset + 1; %>
@@ -31,28 +32,31 @@
           <div class="attendance-calendar-note"><span>● 활동이 있는 날</span><span>출석은 각 활동의 참가 신청자를 기준으로 표시됩니다.</span></div>
         </section>
       <% } else if (mode === 'day') { %>
-        <a class="attendance-back" href="<%= base %>?month=<%= date.slice(0, 7) %>">← 달력으로</a>
-        <div class="attendance-date-header"><div><h2><%= date.replaceAll('-', '.') %></h2><p>활동별 출석 현황</p></div><div class="attendance-actions"><a class="btn btn-outline btn-sm" href="<%= base %>/day/<%= date %><%= activity ? '?activity=' + activity._id : '' %>">새로고침</a><% if (isOwner && activity) { %><button type="button" class="btn btn-primary btn-sm" id="generate-qr" data-endpoint="<%= base %>/activity/<%= activity._id %>/qr" <%= canIssue ? '' : 'disabled' %>>▦ QR 생성</button><% } %></div></div>
+        <% if (!instant) { %><a class="attendance-back" href="<%= base %>?month=<%= date.slice(0, 7) %>">← 달력으로</a><% } %>
+        <div class="attendance-date-header"><div><h2><%= date.replaceAll('-', '.') %></h2><p>활동별 출석 현황</p></div><div class="attendance-actions"><a class="btn btn-outline btn-sm" href="<%= base %><%= instant ? '' : '/day/' + date %><%= !instant && activity ? '?activity=' + activity._id : '' %>">새로고침</a><% if (isOwner && activity) { %><button type="button" class="btn btn-primary btn-sm" id="generate-qr" data-endpoint="<%= base %><%= instant ? '/qr' : '/activity/' + activity._id + '/qr' %>" <%= canIssue ? '' : 'disabled' %>>▦ QR 생성</button><% } %></div></div>
         <% if (!activity) { %>
           <div class="attendance-card attendance-empty"><h3>이 날짜에는 등록된 활동이 없어요.</h3><p>달력에서 다른 날짜를 선택해주세요.</p></div>
         <% } else { %>
           <nav class="attendance-activity-tabs" aria-label="활동 선택"><% activities.forEach(item => { %><a href="<%= base %>/day/<%= date %>?activity=<%= item._id %>" class="<%= String(item._id) === String(activity._id) ? 'active' : '' %>" <%- String(item._id) === String(activity._id) ? 'aria-current="page"' : '' %>><%= new Date(item.startTime).toLocaleTimeString('ko-KR', {timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'}) %> · <%= item.title %></a><% }); %></nav>
           <div class="attendance-activity-info"><strong><%= activity.title %></strong><span><%= activity.location.state %> <%= activity.location.city %> <%= activity.location.detail %></span></div>
-          <% if (isOwner && !canIssue) { %><p class="attendance-help">QR은 활동 시작 후 종료 전까지 생성할 수 있어요.</p><% } %>
+          <% if (isOwner && !canIssue) { %><p class="attendance-help"><%= instant ? 'QR은 모임 시작 후 3시간 동안 생성하고 출석할 수 있어요.' : 'QR은 활동 시작 후 종료 전까지 생성할 수 있어요.' %></p><% } %>
           <section id="qr-panel" class="attendance-card attendance-qr" hidden aria-label="출석 QR"><div><h3>카메라로 QR을 스캔해주세요</h3><p>로그인한 참가자가 ‘출석하기’를 누르면 출석이 반영돼요.</p><p id="qr-timer" role="status"></p><p class="attendance-help">QR은 1분 동안 유효해요. 다시 생성하면 이전 QR은 사용할 수 없어요.</p></div><img id="qr-image" alt="활동 출석용 QR 코드" width="220" height="220" hidden></section>
           <p id="attendance-message" role="status"></p>
-          <div class="attendance-summary"><strong>참가자 <%= members.length %>명</strong><span>출석 <%= members.filter(m => m.attended).length %>명</span><span>미출석 <%= members.filter(m => !m.attended).length %>명</span></div>
-          <div class="attendance-rosters">
-            <% [true, false].forEach(attended => { const group = members.filter(member => member.attended === attended); %>
-              <section class="attendance-card"><div class="attendance-roster-heading"><h3><%= attended ? '출석 멤버' : '미출석 멤버' %></h3><span class="attendance-count"><%= group.length %></span></div><ul class="attendance-member-list"><% group.forEach(member => { %><li><span class="attendance-avatar" aria-hidden="true"><%= Array.from(member.name)[0] %></span><strong><%= member.name %></strong><span class="attendance-member-state <%= attended ? 'attended' : '' %>"><%= attended ? '출석' : '미출석' %></span></li><% }); %></ul><% if (!group.length) { %><p class="attendance-empty-list"><%= attended ? '아직 출석한 멤버가 없어요.' : '미출석 멤버가 없어요.' %></p><% } %></section>
-            <% }); %>
-          </div><p class="attendance-help">미출석은 아직 출석 확인이 되지 않은 상태예요. 활동 시작 전에도 미출석으로 표시돼요.</p>
+          <div id="attendance-live-roster" <%- instant ? 'data-status-url="' + base + '/status"' : '' %>>
+          <%- include('./partials/attendance-roster', { members }) %>
+</div><p class="attendance-help">미출석은 아직 출석 확인이 되지 않은 상태예요. 활동 시작 전에도 미출석으로 표시돼요.</p>
         <% } %>
       <% } else if (mode === 'check') { %>
-        <section class="attendance-card attendance-check"><span class="attendance-check-icon">📋</span><h2><%= activity.title %></h2><p>현장에 도착하셨나요? 아래 버튼을 눌러 출석해주세요.</p><button type="button" class="btn btn-primary" id="check-attendance" data-endpoint="<%= base %>/activity/<%= activity._id %>/check">출석하기</button><p id="attendance-message" role="status"></p><a class="attendance-back" href="<%= base %>">출석부 보기 →</a></section>
+        <section class="attendance-card attendance-check"><span class="attendance-check-icon">📋</span><h2><%= activity.title %></h2><p>현장에 도착하셨나요? 아래 버튼을 눌러 출석해주세요.</p><button type="button" class="btn btn-primary" id="check-attendance" data-endpoint="<%= base %><%= instant ? '/check' : '/activity/' + activity._id + '/check' %>">출석하기</button><p id="attendance-message" role="status"></p><a class="attendance-back" href="<%= base %>">출석부 보기 →</a></section>
       <% } %>
     <% } %>
     </div>
   </main>
+  <% if (mode === 'calendar' && isOwner) { %>
+    <%- include('./partials/schedule-modal', { CONSTANTS }) %>
+    <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
+    <script id="schedule-config" type="application/json"><%- JSON.stringify({ crewId: String(crew._id) }).replace(/</g, '\\u003c') %></script>
+    <script type="module" src="/js/schedule-create.js"></script>
+  <% } %>
 </body>
 </html>

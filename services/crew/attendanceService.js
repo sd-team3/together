@@ -72,4 +72,4 @@ async function checkIn(crewId, activityId, userId, token, now = new Date()) {
   if (!result.matchedCount) throw fail(409, '만료되거나 교체된 QR입니다. 모임장의 새 QR을 스캔해주세요.');
   return { alreadyAttended: result.modifiedCount === 0 };
 }
-module.exports = { access, activityFor, dateKey, monthInfo, validDay, participants, isOpen, issueQr, checkIn };
+module.exports = { fail, id, hash, requireId, access, activityFor, dateKey, monthInfo, validDay, participants, isOpen, issueQr, checkIn };

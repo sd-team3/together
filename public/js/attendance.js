@@ -38,6 +38,23 @@
     finally { generate.disabled = false; }
   });
 
+  const roster = document.getElementById('attendance-live-roster');
+  let statusTimer;
+  async function refreshRoster() {
+    if (!document.hidden) {
+      try {
+        const response = await fetch(roster.dataset.statusUrl, { headers: { Accept: 'application/json' } });
+        if (!response.ok || response.redirected) { clearTimeout(statusTimer); return; }
+        const data = await response.json();
+        roster.innerHTML = data.html;
+        if (generate) generate.disabled = !data.canIssue;
+      } catch (_) { /* Keep the last successful roster until the next refresh. */ }
+    }
+    statusTimer = setTimeout(refreshRoster, 5000);
+  }
+  if (roster?.dataset.statusUrl) statusTimer = setTimeout(refreshRoster, 5000);
+  window.addEventListener('pagehide', () => { clearTimeout(statusTimer); clearInterval(timer); });
+
   const check = document.getElementById('check-attendance');
   const token = new URLSearchParams(location.hash.slice(1)).get('token');
 

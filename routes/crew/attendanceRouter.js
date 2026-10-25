@@ -4,19 +4,10 @@ const QRCode = require('qrcode');
 const service = require('../../services/crew/attendanceService');
 const Activity = require('../../models/crewActivity');
 const User = require('../../models/User');
+const { CONSTANTS } = require('../../config/constants');
 const router = express.Router({ mergeParams: true });
 
-router.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store');
-  res.set('Referrer-Policy', 'no-referrer');
-  if (!req.isAuthenticated()) {
-    if (req.method !== 'GET') return res.status(401).json({ message: '로그인 후 QR을 다시 스캔해주세요.' });
-    return res.redirect('/user/login');
-  }
-  req.session.attendanceCsrf ||= crypto.randomBytes(32).toString('hex');
-  res.locals.csrf = req.session.attendanceCsrf;
-  next();
-});
+router.use(require('../../middlewares/attendanceSession'));
 router.use(async (req, res, next) => {
   try { Object.assign(res.locals, await service.access(req.params.crewId, req.user._id)); next(); } catch (error) { next(error); }
 });
