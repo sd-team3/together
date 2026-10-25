@@ -2,14 +2,21 @@ const userService = require('../services/userService');
 const regularService = require('../services/crew/regularService');
 const instantService = require('../services/crew/instantService');
 const activityService = require('../services/crew/activityService');
+const homeService = require('../services/indexService');
 const User = require('../models/User');
 
 //# 회원 가입 페이지
-const getSignup = (req, res) => {
-    res.render('user/signup', {
-        errors: {},
-        socialUser: req.session.socialUser || null
-    });
+const getSignup = async (req, res, next) => {
+    try {
+        const sportChips = await homeService.getSportChips();
+        res.render('user/signup', {
+            errors: {},
+            socialUser: req.session.socialUser || null,
+            sportChips
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 //# 회원 가입 처리
@@ -73,7 +80,8 @@ req.login(result, (err) => {
                 errors: {
                     email: error.message
                 },
-                socialUser: req.session.socialUser || null
+                socialUser: req.session.socialUser || null,
+                sportChips: await homeService.getSportChips()
             });
         }
 

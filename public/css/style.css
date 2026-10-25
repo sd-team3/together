@@ -4482,6 +4482,44 @@ body.dark .tt-px-event {
     z-index: 99999;
 }
 
+.reg-card-ai {
+  position: relative;
+  border: 1px solid rgba(26,92,255,0.25);
+  background: linear-gradient(180deg, rgba(26,92,255,0.05), transparent 60%);
+}
+
+.ai-match-ribbon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(90deg, #1A5CFF, #7C3AED);
+  box-shadow: 0 2px 6px rgba(26,92,255,0.35);
+}
+
+.ai-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border, #eee);
+}
+
+.ai-reason-chip {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(26,92,255,0.08);
+  color: var(--primary, #1A5CFF);
+  font-weight: 500;
+  white-space: nowrap;
+}
 .manage-cond-list {
   display: flex;
   flex-direction: column;
@@ -4941,3 +4979,42 @@ body.dark .tt-px-event {
     width: 100%;
   }
 }
+/* ── 홈 추천 카드 (목록 페이지 .regular-grid / .reg-card 스타일 덮어쓰기) ── */
+.home-reg-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;
+  background:transparent;border:none;border-radius:0;overflow:visible;
+}
+.home-reg-grid .reg-card{
+  display:block;position:relative;padding:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color .15s,box-shadow .15s,transform .15s;
+}
+.home-reg-grid .reg-card:last-child{border-bottom:1px solid var(--border)}
+.home-reg-grid .reg-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow);transform:translateY(-2px);background:var(--surface)}
+.home-reg-grid .reg-card-ai{border-color:rgba(26,92,255,.25)}
+
+.home-reg-grid .reg-card-head{
+  display:flex;align-items:center;gap:12px;padding:16px;
+  background:linear-gradient(135deg,rgba(26,92,255,.10),rgba(0,200,212,.10));
+  border-bottom:1px solid var(--border);
+}
+.home-reg-grid .reg-sport-icon{
+  width:52px;height:52px;border-radius:12px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;
+}
+.home-reg-grid .reg-card-sub{font-size:12.5px;color:var(--text-3);margin-top:3px}
+
+.home-reg-grid .reg-card-body{padding:14px 16px 16px}
+.home-reg-grid .reg-meta-row{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;
+  font-size:12px;color:var(--text-2);margin-bottom:12px;
+  white-space:normal;overflow:visible;
+}
+.home-reg-grid .reg-progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.home-reg-grid .reg-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:3px}
+.home-reg-grid .reg-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:6px}
+
+/* 상태 pill (style.css에 success/danger가 없음) */
+.pill-success{background:#E8FAF0;color:#007A33}.pill-success::before{background:#00C853}
+.pill-danger{background:#FFF0EE;color:#CC2900}.pill-danger::before{background:#FF3B30}
