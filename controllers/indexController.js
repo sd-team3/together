@@ -18,12 +18,12 @@ exports.getHome = async (req, res, next) => {
     try {
         const [aiMeetings, latestMeetings, leafletMatches, stats, sportChips, liveFeed] =
             await Promise.all([
-            homeService.getAIRecommendedMeetings(req.user?._id),
-            homeService.getRegularMeetings('', 40),
-            homeService.getLeafletMatches(),
-            homeService.getStats(),
-            homeService.getSportChips(),
-            homeService.getLiveFeed()
+                homeService.getAIRecommendedMeetings(req.user?._id),
+                homeService.getRegularMeetings('', 40),
+                homeService.getLeafletMatches(),
+                homeService.getStats(),
+                homeService.getSportChips(),
+                homeService.getLiveFeed()
             ]);
         stats.activeCount = req.app.locals.activeUserCount || 0;
 
