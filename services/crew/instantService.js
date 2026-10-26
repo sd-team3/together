@@ -173,6 +173,21 @@ async function setNoshow(crewId, hostId, userId) {
     return { success: true };
 }
 
+async function cancelNoshow(crewId, hostId, userId) {
+    const crew = await instantCrew.findById(crewId);
+    if (!crew) return { success: false, status: 404, message: '모임을 찾을 수 없습니다' };
+    if (crew.host.toString() !== hostId.toString()) return { success: false, status: 403, message: '권한이 없습니다' };
+
+    const member = crew.member.memberList.find(m => m.user && m.user.toString() === userId.toString());
+    if (!member) return { success: false, status: 404, message: '해당 멤버를 찾을 수 없습니다' };
+    if (member.role === 'host') return { success: false, status: 400, message: '모임장은 노쇼 처리를 취소할 수 없습니다' };
+    if (member.status !== 'noshow') return { success: false, status: 400, message: '노쇼 처리된 멤버가 아닙니다' };
+
+    member.status = 'confirmed';
+    await crew.save();
+    return { success: true };
+}
+
 async function handleUserDeleted(userId) {
     const hostCrews = await instantCrew.find({ host: userId }).select('_id');
     const crewIds = hostCrews.map(c => c._id);
@@ -240,6 +255,7 @@ module.exports = {
     kickMember,
     findInstantCrewsByUserId,
     setNoshow,
+    cancelNoshow,
     handleUserDeleted,
     findHostByCrewId,
     deleteExpiredInstantChatRooms,

@@ -155,6 +155,7 @@ export function renderMemberPopupBody() {
             : pendingList.map(app => {
                 const u = app.userId || {};
                 const uid = u._id ? u._id.toString() : '';
+                const honor = Number.isFinite(Number(u.honor)) ? Number(u.honor) : 0;
                 return `
                     <div style="background:#fff;border:1px solid #f0f0f0;border-radius:12px;padding:16px;margin-bottom:12px;">
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
@@ -174,6 +175,7 @@ export function renderMemberPopupBody() {
                                         </button>` : ''}
                                     </div>
                                     <div style="font-size:12px;color:#aaa;">${u.tel || ''}</div>
+                                    <div style="font-size:12px;color:#555;margin-top:5px;">매너 점수 <strong>${honor}점</strong></div>
                                 </div>
                             </div>
                             <div style="font-size:12px;color:#aaa;">${timeAgo(app.createdAt)}</div>

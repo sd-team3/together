@@ -473,7 +473,7 @@
           <img src="/images/user-profile/<%= app.userId.profileImage && app.userId.profileImage !== 'default-profile-image.jpg' ? app.userId.profileImage : 'default-profile-image.jpg' %>" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
           <div class="member-info">
             <div class="member-name"><%= app.userId.name %></div>
-            <div class="member-meta"><%= app.userId.age %>세</div>
+            <div class="member-meta"><%= app.userId.age %>세 · <span class="app-honor-score">매너 점수 <%= Number.isFinite(Number(app.userId.honor)) ? Number(app.userId.honor) : 0 %>점</span></div>
           </div>
           <div class="member-action-btns">
             <button class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>

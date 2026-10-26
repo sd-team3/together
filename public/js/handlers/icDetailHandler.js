@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 미가입자: 참가 신청만
         document.getElementById('btn-apply')?.addEventListener('click', async () => {
             try {
-                const res = await fetch(`/instant/${CREW_ID}/apply`, { method: 'POST' });
+                const res = await fetch(`/instant/application/${CREW_ID}`, { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
                     alert('참가 신청이 완료됐습니다!');
@@ -123,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleNoshow(userId, isNoshow) {
         const url = isNoshow
-            ? `/instant/${CREW_ID}/noshow/${userId}/cancel`
-            : `/instant/${CREW_ID}/noshow/${userId}`;
+            ? `/instant/list/${CREW_ID}/noshow/${userId}/cancel`
+            : `/instant/list/${CREW_ID}/noshow/${userId}`;
         try {
             const res = await fetch(url, { method: 'POST' });
             const data = await res.json();
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleKick(userId) {
         if (!confirm('정말 강퇴하시겠어요?')) return;
         try {
-            const res = await fetch(`/instant/list/${crewId}/kick/${userId}`, { method: 'POST' });
+            const res = await fetch(`/instant/list/${CREW_ID}/kick/${userId}`, { method: 'POST' });
             const data = await res.json();
             if (data.success) location.reload();
             else alert(data.message || '강퇴에 실패했습니다');

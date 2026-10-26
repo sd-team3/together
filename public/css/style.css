@@ -5033,3 +5033,4 @@ body.dark .tt-px-event {
     width: 100%;
   }
 }
+.app-honor-score { color: var(--text-2); font-weight: 600; }

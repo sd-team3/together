@@ -1,4 +1,3 @@
-const { GoogleGenAI } = require('@google/genai');
 const { z } = require('zod');
 
 const MIN_REVIEW_COUNT = 3;
@@ -69,7 +68,20 @@ const reviewSummaryJsonSchema = {
     required: ['summary', 'sentiment', 'pros', 'cons', 'keywords', 'caution']
 };
 
-const reviewSummarySchema = z.fromJSONSchema(reviewSummaryJsonSchema);
+const evidencePointSchema = z.object({
+    topic: z.string(),
+    detail: z.string(),
+    evidenceReviewIds: z.array(z.string())
+}).strict();
+
+const reviewSummarySchema = z.object({
+    summary: z.string(),
+    sentiment: z.enum(['positive', 'mixed', 'negative']),
+    pros: z.array(evidencePointSchema).max(3),
+    cons: z.array(evidencePointSchema).max(3),
+    keywords: z.array(z.string()).max(5),
+    caution: z.string()
+}).strict();
 
 function normalizeReviews(reviews) {
     if (!Array.isArray(reviews)) {
@@ -131,6 +143,17 @@ async function summarizeReviews(reviews) {
 
     if (normalizedReviews.length < MIN_REVIEW_COUNT) {
         return null;
+    }
+
+    // AI SDK는 요약 API를 실제로 사용할 때만 로드해서, SDK 설치가 빠져도 앱 전체가 부팅 단계에서 중단되지 않게 해.
+    let GoogleGenAI;
+    try {
+        ({ GoogleGenAI } = require('@google/genai'));
+    } catch (error) {
+        if (error.code === 'MODULE_NOT_FOUND') {
+            throw new Error('@google/genai가 설치되지 않았습니다. npm install을 실행해주세요.');
+        }
+        throw error;
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

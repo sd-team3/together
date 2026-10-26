@@ -27,7 +27,7 @@
           };
         const sportEmoji = sportEmojiMap[crew.sport] || '🏃';
         const members = crew.member.memberList;
-        const pendings = crew.member.pendingList.filter(p => p.status === 'pending');
+        const pendings = pendingApps || [];
         const confirmedCount = members.filter(m => m.status === 'confirmed').length;
       %>
 
@@ -206,15 +206,16 @@
               <% } else { %>
                 <div class="app-list">
                   <% pendings.forEach(p => { %>
-                    <% const u = p.user; %>
+                    <% const u = p.userId; %>
                     <div class="app-card" id="app-<%= u?._id %>" data-app-id="<%= p._id %>">
                       <div class="app-head">
                         <div class="app-av" style="background:#EEF3FF;color:#003DB3"><%= u?.name?.slice(0,2) || '??' %></div>
                         <div>
                           <div class="app-name"><%= u?.name || '알 수 없음' %></div>
+                          <div class="app-phone">매너 점수 <strong><%= Number.isFinite(Number(u?.honor)) ? Number(u.honor) : 0 %>점</strong></div>
                         </div>
                         <div class="app-time">
-                          <%= new Date(p.requestAt).toLocaleDateString('ko-KR') %>
+                          <%= new Date(p.createdAt).toLocaleDateString('ko-KR') %>
                           <div class="app-phone"><%= u?.tel || '-' %></div>
                         </div>
                       </div>

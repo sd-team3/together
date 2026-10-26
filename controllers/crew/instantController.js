@@ -60,12 +60,13 @@ const getInstantDetail = async (req, res, next) => {
         if (!crew) return res.status(404).send('모임을 찾을 수 없습니다');
 
         if (!req.isAuthenticated()) {
-            return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false, currentUserId: null });
+            return res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost: false, isMember: false, currentUserId: null, pendingApps: [] });
         }
         const userId = req.user._id.toString();
         const isHost = crew.host._id.toString() === userId;
         const isMember = crew.member.memberList.some(m => m.user?._id?.toString() === userId);
-        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost, isMember, currentUserId: userId });
+        const pendingApps = isHost ? await applicationService.findPendingAppsByCrewId(req.params.instantId) : [];
+        res.render('crew/instantMyCrewDetail', { crew, CONSTANTS, isHost, isMember, currentUserId: userId, pendingApps });
     } catch (error) {
         next(error);
     }
@@ -136,6 +137,19 @@ const setNoshow = async (req, res, next) => {
     }
 };
 
+const cancelNoshow = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ success: false });
+    try {
+        const { instantId, userId } = req.params;
+        const result = await instantService.cancelNoshow(instantId, req.user._id, userId);
+
+        if (!result.success) return res.status(result.status || 400).json({ success: false, message: result.message });
+        return res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getInstantCreate,
     postInstantCreate,
@@ -144,5 +158,6 @@ module.exports = {
     getInstantDetailApi,
     deleteInstantCrew,
     kickMember,
-    setNoshow
+    setNoshow,
+    cancelNoshow
 };

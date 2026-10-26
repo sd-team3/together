@@ -37,7 +37,7 @@ const postApplication = async (req, res)=>{
         const io = req.app.get('io');
         io.of('/noti').to(`user:${crew.host}`).emit(newNoti.event, newNoti);
 
-        return res.status(201).json();
+        return res.status(201).json({ success: true, message: '참가 신청이 완료됐습니다.' });
     } catch (error) {
         if (session && session.inTransaction()) await session.abortTransaction();
         console.error(error);

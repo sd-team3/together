@@ -78,5 +78,6 @@ router.get('/api/:instantId', instantController.getInstantDetailApi);
 
 //노쇼
 router.post('/list/:instantId/noshow/:userId', crewMiddleware.loginValidation, instantController.setNoshow);
+router.post('/list/:instantId/noshow/:userId/cancel', crewMiddleware.loginValidation, instantController.cancelNoshow);
 
 module.exports = router;

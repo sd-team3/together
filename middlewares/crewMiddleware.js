@@ -87,6 +87,12 @@ const applicationValidation = async (req, res, next)=>{
             return res.status(404).json({ message: "현재 연령대는 가입 불가한 크루입니다." });
         }
 
+        // 번개 모임은 관리 화면이 상세 페이지 안에 있으므로 /instant/list/:id로 연결한다.
+        // 정기 모임은 별도의 /regular/manage/:id 화면을 사용한다.
+        const manageRoute = req.crewModel.modelName === 'instantCrew'
+            ? `/instant/list/${crew._id}`
+            : `/regular/manage/${crew._id}`;
+
         const notiData = crew.isAutoAccept ?
         {
             sender: req.user._id,
@@ -94,7 +100,7 @@ const applicationValidation = async (req, res, next)=>{
             title: `${req.user.name}님이 가입했습니다.`,
             content: '당신의 크루에 신규 멤버가 있습니다.',
             event: 'NEW_MEMBER',
-            route: `${req.baseUrl}/manage/${crew._id}`,
+            route: manageRoute,
             target: [req.user._id]
         } : {
             sender: req.user._id,
@@ -102,7 +108,7 @@ const applicationValidation = async (req, res, next)=>{
             title: `${req.user.name}님의 가입 신청`,
             content: '당신의 크루에 가입하고 싶습니다.',
             event: 'CREW_APPLICATION',
-            route: `${req.baseUrl}/manage/${crew._id}`,
+            route: manageRoute,
             target: []
         };
 
