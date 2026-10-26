@@ -1,5 +1,5 @@
 import kakaoMap from '/js/modules/mapLoader.js';
-  function applyLocation(lat, lng, name) {
+function applyLocation(lat, lng, name) {
     document.getElementById('lat-input').value = lat;
     document.getElementById('lng-input').value = lng;
     document.getElementById('detail-addr').value = name;
@@ -13,28 +13,30 @@ import kakaoMap from '/js/modules/mapLoader.js';
     resultEl.textContent = `✅ 위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
 
     hidePlaceList();
-  }
+}
 
-  function showPlaceList(results, state, city) {
+function showPlaceList(results, state, city) {
     let listEl = document.getElementById('place-list');
     if (!listEl) {
-      listEl = document.createElement('div');
-      listEl.id = 'place-list';
-      listEl.style.cssText = `
+        listEl = document.createElement('div');
+        listEl.id = 'place-list';
+        listEl.style.cssText = `
         margin-top: 8px;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         background: var(--surface);
         overflow: hidden;
       `;
-      document.getElementById('btn-find-addr').insertAdjacentElement('afterend', listEl);
+        document.getElementById('btn-find-addr').insertAdjacentElement('afterend', listEl);
     }
     listEl.innerHTML = `
       <div style="padding:10px 14px;font-size:11.5px;font-weight:700;color:var(--text-3);
                   border-bottom:1px solid var(--border);background:var(--bg);">
         아래 장소 중 선택해주세요
       </div>
-      ${results.map((r, i) => `
+      ${results
+          .map(
+              (r, i) => `
         <div class="place-item" data-idx="${i}"
           style="padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border);
                  font-size:13px;transition:background .15s;"
@@ -44,45 +46,52 @@ import kakaoMap from '/js/modules/mapLoader.js';
           <div style="font-weight:600;color:var(--text)">${r.place_name}</div>
           <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">${r.address_name}</div>
         </div>
-      `).join('')}
+      `
+          )
+          .join('')}
     `;
     listEl.querySelectorAll('.place-item').forEach((el, i) => {
-      el.addEventListener('click', () => {
-        const selectedAddr = results[i].address_name;
-        const state = document.getElementById('stateSelect').value.trim();
-        const city  = document.getElementById('citySelect').value.trim();
-        if (!selectedAddr.includes(state) || !selectedAddr.includes(city)) {
-          if (!confirm(`⚠️ 선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`)) return;
-        }
-        applyLocation(results[i].y, results[i].x, results[i].place_name);
-      });
+        el.addEventListener('click', () => {
+            const selectedAddr = results[i].address_name;
+            const state = document.getElementById('stateSelect').value.trim();
+            const city = document.getElementById('citySelect').value.trim();
+            if (!selectedAddr.includes(state) || !selectedAddr.includes(city)) {
+                if (
+                    !confirm(
+                        `⚠️ 선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`
+                    )
+                )
+                    return;
+            }
+            applyLocation(results[i].y, results[i].x, results[i].place_name);
+        });
     });
-  }
+}
 
-  function hidePlaceList() {
+function hidePlaceList() {
     document.getElementById('place-list')?.remove();
-  }
+}
 
-  document.getElementById('btn-find-addr').addEventListener('click', async () => {
-    const state  = document.getElementById('stateSelect').value.trim();
-    const city   = document.getElementById('citySelect').value.trim();
+document.getElementById('btn-find-addr').addEventListener('click', async () => {
+    const state = document.getElementById('stateSelect').value.trim();
+    const city = document.getElementById('citySelect').value.trim();
     const detail = document.getElementById('detail-addr').value.trim();
 
     if (!state || !city) {
-      alert('시/도와 구/동을 먼저 선택해주세요.');
-      return;
+        alert('시/도와 구/동을 먼저 선택해주세요.');
+        return;
     }
 
     const address = detail ? `${state} ${city} ${detail}` : `${state} ${city}`;
 
     try {
-      const { lat, lng, name } = await kakaoMap.ADDRtoLatLng(address);
-      applyLocation(lat, lng, name);
+        const { lat, lng, name } = await kakaoMap.ADDRtoLatLng(address);
+        applyLocation(lat, lng, name);
     } catch (err) {
-      if (err.type === 'MULTIPLE') {
-        showPlaceList(err.results, state, city);
-      } else {
-        alert('주소를 찾을 수 없습니다. 상세 장소명을 다시 확인해주세요.');
-      }
+        if (err.type === 'MULTIPLE') {
+            showPlaceList(err.results, state, city);
+        } else {
+            alert('주소를 찾을 수 없습니다. 상세 장소명을 다시 확인해주세요.');
+        }
     }
-  });
+});

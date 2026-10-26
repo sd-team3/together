@@ -8,11 +8,18 @@ function badRequest(message, status = 400) {
 }
 
 async function createRecord(userId, input) {
-    if (!input || typeof input !== 'object'
-        || typeof input.crewKey !== 'string' || !/^(regular|instant):[a-f\d]{24}$/i.test(input.crewKey)
-        || typeof input.activityId !== 'string' || !/^[a-f\d]{24}$/i.test(input.activityId)
-        || typeof input.submissionId !== 'string'
-        || !/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i.test(input.submissionId)) {
+    if (
+        !input ||
+        typeof input !== 'object' ||
+        typeof input.crewKey !== 'string' ||
+        !/^(regular|instant):[a-f\d]{24}$/i.test(input.crewKey) ||
+        typeof input.activityId !== 'string' ||
+        !/^[a-f\d]{24}$/i.test(input.activityId) ||
+        typeof input.submissionId !== 'string' ||
+        !/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i.test(
+            input.submissionId
+        )
+    ) {
         throw badRequest('모임과 날짜를 다시 선택해주세요.');
     }
     if (!Number.isInteger(input.mood) || input.mood < 1 || input.mood > 5) {
@@ -31,15 +38,25 @@ async function createRecord(userId, input) {
 
     // 클라이언트가 보낸 작성자·종목·날짜·모임명은 신뢰하지 않는다.
     const activities = await getMyActivities(userId);
-    const activity = activities.find(item => item.id === input.activityId && item.crewKey === input.crewKey);
-    if (!activity) throw badRequest('참여가 확인된 모임만 기록할 수 있어요. 모임을 다시 선택해주세요.', 403);
+    const activity = activities.find(
+        (item) => item.id === input.activityId && item.crewKey === input.crewKey
+    );
+    if (!activity)
+        throw badRequest('참여가 확인된 모임만 기록할 수 있어요. 모임을 다시 선택해주세요.', 403);
     const [crewType, crewId] = activity.crewKey.split(':');
     try {
         return await Record.create({
-            user: userId, submissionId: input.submissionId,
-            crewType, crewId, activityId: activity.id,
-            crewTitle: activity.crewTitle, activityTitle: activity.title,
-            sport: activity.sport, exerciseDate: activity.date, mood: input.mood, ...notes
+            user: userId,
+            submissionId: input.submissionId,
+            crewType,
+            crewId,
+            activityId: activity.id,
+            crewTitle: activity.crewTitle,
+            activityTitle: activity.title,
+            sport: activity.sport,
+            exerciseDate: activity.date,
+            mood: input.mood,
+            ...notes
         });
     } catch (error) {
         if (error.code === 11000) {
@@ -52,10 +69,13 @@ async function createRecord(userId, input) {
 }
 
 async function getRecordPage(userId, record) {
-    const precedingCount = await Record.countDocuments({ user: userId, $or: [
-        { exerciseDate: { $gt: record.exerciseDate } },
-        { exerciseDate: record.exerciseDate, _id: { $gt: record._id } }
-    ] });
+    const precedingCount = await Record.countDocuments({
+        user: userId,
+        $or: [
+            { exerciseDate: { $gt: record.exerciseDate } },
+            { exerciseDate: record.exerciseDate, _id: { $gt: record._id } }
+        ]
+    });
     return Math.floor(precedingCount / 9) + 1;
 }
 
@@ -65,25 +85,44 @@ async function getMyActivities(userId) {
     const [activities, instantCrews] = await Promise.all([
         CrewActivity.find({ crewModel: 'regular', attender: userId, startTime: { $lte: now } })
             .select('_id crewId title startTime')
-            .populate({ path: 'crewId', model: RegularCrew, select: 'title sport' }).lean(),
-        InstantCrew.find({ meetAt: { $lte: now }, $or: [
-            { host: userId },
-            { 'member.memberList': { $elemMatch: { user: userId, status: 'confirmed' } } }
-        ] }).select('_id title sport meetAt').lean()
+            .populate({ path: 'crewId', model: RegularCrew, select: 'title sport' })
+            .lean(),
+        InstantCrew.find({
+            meetAt: { $lte: now },
+            $or: [
+                { host: userId },
+                { 'member.memberList': { $elemMatch: { user: userId, status: 'confirmed' } } }
+            ]
+        })
+            .select('_id title sport meetAt')
+            .lean()
     ]);
     const dateFormat = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit'
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
     });
     return [
-        ...activities.filter(activity => activity.crewId).map(activity => ({
-            id: String(activity._id), crewKey: `regular:${activity.crewId._id}`,
-            crewTitle: activity.crewId.title, title: activity.title,
-            sport: activity.crewId.sport, date: dateFormat.format(activity.startTime), type: '정기 모임'
-        })),
-        ...instantCrews.map(crew => ({
-            id: String(crew._id), crewKey: `instant:${crew._id}`,
-            crewTitle: crew.title, title: crew.title,
-            sport: crew.sport, date: dateFormat.format(crew.meetAt), type: '번개 모임'
+        ...activities
+            .filter((activity) => activity.crewId)
+            .map((activity) => ({
+                id: String(activity._id),
+                crewKey: `regular:${activity.crewId._id}`,
+                crewTitle: activity.crewId.title,
+                title: activity.title,
+                sport: activity.crewId.sport,
+                date: dateFormat.format(activity.startTime),
+                type: '정기 모임'
+            })),
+        ...instantCrews.map((crew) => ({
+            id: String(crew._id),
+            crewKey: `instant:${crew._id}`,
+            crewTitle: crew.title,
+            title: crew.title,
+            sport: crew.sport,
+            date: dateFormat.format(crew.meetAt),
+            type: '번개 모임'
         }))
     ].sort((a, b) => b.date.localeCompare(a.date));
 }
@@ -95,7 +134,7 @@ async function getMyRecords(userId, page = 1, sport = '') {
     if (sport) {
         query.sport = sport;
     }
-    
+
     const limit = 9;
 
     const totalRecords = await Record.countDocuments(query);
@@ -110,9 +149,7 @@ async function getMyRecords(userId, page = 1, sport = '') {
         .limit(limit)
         .lean();
 
-    const allRecordCount = sport
-        ? await Record.countDocuments(userQuery)
-        : totalRecords;
+    const allRecordCount = sport ? await Record.countDocuments(userQuery) : totalRecords;
     const recordedSports = await Record.distinct('sport', userQuery);
 
     return {
