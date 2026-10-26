@@ -103,26 +103,7 @@ function searchRegCards() {
   const district = document.getElementById('qs-district')?.value.trim() || '';
   const keyword  = document.getElementById('qs-keyword')?.value.trim()  || '';
 
-  let found = 0;
-  document.querySelectorAll('.reg-card').forEach(card => {
-    const matchSport    = !sport    || card.dataset.sport    === sport;
-    const matchDistrict = !district || (card.dataset.district || '').includes(district);
-    const matchKeyword  = !keyword  || (card.dataset.title   || '').includes(keyword);
-
-    const show = matchSport && matchDistrict && matchKeyword;
-    card.style.display = show ? '' : 'none';
-    if (show) found++;
-  });
-
-  let emptyEl = document.getElementById('reg-empty-msg');
-  if (!emptyEl) {
-    emptyEl = document.createElement('div');
-    emptyEl.id = 'reg-empty-msg';
-    emptyEl.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px 0;color:var(--text-3);font-size:14px';
-    emptyEl.textContent = '조건에 맞는 모임이 없어요 🥲';
-    document.querySelector('.regular-grid')?.appendChild(emptyEl);
-  }
-  emptyEl.style.display = found === 0 ? '' : 'none';
+  window.crewSpotlight?.filter({ sport, district, keyword });
 }
 
 // ── Leaflet 지도 ──────────────────────────────
@@ -220,84 +201,41 @@ function leafletFilterToggle(type) {
 }
 
 // 카드 HTML 생성 함수 (새로 추가)
+let meetingRequest = 0;
 function renderRegCards(meetings) {
-  const grid = document.querySelector('.regular-grid');
-  if (!grid) return;
-
-  grid.innerHTML = ''; // 기존 카드 전부 지우기
-
-  if (meetings.length === 0) {
-    grid.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:40px 0;
-                  color:var(--text-3);font-size:14px">
-        조건에 맞는 모임이 없어요 🥲
-      </div>`;
-    return;
-  }
-
-  meetings.forEach(m => {
-    const card = document.createElement('div');
-    // data 속성들 (모달용)
-    card.className = 'reg-card';
-    card.dataset.modalTitle = `${m.emoji} ${m.title}`;
-    card.dataset.modalBody  = m.modalBody;
-    card.dataset.sport      = m.emoji;
-    card.dataset.district   = m.district;
-    card.dataset.title      = m.title;
-    card.innerHTML = `
-      <div class="reg-card-head">
-        <div class="reg-sport-icon">${m.emoji}</div>
-        <div>
-          <div class="reg-card-title">${m.title}</div>
-          <div class="reg-card-sub">${m.district}</div>
-        </div>
-        <span class="pill pill-${m.pillType}" style="margin-left:auto">
-          ${m.pillLabel}
-        </span>
-      </div>
-      <div class="reg-card-body">
-        <div class="reg-meta-row">
-          <span>🗓️ ${m.schedule}</span>
-          <span>💰 ${m.fee}</span>
-          <span>📊 ${m.level}</span>
-        </div>
-        <div class="reg-progress">
-          <div class="reg-progress-fill" style="width:${m.fillPct}%"></div>
-        </div>
-        <div class="reg-progress-label">
-          <span>${m.current}/${m.total}명</span>
-          <span>${m.total - m.current}자리 남음</span>
-        </div>
-      </div>`;
-
-    // 카드 클릭 → 모달
-    card.addEventListener('click', () => {
-      showModal(card.dataset.modalTitle, card.dataset.modalBody, () =>
-        showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
-      );
-    });
-
-    grid.appendChild(card);
-  });
+  window.crewSpotlight?.setMeetings(meetings);
 }
 
-// API 호출 함수 (새로 추가)
 async function fetchAndRenderMeetings(sportKey = '') {
+  const request = ++meetingRequest;
+  window.crewSpotlight?.setMessage('모임을 불러오는 중이에요…');
+  try {
+    const res = await fetch('/api/regular-meetings' + (sportKey ? '?sport=' + encodeURIComponent(sportKey) : ''));
+    if (!res.ok) throw new Error('모임 조회 실패');
+    const data = await res.json();
+    if (!data.ok || !Array.isArray(data.meetings)) throw new Error('모임 조회 실패');
+    if (request === meetingRequest) renderRegCards(data.meetings);
+  } catch (err) {
+    if (request === meetingRequest) window.crewSpotlight?.setMessage('모임을 불러오지 못했어요. 종목을 다시 선택해 주세요.');
+  }
+}
+
+// AI 자연어 검색
+async function performAiSearch() {
+  const input = document.getElementById('ai-search-input');
+  const q = input?.value.trim() || '';
   const grid = document.querySelector('.regular-grid');
-  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오는 중...</div>';
+  if (!q) return;
+
+  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">🤖 AI가 찾아보는 중...</div>';
 
   try {
-    const url = sportKey
-      ? `/api/regular-meetings?sport=${sportKey}`
-      : `/api/regular-meetings`;
-
-    const res  = await fetch(url);
+    const res  = await fetch(`/api/search/ai?q=${encodeURIComponent(q)}`);
     const data = await res.json();
-
     if (data.ok) renderRegCards(data.meetings);
   } catch (err) {
-    console.error('모임 불러오기 실패:', err);
-    if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">불러오기에 실패했어요 😢</div>';
+    console.error('AI 검색 실패:', err);
+    if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">검색에 실패했어요 😢</div>';
   }
 }
 
@@ -401,25 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  
-  // Quick Search
-  // 버튼 클릭
-document.getElementById('qs-search-btn')?.addEventListener('click', searchRegCards);
-
-// 엔터키
-['qs-district', 'qs-keyword'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') searchRegCards();
+  // AI 검색
+  document.getElementById('ai-search-btn')?.addEventListener('click', performAiSearch);
+  document.getElementById('ai-search-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') performAiSearch();
   });
-});
-
-  ['qs-district', 'qs-keyword'].forEach(id => {
-    document.getElementById(id)?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') searchRegCards();
-    });
-  });
-
-  
 
 });
 //랭킹(테스트용)

@@ -13,6 +13,7 @@ router.use((req, res, next)=>{
 });
 
 router.use('/act', activityRouter);
+router.use('/:crewId/attendance', require('./instantAttendanceRouter'));
 
 //번개 모임 페이지
 router.get('/list', instantController.getInstant);

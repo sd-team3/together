@@ -53,6 +53,8 @@ const userSchema = new mongoose.Schema(
             type: addressSchema,
             required: true
         },
+        preferredTime: [{ type: String, enum: ['평일오전', '평일오후', '평일저녁', '주말오전', '주말오후', '주말저녁'] }],
+        preferredSport: [{ type: String }],
         gender: {
             type: String,
             required: true

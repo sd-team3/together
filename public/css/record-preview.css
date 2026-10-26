@@ -1,20 +1,20 @@
 /* 운동 기록 페이지 — 공통 */
-.record-preview {
+.record-preview .main {
   font-family: 'DM Sans','Segoe UI','Malgun Gothic',sans-serif;
 }
 
-.record-preview a {
+.record-preview :where(.main) a {
   text-decoration: none;
 }
 
-.record-preview button,
-.record-preview input,
-.record-preview textarea,
-.record-preview select {
+.record-preview :where(.main) button,
+.record-preview :where(.main) input,
+.record-preview :where(.main) textarea,
+.record-preview :where(.main) select {
   font: inherit;
 }
 
-.record-preview button {
+.record-preview :where(.main) button {
   cursor: pointer;
 }
 
@@ -803,4 +803,48 @@ input::placeholder {
 
 .record-preview .btn:disabled {
   opacity: 0.5;
+}
+
+/* 목록 → 모임 선택 → 기록 작성 */
+.workspace[data-view="list"] { grid-template-columns: minmax(0, 1fr); }
+.workspace[data-view="list"] .record-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 20px;
+  overflow: visible;
+}
+.workspace[data-view="list"] .record-item {
+  min-width: 0;
+  border-color: var(--border);
+  padding: 22px;
+  margin: 0;
+}
+.workspace[data-view="list"] .record-item strong { font-size: 16px; }
+.workspace[data-view="list"] .record-item p { font-size: 12px; }
+.workspace[data-view="list"] .empty-records { grid-column: 1 / -1; align-self: center; }
+.workspace[data-view="detail"] { grid-template-columns: minmax(0, 1fr) 330px; }
+.workspace[data-view="detail"] .ai-panel { grid-column: auto; }
+.flow-nav { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+.flow-nav span, .picker-note { font-size: 12px; color: var(--text-3); line-height: 1.8; }
+#activity-picker { max-width: 760px; margin: 0 auto; }
+.activity-picker-body { padding: 26px; }
+.activity-picker-body p { margin-bottom: 12px; }
+.activity-picker-body label { display: block; font-size: 13px; font-weight: 600; margin: 22px 0 10px; }
+.activity-picker-body select {
+  width: 100%; padding: 13px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text);
+}
+#activity-status { font-size: 13px; line-height: 1.8; color: var(--text-2); }
+.picker-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 26px; }
+#change-activity { margin-left: auto; white-space: nowrap; }
+@media (max-width: 1100px) {
+  .workspace[data-view="list"] .record-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace[data-view="detail"] { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .workspace[data-view="list"] .record-list { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+  .flow-nav { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .activity-picker-body { padding: 18px; }
+  .activity-banner { flex-wrap: wrap; }
 }

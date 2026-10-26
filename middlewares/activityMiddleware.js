@@ -29,7 +29,7 @@ const activityCreateMiddleware = (req, res, next) => {
 
     const capacity_ = Number(capacity)
 
-    if (isNaN(capacity_) || capacity_ <= 1) {
+    if (!Number.isInteger(capacity_) || capacity_ < 1) {
         return res.status(400).json({ message: "정원은 1 이상이어야 합니다." });
     }
 

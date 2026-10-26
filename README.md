@@ -93,6 +93,16 @@ npm start
 
 ## 기술 스택
 
+### 정기모임 출석부
+
+- 모임 상세의 `출석부`에서 달력을 열고 날짜별 활동의 출석·미출석 명단을 확인합니다. 명단은 해당 활동 참가자 기준입니다.
+- 활동 시작 후 종료 전까지 모임장만 `QR 생성`을 사용할 수 있습니다. 종료 시각이 없으면 활동 당일 자정(한국 시간)까지 허용합니다.
+- QR은 1분 동안 유효하며 다시 생성하면 이전 QR은 무효가 됩니다. 로그인한 참가자가 스캔 후 `출석하기`를 누르면 기존 `attender`에 중복 없이 기록합니다.
+- 휴대폰에서 접속 가능한 서비스 주소를 `.env`의 `PUBLIC_BASE_URL`에 설정하세요(예: `https://your-service.example`). 미설정 시 현재 요청 주소로 생성하므로 `localhost`로 접속한 PC에서 만든 QR은 다른 휴대폰에서 사용할 수 없습니다.
+- 비로그인 상태에서 QR을 열었다면 로그인 후 다시 스캔해주세요. 명단의 `새로고침`으로 최신 출석을 확인합니다.
+
+검증: `node --test tests/attendance.test.js tests/recordSave.test.js tests/recordFlow.test.js`
+
 **Backend**
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)

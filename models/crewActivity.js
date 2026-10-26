@@ -39,6 +39,8 @@ const crewActivitySchema = new mongoose.Schema(
             score: { type: Number, enum: [-1, 0, 1], required: true },
             createdAt: { type: Date, default: Date.now }
         }],
+        attendanceQrHash: { type: String, select: false },
+        attendanceQrExpiresAt: { type: Date, select: false },
         capacity: { type: Number, required: true },
         status: {
             type: String, 

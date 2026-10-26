@@ -18,14 +18,17 @@
       </div>
     </div>
 
-    <% if (isOwner) { %>
-      <button
-        type="button"
-        class="btn btn-outline btn-sm"
-        id="crew-edit-btn"
-      >
-        ✏️ 크루 수정
-      </button>
+    <% if (isOwner || (typeof isMember !== 'undefined' && isMember)) { %>
+      <div class="crew-detail-actions">
+        <a
+          href="/regular/<%= crew._id %>/attendance"
+          class="btn btn-outline btn-sm"
+          id="crew-attendance-btn"
+        >
+          📋 출석부
+        </a>
+
+      </div>
     <% } %>
 
     <% if (userId) { %>

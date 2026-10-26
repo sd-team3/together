@@ -4,8 +4,11 @@ const chatService = require('../chatService');
 const ChatRoom = require('../../models/ChatRoom');
 const { CONSTANTS } = require('../../config/constants');
 
+// 종료 시간 필드가 없어 시작 후 3시간까지 진행 중인 매칭으로 표시한다.
+const MATCH_VISIBLE_DURATION_MS = 3 * 60 * 60 * 1000;
+
 async function getInstantCrew(filter = {}) {
-    const query = { meetAt: { $gte: new Date() } };
+    const query = { meetAt: { $gte: new Date(Date.now() - MATCH_VISIBLE_DURATION_MS) } };
 
     if (filter.sport) query.sport = { $in: filter.sport };
     if (filter.state) query['address.state'] = filter.state;
@@ -79,7 +82,7 @@ async function createInstantCrew(data, host) {
     const crew = new instantCrew({
         title,
         intro,
-        meetAt: new Date(`${meetAt_date}T${meetAt_time}`),
+        meetAt: new Date(`${meetAt_date}T${meetAt_time}:00+09:00`),
         host,
         member: {
             capacity: Number(capacity),

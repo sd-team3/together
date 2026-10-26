@@ -1,0 +1,118 @@
+<div class="add-schedule-form" id="addScheduleForm" role="dialog" aria-modal="true" aria-label="새 일정 추가" tabindex="-1">
+    <div class="add-form-title">
+        📅 새 일정 추가
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+        <label class="label">활동 유형</label>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+            <button type="button" class="type-chip sel-battle" id="chip-group" onclick="selectActivityType('group')">👥 단체 활동</button>
+            <button type="button" class="type-chip" id="chip-solo" onclick="selectActivityType('solo')">🏃 개인 활동</button>
+        </div>
+    </div>
+    <div class="add-form-grid">
+        <div class="field full" style="margin-bottom:0; margin-top:14px;">
+            <label class="label">상세 내용 (선택)</label>
+            <textarea id="new-content" class="manage-input" style="height: 80px;" placeholder="활동 내용, 준비물, 특이사항 등을 적어주세요."></textarea>
+        </div>
+        <div class="field full" style="margin-bottom:0">
+            <label class="label">날짜</label>
+            <input type="date" class="manage-input" id="new-date">
+        </div>
+        <div class="field full" style="margin-bottom:0">
+            <div class="form-section-title">
+                장소
+            </div>
+            <div class="field">
+                <label class="label">활동 지역</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <select id="stateSelect" name="state" class="input" style="flex: 1;" data-areas='<%- JSON.stringify(CONSTANTS.AREAS)%>' required>
+                        <option value="">시/도 선택</option>
+                        <% Object.keys(CONSTANTS.AREAS).forEach(state => { %>
+                            <option value="<%= state %>"><%= state %></option>
+                        <% }); %>
+                    </select>
+                    <select id="citySelect" name="city" class="input" style="flex: 1;" required>
+                        <option value="">시/군/구 선택</option>
+                    </select>
+                </div>
+                <input type="text" id="detail-addr" name="detail" class="input" placeholder="상세 장소 (예: 역삼 공원, OO 풋살장)" style="margin-top: 8px;">
+            </div>
+            <div class="field">
+                <button type="button" class="btn btn-outline" id="btn-find-addr" style="width:100%; margin-bottom:10px;">📍 위치 확인 (지도 표시)</button>
+                <div id="map" style="width:100%; height:220px; border-radius:10px; border:1px solid var(--border); display:none;">
+                </div>
+                <div id="addr-result" style="font-size:13px; color:var(--primary); margin-top:6px; display:none;">
+                </div>
+            </div>
+            <input type="hidden" name="lat" id="lat-input">
+            <input type="hidden" name="lng" id="lng-input">
+        </div>
+        <div class="field" style="margin-bottom:0">
+            <label class="label">시작 시간</label>
+            <div style="display:flex;gap:6px;">
+                <select class="manage-input" id="new-start-h" style="flex:1">
+                    <% for(let h=4;h<=22;h++){ %>
+                        <option value="<%= h %>" <%= h===10 ? 'selected' : '' %>><%= String(h).padStart(2,'0') %>시</option>
+                    <% } %>
+                </select>
+                <select class="manage-input" id="new-start-m" style="flex:1">
+                    <option value="0">00분</option>
+                    <option value="10">10분</option>
+                    <option value="20">20분</option>
+                    <option value="30">30분</option>
+                    <option value="40">40분</option>
+                    <option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+            <label class="label">종료 시간</label>
+            <div style="display:flex;gap:6px;">
+                <select class="manage-input" id="new-end-h" style="flex:1">
+                    <% for(let h=5;h<=23;h++){ %>
+                        <option value="<%= h %>" <%= h===12 ? 'selected' : '' %>><%= String(h).padStart(2,'0') %>시</option>
+                    <% } %>
+                </select>
+                <select class="manage-input" id="new-end-m" style="flex:1">
+                    <option value="0">00분</option>
+                    <option value="10">10분</option>
+                    <option value="20">20분</option>
+                    <option value="30">30분</option>
+                    <option value="40">40분</option>
+                    <option value="50">50분</option>
+                </select>
+            </div>
+        </div>
+        <!-- 단체 활동: 레드팀 / 블루팀 -->
+        <!-- <div class="field full" id="field-group" style="margin-bottom:0;">
+              <label class="label">팀별 구인 인원</label>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <div style="flex:1;background:#fff1f1;border:1px solid #fecaca;border-radius:var(--radius-sm);padding:10px 12px;">
+                  <div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px;">🔴 레드팀</div>
+                  <input type="number" class="manage-input" id="new-red" min="1" max="50" placeholder="인원 수" style="background:transparent;border-color:#fecaca;">
+                </div>
+                <div style="flex:1;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:10px 12px;">
+                  <div style="font-size:11px;font-weight:700;color:#3b82f6;margin-bottom:6px;">🔵 블루팀</div>
+                  <input type="number" class="manage-input" id="new-blue" min="1" max="50" placeholder="인원 수" style="background:transparent;border-color:#bfdbfe;">
+                </div>
+              </div>
+            </div> -->
+        <!-- 개인 활동: 총 인원 -->
+        <!-- <div class="field full" id="field-solo" style="margin-bottom:0;display:none;">
+              <label class="label">구인 인원</label>
+              <input type="number" class="manage-input" id="new-count" min="1" max="50" placeholder="총 구인 인원 수">
+            </div> -->
+        <div class="field full" id="field-group" style="margin-bottom:0;">
+            <label class="label">팀 당 구인 인원</label>
+            <input type="number" class="manage-input" id="new-team-count" min="1" max="50" placeholder="예: 5 (5 vs 5 경기의 경우)">
+        </div>
+        <div class="field full" id="field-solo" style="margin-bottom:0;display:none;">
+            <label class="label">구인 인원</label>
+            <input type="number" class="manage-input" id="new-count" min="1" max="50" placeholder="총 구인 인원 수">
+        </div>
+    </div>
+    <div class="add-form-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">취소</button>
+        <button class="btn btn-primary btn-sm" onclick="addSchedule()">+ 추가</button>
+    </div>
+</div>

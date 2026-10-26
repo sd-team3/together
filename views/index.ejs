@@ -6,6 +6,7 @@
 <title>TOGETHER — 생활 스포츠 매칭 플랫폼</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/crew-spotlight.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -16,37 +17,7 @@
 
   <%- include('partials/head', { title: '🏠 홈 피드', pageId: 'page-home', active: '', route: '/' }) %>
 
-  <!-- Hero Banner -->
-  <div class="home-hero">
-    <div class="home-hero-inner">
-      <div class="hero-eyebrow">
-        <span class="hero-live-dot"></span> 지금 <span id="live-count"><%= stats.activeCount %></span>명 활동 중
-      </div>
-      <div class="hero-title">오늘, 같이 뛸<br><span>팀원</span>을 찾아보세요</div>
-      <div class="hero-subtitle">
-        내 주변 생활 스포츠 매칭·정기모임을 한 곳에서.<br>
-        크루 가입부터 장비 거래까지 모두 TOGETHER에서.
-      </div>
-      <div class="hero-cta">
-        <button class="btn btn-accent btn-lg" data-href="/instant/list">🗺️ 지도에서 찾기</button>
-        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/regular/list">정기모임 보기</button>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="hero-stat-val" id="stat-instant-count"><%= stats.weeklyMatches %></div>
-          <div class="hero-stat-label">총 번개모임</div>
-        </div>
-        <div>
-          <div class="hero-stat-val"><%= stats.activeClubs %></div>
-          <div class="hero-stat-label">총 정기모임</div>
-        </div>
-        <div>
-          <div class="hero-stat-val"><%= stats.totalUsers %>명</div>
-          <div class="hero-stat-label">전체 유저 수</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <%- include('partials/crew-spotlight', { regularMeetings: featuredMeetings }) %>
 
   <!-- Quick Search -->
   <div class="search-bar-wrap">
@@ -78,65 +49,10 @@
   </div>
 </div>
 
-  <!-- Sport Filter Chips -->
-  <div class="sport-chips" style="padding:0 28px 16px; margin-bottom:20px;">
-    <button class="sport-chip active" data-sport="">
-        전체
-    </button>
-    <% sportChips.forEach(function(chip) { %>
-      <button class="sport-chip" 
-        data-sport="<%= chip.emoji %>" 
-        data-sport-key="<%= chip.key %>">
-        <span class="emoji"><%= chip.emoji %></span> <%= chip.label %>
-      </button>
-    <% }); %>
-  </div>
-
   <!-- Content Grid -->
-  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;padding:0 28px 28px">
+  <div class="home-content-grid">
 
-    <!-- Regular Meetings -->
-    <div>
-      <div class="flex justify-between items-center mb-12">
-        <div class="section-title" style="margin-bottom:0">🔁 추천 정기 모임</div>
-        <button class="btn btn-ghost btn-sm" data-href="/regular/list">전체보기 →</button>
-      </div>
-      <div class="regular-grid">
-        <% regularMeetings.forEach(function(meeting) { %>
-        <div class="reg-card"
-            data-filter="<%= meeting.filterTags %>"
-            data-sport="<%= meeting.emoji %>"
-            data-district="<%= meeting.district %>"
-            data-title="<%= meeting.title %>"
-            data-modal-title="<%= meeting.emoji %> <%= meeting.title %>"
-            data-modal-body="<%= meeting.modalBody %>">
-          <img class="reg-thumb-img"
-              src="<%= meeting.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
-              alt="<%= meeting.title %>">
-          <div class="reg-info">
-            <div class="reg-title-row">
-              <span class="reg-card-title"><%= meeting.title %></span>
-              <span class="pill pill-<%= meeting.pillType %>"><%= meeting.pillLabel %></span>
-            </div>
-            <p class="reg-intro"><%= meeting.intro && meeting.intro.trim() ? meeting.intro : `${meeting.title} 모임입니다. 참여해보세요.` %></p>
-            <div class="reg-meta-row">
-              <div class="reg-meta-left">
-                📍 <%= meeting.district %> <span class="dot">·</span>
-                🗓️ <%= meeting.schedule %> <span class="dot">·</span>
-                💰 <%= meeting.fee %> <span class="dot">·</span>
-                📊 <%= meeting.level %>
-              </div>
-              <span class="reg-meta-right"><%= meeting.current %>/<%= meeting.total %>명 · <%= meeting.total - meeting.current %>자리</span>
-            </div>
-          </div>
-        </div>
-        <% }); %>
-      </div>
-      <div style="text-align:center; margin-top:16px;">
-        <button class="btn-more" data-href="/regular/list">모임 더 찾아보기 →</button>
-    </div>
-    </div>
-    
+    <section class="latest-crews"><div class="latest-heading"><h2>최근에 만들어진 모임</h2><a href="/regular/list">전체 모임 보기 ↗</a></div><div class="latest-grid"><% latestMeetings.forEach(m => { %><a class="latest-card" href="/regular/list/<%= m.id %>"><span class="latest-sport"><%= m.emoji %> <%= m.sportLabel %></span><h3><%= m.title %></h3><p><%= m.district %></p><div><%= m.schedule %> · <%= m.level %></div><footer><span><%= m.current %> / <%= m.total %>명</span><span><%= m.pillLabel %></span></footer></a><% }) %></div><% if (!latestMeetings.length) { %><p>아직 등록된 모임이 없어요.</p><% } %></section>
 
     <!-- Right Panel -->
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -224,6 +140,9 @@
   </button>
 </div>
 
+</div><!-- /support panel -->
+</div><!-- /home-content-grid -->
+</div><!-- /page-home -->
 </div><!-- /main -->
 
 
@@ -276,6 +195,7 @@
   <%- JSON.stringify(leafletMatches) %>
 </script>
 
+<script src="/js/crew-spotlight.js"></script>
 <script src="/js/handlers/index.js"></script>
 
 </body>
