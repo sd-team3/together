@@ -91,7 +91,9 @@
               </div>
 
               <div class="mi-bottom">
-                <% if (isFull) { %>
+                <% if (new Date(crew.meetAt) <= new Date()) { %>
+                  <span class="pill pill-open">진행 중</span>
+                <% } else if (isFull) { %>
                   <span class="pill pill-closed">마감</span>
                 <% } else if (isAlmostFull) { %>
                   <span class="pill pill-warn">마감임박</span>

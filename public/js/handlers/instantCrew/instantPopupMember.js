@@ -122,6 +122,7 @@ export function renderMemberPopupBody() {
             💬 채팅방
             <span style="font-size:15px;">→</span>
         </a>
+        ${isHost ? `<a class="btn btn-outline btn-sm" style="margin:0 0 4px 8px" href="/instant/${encodeURIComponent(crewId)}/attendance">📋 출석부</a>` : ''}
     </div>`;
 
     const stats = `

@@ -91,14 +91,14 @@ const formatMeetingCard = (crew) => {
     return {
         id: crew._id ? crew._id.toString() : '',   // 상세 페이지 링크용
         intro: crew.intro || '',                   // 왼쪽 큰 카드 소개글
+        sportLabel: CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport,
+        profileImage: crew.profileImage || '',
+        approval: crew.isAutoAccept ? '자동 승인' : '모임장 승인',
         sportKey: crew.sport || '',                // 종목 칩 필터용 (data-sport-key)
         emoji: meta.emoji,
         title: crew.title,
         schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
         district: `${crew.address?.state || ''} ${crew.address?.city || ''}`.trim() || '지역 미정',
-        sportLabel: CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport,
-        approval: crew.isAutoAccept ? '자동 승인' : '모임장 승인',
-        profileImage: crew.profileImage || '',
 
         filterTags: [
             crew.fee > 0 ? 'paid' : 'free',
@@ -459,7 +459,7 @@ const scoreCrewForUser = (crew, user) => {
     const reasons = [];
 
     // 종목
-    if (user.preferredSport?.includes(crew.sport)) {
+    if (user.preferredSport?.some(sport => sport === crew.sport || sport === SPORTS_META[crew.sport]?.emoji)) {
         score += WEIGHTS.sport;
         reasons.push({ icon: '🎯', label: '선호 종목과 일치해요' });
     }
@@ -505,20 +505,21 @@ const splitMeetings = (list, featuredCount = FEATURED_COUNT, gridCount = GRID_CO
 const getAIRecommendedMeetings = async (
     userId,
     featuredCount = FEATURED_COUNT,
-    gridCount = GRID_COUNT
+    gridCount = GRID_COUNT,
+    sport = ''
 ) => {
     const total = featuredCount + gridCount;
 
     // 비로그인 / 유저 없음: 점수 없이 최신순
     const fallback = async () =>
-        splitMeetings(await getRegularMeetings('', total), featuredCount, gridCount);
+        splitMeetings(await getRegularMeetings(sport, total), featuredCount, gridCount);
 
     if (!userId) return fallback();
 
     const user = await User.findById(userId).lean();
     if (!user) return fallback();
 
-    const crews = await RegularCrew.find({})
+    const crews = await RegularCrew.find(sport ? { sport } : {})
         .sort({ createdAt: -1 })
         .limit(CANDIDATE_POOL);
 

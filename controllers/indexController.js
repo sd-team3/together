@@ -16,15 +16,15 @@ exports.aiSearch = async (req, res, next) => {
 
 exports.getHome = async (req, res, next) => {
     try {
-        const [aiMeetings, leafletMatches, stats, sportChips, liveFeed] =
+        const [aiMeetings, latestMeetings, leafletMatches, stats, sportChips, liveFeed] =
             await Promise.all([
                 homeService.getAIRecommendedMeetings(req.user?._id),
+                homeService.getRegularMeetings('', 40),
                 homeService.getLeafletMatches(),
                 homeService.getStats(),
                 homeService.getSportChips(),
                 homeService.getLiveFeed()
             ]);
-
         stats.activeCount = req.app.locals.activeUserCount || 0;
 
         const mySchedule = req.user
@@ -36,10 +36,8 @@ exports.getHome = async (req, res, next) => {
             : null;
 
         res.render('index', {
-            featuredMeetings: aiMeetings.featured,   // 왼쪽 캐러셀 (10개)
-            gridMeetings: aiMeetings.grid,           // 오른쪽 그리드 (40개)
-            // 현재 index.ejs용 임시값 (전체 50개). 팀원 뷰와 합친 뒤 삭제
-            regularMeetings: [...aiMeetings.featured, ...aiMeetings.grid],
+            featuredMeetings: aiMeetings.featured,
+            latestMeetings,
             leafletMatches,
             stats,
             sportChips,
@@ -58,7 +56,8 @@ exports.getHome = async (req, res, next) => {
 exports.getRegularMeetingsApi = async (req, res, next) => {
     try {
         const sport = req.query.sport || '';
-        const meetings = await homeService.getRegularMeetings(sport);
+        const result = await homeService.getAIRecommendedMeetings(req.user?._id, 10, 40, sport);
+        const meetings = [...result.featured, ...result.grid];
         res.json({ ok: true, meetings });
     } catch (err) {
         next(err);

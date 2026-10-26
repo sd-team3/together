@@ -17,37 +17,7 @@
 
   <%- include('partials/head', { title: '🏠 홈 피드', pageId: 'page-home', active: '', route: '/' }) %>
 
-  <!-- Hero Banner -->
-  <div class="home-hero">
-    <div class="home-hero-inner">
-      <div class="hero-eyebrow">
-        <span class="hero-live-dot"></span> 지금 <span id="live-count"><%= stats.activeCount %></span>명 활동 중
-      </div>
-      <div class="hero-title">오늘, 같이 뛸<br><span>팀원</span>을 찾아보세요</div>
-      <div class="hero-subtitle">
-        내 주변 생활 스포츠 매칭·정기모임을 한 곳에서.<br>
-        크루 가입부터 장비 거래까지 모두 TOGETHER에서.
-      </div>
-      <div class="hero-cta">
-        <button class="btn btn-accent btn-lg" data-href="/instant/list">🗺️ 지도에서 찾기</button>
-        <button class="btn btn-outline btn-lg hero-outline-btn" data-href="/regular/list">정기모임 보기</button>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="hero-stat-val" id="stat-instant-count"><%= stats.weeklyMatches %></div>
-          <div class="hero-stat-label">총 번개모임</div>
-        </div>
-        <div>
-          <div class="hero-stat-val"><%= stats.activeClubs %></div>
-          <div class="hero-stat-label">총 정기모임</div>
-        </div>
-        <div>
-          <div class="hero-stat-val"><%= stats.totalUsers %>명</div>
-          <div class="hero-stat-label">전체 유저 수</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <%- include('partials/crew-spotlight', { regularMeetings: featuredMeetings }) %>
 
   <!-- Quick Search -->
   <div class="search-bar-wrap">
@@ -82,7 +52,7 @@
   <!-- Content Grid -->
   <div class="home-content-grid">
 
-    <%- include('partials/crew-spotlight', { regularMeetings }) %>
+    <section class="latest-crews"><div class="latest-heading"><h2>최근에 만들어진 모임</h2><a href="/regular/list">전체 모임 보기 ↗</a></div><div class="latest-grid"><% latestMeetings.forEach(m => { %><a class="latest-card" href="/regular/list/<%= m.id %>"><span class="latest-sport"><%= m.emoji %> <%= m.sportLabel %></span><h3><%= m.title %></h3><p><%= m.district %></p><div><%= m.schedule %> · <%= m.level %></div><footer><span><%= m.current %> / <%= m.total %>명</span><span><%= m.pillLabel %></span></footer></a><% }) %></div><% if (!latestMeetings.length) { %><p>아직 등록된 모임이 없어요.</p><% } %></section>
 
     <!-- Right Panel -->
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -170,6 +140,9 @@
   </button>
 </div>
 
+</div><!-- /support panel -->
+</div><!-- /home-content-grid -->
+</div><!-- /page-home -->
 </div><!-- /main -->
 
 

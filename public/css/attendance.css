@@ -56,3 +56,6 @@
 .attendance-page :focus-visible{outline:3px solid var(--primary);outline-offset:3px}
 .crew-detail-actions a{text-decoration:none}
 @media(max-width:650px){.attendance-page{padding:24px 14px}.attendance-heading h1{font-size:23px}.attendance-calendar-toolbar{padding:20px 14px;align-items:flex-start;flex-direction:column}.attendance-day,.attendance-day-blank{min-height:82px}.attendance-day{padding:6px;gap:7px}.attendance-day-title{display:none}.attendance-rosters{grid-template-columns:1fr}.attendance-date-header{align-items:flex-start;flex-wrap:wrap}.attendance-qr{flex-direction:column}.attendance-heading{align-items:flex-start}}
+/* Shared schedule modal on the attendance calendar. */
+.attendance-month-nav{flex-wrap:wrap}
+body:has(.attendance-page) .add-schedule-form{left:50%;width:min(480px,calc(100vw - 32px))}
