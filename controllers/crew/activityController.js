@@ -32,8 +32,11 @@ const postEntry = async (req, res) => {
         const act = req.activity;
         const userId = req.user._id;
 
+        if (new Date(act.startTime) <= new Date() || act.status !== '모집') {
+            return res.status(400).json({ message: '참가 신청이 종료된 활동입니다.' });
+        }
+
         const allParticipants = [
-            ...(act.participants || []),
             ...(act.teamRed || []),
             ...(act.teamBlue || [])
         ].map(id => id.toString());
@@ -56,7 +59,7 @@ const postEntry = async (req, res) => {
                 act.teamBlue.push(userId);
             }
         } else {
-            act.participants.push(userId);
+            act.teamBlue.push(userId);
         }
 
         const newTotalCount = allParticipants.length + 1;

@@ -1,0 +1,32 @@
+<div class="manage-panel" id="panel-schedule" role="tabpanel" aria-labelledby="tab-schedule">
+  <div class="manage-section">
+    <div class="manage-section-header"><div class="manage-section-title">📅 스케줄</div></div>
+    <% if (!acts.length) { %>
+      <p style="padding:20px;color:var(--text-3)">등록된 일정이 없어요.</p>
+    <% } %>
+    <% acts.forEach(act => {
+      const participants = [...(act.teamBlue || []), ...(act.teamRed || [])];
+      const entered = participants.some(person => (person._id || person).toString() === currentUserId);
+      const ended = new Date(act.startTime) <= new Date() || act.status === '종료' || act.status === '활동';
+      const full = participants.length >= act.capacity || act.status === '마감';
+      const disabled = entered || ended || full;
+      const dateOptions = { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false };
+    %>
+      <div class="activity-card">
+        <div class="activity-row">
+          <div class="activity-main">
+            <div class="activity-title"><%= act.title %></div>
+            <div class="activity-meta">
+              <span>📅 <%= new Date(act.startTime).toLocaleString('ko-KR', dateOptions) %><%= act.endTime ? ' ~ ' + new Date(act.endTime).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }) : '' %></span>
+              <span>📍 <%= act.location?.state %> <%= act.location?.city %> <%= act.location?.detail %></span>
+              <span>👥 <%= participants.length %>/<%= act.capacity %>명 · <%= act.gameType === 'team' ? '팀전' : '개인전' %></span>
+            </div>
+            <% if (act.content) { %><div class="activity-desc"><%= act.content %></div><% } %>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" data-activity-id="<%= act._id %>" <%= disabled ? 'disabled' : '' %>><%= entered ? '참가 완료' : ended ? '신청 종료' : full ? '마감' : '참가 신청' %></button>
+        </div>
+      </div>
+    <% }) %>
+    <p style="padding:0 20px;" id="schedule-entry-message" role="status"></p>
+  </div>
+</div>

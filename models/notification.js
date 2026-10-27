@@ -19,6 +19,7 @@ const notificationSchema = new mongoose.Schema(
             required: true 
         },
         route: { type: String },
+        reminderKey: { type: String },
         target: { 
             type: [mongoose.Schema.Types.ObjectId],
             default: []
@@ -34,6 +35,7 @@ const notificationSchema = new mongoose.Schema(
 
 notificationSchema.index({ receiver: 1, createdAt: -1 });
 notificationSchema.index({ receiver: 1, isRead: 1 });
+notificationSchema.index({ reminderKey: 1 }, { unique: true, sparse: true });
 notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 
 const notification = mongoose.model('notification', notificationSchema);

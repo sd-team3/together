@@ -6,6 +6,20 @@ async function createNoti(notiData, options = {}) {
     return await noti.save({ session: options.session });
 }
 
+async function createReminderNoti(notiData) {
+    // 여러 서버가 동시에 실행돼도 DB의 고유 인덱스로 중복 저장을 막는다.
+    await notification.init();
+
+    try {
+        return await createNoti(notiData);
+    } catch (error) {
+        if (error.code === 11000 && error.keyPattern?.reminderKey) {
+            return null;
+        }
+        throw error;
+    }
+}
+
 const findUnReadNotiByUserId = async (userId)=>{
     try {
         return await notification.find({ receiver: userId, isRead: false });
@@ -71,6 +85,7 @@ const handleUserDeleted = async (userId) => {
 
 module.exports = { 
     createNoti,
+    createReminderNoti,
     findUnReadNotiByUserId, 
     findReadNotiByUserId,
     readNotiByNotiId, 

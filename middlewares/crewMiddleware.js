@@ -28,6 +28,7 @@ const isMember = async (req, res, next)=>{
             const result = await crewService.userInCrew(req.crewModel, req.params.crewId, req.user._id);
             return result ? next() : res.status(403).json({ message: "권한이 없습니다." });
         }
+        return res.status(401).json({ message: '로그인이 필요합니다.' });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -94,7 +95,9 @@ const applicationValidation = async (req, res, next)=>{
             title: `${req.user.name}님이 가입했습니다.`,
             content: '당신의 크루에 신규 멤버가 있습니다.',
             event: 'NEW_MEMBER',
-            route: `${req.baseUrl}/manage/${crew._id}`,
+            route: req.crewModel.modelName === 'regularCrew'
+                ? `/regular/list/${crew._id}#members`
+                : `${req.baseUrl}/manage/${crew._id}`,
             target: [req.user._id]
         } : {
             sender: req.user._id,
@@ -102,7 +105,9 @@ const applicationValidation = async (req, res, next)=>{
             title: `${req.user.name}님의 가입 신청`,
             content: '당신의 크루에 가입하고 싶습니다.',
             event: 'CREW_APPLICATION',
-            route: `${req.baseUrl}/manage/${crew._id}`,
+            route: req.crewModel.modelName === 'regularCrew'
+                ? `/regular/list/${crew._id}#members`
+                : `${req.baseUrl}/manage/${crew._id}`,
             target: []
         };
 
