@@ -1,4 +1,4 @@
-<!-- 정기모임 크루 상세(가입 신청) 페이지 - 관리 페이지와 동일한 구조, 읽기 전용 -->
+<!-- 정기모임 상세: 가입 회원은 스케줄과 멤버 탭을 함께 사용합니다. -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,6 +16,7 @@
   >
 
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/regular-detail.css">
 </head>
 
 <body>
@@ -77,6 +78,15 @@
           ← 목록으로
         </a>
 
+        <% if (isOwner || isMember) { %>
+          <div class="manage-tab-bar" role="tablist" aria-label="모임 상세 메뉴">
+            <button type="button" class="manage-tab active" id="tab-info" role="tab" aria-selected="true" aria-controls="panel-info" data-crew-tab="info">📋 모임 상세</button>
+            <button type="button" class="manage-tab" id="tab-schedule" role="tab" aria-selected="false" aria-controls="panel-schedule" tabindex="-1" data-crew-tab="schedule">📅 스케줄</button>
+            <button type="button" class="manage-tab" id="tab-members" role="tab" aria-selected="false" aria-controls="panel-members" tabindex="-1" data-crew-tab="members">👥 멤버</button>
+          </div>
+        <% } %>
+
+        <div class="manage-panel active" id="panel-info" <%- isOwner || isMember ? 'role="tabpanel" aria-labelledby="tab-info"' : '' %>>
         <!-- 공통 크루 정보 -->
         <%- include('./partials/crew-info', {
           crew,
@@ -90,6 +100,9 @@
           <%- include('./partials/crew-edit', {
             crew
           }) %>
+          <div style="margin-bottom:16px;">
+            <button type="button" class="btn btn-outline" onclick="toggleAddForm()">+ 일정 추가</button>
+          </div>
         <% } %>
 
         <!-- 후기 목록 및 작성 -->
@@ -107,21 +120,33 @@
           isOwner,
           isMember
         }) %>
+        <% if (isOwner || isMember) { %>
+          <form method="POST" action="/regular/<%= isOwner ? 'delete' : 'withdraw' %>/<%= crew._id %>" data-crew-confirm="<%= isOwner ? '모임을 해산하시겠습니까? 해산한 모임은 복구할 수 없습니다.' : '모임에서 탈퇴하시겠습니까?' %>" style="margin-top:16px;">
+            <button type="submit" class="action-btn danger"><%= isOwner ? '모임 해산' : '모임 탈퇴' %></button>
+          </form>
+        <% } %>
+        </div>
+
+        <% if (isOwner || isMember) { %>
+          <%- include('./partials/crew-schedule', { acts, currentUserId }) %>
+          <%- include('./partials/crew-members', { crew, pendingApps, isOwner, hostId }) %>
+          <script type="module" src="/js/regularCrew/detail-tabs.js"></script>
+        <% } %>
       </div>
     </div>
   </div>
+
+<% if (isOwner) { %>
+  <%- include('./partials/schedule-modal', { CONSTANTS }) %>
+  <div class="schedule-overlay" id="scheduleOverlay" onclick="toggleAddForm()"></div>
+  <script type="application/json" id="schedule-config"><%- JSON.stringify({ crewId: String(crew._id) }).replace(/</g, '\\u003c') %></script>
+  <script type="module" src="/js/schedule-create.js"></script>
+<% } %>
 
 <script src="/js/like.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-function switchTab(name, btn) {
-  document.querySelectorAll('.manage-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.manage-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const userId = '<%= userId || "" %>';
   const crewId = '<%= crew._id %>';

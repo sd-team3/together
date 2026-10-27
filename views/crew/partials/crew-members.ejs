@@ -1,0 +1,64 @@
+<div class="manage-panel" id="panel-members" role="tabpanel" aria-labelledby="tab-members">
+  <div class="member-stat-row" <%- !isOwner ? 'style="grid-template-columns:repeat(2,1fr)"' : '' %>>
+    <div class="member-stat-card">
+      <span class="member-stat-val"><%= crew.member.memberList.length %></span>
+      <span class="member-stat-label">현재 멤버</span>
+    </div>
+    <div class="member-stat-card">
+      <span class="member-stat-val"><%= crew.member.capacity %></span>
+      <span class="member-stat-label">최대 인원</span>
+    </div>
+    <% if (isOwner) { %>
+      <div class="member-stat-card" style="border-color:#fecaca;">
+        <span class="member-stat-val" style="color:#ef4444;"><%= pendingApps.length %></span>
+        <span class="member-stat-label">승인 대기</span>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (isOwner) { %>
+    <div class="manage-section">
+      <div class="manage-section-header"><div class="manage-section-title">⏳ 가입 신청 대기</div></div>
+      <% if (!pendingApps.length) { %>
+        <p style="padding:16px;color:var(--text-3);font-size:13px;">대기 중인 신청이 없습니다</p>
+      <% } %>
+      <% pendingApps.filter(app => app.userId).forEach(app => { %>
+        <div class="member-request-item">
+          <img src="/images/user-profile/<%= app.userId.profileImage || 'default-profile-image.jpg' %>" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+          <div class="member-info">
+            <div class="member-name"><%= app.userId.name %></div>
+            <div class="member-meta"><%= app.userId.age %>세</div>
+          </div>
+          <div class="member-action-btns">
+            <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>
+            <button type="button" class="approve-btn" data-application-id="<%= app._id %>" data-application-action="accept">✓ 승인</button>
+            <button type="button" class="reject-btn" data-application-id="<%= app._id %>" data-application-action="reject">✗ 거절</button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div class="manage-section">
+    <div class="manage-section-header"><div class="manage-section-title">👥 멤버 목록</div></div>
+    <% crew.member.memberList.filter(member => member.user).forEach(member => { %>
+      <div class="member-list-item">
+        <img src="/images/user-profile/<%= member.user.profileImage || 'default-profile-image.jpg' %>" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+        <div class="member-info">
+          <div class="member-name"><%= member.user.name %></div>
+          <div class="member-meta"><%= member.user.age %>세 · 가입 <%= new Date(member.joinedAt).toLocaleDateString('ko-KR') %></div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= member.user._id %>')">👤 프로필</button>
+        <% if (member.user._id.toString() === hostId) { %>
+          <span class="member-role-tag host">👑 크루장</span>
+        <% } else { %>
+          <span class="member-role-tag member">멤버</span>
+          <% if (isOwner) { %>
+            <button type="button" class="kick-btn" data-kick-user="<%= member.user._id %>" data-member-name="<%= member.user.name %>">강퇴</button>
+          <% } %>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+  <p id="member-action-message" role="status"></p>
+</div>

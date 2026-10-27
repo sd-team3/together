@@ -41,16 +41,20 @@ export function renderNoti(noti, notiList) {
     notiDiv.innerHTML = `
         <div class="noti-body">
             <div class="noti-title">
-                <strong>${noti.title}</strong>
-                ${noti.sender || ''}
+                <strong></strong>
+                <span class="noti-sender"></span>
             </div>
-            <div class="noti-meta">${noti.content}</div>
+            <div class="noti-meta"></div>
             <div class="noti-time">${notiTime}</div>
         </div>
         <button class="btn btn-outline btn-sm action-btn">${noti.isRead ? '삭제' : '읽음'}</button>
     `;  
 
-    notiDiv.querySelector('.action-btn').addEventListener('click', async ()=>{
+    notiDiv.querySelector('.noti-title strong').textContent = noti.title || '';
+    notiDiv.querySelector('.noti-sender').textContent = noti.sender?.name || noti.sender || '';
+    notiDiv.querySelector('.noti-meta').textContent = noti.content || '';
+
+    notiDiv.querySelector('.action-btn').addEventListener('click', async (e)=>{
         e.stopPropagation();
         try {
             const response = await fetch(`/noti/${noti._id}/${noti.isRead ? 'delete' : 'read'}`, {
@@ -70,7 +74,7 @@ export function renderNoti(noti, notiList) {
     });
 
     notiDiv.addEventListener('click', async () => {
-        if (noti.event === 'ACTIVITY_ATTEND') {
+        if (noti.event === 'ACTIVITY_ATTEND' && !noti.route?.includes('/attendance')) {
             if (!navigator.geolocation) {
                 alert("이 브라우저에서는 GPS 출석 체크를 지원하지 않습니다.");
                 return;

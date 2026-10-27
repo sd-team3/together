@@ -6,7 +6,6 @@ const fs = require('fs');
 const User = require('../../models/User');
 const { CONSTANTS } = require('../../config/constants');
 const chatService = require('../chatService'); //
-const crewApplication = require('../../models/crewApplication');
 const ChatRoom = require('../../models/ChatRoom');
 const activityService = require('../crew/activityService');
 const crewActivity = require('../../models/crewActivity');
@@ -169,7 +168,9 @@ async function withdrawMyCrew(regularCrewId, userId) {
 async function getCrewDetail(regularCrewId) {
     const crew = await regularCrew.findById(regularCrewId)
                                   .populate('host', 'name profileImage')
-                                  .populate('member.memberList.user', 'name profileImage');
+                                  .populate('member.memberList.user', 'name age profileImage');
+
+    if (!crew) return null;
 
     const obj = crew.toObject();
 
@@ -206,17 +207,6 @@ async function crewLike(regularCrewId, userId) {
     await regularCrew.findByIdAndUpdate(regularCrewId,
         isLiked ? { $pull: {likedBy: userId}, $inc: {reputation: -1} } : { $push: {likedBy: userId}, $inc: {reputation: 1}}
     );
-}
-
-async function getCrewManage(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).populate('member.memberList.user', 'name age profileImage address');
-
-    const pendingApps = await crewApplication.find({ crewId: regularCrewId, status: 'pending' })
-                                             .populate('userId', 'name age profileImage');
-    console.log('pendingApps:', pendingApps);
-
-    const acts = await activityService.findActsByCrewId(regularCrewId);
-    return { crew, pendingApps, acts };
 }
 
 async function postCrewUpdate(regularCrewId, updateData, updateFile) {
@@ -299,7 +289,6 @@ module.exports = {
     crewLike,
     getRegularCrews, 
     getRegularAPICrews,
-    getCrewManage,
     postCrewUpdate,
     getCrewActivity,
     handleUserDeleted,

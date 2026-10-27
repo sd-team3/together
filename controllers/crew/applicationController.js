@@ -94,7 +94,9 @@ const joinProcess = async (req, res) => {
             title: `${req.crew.title} 크루 가입이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
             content: `당신의 가입 요청이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
             event: `APPLICATION_${action === 'accept' ? 'ACCEPTED' : 'REJECTED'}`,
-            route: `${req.baseUrl}/detail/${app.crewId}`,
+            route: req.crewModel.modelName === 'regularCrew'
+                ? `/regular/list/${app.crewId}`
+                : `${req.baseUrl}/detail/${app.crewId}`,
             target: []
         };
 

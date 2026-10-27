@@ -3,7 +3,6 @@ const router = express.Router();
 const regularCrew = require('../../models/regularCrew');
 const regularController = require('../../controllers/crew/regularController');
 const applicationController = require('../../controllers/crew/applicationController');
-const applicationService = require('../../services/crew/applicationService');
 const crewMiddleware = require('../../middlewares/crewMiddleware');
 const { uploadRegularProfile } = require('../../config/upload');
 const activityRouter = require('../crew/activityRouter');
@@ -37,6 +36,8 @@ router.post('/delete/:crewId',
 
 router.post('/withdraw/:crewId',
     crewMiddleware.loginValidation,
+    crewMiddleware.isCrewExist,
+    crewMiddleware.isMember,
     regularController.postMyCrewWithdraw
 );
 
@@ -69,8 +70,7 @@ router.post('/join/:appId/:action',
 );
 
 router.get('/my',
-    crewMiddleware.loginValidation,
-    regularController.getMyCrews
+    (req, res) => res.redirect('/regular/list')
 );
 router.get('/list', regularController.getRegular);
 router.get('/list/:crewId', 
@@ -80,9 +80,7 @@ router.get('/list/:crewId',
 router.get('/api', regularController.getRegularAPI);
 
 router.get('/manage/:crewId',
-    crewMiddleware.loginValidation,
-    crewMiddleware.isCrewExist,
-    regularController.getCrewManage
+    (req, res) => res.redirect(`/regular/list/${req.params.crewId}`)
 );
 router.post('/manage/:crewId/update',
     crewMiddleware.loginValidation,
@@ -91,10 +89,6 @@ router.post('/manage/:crewId/update',
     uploadRegularProfile.single('uploadFile'),
     regularController.postCrewUpdate
 );
-
-router.get('/api/my',
-    crewMiddleware.loginValidation,
-    regularController.getMyCrewsApi);
 
 router.get('/activity/:crewId',
     crewMiddleware.loginValidation,

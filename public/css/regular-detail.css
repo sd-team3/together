@@ -1,0 +1,39 @@
+#panel-schedule .activity-card {
+  margin: 12px;
+}
+
+#panel-schedule .activity-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  cursor: default;
+  user-select: text;
+}
+
+#panel-schedule .activity-main {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#panel-schedule .activity-meta {
+  flex-wrap: wrap;
+}
+
+#panel-schedule button:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  #panel-schedule .activity-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #panel-schedule .activity-row > button {
+    justify-self: start;
+  }
+
+  #panel-members .member-list-item,
+  #panel-members .member-request-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

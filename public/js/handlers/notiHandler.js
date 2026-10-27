@@ -103,4 +103,9 @@ export function initNotiSocket(user) {
         renderNoti(noti, notiList);
         showToast(`활동시간입니다, 출석하세요. '${noti.title}'`);
     });
+
+    socket.on('ACTIVITY_REMINDER', (noti)=>{
+        renderNoti(noti, notiList);
+        showToast(noti.title);
+    });
 }

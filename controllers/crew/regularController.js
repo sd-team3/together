@@ -3,6 +3,7 @@ const { authenticate } = require('passport');
 const { CONSTANTS } = require('../../config/constants');
 const regularService = require('../../services/crew/regularService');
 const activityService = require('../../services/crew/activityService');
+const applicationService = require('../../services/crew/applicationService');
 const { MIN_REVIEW_COUNT } = require('../../services/ai/reviewSummaryService');
 const {
     getOrCreateReviewSummary
@@ -75,6 +76,7 @@ const getRegularPage = async (req, res, next) => {
     try {
         const { crewId } = req.params;
         const crew = await regularService.getCrewDetail(crewId);
+        if (!crew) return res.status(404).send('존재하지 않는 모임입니다.');
         const reviews = await regularService.getCrewReview(crewId);
         let userId;
         let isLiked;
@@ -87,43 +89,24 @@ const getRegularPage = async (req, res, next) => {
             userId = null;
         }
 
-        res.render('crew/regular-join-page', { crew, isLiked, userId , reviews});
+        const id = userId?.toString();
+        const isOwner = Boolean(id && (crew.host?._id || crew.host)?.toString() === id);
+        const isMember = Boolean(id && crew.member.memberList.some(member =>
+            (member.user?._id || member.user)?.toString() === id));
+        const [acts, pendingApps] = await Promise.all([
+            isOwner || isMember ? activityService.findActsByCrewId(crewId) : [],
+            isOwner ? applicationService.findPendingAppsByCrewId(crewId) : []
+        ]);
+        res.render('crew/regular-join-page', { crew, isLiked, userId, reviews, acts, pendingApps, CONSTANTS });
     } catch (error) {
         next(error);
-    }
-}
-
-const getMyCrews = async (req, res) => {
-    try {
-        const userId = req.user._id;
-        const role = req.query.role || 'all';
-        const crews = await regularService.getMyCrews(userId, role);
-        res.render('crew/my', { crews, role });
-    } catch (error) {
-        console.error(error);
-        res.status(500).render('error/error_500');
-    }
-}
-
-const getMyCrewsApi = async (req, res) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.status(401).json({ message: '로그인이 필요합니다.' });
-        }
-        const userId = req.user._id;
-        const role = req.query.role || 'all';
-        const crews = await regularService.getMyCrews(userId, role);
-        res.json({ crews });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: '서버 오류' });
     }
 }
 
 const postMyCrewDelete = async (req, res) => {
     try {
         await regularService.deleteMyCrew(req.params.crewId);
-        res.redirect('/regular/my');
+        res.redirect('/regular/list');
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -132,8 +115,11 @@ const postMyCrewDelete = async (req, res) => {
 
 const postMyCrewWithdraw = async (req, res) => {
     try {
+        if (req.crew.host.toString() === req.user._id.toString()) {
+            return res.status(403).json({ message: '모임장은 탈퇴할 수 없습니다. 모임 해산을 이용해주세요.' });
+        }
         await regularService.withdrawMyCrew(req.params.crewId, req.user._id);
-        res.redirect('/regular/my');
+        res.redirect(`/regular/list/${req.params.crewId}`);
     } catch (error) {
         console.error(error);
         res.status(500).render('error/error_500');
@@ -149,20 +135,6 @@ const postCrewLike = async (req, res) => {
         res.json({success: true});
     } catch (error) {
         console.error(error);
-        res.status(500).render('error/error_500');
-    }
-}
-
-const getCrewManage = async (req, res) => {
-    try {
-        if (!req.isAuthenticated()) {
-            return res.redirect('/user/login');
-        }
-        const {crew, pendingApps} = await regularService.getCrewManage(req.params.crewId);
-        const acts = await activityService.findActsByCrewId(req.params.crewId);
-        res.render('crew/crewManage', { crew, pendingApps, CONSTANTS, acts });
-    } catch(error) {
-        console.error('getCrewManage 에러:', error);
         res.status(500).render('error/error_500');
     }
 }
@@ -274,14 +246,11 @@ const getCrewReviewSummary = async (req, res) => {
 module.exports = {
     getRegularCreate,
     postRegularCreate, //기능명세
-    getMyCrews,
     postMyCrewDelete,
     postMyCrewWithdraw,
     postCrewLike,
     getRegular,
     getRegularAPI,
-    getMyCrewsApi,
-    getCrewManage,
     postCrewUpdate,
     getRegularPage,
     getCrewActivity,

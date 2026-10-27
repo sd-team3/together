@@ -196,7 +196,7 @@ document.getElementById('regular-card').addEventListener('click', e => {
     const item = e.target.closest('.crew-list-item');
     if (!item) return;
     const crewId = item.dataset.crewId;
-    if (crewId) window.location.href = `/regular/manage/${crewId}`;
+    if (crewId) window.location.href = `/regular/list/${crewId}`;
 });
 
 // 월간 달력 ◀, ▶ 버튼
