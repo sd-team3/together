@@ -5,6 +5,7 @@ const crewService = require('../services/crew/crewService');
 const notiService = require('../services/notiService');
 const User = require('../models/User');
 const mongoose = require('mongoose');
+const { settleAttendance, applyAbsencePenalty } = require('../services/crew/attendanceSettlementService');
 
 // 매일 자정 만료된 번개모임·채팅방 자동 삭제
 function startScheduler(io) {
@@ -22,6 +23,15 @@ function startScheduler(io) {
     cron.schedule('* * * * *', async () => {
         try {
             const now = new Date();
+
+            try {
+                const settled = await settleAttendance(now);
+                if (settled.regular || settled.instant) {
+                    console.log(`[출석 정산] 정기 ${settled.regular}건 / 번개 ${settled.instant}건`);
+                }
+            } catch (err) {
+                console.error('[출석 정산 오류]:', err.message);
+            }
 
             const startedActivities = await crewActivity.find({
                 startTime: { $lte: now },
@@ -71,6 +81,7 @@ function startScheduler(io) {
 
             const endedActivities = await crewActivity.find({
                 endTime: { $lte: now },
+                startTime: { $lt: new Date(now.getTime() - 30 * 60 * 1000) },
                 status: '활동'
             });
 
@@ -86,18 +97,20 @@ function startScheduler(io) {
                     const noShowUsers = allParticipants.filter(id => !attendedUsers.includes(id));
                     const attendedCount = attendedUsers.length;
 
-                    if (attendedUsers.length > 0) {
-                        await User.updateMany(
-                            { _id: { $in: attendedUsers } },
-                            { $inc: { honor: 1 } }
-                        );
-                    }
-
-                    if (noShowUsers.length > 0) {
-                        await User.updateMany(
-                            { _id: { $in: noShowUsers } },
-                            { $inc: { honor: -1 } }
-                        );
+                    // QR 출석 정책이 활성화된 경기는 시작 30분 시점에 세분화 정산한다.
+                    // 기존 QR 미사용 경기는 이전 정산 규칙을 유지한다.
+                    if (!act.attendancePolicyEnabled) {
+                        if (attendedUsers.length > 0) {
+                            await User.updateMany(
+                                { _id: { $in: attendedUsers } },
+                                { $inc: { honor: 1 }, $set: { consecutiveAbsenceCount: 0 } }
+                            );
+                        }
+                        if (noShowUsers.length > 0) {
+                            for (const userId of noShowUsers) {
+                                await applyAbsencePenalty(userId, -1);
+                            }
+                        }
                     }
 
                     if (attendedCount > 0) {
@@ -132,7 +145,7 @@ function startScheduler(io) {
                     }
 
                     console.log(`🏁 [정산완료] ${act.title}`);
-                    console.log(`   - 출석: ${attendedCount}명 (+1점) / 노쇼: ${noShowUsers.length}명 (-1점)`);
+                    console.log(`   - 출석: ${attendedCount}명 / 미출석: ${noShowUsers.length}명`);
 
                 } catch (error) {
                     console.error(`[정산 에러] ${act.title} 처리 중 오류:`, error.message);

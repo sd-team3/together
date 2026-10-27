@@ -45,6 +45,9 @@
 .attendance-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg);display:grid;place-items:center;flex-shrink:0}
 .attendance-member-state{margin-left:auto;font-size:10px;white-space:nowrap;color:var(--text-3)}
 .attendance-member-state.attended{color:var(--primary)}
+.attendance-member-state.late{color:#d97706}
+.attendance-member-state.absent{color:var(--red)}
+.attendance-member-state.pending{color:var(--text-3)}
 .attendance-page .attendance-empty-list{padding:38px 20px;text-align:center}
 .attendance-empty,.attendance-check{padding:60px 24px;text-align:center}
 .attendance-qr{padding:24px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:20px}

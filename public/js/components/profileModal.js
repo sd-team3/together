@@ -17,6 +17,9 @@ export async function openProfileModal(userId) {
     document.getElementById('pm-name').textContent = '...';
     document.getElementById('pm-meta').textContent = '...';
     document.getElementById('pm-score').textContent = '0';
+    document.getElementById('pm-honor').textContent = '0점';
+    document.getElementById('pm-honor').style.color = 'var(--primary)';
+    document.getElementById('pm-honor').style.fontSize = '18px';
     document.getElementById('pm-img').src = '/images/user-profile/default-profile-image.jpg';
     document.getElementById('pm-crew-list').innerHTML = '<div style="color:var(--text-3);font-size:13px;">불러오는 중...</div>';
 
@@ -50,6 +53,9 @@ export async function openProfileModal(userId) {
                 document.getElementById('pm-score').textContent = '비공개';
                 document.getElementById('pm-score').style.color = 'var(--text-3)';
                 document.getElementById('pm-score').style.fontSize = '13px';
+                document.getElementById('pm-honor').textContent = '비공개';
+                document.getElementById('pm-honor').style.color = 'var(--text-3)';
+                document.getElementById('pm-honor').style.fontSize = '11px';
             }
             return;
         }
@@ -62,12 +68,15 @@ export async function openProfileModal(userId) {
 
         const genderKor = u.gender === 'male' ? '남성' : '여성';
         document.getElementById('pm-meta').textContent = `${genderKor} · ${u.age}세`;
-        document.getElementById('pm-score').textContent = u.reputation || 0;
+        document.getElementById('pm-score').textContent = u.reputation ?? 0;
 
         if (u.privacy?.showManner === false) {
-        document.getElementById('pm-score').textContent = '비공개';
-        document.getElementById('pm-score').style.color = 'var(--text-3)';
-    }
+            document.getElementById('pm-honor').textContent = '비공개';
+            document.getElementById('pm-honor').style.color = 'var(--text-3)';
+            document.getElementById('pm-honor').style.fontSize = '11px';
+        } else {
+            document.getElementById('pm-honor').textContent = `${u.honor ?? 0}점`;
+        }
 
         // 친구 여부 확인
         if (data.friendInfo) {
@@ -188,9 +197,16 @@ function _injectHTML() {
                             <div style="font-size:16px;font-weight:700;" id="pm-name">이름</div>
                             <div style="font-size:12.5px;color:var(--text-3);margin-top:3px;" id="pm-meta">성별 · 나이</div>
                         </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--primary);" id="pm-score">0</div>
-                            <div style="font-size:11px;color:var(--text-3);">활동 점수</div>
+                        <div style="display:flex;align-items:center;gap:14px;text-align:center;flex-shrink:0;">
+                            <div>
+                                <div style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--primary);" id="pm-score">0</div>
+                                <div style="font-size:11px;color:var(--text-3);white-space:nowrap;">활동 점수</div>
+                            </div>
+                            <div style="width:1px;height:34px;background:var(--border);"></div>
+                            <div>
+                                <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--primary);" id="pm-honor">0점</div>
+                                <div style="font-size:11px;color:var(--text-3);white-space:nowrap;">매너 점수</div>
+                            </div>
                         </div>
                         <div style="position:relative;">
                             <button class="btn btn-outline btn-sm" id="pm-menu-btn" style="padding:6px 10px;">•••</button>

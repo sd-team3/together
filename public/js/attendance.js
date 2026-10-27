@@ -100,9 +100,12 @@
 
         try {
             const data = await post(check.dataset.endpoint, { token });
+            const statusMessage = data.attendanceStatus === 'late'
+                ? '지각으로 출석 처리됐어요. 매너 점수 1점이 감소했어요.'
+                : '출석 완료! 매너 점수 1점이 올라갔어요.';
             message.textContent = data.alreadyAttended
-                ? '이미 출석 완료된 활동이에요.'
-                : '출석 완료! 오늘도 즐겁게 운동하세요.';
+                ? '이미 출석 처리된 활동이에요.'
+                : statusMessage;
             check.textContent = '출석 완료';
             history.replaceState(null, '', location.pathname);
         } catch (error) {

@@ -123,7 +123,7 @@
                                 <span><%= activity.location.state %> <%= activity.location.city %> <%= activity.location.detail %></span>
                             </div>
                             <% if (isOwner && !canIssue) { %>
-                                <p class="attendance-help"><%= instant ? 'QR은 모임 시작 후 3시간 동안 생성하고 출석할 수 있어요.' : 'QR은 활동 시작 후 종료 전까지 생성할 수 있어요.' %></p>
+                                <p class="attendance-help">시작 후 10분까지 정상 출석(+1점), 30분까지 지각(-1점)이에요. 30분이 지나면 결석(-2점) 처리돼요.</p>
                             <% } %>
                             <section id="qr-panel" class="attendance-card attendance-qr" hidden aria-label="출석 QR">
                                 <div>
@@ -146,7 +146,7 @@
                         <section class="attendance-card attendance-check">
                             <span class="attendance-check-icon">📋</span>
                             <h2><%= activity.title %></h2>
-                            <p>현장에 도착하셨나요? 아래 버튼을 눌러 출석해주세요.</p>
+                            <p>시작 후 10분까지 정상 출석(+1점), 30분까지 지각(-1점)이에요. 이후에는 결석(-2점) 처리돼요.</p>
                             <button type="button" class="btn btn-primary" id="check-attendance" data-endpoint="<%= base %><%= instant ? '/check' : '/activity/' + activity._id + '/check' %>">출석하기</button>
                             <p id="attendance-message" role="status">
                             </p>

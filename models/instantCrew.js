@@ -62,6 +62,13 @@ const instantCrewSchema = new mongoose.Schema(
             enum: SPORTS_EN
         },
         attender: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        attendanceRecords: [{
+            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+            status: { type: String, enum: ['present', 'late', 'absent'], required: true },
+            checkedInAt: { type: Date, default: null }
+        }],
+        attendancePolicyEnabled: { type: Boolean, default: false },
+        attendanceSettledAt: { type: Date, default: null },
         attendanceQrHash: { type: String, select: false },
         attendanceQrExpiresAt: { type: Date, select: false },
         avgReputation: { type: Number, default: 0 }

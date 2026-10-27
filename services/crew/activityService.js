@@ -58,8 +58,10 @@ async function findGameRecordsByUserId(userId, crewType) {
 
     return acts.map(act => {
         const attended = (act.attender || []).some(id => id.toString() === userId.toString());
+        const attendanceRecord = (act.attendanceRecords || []).find(record => record.user.toString() === userId.toString());
+        const attendanceStatus = attendanceRecord?.status || (attended ? 'present' : act.attendanceSettledAt ? 'absent' : 'pending');
         const hasReviewed = (act.mannerReviews || []).some(review => review.reviewer.toString() === userId.toString());
-        return { ...act, attended, hasReviewed };
+        return { ...act, attended, attendanceStatus, hasReviewed };
     });
 }
  

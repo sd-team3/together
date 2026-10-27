@@ -1,13 +1,20 @@
+<% const attendanceStates = [
+    { key: 'present', label: '출석' },
+    { key: 'late', label: '지각' },
+    { key: 'absent', label: '결석' },
+    { key: 'pending', label: '미출석' }
+]; %>
 <div class="attendance-summary">
     <strong>참가자 <%= members.length %>명</strong>
-    <span>출석 <%= members.filter(m => m.attended).length %>명</span>
-    <span>미출석 <%= members.filter(m => !m.attended).length %>명</span>
+    <% attendanceStates.forEach(state => { %>
+        <span><%= state.label %> <%= members.filter(m => (m.status || (m.attended ? 'present' : 'pending')) === state.key).length %>명</span>
+    <% }); %>
 </div>
 <div class="attendance-rosters">
-    <% [true, false].forEach(attended => { const group = members.filter(member => member.attended === attended); %>
+    <% attendanceStates.forEach(state => { const group = members.filter(member => (member.status || (member.attended ? 'present' : 'pending')) === state.key); %>
         <section class="attendance-card">
             <div class="attendance-roster-heading">
-                <h3><%= attended ? '출석 멤버' : '미출석 멤버' %></h3>
+                <h3><%= state.label %> 멤버</h3>
                 <span class="attendance-count"><%= group.length %></span>
             </div>
             <ul class="attendance-member-list">
@@ -15,12 +22,12 @@
                     <li>
                         <span class="attendance-avatar" aria-hidden="true"><%= Array.from(member.name)[0] %></span>
                         <strong><%= member.name %></strong>
-                        <span class="attendance-member-state <%= attended ? 'attended' : '' %>"><%= attended ? '출석' : '미출석' %></span>
+                        <span class="attendance-member-state <%= state.key === 'present' ? 'attended' : state.key %>"><%= state.label %></span>
                     </li>
                 <% }); %>
             </ul>
             <% if (!group.length) { %>
-                <p class="attendance-empty-list"><%= attended ? '아직 출석한 멤버가 없어요.' : '미출석 멤버가 없어요.' %></p>
+                <p class="attendance-empty-list"><%= state.label %> 멤버가 없어요.</p>
             <% } %>
         </section>
     <% }); %>

@@ -727,6 +727,7 @@ select.input{cursor:pointer}
 .game-record-meta{font-size:12px;color:var(--text-3);line-height:1.7}
 .game-record-state{font-size:12px;font-weight:700;white-space:nowrap}
 .game-record-state.attended{color:var(--green)}
+.game-record-state.late{color:#d97706}
 .game-record-state.absent{color:var(--red)}
 .game-record-action{white-space:nowrap}
 

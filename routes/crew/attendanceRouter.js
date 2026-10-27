@@ -74,10 +74,12 @@ router.get('/day/:date', async (req, res, next) => {
             .lean();
         const names = new Map(users.map((user) => [String(user._id), user.name]));
         const attendedIds = new Set((activity?.attender || []).map(String));
+        const attendanceRecords = new Map((activity?.attendanceRecords || []).map((record) => [String(record.user), record]));
         const members = memberIds.map((id) => ({
             id,
             name: names.get(id) || '탈퇴한 멤버',
-            attended: attendedIds.has(id)
+            status: attendanceRecords.get(id)?.status || (attendedIds.has(id) ? 'present' : activity?.attendanceSettledAt ? 'absent' : 'pending'),
+            attended: attendanceRecords.get(id)?.status === 'present' || attendanceRecords.get(id)?.status === 'late' || attendedIds.has(id)
         }));
         res.render('crew/attendance', {
             mode: 'day',

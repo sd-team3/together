@@ -1,6 +1,7 @@
 const crewActivity = require('../../models/crewActivity');
 const activityService = require('../../services/crew/activityService');
 const User = require('../../models/User');
+const attendanceService = require('../../services/crew/attendanceService');
 
 const postActivityCreate = async (req, res)=>{
     try {
@@ -82,13 +83,18 @@ const postAttendance = async (req, res) => {
         const act = req.activity; 
         const userId = req.user._id;
         const { lat, lng } = req.body; 
+        const checkedInAt = new Date();
 
         const latitude = Number(lat);
         const longitude = Number(lng);
         if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
             return res.status(400).json({ message: "위치 정보(좌표)가 올바르지 않습니다." });
         }
-        if (act.status !== '활동') return res.status(400).json({ message: "현재 출석 체크 가능한 시간이 아닙니다." });
+        if (
+            act.status !== '활동' ||
+            checkedInAt < new Date(act.startTime) ||
+            checkedInAt > attendanceService.attendanceDeadline(act.startTime)
+        ) return res.status(400).json({ message: "활동 시작 후 30분까지만 출석 체크할 수 있습니다." });
 
         const participantIds = [...(act.teamBlue || []), ...(act.teamRed || [])].map(id => id.toString());
         if (!participantIds.includes(userId.toString())) return res.status(403).json({ message: "경기 참가자만 출석 체크할 수 있습니다." });
@@ -112,10 +118,54 @@ const postAttendance = async (req, res) => {
             return res.status(400).json({ message: `모임 장소에서 너무 멉니다. (현재 거리: 약 ${limitMeter}m) 500m 이내로 접근해주세요.` });
         }
 
-        act.attender.push(userId);
-        await act.save();
+        const attendanceStatus = attendanceService.attendanceStatus(act.startTime, checkedInAt);
+        const scoreDelta = attendanceService.attendanceScoreDelta(attendanceStatus);
+        const session = await crewActivity.startSession();
+        let updateResult;
+        try {
+            await session.withTransaction(async () => {
+                updateResult = await crewActivity.updateOne(
+                    {
+                        _id: act._id,
+                        status: '활동',
+                        attendanceSettledAt: null,
+                        $or: [{ teamBlue: userId }, { teamRed: userId }],
+                        startTime: {
+                            $lte: checkedInAt,
+                            $gte: new Date(checkedInAt.getTime() - 30 * 60 * 1000)
+                        },
+                        attender: { $ne: userId },
+                        attendanceRecords: { $not: { $elemMatch: { user: userId } } }
+                    },
+                    {
+                        $addToSet: { attender: userId },
+                        $push: { attendanceRecords: { user: userId, status: attendanceStatus, checkedInAt } },
+                        $set: { attendancePolicyEnabled: true }
+                    },
+                    { session }
+                );
+                if (updateResult.matchedCount && scoreDelta !== 0) {
+                    await User.updateOne(
+                        { _id: userId },
+                        { $inc: { honor: scoreDelta }, $set: { consecutiveAbsenceCount: 0 } },
+                        { session }
+                    );
+                }
+            });
+        } finally {
+            await session.endSession();
+        }
+        if (!updateResult.matchedCount) {
+            return res.status(400).json({ message: '이미 출석했거나 출석 가능 시간이 지났습니다.' });
+        }
 
-        return res.status(200).json({ message: "출석이 정상적으로 완료되었습니다!" });
+        return res.status(200).json({
+            message: attendanceStatus === 'late'
+                ? '지각으로 출석 처리됐습니다. 매너 점수 -1점'
+                : '정상 출석 처리됐습니다. 매너 점수 +1점',
+            attendanceStatus,
+            scoreDelta
+        });
 
     } catch (error) {
         console.error('출석 체크 에러:', error.message);
