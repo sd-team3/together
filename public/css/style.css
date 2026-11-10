@@ -5273,3 +5273,55 @@ body.dark .tt-px-event {
 .intro-editor-status { color: var(--text-2); font-size: 13px; line-height: 1.6; }
 .crew-intro-image { display: block; max-width: 100%; height: auto; border-radius: 10px; margin: 12px 0; }
 .crew-intro-text { white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0; }
+/* Regular crew directory */
+.regular-list-page .regular-list-title { margin:0 0 24px; font-size:26px; font-weight:750; letter-spacing:-.8px; color:var(--text); }
+.regular-list-page .filter-header-row { gap:20px; flex-wrap:wrap; margin-bottom:24px; }
+.regular-list-page .regular-filter-tabs { gap:12px; flex-wrap:wrap; overflow:visible; }
+.regular-list-page .filter-tab { min-width:110px; padding:10px 16px!important; border:1px solid var(--border)!important; border-radius:6px!important; background:var(--surface)!important; color:var(--text)!important; font-size:13px!important; font-weight:500!important; text-align:left; }
+.regular-list-page .filter-tab::after { content:'⌄'; float:right; margin-left:30px; color:var(--text-3); }
+.regular-list-page .filter-tab.active { border-color:var(--primary)!important; }
+.regular-list-page .filter-toggle-btn { background:transparent; border-color:transparent; }
+.regular-list-heading, .regular-list-page .reg-card { display:grid; grid-template-columns:minmax(0,1fr) 200px 160px; gap:24px; align-items:center; }
+.regular-list-heading { padding:15px 24px; border:1px solid var(--border); border-bottom:0; border-radius:9px 9px 0 0; background:#f0f0ee; font-size:13px; font-weight:700; }
+.regular-list-heading span:last-child { text-align:center; }
+.regular-list-page .regular-grid { border-radius:0 0 9px 9px; }
+.regular-list-page .reg-card { padding:20px 24px; color:inherit; text-decoration:none; min-height:124px; }
+.regular-list-page .reg-card:focus-visible { outline:2px solid var(--primary); outline-offset:-3px; }
+.regular-list-page .reg-summary { display:flex; gap:20px; min-width:0; align-items:center; }
+.regular-list-page .reg-thumb-img { width:100px; height:78px; object-fit:cover; border-radius:6px; flex-shrink:0; }
+.regular-list-page .reg-info { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.regular-list-page .reg-title-row { gap:10px; }
+.regular-list-page .reg-title-row > .pill { display:none; }
+.regular-list-page .reg-card-title { font-size:18px; }
+.regular-list-page .reg-location { order:1; font-size:12px; color:var(--text-2); }
+.regular-list-page .reg-intro { order:2; margin:0; font-size:13px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.regular-list-page .crew-tags { order:3; margin:0; gap:6px; }
+.regular-list-page .crew-tag { background:#f0eef8; color:#514a73; padding:2px 7px; font-size:10px; }
+.regular-list-page .reg-schedule { display:flex; flex-direction:column; gap:7px; border-left:1px solid var(--border); padding-left:32px; font-size:13px; }
+.regular-list-page .reg-schedule strong { font-size:16px; }
+.regular-list-page .reg-availability { display:flex; flex-direction:column; align-items:center; gap:6px; border-left:1px solid var(--border); }
+.regular-list-page .reg-availability strong { font-size:16px; }
+.regular-list-page .reg-availability small { color:var(--text-3); font-size:11px; }
+.regular-list-page .empty-regular-list { padding:48px 20px; text-align:center; }
+@media(max-width:1100px) {
+ .regular-list-heading, .regular-list-page .reg-card { grid-template-columns:minmax(0,1fr) 140px 110px; gap:16px; }
+ .regular-list-page .reg-schedule { padding-left:16px; }
+ .regular-list-page .reg-thumb-img { width:76px; height:76px; }
+}
+@media(max-width:700px) {
+ .regular-list-heading { display:none; }
+ .regular-list-page .regular-grid { border-radius:9px; }
+ .regular-list-page .regular-list-title { font-size:23px; margin-bottom:18px; }
+ .regular-list-page .regular-filter-tabs { display:flex; gap:8px; }
+ .regular-list-page .filter-tab { min-width:0; padding:9px 12px!important; flex:1; }
+ .regular-list-page .filter-tab::after { margin-left:8px; }
+ .regular-list-page .filter-toggle-btn { width:100%; text-align:left; }
+ .regular-list-page .filter-header-actions { margin-left:auto; }
+ .regular-list-page .reg-card { grid-template-columns:minmax(0,1fr) auto; gap:16px; padding:18px 16px; }
+ .regular-list-page .reg-summary { grid-column:1 / -1; gap:12px; }
+ .regular-list-page .reg-card-title { font-size:16px; }
+ .regular-list-page .reg-schedule { padding-left:0; border:0; font-size:12px; }
+ .regular-list-page .reg-schedule strong { font-size:13px; }
+ .regular-list-page .reg-availability { border:0; align-items:flex-end; gap:4px; }
+ .regular-list-page .reg-availability strong { font-size:14px; }
+}

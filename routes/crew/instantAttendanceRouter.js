@@ -81,6 +81,13 @@ router.post('/check', async (req, res, next) => {
         next(error);
     }
 });
+router.post('/host-check', async (req, res, next) => {
+    try {
+        res.json(await service.checkInAsHost(req.params.crewId, req.user._id, req.body));
+    } catch (error) {
+        next(error);
+    }
+});
 router.use((error, req, res, next) => {
     const status = error.status || 500;
     const message =

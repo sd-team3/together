@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const notiService = require('../services/notiService');
 
+router.use('/web-push', require('./webPushRouter'));
+
 router.get('/unread', async (req, res)=>{
     try {
         const userId = req.user._id;

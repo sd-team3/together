@@ -4,6 +4,8 @@ const instantService = require('../services/crew/instantService');
 const activityService = require('../services/crew/activityService');
 const homeService = require('../services/indexService');
 const User = require('../models/User');
+const WebPushSubscription = require('../models/webPushSubscription');
+const { deviceFromRequest } = require('../services/webPushService');
 
 //# 회원 가입 페이지
 const getSignup = async (req, res, next) => {
@@ -99,9 +101,18 @@ const getLogin = (req, res) => {
 
 //로그아웃 처리
 const logout = (req, res, next) => {
-    req.logout((error) => {
+    const user = req.user?._id;
+    const device = deviceFromRequest(req);
+    req.logout(async (error) => {
         if (error) {
             return next(error);
+        }
+        if (user && device) {
+            try {
+                await WebPushSubscription.deleteOne({ _id: device, user });
+            } catch (error) {
+                console.error('[로그아웃 휴대폰 알림 해제 실패]', error.name);
+            }
         }
         res.redirect('/user/login');
     })

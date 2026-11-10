@@ -10,7 +10,8 @@ const {
     isOpen: activityIsOpen,
     attendanceStatus,
     attendanceDeadline,
-    attendanceScoreDelta
+    attendanceScoreDelta,
+    requireNearbyPosition
 } = require('./attendanceService');
 const DURATION = 3 * 60 * 60 * 1000;
 
@@ -78,12 +79,27 @@ async function issueQr(crewId, userId, now = new Date()) {
 async function checkIn(crewId, userId, token, now = new Date()) {
     if (typeof token !== 'string' || !/^[a-f\d]{64}$/.test(token))
         throw fail(400, 'QR을 다시 스캔해주세요.');
-    const { crew } = await access(crewId, userId);
+    return recordCheckIn(crewId, userId, now, { token });
+}
+async function checkInAsHost(crewId, userId, position, now = new Date()) {
+    return recordCheckIn(crewId, userId, now, { position });
+}
+async function recordCheckIn(crewId, userId, now, { token, position }) {
+    const { crew, isOwner } = await access(crewId, userId);
+    if (!token && !isOwner) throw fail(403, '모임장만 위치로 출석할 수 있어요.');
     if (!isOpen(crew, now)) throw fail(409, '모임 시작 후 30분까지만 출석할 수 있습니다.');
     const existingRecord = (crew.attendanceRecords || []).find((record) => id(record.user) === id(userId));
     if (existingRecord || (crew.attender || []).some((attender) => id(attender) === id(userId))) {
         return { alreadyAttended: true, attendanceStatus: existingRecord?.status || 'present', scoreDelta: 0 };
     }
+    if (!token) requireNearbyPosition(position, crew.address);
+    const proofFilter = token
+        ? { attendanceQrHash: hash(token), attendanceQrExpiresAt: { $gt: now } }
+        : {
+            host: userId,
+            'address.lat': crew.address.lat,
+            'address.lng': crew.address.lng
+        };
     const status = attendanceStatus(crew.meetAt, now);
     const scoreDelta = attendanceScoreDelta(status);
     const session = await Crew.startSession();
@@ -93,15 +109,17 @@ async function checkIn(crewId, userId, token, now = new Date()) {
             result = await Crew.updateOne(
                 {
                     _id: crewId,
-            meetAt: { $lte: now, $gte: new Date(now.getTime() - 30 * 60 * 1000) },
+                    meetAt: token
+                        ? { $lte: now, $gte: new Date(now.getTime() - 30 * 60 * 1000) }
+                        : crew.meetAt,
                     attendanceSettledAt: null,
                     $or: [
                         { host: userId },
                         { 'member.memberList': { $elemMatch: { user: userId, status: 'confirmed' } } }
                     ],
+                    attender: { $ne: userId },
                     attendanceRecords: { $not: { $elemMatch: { user: userId } } },
-                    attendanceQrHash: hash(token),
-                    attendanceQrExpiresAt: { $gt: now }
+                    ...proofFilter
                 },
                 {
                     $addToSet: { attender: userId },
@@ -123,11 +141,13 @@ async function checkIn(crewId, userId, token, now = new Date()) {
     }
     if (!result.matchedCount) {
         const latest = await Crew.findById(crewId).select('attender');
-        if (latest?.attender.some((attender) => id(attender) === id(userId))) {
+        if (latest?.attender?.some((attender) => id(attender) === id(userId))) {
             return { alreadyAttended: true, attendanceStatus: status, scoreDelta: 0 };
         }
-        throw fail(409, 'QR이 만료되었거나 참가 정보가 변경되었습니다. 새 QR로 시도해주세요.');
+        throw fail(409, token
+            ? 'QR이 만료되었거나 참가 정보가 변경되었습니다. 새 QR로 시도해주세요.'
+            : '모임 정보가 변경됐어요. 새로고침한 뒤 다시 시도해주세요.');
     }
     return { alreadyAttended: false, attendanceStatus: status, scoreDelta };
 }
-module.exports = { access, activity, isOpen, roster, issueQr, checkIn, dateKey };
+module.exports = { access, activity, isOpen, roster, issueQr, checkIn, checkInAsHost, dateKey };

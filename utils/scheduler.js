@@ -4,6 +4,7 @@ const crewActivity = require('../models/crewActivity');
 const regularCrew = require('../models/regularCrew');
 const instantCrew = require('../models/instantCrew');
 const notiService = require('../services/notiService');
+const webPushService = require('../services/webPushService');
 const { dateKey } = require('../services/crew/attendanceService');
 const User = require('../models/User');
 const mongoose = require('mongoose');
@@ -30,6 +31,7 @@ async function sendReminder(io, meeting, participants, model, startTime, locatio
             if (newNoti && io) {
                 io.of('/noti').to(`user:${userId}`).emit(newNoti.event, newNoti);
             }
+            if (newNoti) await webPushService.sendNotification(newNoti, startTime);
         } catch (error) {
             console.error(`[시작 전 알림 실패 - 유저:${userId}]`, error.message);
         }

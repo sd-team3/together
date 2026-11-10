@@ -44,10 +44,7 @@ const findPendingAppsByCrewId = async (crewId) => {
 
 const findAppByCrewAndUser = async (crewId, userId)=>{
     try {
-        const app = await crewApplication.findOne({ 
-            user: userId, 
-            crew: crewId 
-        });
+        const app = await crewApplication.findOne({ userId, crewId });
 
         return app;
     } catch (error) {

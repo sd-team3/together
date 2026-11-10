@@ -8,6 +8,7 @@
 .attendance-calendar-toolbar{padding:26px 28px;margin:0;background:linear-gradient(120deg,var(--primary-soft),var(--surface))}
 .attendance-calendar-toolbar h2,.attendance-date-header h2{font-size:23px}
 .attendance-month-nav,.attendance-actions{display:flex;align-items:center;gap:8px}
+.attendance-actions{flex-wrap:wrap}
 .attendance-month-nav a{display:grid;place-items:center;min-width:34px;min-height:34px;border:1px solid var(--border);background:var(--surface);border-radius:8px;color:var(--text);text-decoration:none}
 .attendance-month-nav .attendance-today{font-size:11px;padding:0 10px;white-space:nowrap}
 .attendance-weekdays,.attendance-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}

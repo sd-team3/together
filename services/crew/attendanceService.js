@@ -15,6 +15,7 @@ const dateKey = (value) =>
 const hash = (value) => crypto.createHash('sha256').update(value).digest('hex');
 const ON_TIME_MS = 10 * 60 * 1000;
 const ATTENDANCE_DEADLINE_MS = 30 * 60 * 1000;
+const HOST_ATTENDANCE_RADIUS_METERS = 50;
 const ATTENDANCE_SCORE_DELTA = Object.freeze({ present: 1, late: -1, absent: -2 });
 function attendanceStatus(startTime, checkedInAt) {
     const elapsed = new Date(checkedInAt).getTime() - new Date(startTime).getTime();
@@ -27,6 +28,27 @@ function attendanceDeadline(startTime) {
 }
 function attendanceScoreDelta(status) {
     return ATTENDANCE_SCORE_DELTA[status] || 0;
+}
+function validCoordinates({ lat, lng } = {}) {
+    return Number.isFinite(lat) && Math.abs(lat) <= 90 &&
+        Number.isFinite(lng) && Math.abs(lng) <= 180;
+}
+function requireNearbyPosition(position, venue) {
+    if (!position || !validCoordinates(position) || !Number.isFinite(position.accuracy) ||
+        position.accuracy < 0 || position.accuracy > HOST_ATTENDANCE_RADIUS_METERS) {
+        throw fail(400, '위치를 정확히 확인하지 못했어요. 다시 시도해주세요.');
+    }
+    if (!venue || !validCoordinates(venue)) throw fail(409, '모임 장소의 좌표를 확인할 수 없어요.');
+
+    const radians = Math.PI / 180;
+    const halfLat = (position.lat - venue.lat) * radians / 2;
+    const halfLng = (position.lng - venue.lng) * radians / 2;
+    const a = Math.sin(halfLat) ** 2 +
+        Math.cos(venue.lat * radians) * Math.cos(position.lat * radians) * Math.sin(halfLng) ** 2;
+    const distance = 2 * 6371000 * Math.asin(Math.sqrt(Math.min(1, a)));
+    if (distance > HOST_ATTENDANCE_RADIUS_METERS) {
+        throw fail(400, '모임 장소에서 50m 이내로 이동한 뒤 다시 시도해주세요.');
+    }
 }
 function requireId(value) {
     if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value))
@@ -123,7 +145,14 @@ async function issueQr(crewId, activityId, userId, now = new Date()) {
 async function checkIn(crewId, activityId, userId, token, now = new Date()) {
     if (typeof token !== 'string' || !/^[a-f\d]{64}$/.test(token))
         throw fail(400, 'QR을 다시 스캔해주세요.');
-    await access(crewId, userId);
+    return recordCheckIn(crewId, activityId, userId, now, { token });
+}
+async function checkInAsHost(crewId, activityId, userId, position, now = new Date()) {
+    return recordCheckIn(crewId, activityId, userId, now, { position });
+}
+async function recordCheckIn(crewId, activityId, userId, now, { token, position }) {
+    const { isOwner } = await access(crewId, userId);
+    if (!token && !isOwner) throw fail(403, '모임장만 위치로 출석할 수 있어요.');
     const activity = await activityFor(crewId, activityId);
     if (!participants(activity).includes(id(userId)))
         throw fail(403, '이 활동에 참가 신청한 멤버만 출석할 수 있습니다.');
@@ -132,9 +161,13 @@ async function checkIn(crewId, activityId, userId, token, now = new Date()) {
     if (existingRecord || (activity.attender || []).some((attender) => id(attender) === id(userId))) {
         return { alreadyAttended: true, attendanceStatus: existingRecord?.status || 'present', scoreDelta: 0 };
     }
+    if (!token) requireNearbyPosition(position, activity.location);
+    const proofFilter = token
+        ? { attendanceQrHash: hash(token), attendanceQrExpiresAt: { $gt: now } }
+        : { 'location.lat': activity.location.lat, 'location.lng': activity.location.lng };
     const status = attendanceStatus(activity.startTime, now);
     const scoreDelta = attendanceScoreDelta(status);
-    // 참가 여부, 만료와 QR 교체를 쓰기 시점에도 확인하고 중복 등록을 막는다.
+    // 참가 여부와 출석 수단의 조건을 쓰기 시점에도 확인해 중복 등록을 막는다.
     const session = await Activity.startSession();
     let result;
     try {
@@ -146,11 +179,13 @@ async function checkIn(crewId, activityId, userId, token, now = new Date()) {
                     crewModel: 'regular',
                     status: { $ne: '종료' },
                     attendanceSettledAt: null,
-                    startTime: { $lte: now, $gte: new Date(now.getTime() - ATTENDANCE_DEADLINE_MS) },
+                    startTime: token
+                        ? { $lte: now, $gte: new Date(now.getTime() - ATTENDANCE_DEADLINE_MS) }
+                        : activity.startTime,
                     $or: [{ teamBlue: userId }, { teamRed: userId }],
+                    attender: { $ne: userId },
                     attendanceRecords: { $not: { $elemMatch: { user: userId } } },
-                    attendanceQrHash: hash(token),
-                    attendanceQrExpiresAt: { $gt: now }
+                    ...proofFilter
                 },
                 {
                     $addToSet: { attender: userId },
@@ -172,10 +207,12 @@ async function checkIn(crewId, activityId, userId, token, now = new Date()) {
     }
     if (!result.matchedCount) {
         const latest = await Activity.findById(activityId).select('attender');
-        if (latest?.attender.some((attender) => id(attender) === id(userId))) {
+        if (latest?.attender?.some((attender) => id(attender) === id(userId))) {
             return { alreadyAttended: true, attendanceStatus: status, scoreDelta: 0 };
         }
-        throw fail(409, '만료되거나 교체된 QR입니다. 모임장의 새 QR을 스캔해주세요.');
+        throw fail(409, token
+            ? '만료되거나 교체된 QR입니다. 모임장의 새 QR을 스캔해주세요.'
+            : '활동 정보가 변경됐어요. 새로고침한 뒤 다시 시도해주세요.');
     }
     return { alreadyAttended: false, attendanceStatus: status, scoreDelta };
 }
@@ -194,6 +231,8 @@ module.exports = {
     attendanceStatus,
     attendanceDeadline,
     attendanceScoreDelta,
+    requireNearbyPosition,
     issueQr,
-    checkIn
+    checkIn,
+    checkInAsHost
 };

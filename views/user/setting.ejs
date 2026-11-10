@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPORTMATCH — 설정</title>
+<link rel="manifest" href="/manifest.webmanifest">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"/>
 <link rel="stylesheet" href="/css/layouts/setting.css"/>
@@ -93,6 +94,22 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-icon icon-app">🔔</div>
+          <div>
+            <div class="settings-section-title">휴대폰 알림</div>
+            <div class="settings-section-sub">모임 승인과 시작 전 알림을 받습니다</div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-desc" id="web-push-status" role="status">알림 설정을 확인하고 있어요.</div>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" id="web-push-toggle" disabled>휴대폰 알림 켜기</button>
         </div>
       </div>
 
@@ -335,6 +352,7 @@
 <div class="toast-notify" id="toast"></div>
 
 <script src="/js/handlers/setting.js"></script>
+<script type="module" src="/js/handlers/webPush.js"></script>
 
 </body>
 </html>

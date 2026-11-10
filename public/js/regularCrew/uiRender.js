@@ -72,7 +72,7 @@ export function renderRegularCards(regularCrews) {
     const introText = crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.`;
 
     return `
-      <div class="reg-card" data-id="${crew._id}">
+      <a class="reg-card" data-id="${escapeHTML(crew._id)}" href="/regular/list/${encodeURIComponent(crew._id)}"><div class="reg-summary">
         <img class="reg-thumb-img" src="${escapeHTML(crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg')}" alt="${escapeHTML(crew.title)}">
         <div class="reg-info">
           <div class="reg-title-row">
@@ -80,21 +80,15 @@ export function renderRegularCards(regularCrews) {
             <span class="pill pill-${getPillType(remain)}">${getStatusText(remain)}</span>
           </div>
           <p class="reg-intro">${escapeHTML(introText)}</p>
-          <div class="reg-meta-row">
-            <div class="reg-meta-left">
-              📍 ${escapeHTML(crew.address?.state || '')} ${escapeHTML(crew.address?.city || '')} <span class="dot">·</span>
-              🗓️ ${getPeriodText(crew.period)} ${getDayText(crew.day)} <span class="dot">·</span>
-              ${getSportText(crew.sport)} <span class="dot">·</span>
-              💰 ${feeText}
-            </div>
-            <span class="reg-meta-right">${memberCount}/${capacity}명${remain === 0 ? ' · 마감' : ' · ' + remain + '자리'}</span>
-          </div>
+<div class="reg-location">${escapeHTML(crew.address?.state || "")} ${escapeHTML(crew.address?.city || "")} · ${escapeHTML(getSportText(crew.sport))}</div>
           <div class="crew-tags">
             <span class="crew-tag">${getAgeText(crew.ageRange)}</span>
             <span class="crew-tag">${getLevelText(crew.level)}</span>
           </div>
-        </div>
-      </div>
+        </div></div>
+        <div class="reg-schedule"><strong>${escapeHTML(getPeriodText(crew.period))} ${escapeHTML(getDayText(crew.day))}</strong><span>${feeText}</span></div>
+        <div class="reg-availability"><span class="pill pill-${getPillType(remain)}">${getStatusText(remain)}</span><strong>${remain ? "남은 " + remain + "자리" : "모집 마감"}</strong><small>${memberCount}/${capacity}명</small></div>
+      </a>
     `;
   }).join('');
 }

@@ -3,6 +3,17 @@ const path = require('path');
 const fs = require('fs');
 const { randomUUID } = require('crypto');
 
+const imageExtensions = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp'
+};
+
+const makeImageFileName = (req, file, cb) => {
+    cb(null, `${randomUUID()}.${imageExtensions[file.mimetype]}`);
+};
+
 // 파일명 처리
 const makeFileName = (req, file, cb) => {
     const ext = path.extname(file.originalname); //확장자 추출(ex: .png , .jpg, .pdf)
@@ -34,17 +45,15 @@ const boardStorage = multer.diskStorage(
 const regularProfileStorage = multer.diskStorage(
     {
         destination: (req, file, cb) => {
-            cb(null, 'public/images/reg-crew/profile');
+            cb(null, path.join(__dirname, '../public/images/reg-crew/profile'));
         },
-        filename: makeFileName
+        filename: makeImageFileName
     }
 );
 
 //이미지 필터
 const imageFilter = (req, file, cb) =>{
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp','image/jpg']
-    //pdf: aplication/pdf
-    if(allowedMimeTypes.includes(file.mimetype)){//허용된 파일 형식
+    if(Object.hasOwn(imageExtensions, file.mimetype)){//허용된 파일 형식
         cb(null, true);
     }else{
         const err = new Error('jpeg, png, webp, jpg 형식의 이미지 파일만 업로드 가능합니다.')
@@ -83,10 +92,7 @@ const uploadCrewIntro = multer({
             const directory = path.join(__dirname, '../public/images/reg-crew/intro');
             fs.mkdir(directory, { recursive: true }, error => cb(error, directory));
         },
-        filename(req, file, cb) {
-            const extensions = { 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
-            cb(null, `${randomUUID()}.${extensions[file.mimetype]}`);
-        }
+        filename: makeImageFileName
     }),
     limits: { fileSize: 5 * 1024 * 1024, files: 1 },
     fileFilter: imageFilter

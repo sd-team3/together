@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const WebPushSubscription = require('../models/webPushSubscription');
 const bcrypt = require('bcrypt');
 const chatService = require('./chatService');
 const friendService = require('./friendService');
@@ -166,6 +167,7 @@ async function deleteUser(userId, password) {
     await regularService.handleUserDeleted(userId);
     await boardService.handleUserDeleted(userId);
     await notiService.handleUserDeleted(userId);
+    await WebPushSubscription.deleteMany({ user: userId });
     await User.findByIdAndDelete(userId);
 }
 

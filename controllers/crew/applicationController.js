@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const applicationService = require('../../services/crew/applicationService');
 const notiService = require('../../services/notiService');
+const webPushService = require('../../services/webPushService');
 const crewService = require('../../services/crew/crewService');
 const chatService = require('../../services/chatService');
 const regularCrew = require('../../models/regularCrew');
@@ -15,11 +16,11 @@ const postApplication = async (req, res)=>{
     const userId = req.user._id;
     const crew = req.crew;
     const crewType = req.crewModel.modelName;
-    let notiData = req.notiData;
-    
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    const notiData = req.notiData;
+    let session;
     try {
+        session = await mongoose.startSession();
+        session.startTransaction();
         if(crew.isAutoAccept) {
             await crewService.addCrewToUser(userId, crew._id, { session });
             await crewService.addUserToCrew(userId, crew._id, req.crewModel, { session });
@@ -32,39 +33,36 @@ const postApplication = async (req, res)=>{
         const newNoti = await notiService.createNoti(notiData, { session });
 
         await session.commitTransaction();
-        session.endSession();
 
         const io = req.app.get('io');
         io.of('/noti').to(`user:${crew.host}`).emit(newNoti.event, newNoti);
 
-        return res.status(201).json({ success: true, message: '참가 신청이 완료됐습니다.' });
+        return res.status(201).json({
+            success: true,
+            relation: crew.isAutoAccept ? 'member' : 'pending',
+            message: '참가 신청이 완료됐습니다.'
+        });
     } catch (error) {
-        if (session && session.inTransaction()) await session.abortTransaction();
+        if (session?.inTransaction()) await session.abortTransaction();
+        if (error.code === 11000 && error.keyPattern?.crewId && error.keyPattern?.userId) {
+            return res.status(409).json({ message: '이미 신청한 기록이 있습니다. 가입 상태를 확인해주세요.' });
+        }
         console.error(error);
-        return res.status(500).json({ message: "appCtrl:Transaction" });
+        return res.status(500).json({ message: '신청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.' });
     } finally {
-        session.endSession();
+        await session?.endSession();
     }
 };
 
 const getRelation = async (req, res)=>{
     try {
-        const { crewId, userId } = req.params;
-        const app = await applicationService.findAppByCrewAndUser(crewId, userId);
-        let relation = 'none'
-
-        if(!app) {
-            const isMember = await crewService.userInCrew(req.crewModel, crewId, userId);
-            if(isMember) {
-                relation = 'member';
-            }
-        } else {
-            relation = app.status;
-        }
-
-        res.json({ relation: relation });
+        const { crewId } = req.params;
+        const userId = req.user._id;
+        const isMember = await crewService.userInCrew(req.crewModel, crewId, userId);
+        const app = isMember ? null : await applicationService.findAppByCrewAndUser(crewId, userId);
+        res.set('Cache-Control', 'no-store').json({ relation: isMember ? 'member' : app?.status || 'none' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: '가입 상태를 확인하지 못했습니다.' });
     }
 };
 
@@ -88,15 +86,15 @@ const joinProcess = async (req, res) => {
         const app = await applicationService.appStatusUpdateById(appId, action, { session });
         if (!app) throw new Error('APPLICATION_NOT_FOUND');
 
+        const isRegular = req.crewModel.modelName === 'regularCrew';
+        const applicationType = isRegular ? '가입' : '참가';
         const notiData = {
             sender: req.user._id,
             receiver: app.userId,
-            title: `${req.crew.title} 크루 가입이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
-            content: `당신의 가입 요청이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
+            title: `${req.crew.title} ${applicationType} 신청이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
+            content: `${applicationType} 신청이 ${action === 'accept' ? '승인' : '거절'}되었습니다.`,
             event: `APPLICATION_${action === 'accept' ? 'ACCEPTED' : 'REJECTED'}`,
-            route: req.crewModel.modelName === 'regularCrew'
-                ? `/regular/list/${app.crewId}`
-                : `${req.baseUrl}/detail/${app.crewId}`,
+            route: `/${isRegular ? 'regular' : 'instant'}/list/${app.crewId}`,
             target: []
         };
 
@@ -112,6 +110,7 @@ const joinProcess = async (req, res) => {
 
         const io = req.app.get('io');
         io.of('/noti').to(`user:${app.userId}`).emit(newNoti.event, newNoti);
+        if (action === 'accept') void webPushService.sendNotification(newNoti);
 
         return res.status(200).json({ success: true, message: '처리가 완료되었습니다.' });
     } catch (error) {

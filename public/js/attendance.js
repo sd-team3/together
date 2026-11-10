@@ -87,7 +87,44 @@
     });
 
     const check = document.getElementById('check-attendance');
+    const hostCheck = document.getElementById('check-host-attendance');
     const token = new URLSearchParams(location.hash.slice(1)).get('token');
+
+    function checkInMessage(data) {
+        if (data.alreadyAttended) return '이미 출석 처리된 활동이에요.';
+        return data.attendanceStatus === 'late'
+            ? '지각으로 출석 처리됐어요. 매너 점수 1점이 감소했어요.'
+            : '출석 완료! 매너 점수 1점이 올라갔어요.';
+    }
+
+    hostCheck?.addEventListener('click', () => {
+        const status = document.getElementById('host-attendance-message');
+        if (!navigator.geolocation || !window.isSecureContext) {
+            status.textContent = '위치 확인이 가능한 휴대폰에서 HTTPS 주소로 접속해주세요.';
+            return;
+        }
+        hostCheck.disabled = true;
+        status.textContent = '현재 위치를 확인하고 있어요…';
+        navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+            try {
+                const data = await post(hostCheck.dataset.endpoint, {
+                    lat: coords.latitude,
+                    lng: coords.longitude,
+                    accuracy: coords.accuracy
+                });
+                status.textContent = checkInMessage(data);
+                hostCheck.textContent = '내 출석 완료';
+            } catch (error) {
+                status.textContent = error.message;
+                hostCheck.disabled = false;
+            }
+        }, (error) => {
+            status.textContent = error.code === 1
+                ? '브라우저에서 위치 접근을 허용한 뒤 다시 시도해주세요.'
+                : '위치를 정확히 확인하지 못했어요. 다시 시도해주세요.';
+            hostCheck.disabled = false;
+        }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+    });
 
     if (check && !token) {
         check.disabled = true;
@@ -100,12 +137,7 @@
 
         try {
             const data = await post(check.dataset.endpoint, { token });
-            const statusMessage = data.attendanceStatus === 'late'
-                ? '지각으로 출석 처리됐어요. 매너 점수 1점이 감소했어요.'
-                : '출석 완료! 매너 점수 1점이 올라갔어요.';
-            message.textContent = data.alreadyAttended
-                ? '이미 출석 처리된 활동이에요.'
-                : statusMessage;
+            message.textContent = checkInMessage(data);
             check.textContent = '출석 완료';
             history.replaceState(null, '', location.pathname);
         } catch (error) {

@@ -17,8 +17,8 @@
 <!-- ──────── REGULAR PAGE ──────── -->
 <%- include('../partials/head', { title: '🔁 정기 모임', pageId: 'page-regular', active: '', route: '/regular/list' }) %>
 
-  <div class="page-body">
-    <div class="section-title">정기모임</div>
+  <div class="page-body regular-list-page">
+    <h1 class="regular-list-title">정기모임</h1>
     <!-- 정기모임 필터 영역 -->
     <div class="regular-filter-wrap">
 
@@ -142,16 +142,16 @@
 
       <div id="reg-filter-panel" class="reg-filter-panel" style="display:none;"></div>
 
-      <div class="regular-grid" id="regularCardList">
+      <div class="regular-list-heading" aria-hidden="true"><span>모임</span><span>일정 · 비용</span><span>모집 현황</span></div><div class="regular-grid" id="regularCardList">
         <% regularCrews.forEach(crew => { %>
-          <% const remain = crew.member.capacity - crew.member.memberList.length; %>
+          <% const remain = Math.max(0, crew.member.capacity - crew.member.memberList.length); %>
           <% const dayKorea = { 'mon':'월','tue':'화','wed':'수','thu':'목','fri':'금','sat':'토','sun':'일' }; %>
           <% const ageValues = Array.isArray(crew.ageRange) ? crew.ageRange : [crew.ageRange]; %>
           <% const ageLabel = (ageValues.length === 0 || ageValues.includes('all'))
               ? '전체'
               : ageValues.map(v => Object.values(CONSTANTS.AGES).find(a => a.v === v)?.kr || v).join(', '); %>
           <% const levelLabel = CONSTANTS.LEVELS[crew.level]?.kr || '무관'; %>
-          <div class="reg-card" data-id="<%= crew._id %>">
+          <a class="reg-card" data-id="<%= crew._id %>" href="/regular/list/<%= crew._id %>"><div class="reg-summary">
             <img class="reg-thumb-img"
                 src="<%= crew.profileImage || '/images/reg-crew/profile/default-profile-image.jpg' %>"
                 alt="<%= crew.title %>">
@@ -163,23 +163,15 @@
                 </span>
               </div>
               <p class="reg-intro"><%= crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.` %></p>
-              <div class="reg-meta-row">
-                <div class="reg-meta-left">
-                  📍 <%= crew.address.state %> <%= crew.address.city %> <span class="dot">·</span>
-                  🗓️ <%= crew.period === 'week' ? '매주' : crew.period === '2week' ? '격주' : '매달' %> <%= crew.day.map(d => dayKorea[d]).join('·') %> <span class="dot">·</span>
-                  <%= CONSTANTS.SPORTS[crew.sport] ? CONSTANTS.SPORTS[crew.sport].kr : crew.sport %> <span class="dot">·</span>
-                  💰 <%= crew.fee %>/회
-                </div>
-                <span class="reg-meta-right">
-                  <%= crew.member.memberList.length %>/<%= crew.member.capacity %>명<%= remain === 0 ? ' · 마감' : ' · ' + remain + '자리' %>
-                </span>
-              </div>
+<div class="reg-location"><%= crew.address.state %> <%= crew.address.city %> · <%= CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport %></div>
               <div class="crew-tags">
                 <span class="crew-tag"><%= ageLabel %></span>
                 <span class="crew-tag"><%= levelLabel %></span>
               </div>
-            </div>
-          </div>
+            </div></div>
+            <div class="reg-schedule"><strong><%= crew.period === 'week' ? '매주' : crew.period === '2week' ? '격주' : '매월' %> <%= crew.day.map(d => dayKorea[d]).join('·') %></strong><span><%= Number(crew.fee) ? '회당 ' + Number(crew.fee).toLocaleString() + '원' : '무료' %></span></div>
+            <div class="reg-availability"><span class="pill pill-<%= remain === 0 ? 'danger' : remain < 4 ? 'warn' : 'success' %>"><%= remain === 0 ? '마감' : '모집 중' %></span><strong><%= remain ? '남은 ' + remain + '자리' : '모집 마감' %></strong><small><%= crew.member.memberList.length %>/<%= crew.member.capacity %>명</small></div>
+          </a>
         <% }) %>
       </div>
       <!-- 페이징  -->

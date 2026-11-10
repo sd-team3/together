@@ -86,6 +86,7 @@
                             </div>
                         </section>
                     <% } else if (mode === 'day') { %>
+                        <% const hostEntry = isOwner && members.find(member => String(member.id) === String(crew.host)); %>
                         <% if (!instant) { %>
                             <a class="attendance-back" href="<%= base %>?month=<%= date.slice(0, 7) %>">
                                 ← 달력으로
@@ -101,6 +102,9 @@
                                     새로고침
                                 </a>
                                 <% if (isOwner && activity) { %>
+                                    <% if (hostEntry) { %>
+                                        <button type="button" class="btn btn-outline btn-sm" id="check-host-attendance" data-endpoint="<%= base %><%= instant ? '/host-check' : '/activity/' + activity._id + '/host-check' %>" <%= canIssue && !hostEntry.attended ? '' : 'disabled' %>><%= hostEntry.attended ? '내 출석 완료' : '내 출석하기' %></button>
+                                    <% } %>
                                     <button type="button" class="btn btn-primary btn-sm" id="generate-qr" data-endpoint="<%= base %><%= instant ? '/qr' : '/activity/' + activity._id + '/qr' %>" <%= canIssue ? '' : 'disabled' %>>▦ QR 생성</button>
                                 <% } %>
                             </div>
@@ -124,6 +128,12 @@
                             </div>
                             <% if (isOwner && !canIssue) { %>
                                 <p class="attendance-help">시작 후 10분까지 정상 출석(+1점), 30분까지 지각(-1점)이에요. 30분이 지나면 결석(-2점) 처리돼요.</p>
+                            <% } %>
+                            <% if (hostEntry) { %>
+                                <p class="attendance-help">모임장은 장소에서 50m 이내에 있을 때 휴대폰으로 직접 출석할 수 있어요.</p>
+                                <p id="host-attendance-message" role="status"></p>
+                            <% } else if (isOwner && !instant) { %>
+                                <p class="attendance-help">모임장도 운동에 참여한다면 시작 전에 모임 상세의 스케줄에서 참가 신청을 해주세요.</p>
                             <% } %>
                             <section id="qr-panel" class="attendance-card attendance-qr" hidden aria-label="출석 QR">
                                 <div>

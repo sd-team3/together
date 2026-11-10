@@ -142,7 +142,7 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const userId = '<%= userId || "" %>';
   const crewId = '<%= crew._id %>';
   const joinBtn = document.getElementById('join-btn');
@@ -162,60 +162,58 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  fetch(`/regular/relation/${crewId}/${userId}`)
-    .then(async response => {
-      if (!response.ok) {
-        throw new Error('관계 확인 실패');
-      }
+  const labels = {
+    none: '가입 신청하기',
+    pending: '가입 승인 대기 중입니다',
+    member: '이미 가입된 크루입니다',
+    accepted: '3일에 한 번만 신청할 수 있습니다',
+    rejected: '3일에 한 번만 신청할 수 있습니다'
+  };
 
-      return response.json();
-    })
-    .then(data => {
-      joinBtn.style.display = 'block';
-
-      if (data.relation === 'none') {
-        joinBtn.textContent = '가입 신청하기';
-        joinBtn.disabled = false;
-        joinBtn.onclick = () => confirmJoin(crewId);
-        return;
-      }
-
-      if (data.relation === 'pending') {
-        joinBtn.textContent = '가입 승인 대기 중입니다';
-        joinBtn.disabled = true;
-        return;
-      }
-
-      joinBtn.textContent = '3일에 한 번만 신청할 수 있습니다';
-      joinBtn.disabled = true;
-    })
-    .catch(error => {
-      console.error('관계 확인 오류:', error);
-      joinBtn.style.display = 'block';
-      joinBtn.textContent = '가입 신청하기';
-      joinBtn.onclick = () => confirmJoin(crewId);
-    });
-});
-
-async function confirmJoin(crewId) {
-  if (!confirm('가입 신청을 하시겠습니까?')) return;
-  try {
-    const response = await fetch(`/regular/application/${crewId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (response.status == 201) {
-      alert('가입 신청 완료!');
-      window.location.reload();
-    } else {
-      const errorData = await response.json();
-      alert(errorData.message || '신청 중 문제가 발생했습니다.');
-    }
-  } catch (error) {
-    console.error('가입 신청 오류 : ', error);
-    alert('서버 오류가 났습니다. 잠시 후 다시 시도해주세요');
+  function showRelation(relation) {
+    joinBtn.style.display = 'block';
+    joinBtn.textContent = labels[relation] || '가입 상태를 확인할 수 없습니다. 새로고침해주세요.';
+    joinBtn.disabled = relation !== 'none';
   }
-}
+
+  async function refreshRelation() {
+    try {
+      const response = await fetch(`/regular/relation/${crewId}/${userId}`);
+      if (!response.ok) throw new Error('관계 확인 실패');
+      showRelation((await response.json()).relation);
+    } catch (error) {
+      console.error('관계 확인 오류:', error);
+      showRelation();
+    }
+  }
+
+  joinBtn.onclick = async () => {
+    if (joinBtn.disabled || !confirm('가입 신청을 하시겠습니까?')) return;
+    joinBtn.disabled = true;
+    joinBtn.textContent = '가입 신청 중…';
+    try {
+      const response = await fetch(`/regular/application/${crewId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      if (response.status !== 409 && !response.ok) {
+        throw new Error(data.message || '신청 중 문제가 발생했습니다.');
+      }
+      if (response.status === 409) {
+        await refreshRelation();
+        return;
+      }
+      showRelation(data.relation);
+      if (data.relation === 'member') window.location.reload();
+    } catch (error) {
+      await refreshRelation();
+      if (!joinBtn.disabled) alert(error.message || '신청 중 문제가 발생했습니다.');
+    }
+  };
+
+  await refreshRelation();
+});
 
 let liked = <%= isLiked === true ? 'true' : 'false' %>;
 let likeCount = <%= crew.reputation %>;

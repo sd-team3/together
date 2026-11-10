@@ -7,6 +7,7 @@ const RegularCrew = require('../models/regularCrew');
 const InstantCrew = require('../models/instantCrew');
 const Notification = require('../models/notification');
 const notiService = require('../services/notiService');
+const webPushService = require('../services/webPushService');
 const { sendActivityReminders } = require('../utils/scheduler');
 
 const host = '111111111111111111111111';
@@ -54,7 +55,9 @@ function instant(values = {}) {
 function setup(t, activities = [], crews = [], owner = { host }) {
     const saved = [];
     const emitted = [];
+    const pushed = [];
     const keys = new Set();
+    t.mock.method(webPushService, 'sendNotification', async (noti, expiresAt) => pushed.push({ noti, expiresAt }));
 
     t.mock.method(Activity, 'find', async (query) => {
         assert.equal(query.crewModel, 'regular');
@@ -97,15 +100,16 @@ function setup(t, activities = [], crews = [], owner = { host }) {
             };
         }
     };
-    return { saved, emitted, io };
+    return { saved, emitted, pushed, io };
 }
 
 test('regular reminder saves valid system notifications and emits once per participant including host', async t => {
-    const { saved, emitted, io } = setup(t, [activity()]);
+    const { saved, emitted, pushed, io } = setup(t, [activity()]);
     await sendActivityReminders(io, now);
 
     assert.deepEqual(saved.map(noti => String(noti.receiver)), [host, member]);
     assert.equal(emitted.length, 2);
+    assert.deepEqual(pushed, saved.map(noti => ({ noti, expiresAt: startTime })));
     for (const noti of saved) {
         assert.equal(noti.sender, null);
         assert.equal(noti.event, 'ACTIVITY_REMINDER');

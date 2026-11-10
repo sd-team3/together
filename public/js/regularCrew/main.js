@@ -41,14 +41,14 @@ if (btnRecruitingOnly) {
   });
 }
 
-// 메인 데이터 로드 함수 
+// 메인 데이터 로드 함수
 async function loadRegularCrews(page = 1) {
   try {
     const data = await fetchRegularCrewsData(page, selectedFilters);
-    // 위에서 받아오고 컨트롤러에서 받아온 data의 크루 정보들 
+    // 위에서 받아오고 컨트롤러에서 받아온 data의 크루 정보들
     renderRegularCards(data.regularCrews);
     // 컨트롤러에서 받아온 페이징 정보
-    renderRegularPaging(data.currentPage, data.totalPages); 
+    renderRegularPaging(data.currentPage, data.totalPages);
   } catch (error) {
     console.error('목록을 불러오는 데 실패했습니다.', error);
   }
@@ -58,11 +58,11 @@ async function loadRegularCrews(page = 1) {
   filterTabs.forEach((tab) => {
   tab.addEventListener('click', () => {
     const filterType = tab.dataset.filter;
-    
+
     filterTabs.forEach(btn => btn.classList.remove('active'));
     tab.classList.add('active');
     filterOptionPanel.style.display = 'block';
-    
+
     if (filterType === 'area') {
       filterOptionList.classList.add('is-hidden');
       areaSelectBox.classList.add('active');
@@ -99,20 +99,20 @@ optionBtns.forEach((button) => {
         filterArray.push(value); // 없으면 넣음
         button.classList.add('active');
       }
-    } 
+    }
     // 단일 선택
     else {
       document.querySelectorAll(`[data-filter-type="${filterType}"]`)
               .forEach(btn => btn.classList.remove('active'));
-      
+
       // 값 덮어쓰고 지금 누른 버튼만 불 켜기
       selectedFilters[filterType] = value;
       button.classList.add('active');
     }
 
     // 화면 갱신 호출
-    renderSelectedChips(); 
-    loadRegularCrews(1);   
+    renderSelectedChips();
+    loadRegularCrews(1);
   });
 });
 // 패널 취소버튼
@@ -144,7 +144,7 @@ cityBtns.forEach((button) => {
     const state = button.dataset.state;
 
     selectedFilters.state = state;
-    selectedFilters.city = ''; 
+    selectedFilters.city = '';
 
     cityBtns.forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
@@ -186,11 +186,11 @@ if (resetFilterBtn) {
     resetFiltersState(); // 상태 초기화
 
     // UI 상태 초기화
-    document.querySelectorAll('.active, .selected').forEach(element => {
+    document.querySelectorAll('.regular-list-page .active, .regular-list-page .selected').forEach(element => {
       element.classList.remove('active', 'selected');
     });
     if (filterOptionPanel) {
-      filterOptionPanel.style.display = 'none'; 
+      filterOptionPanel.style.display = 'none';
     }
     if (regFilterPanel) {
       regFilterPanel.style.display = 'none';
@@ -203,13 +203,13 @@ if (resetFilterBtn) {
     if (districtGuide) {
       districtGuide.style.display = 'block'; // 안내 멘트 다시 표시
     }
-    
+
     // 모집중 버튼 누르면 UI 강제 끄기
     const btnRecruitingOnly = document.getElementById('btnRecruitingOnly');
     if (btnRecruitingOnly) {
       btnRecruitingOnly.classList.remove('active');
     }
-    
+
     loadRegularCrews(1);
   });
 }
@@ -219,7 +219,7 @@ if (pagination) {
   pagination.addEventListener('click', (e) => {
     const btn = e.target.closest('.page-link');
     if (!btn) return;
-    
+
     const targetPage = Number(btn.dataset.page);
     if (targetPage) loadRegularCrews(targetPage);
   });
@@ -228,7 +228,7 @@ if (pagination) {
 document.addEventListener('click', function(e) {
   // 클릭된 요소부터 부모로 거슬러 올라가며 .reg-card 클래스를 가진 요소를 찾음
   const card = e.target.closest('.reg-card');
-  if (!card) return; 
+  if (!card || card.tagName === 'A') return;
 
   const regularID = card.dataset.id;
   window.location.href = `/regular/list/${regularID}`;

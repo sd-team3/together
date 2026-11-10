@@ -1,0 +1,8 @@
+{
+  "id": "/",
+  "name": "Together",
+  "short_name": "Together",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone"
+}

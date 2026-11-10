@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const vm = require('node:vm');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
 const { CONSTANTS } = require('../config/constants');
@@ -8,10 +9,13 @@ const regularService = require('../services/crew/regularService');
 const activityService = require('../services/crew/activityService');
 const applicationService = require('../services/crew/applicationService');
 const crewService = require('../services/crew/crewService');
+const notiService = require('../services/notiService');
 const controller = require('../controllers/crew/regularController');
 const activityController = require('../controllers/crew/activityController');
+const applicationController = require('../controllers/crew/applicationController');
 const middleware = require('../middlewares/crewMiddleware');
 const Activity = require('../models/crewActivity');
+const CrewApplication = require('../models/crewApplication');
 
 const host = '111111111111111111111111';
 const member = '222222222222222222222222';
@@ -43,6 +47,85 @@ function response() {
         redirect(url) { this.url = url; }
     };
 }
+
+test('joining status finds the pending application for the signed-in applicant', async t => {
+    t.mock.method(crewService, 'userInCrew', async () => false);
+    t.mock.method(CrewApplication, 'findOne', async query => {
+        assert.deepEqual(query, { crewId, userId: outsider });
+        return { status: 'pending' };
+    });
+    const res = response();
+    res.set = () => res;
+    await applicationController.getRelation({ params: { crewId, userId: member }, user: { _id: outsider } }, res);
+    assert.equal(res.statusCode, 200);
+    assert.deepEqual(res.body, { relation: 'pending' });
+});
+
+test('joining twice returns a readable conflict without creating a second notification', async t => {
+    let aborted = false;
+    let ended = false;
+    const createNotification = t.mock.method(notiService, 'createNoti', async () => {});
+    t.mock.method(mongoose, 'startSession', async () => ({
+        startTransaction() {},
+        inTransaction: () => true,
+        abortTransaction() { aborted = true; },
+        endSession() { ended = true; }
+    }));
+    t.mock.method(applicationService, 'createApp', async () => {
+        throw Object.assign(new Error('duplicate key'), { code: 11000, keyPattern: { crewId: 1, userId: 1 } });
+    });
+    const res = response();
+    await applicationController.postApplication({
+        user: { _id: outsider },
+        crew,
+        crewModel: { modelName: 'regularCrew' },
+        notiData: {}
+    }, res);
+    assert.equal(res.statusCode, 409);
+    assert.match(res.body.message, /이미 신청/);
+    assert.equal(createNotification.mock.callCount(), 0);
+    assert.equal(aborted, true);
+    assert.equal(ended, true);
+});
+
+test('joining disables the button during submission and while approval is pending', async () => {
+    const html = await ejs.renderFile(path.join(__dirname, '../views/crew/regular-join-page.ejs'), {
+        crew, userId: outsider, user: { _id: outsider }, reviews: [], acts: [],
+        pendingApps: [], CONSTANTS, isLiked: false
+    });
+    const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+        .find(([, contents]) => contents.includes('async function refreshRelation'))[1];
+    const button = { style: {} };
+    let init;
+    let relation = 'none';
+    let requests = 0;
+    let finishRequest;
+    vm.runInNewContext(script, {
+        document: {
+            addEventListener(name, handler) { init = handler; },
+            getElementById: () => button
+        },
+        confirm: () => true,
+        fetch: async (url, options) => {
+            if (!options) return { ok: true, json: async () => ({ relation }) };
+            requests++;
+            return new Promise(resolve => { finishRequest = resolve; });
+        }
+    });
+    await init();
+    assert.equal(button.disabled, false);
+    const firstClick = button.onclick();
+    assert.equal(button.disabled, true);
+    await button.onclick();
+    assert.equal(requests, 1);
+    relation = 'pending';
+    finishRequest({ ok: true, status: 201, json: async () => ({ relation }) });
+    await firstClick;
+    assert.equal(button.textContent, '가입 승인 대기 중입니다');
+    await init();
+    assert.equal(button.disabled, true);
+    assert.equal(button.textContent, '가입 승인 대기 중입니다');
+});
 
 for (const userId of [null, outsider, member, host]) {
     test('detail tabs and controls reflect role: ' + userId, async () => {
