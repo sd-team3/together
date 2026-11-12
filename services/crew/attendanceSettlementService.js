@@ -1,7 +1,7 @@
 const Activity = require('../../models/crewActivity');
 const InstantCrew = require('../../models/instantCrew');
 const User = require('../../models/User');
-const { id, attendanceScoreDelta } = require('./attendanceService');
+const { id, attendanceScoreDelta } = require('../../utils/attendanceUtils');
 
 async function applyAbsencePenalty(userId, basePenalty, session = null) {
     const options = { new: true };

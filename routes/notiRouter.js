@@ -1,56 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const notiService = require('../services/notiService');
+const notiController = require('../controllers/notiController');
+const { apiLoginValidation } = require('../middlewares/requestValidation');
 
+router.use(apiLoginValidation);
 router.use('/web-push', require('./webPushRouter'));
 
-router.get('/unread', async (req, res)=>{
-    try {
-        const userId = req.user._id;
-        const unreadNoti = await notiService.findUnReadNotiByUserId(userId);
-        res.json(unreadNoti);
-    } catch (error) {
-        res.status(500).json({ message: 'notiRouter' });
-    }
-});
-
-router.get('/read', async (req, res)=>{
-    try {
-        const userId = req.user._id;
-        const unreadNoti = await notiService.findReadNotiByUserId(userId);
-        res.json(unreadNoti);
-    } catch (error) {
-        res.status(500).json({ message: 'notiRouter' });
-    }
-});
-
-router.patch('/:notiId/read', async (req, res)=>{
-    try {
-        const { notiId } = req.params;
-        await notiService.readNotiByNotiId(notiId);
-        res.status(200).json({ success: true });
-    } catch (error) {
-        res.status(500).json({ message: 'notiRouter' });
-    }
-});
-
-router.patch('/read-all', async (req, res)=>{
-    try {
-        await notiService.readAllNotiByUserId(req.user._id);
-        res.status(200).json({ success: true });
-    } catch (error) {
-        res.status(500).json({ message: 'notiRouter' });
-    }
-});
-
-router.delete('/:notiId/delete', async (req, res) => {
-    try {
-        const { notiId } = req.params;
-        await notiService.deleteNotiByNotiId(notiId);
-        res.status(200).json({ success: true });
-    } catch (error) {
-        res.status(500).json({ message: 'notiRouter' });
-    }
-});
+router.get('/unread', notiController.getUnread);
+router.get('/read', notiController.getRead);
+router.patch('/:notiId/read', notiController.patchRead);
+router.patch('/read-all', notiController.patchReadAll);
+router.delete('/:notiId/delete', notiController.deleteNoti);
 
 module.exports = router;

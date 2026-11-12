@@ -1,5 +1,7 @@
 export async function fetchBoards(category, page, sort = 'latest') {
     const params = new URLSearchParams({ page, sort });
+    const sport = new URLSearchParams(location.search).get('sport');
+    if (sport) params.set('sport', sport);
     const res = await fetch(`/community/list/api/${category}?${params.toString()}`);
 
     if (!res.ok) throw new Error('서버 오류');

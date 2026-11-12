@@ -40,7 +40,9 @@ async function init() {
 
     function render() {
         toggle.disabled = !enabled && !publicKey;
-        toggle.textContent = enabled ? '휴대폰 알림 끄기' : '휴대폰 알림 켜기';
+        toggle.textContent = enabled ? '✓ 알림 켜짐 · 끄기' : '알림 꺼짐 · 켜기';
+        toggle.dataset.buttonState = enabled ? 'success' : '';
+        toggle.setAttribute('aria-pressed', String(enabled));
         status.textContent = enabled ? '이 기기의 휴대폰 알림이 켜져 있어요.' : '이 기기의 휴대폰 알림이 꺼져 있어요.';
     }
 

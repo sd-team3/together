@@ -12,7 +12,7 @@
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '💬 커뮤니티', pageId: 'page-community', active: '', route: `/community/list/${board._id}/edit`}) %>
+<%- include('../partials/head', { title: '커뮤니티', pageId: 'page-community', active: '', route: `/community/list/${board._id}/edit`}) %>
 
   <div class="page-body">
     <div class="detail-wrap">
@@ -25,6 +25,15 @@
         <form action="/community/list/<%= board._id %>/edit" method="POST">
           <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
 
+            <div class="form-group">
+              <label class="form-label" for="board-sport">운동 종목</label>
+              <select id="board-sport" name="sport" class="form-control">
+                <option value="">일반 / 종목 없음</option>
+                <% Object.entries(sports).forEach(([key, item]) => { %>
+                  <option value="<%= key %>" <%= board.sport === key ? 'selected' : '' %>><%= item.kr %></option>
+                <% }) %>
+              </select>
+            </div>
             <!-- 제목 -->
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:4px;display:block">제목</label>

@@ -1,5 +1,3 @@
-// /public/js/components/profileModal.js
-
 let _socket = null;
 let _currentUserId = null;
 let _myUserId = null;
@@ -25,6 +23,7 @@ export async function openProfileModal(userId) {
 
     const friendBtn = document.getElementById('pm-friend-btn');
     friendBtn.textContent = '+ 친구 추가';
+    friendBtn.dataset.buttonState = '';
     friendBtn.disabled = false;
     friendBtn.style.display = '';
     document.getElementById('pm-friend-since').style.display = 'none';
@@ -85,7 +84,7 @@ export async function openProfileModal(userId) {
             sinceEl.style.display = '';
             const since = new Date(data.friendInfo.since);
             const formatted = `${since.getFullYear()}.${String(since.getMonth()+1).padStart(2,'0')}.${String(since.getDate()).padStart(2,'0')}`;
-            sinceEl.textContent = `👥 ${formatted}에 친구가 됐어요`;
+            sinceEl.textContent = `${formatted}에 친구가 됐어요`;
         }
 
         const crewList = document.getElementById('pm-crew-list');
@@ -150,10 +149,11 @@ function _bindEvents() {
     });
 
     document.getElementById('pm-friend-btn').addEventListener('click', () => {
-        if (!_socket) { _showToast('⚠️ 로그인이 필요합니다.'); return; }
+        if (!_socket) { _showToast('로그인이 필요합니다.'); return; }
         if (!_currentUserId) return;
         _socket.emit('friend:request', { receiverId: _currentUserId });
-        document.getElementById('pm-friend-btn').textContent = '요청 완료';
+        document.getElementById('pm-friend-btn').textContent = '◷ 친구 요청 대기 중';
+        document.getElementById('pm-friend-btn').dataset.buttonState = 'pending';
         document.getElementById('pm-friend-btn').disabled = true;
     });
 
@@ -169,6 +169,7 @@ function _bindEvents() {
             const btn = document.getElementById('pm-friend-btn');
             if (btn) {
                 btn.textContent = '+ 친구 추가';
+                btn.dataset.buttonState = '';
                 btn.disabled = false;
             }
             _showToast('⚠️ ' + message);
@@ -188,7 +189,7 @@ function _injectHTML() {
             <div class="modal-box" style="max-width:560px;position:relative;">
                 <button id="pm-close" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--text-3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">✕</button>
                 <div class="modal-head">
-                    <span class="modal-head-title">👤 멤버 프로필</span>
+                    <span class="modal-head-title">멤버 프로필</span>
                 </div>
                 <div class="modal-body" style="padding:20px 24px;">
                     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;position:relative;">
@@ -213,7 +214,7 @@ function _injectHTML() {
                             <div id="pm-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);min-width:130px;z-index:600;overflow:hidden;">
                                 <button class="profile-menu-item" data-action="report">🚨 신고</button>
                                 <button class="profile-menu-item" data-action="block">🚫 차단</button>
-                                <button class="profile-menu-item" data-action="message">💬 쪽지 보내기</button>
+                                <button class="profile-menu-item" data-action="message">쪽지 보내기</button>
                                 <button class="profile-menu-item" data-action="kick" style="color:var(--red);">👢 강퇴</button>
                             </div>
                         </div>

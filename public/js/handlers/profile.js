@@ -11,7 +11,7 @@ const sportIcon = {
         bowling: "🎳",
         tennis: "🎾",
         badminton: "🏸",
-        tabletennis: "🏓"
+        tabletennis: "🏓", fitness: '🏋️', running: '🏃'
 };
 
 const today = new Date();
@@ -258,9 +258,9 @@ function renderRegularModalItem(crew) {
             </div>
             <p class="modal-crew-intro">${crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.`}</p>
             <div class="modal-crew-meta">
-                <span>📌 ${crew.state} ${crew.city}</span>
+                <span>${crew.state} ${crew.city}</span>
                 <span class="dot">·</span>
-                <span>👤 ${crew.memberCount}/${crew.capacity}</span>
+                <span>${crew.memberCount}/${crew.capacity}</span>
             </div>
         </div>
     </div>
@@ -282,9 +282,9 @@ function renderInstantModalItem(crew) {
             </div>
             <p class="modal-crew-intro">${crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 모임입니다. 참여해보세요.`}</p>
             <div class="modal-crew-meta">
-                <span>📌 ${crew.state} ${crew.city}</span>
+                <span>${crew.state} ${crew.city}</span>
                 <span class="dot">·</span>
-                <span>👤 ${crew.memberCount}/${crew.capacity}</span>
+                <span>${crew.memberCount}/${crew.capacity}</span>
                 <span class="dot">·</span>
                 <span>⭐ ${(crew.avgReputation ?? 0).toFixed(1)}</span>
             </div>

@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
 
-// # 회원가입 유효성 검사 규칙
+// 회원가입 유효성 검사 규칙
 const signupValidationRules = (req, res, next) => {
 
     const isSocial = !!req.session.socialUser;

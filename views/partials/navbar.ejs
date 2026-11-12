@@ -76,9 +76,16 @@
     </button>
 
     <div class="nav-section-label">커뮤니티</div>
-    <button class="nav-item" onclick="location.href='/community/list'">
-      <span class="nav-icon">💬</span> 커뮤니티
+    <button type="button" class="nav-item community-toggle" aria-expanded="false" aria-controls="community-submenu">
+      <span class="nav-icon">💬</span> 커뮤니티 <span class="community-toggle-sign" aria-hidden="true">+</span>
     </button>
+    <div id="community-submenu" class="community-submenu" hidden>
+      <% [['', '전체 게시판'], ['soccer', '축구'], ['baseball', '야구'], ['basketball', '농구'], ['running', '러닝'], ['fitness', '헬스']].forEach(([key, label]) => { %>
+      <a class="community-nav-link" data-sport="<%= key %>" href="/community/list<%= key ? '?sport=' + key : '' %>"><%= label %></a>
+      <% }) %>
+    </div>
+    <link rel="stylesheet" href="/css/community.css">
+    <script src="/js/community-navigation.js" defer></script>
     <!-- <button class="nav-item" onclick="location.href='/ranking'">
       <span class="nav-icon">🏆</span> 랭킹
     </button> -->

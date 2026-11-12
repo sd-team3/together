@@ -1,17 +1,24 @@
 (() => {
   const root = document.querySelector('.crew-spotlight');
+
   if (!root) return;
+
   const card = root.querySelector('#crew-spotlight-card');
   const position = root.querySelector('#crew-position');
+
   let meetings = [], source = [], index = 0;
+
   const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
   function render() {
     root.querySelectorAll('[data-crew-step]').forEach(button => { button.disabled = meetings.length < 2; });
     position.textContent = meetings.length ? `${String(index + 1).padStart(2, '0')} / ${String(meetings.length).padStart(2, '0')}` : '0 / 0';
+
     if (!meetings.length) {
       card.innerHTML = '<div class="spotlight-empty">조건에 맞는 모임이 없어요. 다른 종목을 선택해 보세요.</div>';
       return;
     }
+
     const m = meetings[index];
 
     const colors = ['#eef6db', '#ffe4d0', '#e4edff', '#f1e6f5'];
@@ -26,6 +33,7 @@
     const image = card.querySelector('img');
     image?.addEventListener('error', () => image.remove(), { once: true });
   }
+
   window.crewSpotlight = {
     setMeetings(items) { source = items; meetings = items; index = 0; render(); },
     filter({ sport = '', district = '', keyword = '' }) {
@@ -34,7 +42,12 @@
     },
     setMessage(message) { source = []; meetings = []; index = 0; render(); card.firstElementChild.textContent = message; }
   };
-  function move(step) { if (meetings.length > 1) { index = (index + step + meetings.length) % meetings.length; render(); } }
+
+  function move(step) {
+     if (meetings.length > 1) { 
+      index = (index + step + meetings.length) % meetings.length; render(); 
+    } 
+  }
   root.addEventListener('click', event => { const button = event.target.closest('[data-crew-step]'); if (button) move(Number(button.dataset.crewStep)); });
   root.addEventListener('keydown', event => {
     if (!['ArrowLeft', 'ArrowRight'].includes(event.key) || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;

@@ -3,7 +3,7 @@ const Board = require('../../models/Board');
 const Comment = require('../../models/Comment');
 
 async function getBoard(page) {
-    const limit = 9;
+    const limit = 20;
     const skip = (page - 1) * limit;
 
     const totalBoard = await Board.countDocuments({});
@@ -18,7 +18,7 @@ async function getBoard(page) {
 }
 
 async function getBoardByCategory(query, page, sort = 'latest') {
-    const limit = 9;
+    const limit = 20;
     const skip = (page-1) * limit;
     const sortOption = sort === 'popular' ? { reputation: -1 } : { createdAt: -1 }; 
 
@@ -42,14 +42,16 @@ async function boardLike(boardId, userId) {
     );
 }
 
-async function createBoard(title, content, author, category, file) {
+async function createBoard(title, content, author, category, file, sport = '') {
     const newBoard = new Board({
-        title, content, author, category, file: file ? file.filename : null,
+        title, content, author, category, sport, file: file ? file.filename : null,
     });
     await newBoard.save();
 }
-async function getDetail(boardId) {
-    const board = await Board.findById(boardId)
+async function getDetail(boardId, countView = false) {
+    const board = await (countView
+        ? Board.findByIdAndUpdate(boardId, { $inc: { views: 1 } }, { new: true })
+        : Board.findById(boardId))
                             .populate('author', 'name');
     return board;
 }
@@ -72,8 +74,8 @@ async function createComment(boardId, content, userId) {
     return comment;
 }
 
-async function updateBoard(boardId, title, content) {
-    await Board.findByIdAndUpdate(boardId, { title, content });
+async function updateBoard(boardId, title, content, sport) {
+    await Board.findByIdAndUpdate(boardId, { title, content, sport }, { runValidators: true });
 }
 
 async function deleteBoard(boardId) {
@@ -90,11 +92,11 @@ async function deleteComment(commentId) {
     await Board.findByIdAndUpdate(comment.board, { $inc: { commentsCount: -1 } });
 }
 
-async function getWeeklyPopular() {
+async function getWeeklyPopular(sport = '') {
     const oneWeek = new Date();
     oneWeek.setDate(oneWeek.getDate()-7);
 
-    const boards = await Board.find({ createdAt : {$gte : oneWeek }})
+    const boards = await Board.find({ createdAt: { $gte: oneWeek }, ...(sport ? { sport } : {}) })
                               .populate('author', 'name')
                               .sort({ reputation : -1 })
                               .limit(5);

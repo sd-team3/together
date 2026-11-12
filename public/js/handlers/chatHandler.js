@@ -71,7 +71,7 @@ async function fetchChatRoomData(roomId) {
 function renderChatRoomUI(room, messages, currentUserId) {
   const sportEmojiMap = {
     soccer: '⚽', basketball: '🏀', baseball: '⚾',
-    tennis: '🎾', badminton: '🏸', tabletennis: '🏓', bowling: '🎳'
+    tennis: '🎾', badminton: '🏸', tabletennis: '🏓', fitness: '🏋️', running: '🏃', bowling: '🎳'
   };
 
   const icon = document.getElementById('chatRoomIcon');

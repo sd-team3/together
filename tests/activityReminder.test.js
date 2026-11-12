@@ -216,6 +216,7 @@ test('attendance and reminder notifications navigate to QR attendance without re
     for (const event of ['ACTIVITY_REMINDER', 'ACTIVITY_ATTEND']) {
         context.renderNoti({
             _id: 'notice',
+            sender: '6aae7a7601257fb574769cc9',
             event,
             createdAt: new Date(),
             route: `/instant/${crewId}/attendance`,
@@ -227,5 +228,6 @@ test('attendance and reminder notifications navigate to QR attendance without re
         assert.equal(nodes.get('.noti-title strong').textContent, '<img src=x onerror=alert(1)>');
         assert.equal(nodes.get('.noti-meta').textContent, '<b>장소</b>');
         assert.ok(!item.innerHTML.includes('<img'));
+        assert.ok(!nodes.has('.noti-sender'));
     }
 });

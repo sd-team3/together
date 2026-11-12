@@ -23,7 +23,7 @@ function checkEmpty(notiList, isRead) {
     }         
 }
 
-export function renderNoti(noti, notiList) {
+export function renderNoti(noti, notiList, onChange) {
     if (!noti || !notiList) {
         return;
     }
@@ -42,7 +42,6 @@ export function renderNoti(noti, notiList) {
         <div class="noti-body">
             <div class="noti-title">
                 <strong></strong>
-                <span class="noti-sender"></span>
             </div>
             <div class="noti-meta"></div>
             <div class="noti-time">${notiTime}</div>
@@ -51,25 +50,30 @@ export function renderNoti(noti, notiList) {
     `;  
 
     notiDiv.querySelector('.noti-title strong').textContent = noti.title || '';
-    notiDiv.querySelector('.noti-sender').textContent = noti.sender?.name || noti.sender || '';
     notiDiv.querySelector('.noti-meta').textContent = noti.content || '';
 
     notiDiv.querySelector('.action-btn').addEventListener('click', async (e)=>{
         e.stopPropagation();
+        const button = e.currentTarget;
+        button.disabled = true;
         try {
-            const response = await fetch(`/noti/${noti._id}/${noti.isRead ? 'delete' : 'read'}`, {
+            const response = await fetch(`/noti/${encodeURIComponent(noti._id)}/${noti.isRead ? 'delete' : 'read'}`, {
                 method: `${noti.isRead ? 'DELETE' : 'PATCH'}`,
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (response.ok) {
-                notiDiv.remove();
-                checkEmpty(notiList, noti.isRead);
+                if (notiDiv.parentNode === notiList) {
+                    notiDiv.remove();
+                    checkEmpty(notiList, noti.isRead);
+                }
+                onChange?.();
             } else {
                 throw new Error(`noti${noti.isRead ? 'Delete' : 'Read'}Fail`);
             }
         } catch (error) {
-            
+            button.disabled = false;
+            console.error('알림 상태 변경 실패:', error);
         }
     });
 
@@ -95,10 +99,10 @@ export function renderNoti(noti, notiList) {
                         const data = await res.json();
                         
                         if (res.ok) {
-                            alert(`✅ 출석 성공!`);
+                            alert(`출석 성공!`);
                             location.reload(); 
                         } else {
-                            alert(`❌ 출석 실패: ${data.message || '오류가 발생했습니다.'}`);
+                            alert(`출석 실패: ${data.message || '오류가 발생했습니다.'}`);
                         }
                     } catch (error) {
                         console.error('GPS 출석 통신 에러:', error);
@@ -121,9 +125,9 @@ export function renderNoti(noti, notiList) {
     notiList.appendChild(notiDiv);
 }
 
-export function renderUnreadNoti(notis, notiList) {
+export function renderUnreadNoti(notis, notiList, onChange) {
     notiList.innerHTML = '';
-    notis.forEach(noti => { renderNoti(noti, notiList) });
+    notis.forEach(noti => { renderNoti(noti, notiList, onChange) });
     checkEmpty(notiList, false);
 }
 
@@ -135,13 +139,19 @@ export function renderReadNoti(notis, notiList) {
 
 export function renderChatNoti(data, notiList) {
     if (!notiList) return;
-    const notiItem = document.createElement('div');
-    notiItem.innerHTML = `
-        <div style="padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer"
-             onclick="location.href='/chatRoom/chatPage?roomId=${data.roomId}'">
-            <div style="font-weight:600;margin-bottom:4px">${data.roomName}</div>
-            <div style="color:var(--text-3);font-size:13px">${data.senderName}: ${data.content}</div>
-        </div>
-    `;
+    notiList.querySelector('.empty-noti-msg')?.remove();
+    const notiItem = document.createElement('a');
+    notiItem.className = 'noti-item';
+    notiItem.href = `/chatRoom/chatPage?roomId=${encodeURIComponent(data.roomId)}`;
+    const body = document.createElement('div');
+    body.className = 'noti-body';
+    const title = document.createElement('strong');
+    title.className = 'noti-title';
+    title.textContent = data.roomName;
+    const content = document.createElement('div');
+    content.className = 'noti-meta';
+    content.textContent = `${data.senderName}: ${data.content}`;
+    body.append(title, content);
+    notiItem.append(body);
     notiList.prepend(notiItem);
 }

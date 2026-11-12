@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 const { CONSTANTS } = require('../config/constants');
 
-const RegularCrew = require('../models/regularCrew'); // 경로는 실제에 맞게
+const RegularCrew = require('../models/regularCrew'); 
 const InstantCrew = require('../models/instantCrew');
 const User        = require('../models/User');
 
-// 스포츠별 이모지/색상 (CONSTANTS.SPORTS에 없어서 여기서 관리)
 const SPORTS_META = {
     soccer:      { emoji: '⚽', color: '#1A5CFF' },
     baseball:    { emoji: '⚾', color: '#FF5500' },
@@ -13,26 +12,24 @@ const SPORTS_META = {
     bowling:     { emoji: '🎳', color: '#8B00FF' },
     tennis:      { emoji: '🎾', color: '#00A86B' },
     badminton:   { emoji: '🏸', color: '#FF1493' },
-    tabletennis: { emoji: '🏓', color: '#00BFFF' }
+    tabletennis: { emoji: '🏓', color: '#00BFFF' },
+    fitness: { emoji: '🏋️', color: '#E11D48' },
+    running: { emoji: '🏃', color: '#16A34A' }
 };
 
-// 요일 매핑
 const DAY_MAP = {
     mon: '월', tue: '화', wed: '수',
     thu: '목', fri: '금', sat: '토', sun: '일', none: '미정'
 };
 
-// 레벨 매핑
 const LEVEL_MAP = {
     low: '초급', mid: '중급', high: '고급', none: '누구나'
 };
 
-// ── 추천 설정 ──────────────────────────────────
-const FEATURED_COUNT = 10;   // 왼쪽 큰 카드(캐러셀)
-const GRID_COUNT     = 40;   // 오른쪽 카드 그리드
-const CANDIDATE_POOL = 200;  // 점수 계산 전 후보 수 (기존 50은 너무 작았음)
+const FEATURED_COUNT = 10; 
+const GRID_COUNT     = 40; 
+const CANDIDATE_POOL = 200;
 
-// 스코어 가중치 (합 100)
 const WEIGHTS = { sport: 40, state: 20, city: 10, age: 15, time: 15 };
 
 // 나이 버킷 전체 (이 전부가 들어있으면 '제한 없음'으로 간주)
@@ -89,12 +86,12 @@ const formatMeetingCard = (crew) => {
     const periodLabel = PERIOD_MAP[crew.period] || '매주';
 
     return {
-        id: crew._id ? crew._id.toString() : '',   // 상세 페이지 링크용
-        intro: crew.intro || '',                   // 왼쪽 큰 카드 소개글
+        id: crew._id ? crew._id.toString() : '',   
+        intro: crew.intro || '',                   
         sportLabel: CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport,
         profileImage: crew.profileImage || '',
         approval: crew.isAutoAccept ? '자동 승인' : '모임장 승인',
-        sportKey: crew.sport || '',                // 종목 칩 필터용 (data-sport-key)
+        sportKey: crew.sport || '',               
         emoji: meta.emoji,
         title: crew.title,
         schedule: dayLabel === '비정기' ? '비정기' : `${periodLabel} ${dayLabel}`,
@@ -142,7 +139,7 @@ const formatMeetingCard = (crew) => {
     };
 };
 
-// ── 정기모임 카드 ──────────────────────────────
+// 정기모임 카드 
 const getRegularMeetings = async (sport = '', limit = 15) => {
     const query = sport ? { sport } : {};
 
@@ -153,7 +150,6 @@ const getRegularMeetings = async (sport = '', limit = 15) => {
     return crews.map(formatMeetingCard);
 };
 
-// Cursor pagination keeps new arrivals from shifting already loaded pages.
 const getLatestMeetingsPage = async (cursor = '') => {
     const limit = 6;
     let query = {};
@@ -183,7 +179,7 @@ const getLatestMeetingsPage = async (cursor = '') => {
 };
 
 
-// ── 지도 마커 (instantCrew) ────────────────────
+// 지도 마커 
 const getLeafletMatches = async () => {
     const crews = await InstantCrew.find().sort({ createdAt: -1 }).limit(20);
 
@@ -195,7 +191,7 @@ const getLeafletMatches = async () => {
         return {
             title:   crew.title,
             addr:    crew.address.city,
-            time:    '시간 미정', // TODO: instantCrew에 meetingAt 필드 추가 후 교체
+            time:    '시간 미정', 
             members: `${current}/${total}명`,
             emoji:   meta.emoji,
             level:   '누구나',
@@ -293,12 +289,11 @@ const getMySchedule = async (userId) => {
     const objectId    = new mongoose.Types.ObjectId(userId);
     const schedules   = [];
 
-    // ── 정기모임: user.crews 기준으로 조회 ──────
     const user = await User.findById(objectId).lean();
 
     const regularCrews = await RegularCrew.find({
         $or: [
-            { _id: { $in: user?.crews || [] } }, // ✅ user.crews 기준
+            { _id: { $in: user?.crews || [] } }, 
             { host: objectId }
         ]
     }).lean();
@@ -363,17 +358,16 @@ const getMySchedule = async (userId) => {
         });
     }
 
-    // ── 번개모임 ────────────────────────────────
     const instantCrews = await InstantCrew.find({
         $and: [
-            { 'member.memberList.user': objectId },  // ✅ ObjectId 변환
-            { meetAt: { $gte: now, $lte: sunday } }  // ✅ meetAt
+            { 'member.memberList.user': objectId }, 
+            { meetAt: { $gte: now, $lte: sunday } }  
         ]
     }).lean();
 
     instantCrews.forEach(crew => {
         const meta     = SPORTS_META[crew.sport] || { emoji: '🏃', color: '#999' };
-        const meetDate = new Date(crew.meetAt);      // ✅ meetAt
+        const meetDate = new Date(crew.meetAt);     
         const dDay     = calcDday(meetDate);
 
         schedules.push({
@@ -433,7 +427,6 @@ const getSportChips = () => {
     }));
 };
 
-// 유저 나이 -> AGES 버킷 변환 (예: 23 -> '20s')
 const getAgeBucket = (age) => {
     if (!age) return null;
     if (age < 20) return '10s';
@@ -444,14 +437,11 @@ const getAgeBucket = (age) => {
     return '60+';
 };
 
-// 크루가 나이 제한이 없는지 판별
-// (비어있음 / 'all' / 전 연령대가 전부 체크된 경우 모두 '제한 없음')
 const isNoAgeLimit = (ageRange) =>
     !ageRange?.length ||
     ageRange.includes('all') ||
     AGE_BUCKETS.every(b => ageRange.includes(b));
 
-// 크루의 요일+시간을 '평일오전' 같은 선호시간대 라벨로 역산
 const getCrewTimeLabels = (crew) => {
     const days = crew.day || [];
     const isWeekend = days.some(d => ['sat', 'sun'].includes(d));
@@ -461,7 +451,7 @@ const getCrewTimeLabels = (crew) => {
         .filter(s => new Date(s.date) > new Date())
         .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
-    let timeOfDay = null; // 오전 | 오후 | 저녁
+    let timeOfDay = null;
     if (nextSchedule) {
         const hour = new Date(nextSchedule.date).getHours();
         timeOfDay = hour < 12 ? '오전' : hour < 18 ? '오후' : '저녁';
@@ -472,7 +462,6 @@ const getCrewTimeLabels = (crew) => {
         if (isWeekday) labels.push(`평일${timeOfDay}`);
         if (isWeekend) labels.push(`주말${timeOfDay}`);
     } else {
-        // 시간 정보가 없는 크루는 넓게 다 후보로 인정 (매칭 기회 자체를 차단하지 않기 위함)
         ['오전', '오후', '저녁'].forEach(t => {
             if (isWeekday) labels.push(`평일${t}`);
             if (isWeekend) labels.push(`주말${t}`);
@@ -481,8 +470,6 @@ const getCrewTimeLabels = (crew) => {
     return labels;
 };
 
-// 유저 선호도 기반 크루 스코어 계산 + 추천 사유
-// (종목40 + 지역30(시/도20 + 시/군/구10) + 나이15 + 시간대15 = 100)
 const scoreCrewForUser = (crew, user) => {
     let score = 0;
     const reasons = [];
@@ -504,7 +491,6 @@ const scoreCrewForUser = (crew, user) => {
         }
     }
 
-    // 나이: 제한 없음이면 점수만 주고 사유는 붙이지 않음
     const userAgeBucket = getAgeBucket(user.age);
     if (isNoAgeLimit(crew.ageRange)) {
         score += WEIGHTS.age;
@@ -513,17 +499,15 @@ const scoreCrewForUser = (crew, user) => {
         reasons.push({ icon: '🎂', label: '내 연령대에 맞아요' });
     }
 
-    // 시간대
     const crewTimeLabels = getCrewTimeLabels(crew);
     if (user.preferredTime?.some(t => crewTimeLabels.includes(t))) {
         score += WEIGHTS.time;
         reasons.push({ icon: '⏰', label: '선호 시간대와 딱 맞아요' });
     }
 
-    return { score, reasons: reasons.slice(0, 3) }; // 카드가 지저분해지지 않게 최대 3개만
-};
+    return { score, reasons: reasons.slice(0, 3) }; 
+}
 
-// 배열을 { featured, grid }로 분리
 const splitMeetings = (list, featuredCount = FEATURED_COUNT, gridCount = GRID_COUNT) => ({
     featured: list.slice(0, featuredCount),
     grid: list.slice(featuredCount, featuredCount + gridCount)

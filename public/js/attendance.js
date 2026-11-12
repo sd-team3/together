@@ -113,7 +113,8 @@
                     accuracy: coords.accuracy
                 });
                 status.textContent = checkInMessage(data);
-                hostCheck.textContent = '내 출석 완료';
+                hostCheck.textContent = '✓ 내 출석 완료';
+                hostCheck.dataset.buttonState = 'success';
             } catch (error) {
                 status.textContent = error.message;
                 hostCheck.disabled = false;
@@ -138,7 +139,8 @@
         try {
             const data = await post(check.dataset.endpoint, { token });
             message.textContent = checkInMessage(data);
-            check.textContent = '출석 완료';
+            check.textContent = '✓ 출석 완료';
+            check.dataset.buttonState = 'success';
             history.replaceState(null, '', location.pathname);
         } catch (error) {
             message.textContent = error.message;

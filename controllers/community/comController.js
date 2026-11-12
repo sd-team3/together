@@ -1,18 +1,21 @@
 const mongosse = require('mongoose');
 const comService = require('../../services/community/comService');
 const Board = require('../../models/Board');
+const { CONSTANTS } = require('../../config/constants');
+const readSport = value => typeof value === 'string' && Object.hasOwn(CONSTANTS.SPORTS, value) ? value : '';
 
 const getCommunity = async (req, res, next) => {
-    const page = parseInt(req.query.page) || 1;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
     try {
-        const result = await comService.getBoard(page);  
-        const weeklyPopular = await comService.getWeeklyPopular()          
+        const sport = readSport(req.query.sport);
+        const result = await comService.getBoardByCategory(sport ? { sport } : {}, page);
+        const weeklyPopular = await comService.getWeeklyPopular(readSport(req.query.sport))
         res.render('community/comList', {
-            title : '게시판 페이지', 
+            title : '게시판 페이지',
             boards: result.boards,
             currentPage: result.currentPage,
             totalPages : result.totalPages,
-            weeklyPopular
+            weeklyPopular, selectedSport: readSport(req.query.sport), sports: CONSTANTS.SPORTS
         });
     } catch (error) {
         next(error);
@@ -21,7 +24,7 @@ const getCommunity = async (req, res, next) => {
 
 const getListAPI = async (req, res, next) => {
     const category = req.params.category;
-    const page = parseInt(req.query.page) || 1;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
     const sort = req.query.sort || 'latest';
     let search = {};
     try {
@@ -29,6 +32,8 @@ const getListAPI = async (req, res, next) => {
         if ( category !== 'all') {
             search.category = category;
         }
+        const sport = readSport(req.query.sport);
+        if (sport) search.sport = sport;
         const {boards, totalPages, currentPage} = await comService.getBoardByCategory(search, page, sort);
         res.status(200).json({ boards, totalPages, currentPage });
     } catch (error) {
@@ -49,7 +54,7 @@ const postBoardLike = async (req, res, next) => {
 }
 
 const getWrite = async (req, res) => {
-    res.render('community/write');
+    res.render('community/write', { selectedSport: readSport(req.query.sport), sports: CONSTANTS.SPORTS });
 }
 
 const postWrite = async (req, res, next) => {
@@ -60,9 +65,10 @@ const postWrite = async (req, res, next) => {
             content,
             req.user.id,
             category,
-            req.file
+            req.file,
+            readSport(req.body.sport)
         );
-        res.redirect('/community/list');
+        res.redirect('/community/list' + (readSport(req.body.sport) ? '?sport=' + readSport(req.body.sport) : ''));
     }catch(error) {
         next(error);
     }
@@ -71,13 +77,14 @@ const postWrite = async (req, res, next) => {
 const getDetail = async (req, res, next) => {
     try {
         const { boardId } = req.params;
-        const board = await comService.getDetail(boardId);
+        const board = await comService.getDetail(boardId, true);
+        if (!board) return res.sendStatus(404);
         const comments = await comService.getComments({ board : boardId });
         const userId = req.isAuthenticated() ? req.user._id : null;
         const isLiked = userId && board.likedBy
             ? board.likedBy.some(id => id.toString() === userId.toString())
             : false;
-        
+
         res.render("community/comDetail", { board, comments, userId, isLiked });
     } catch (error) {
         next(error);
@@ -99,7 +106,7 @@ const getEditBoard = async (req, res, next) => {
     try {
         const { boardId } = req.params;
         const board = await comService.getDetail(boardId);
-        res.render('community/comEdit', { board });
+        res.render('community/comEdit', { board, sports: CONSTANTS.SPORTS });
     } catch (error) {
         next(error);
     }
@@ -109,7 +116,7 @@ const postEditBoard = async (req, res, next) => {
     try {
         const { boardId } = req.params;
         const { title, content } = req.body;
-        await comService.updateBoard(boardId, title, content);
+        await comService.updateBoard(boardId, title, content, readSport(req.body.sport));
         res.redirect(`/community/list/${boardId}`);
     } catch (error) {
         next(error);
@@ -147,7 +154,7 @@ const deleteBoard = async (req, res, next) => {
     }
 }
 
-module.exports = { 
+module.exports = {
     getCommunity, getListAPI, postBoardLike, getDetail, postComment,putComment,
     deleteComment,postEditBoard, postEditBoard, deleteBoard, getEditBoard , getWrite, postWrite
 

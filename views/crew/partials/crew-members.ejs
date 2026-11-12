@@ -18,7 +18,7 @@
 
   <% if (isOwner) { %>
     <div class="manage-section">
-      <div class="manage-section-header"><div class="manage-section-title">⏳ 가입 신청 대기</div></div>
+      <div class="manage-section-header"><div class="manage-section-title">가입 신청 대기</div></div>
       <% if (!pendingApps.length) { %>
         <p style="padding:16px;color:var(--text-3);font-size:13px;">대기 중인 신청이 없습니다</p>
       <% } %>
@@ -30,7 +30,7 @@
             <div class="member-meta"><%= app.userId.age %>세</div>
           </div>
           <div class="member-action-btns">
-            <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">👤 프로필</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= app.userId._id %>')">프로필</button>
             <button type="button" class="approve-btn" data-application-id="<%= app._id %>" data-application-action="accept">✓ 승인</button>
             <button type="button" class="reject-btn" data-application-id="<%= app._id %>" data-application-action="reject">✗ 거절</button>
           </div>
@@ -40,7 +40,7 @@
   <% } %>
 
   <div class="manage-section">
-    <div class="manage-section-header"><div class="manage-section-title">👥 멤버 목록</div></div>
+    <div class="manage-section-header"><div class="manage-section-title">멤버 목록</div></div>
     <% crew.member.memberList.filter(member => member.user).forEach(member => { %>
       <div class="member-list-item">
         <img src="/images/user-profile/<%= member.user.profileImage || 'default-profile-image.jpg' %>" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
@@ -48,7 +48,7 @@
           <div class="member-name"><%= member.user.name %></div>
           <div class="member-meta"><%= member.user.age %>세 · 가입 <%= new Date(member.joinedAt).toLocaleDateString('ko-KR') %></div>
         </div>
-        <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= member.user._id %>')">👤 프로필</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="openProfileModal('<%= member.user._id %>')">프로필</button>
         <% if (member.user._id.toString() === hostId) { %>
           <span class="member-role-tag host">👑 크루장</span>
         <% } else { %>

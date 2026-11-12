@@ -32,6 +32,7 @@ window.selectActivityType = (next) => {
     document.getElementById('field-group').style.display = type === 'group' ? '' : 'none';
     document.getElementById('field-solo').style.display = type === 'solo' ? '' : 'none';
 };
+
 const state = document.getElementById('stateSelect');
 const city = document.getElementById('citySelect');
 const areas = JSON.parse(state.dataset.areas);
@@ -40,12 +41,14 @@ state.addEventListener('change', () => {
     city.replaceChildren(new Option('시/군/구 선택', ''));
     (areas[state.value] || []).forEach((name) => city.add(new Option(name, name)));
 });
+
 [state, city, document.getElementById('detail-addr')].forEach((input) =>
     input.addEventListener('change', () => {
         document.getElementById('lat-input').value = '';
         document.getElementById('lng-input').value = '';
     })
 );
+
 modal.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') window.toggleAddForm();
     if (event.key === 'Tab') {
@@ -66,6 +69,7 @@ modal.addEventListener('keydown', (event) => {
         }
     }
 });
+
 window.addSchedule = async () => {
     const submit = modal.querySelector('[onclick="addSchedule()"]');
     if (submit.disabled) return;
@@ -86,7 +90,9 @@ window.addSchedule = async () => {
         value('new-end-m').padStart(2, '0') +
         ':00+09:00';
     const count = Number(value(type === 'group' ? 'new-team-count' : 'new-count'));
-    if (!date || !Number.isFinite(Date.parse(start)) || Date.parse(end) <= Date.parse(start)) {
+    const startTime = Date.parse(start);
+    const endTime = Date.parse(end);
+    if (!date || !Number.isFinite(startTime) || !Number.isFinite(endTime) || endTime <= startTime) {
         status.textContent = '날짜와 시작·종료 시간을 확인해주세요.';
         return;
     }

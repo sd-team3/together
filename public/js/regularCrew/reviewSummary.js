@@ -49,7 +49,7 @@
     const content = createElement('div');
 
     content.append(
-      createElement('strong', '', '✨ AI 요약 준비 중'),
+      createElement('strong', '', 'AI 요약 준비 중'),
       createElement(
         'p',
         '',
@@ -93,7 +93,7 @@
     clearSummary();
 
     const header = createElement('div', 'review-summary-header');
-    const title = createElement('h3', 'review-summary-title', '✨ AI 후기 요약');
+    const title = createElement('h3', 'review-summary-title', 'AI 후기 요약');
     const analyzedCount = Number(summary.reviewCount) || totalReviewCount;
     const averageScore = Number(summary.averageScore);
     const countLabel = analyzedCount < totalReviewCount

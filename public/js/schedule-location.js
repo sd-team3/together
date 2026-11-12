@@ -10,7 +10,7 @@ function applyLocation(lat, lng, name) {
 
     const resultEl = document.getElementById('addr-result');
     resultEl.style.display = 'block';
-    resultEl.textContent = `✅ 위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
+    resultEl.textContent = `위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
 
     hidePlaceList();
 }
@@ -58,7 +58,7 @@ function showPlaceList(results, state, city) {
             if (!selectedAddr.includes(state) || !selectedAddr.includes(city)) {
                 if (
                     !confirm(
-                        `⚠️ 선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`
+                        `선택한 장소(${results[i].place_name})가\n설정한 지역(${state} ${city})과 다릅니다.\n그래도 선택하시겠어요?`
                     )
                 )
                     return;
@@ -82,7 +82,13 @@ document.getElementById('btn-find-addr').addEventListener('click', async () => {
         return;
     }
 
-    const address = detail ? `${state} ${city} ${detail}` : `${state} ${city}`;
+    if (!detail) {
+        alert('정확한 모임 장소나 주소를 입력해주세요.');
+        return;
+    }
+    document.getElementById('lat-input').value = '';
+    document.getElementById('lng-input').value = '';
+    const address = `${state} ${city} ${detail}`;
 
     try {
         const { lat, lng, name } = await kakaoMap.ADDRtoLatLng(address);

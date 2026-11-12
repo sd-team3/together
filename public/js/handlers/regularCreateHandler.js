@@ -4,10 +4,12 @@ const AREAS = JSON.parse(stateSelect.dataset.areas);
 
 const sportGroup = document.getElementById('sportGroup');
 const sportError = document.getElementById('sport-error');
+
 sportGroup.addEventListener('invalid', () => {
   sportError.hidden = false;
   sportGroup.scrollIntoView({ block: 'center' });
 }, true);
+
 sportGroup.addEventListener('change', () => { sportError.hidden = true; });
 
 stateSelect.addEventListener('change', ()=>{
@@ -51,7 +53,6 @@ profileInput.addEventListener('change', (e)=>{
 });
 
 profileReset.addEventListener('click', () => {
-  // This is a new crew: clear the pending upload without deleting saved files.
   if (removeImage) removeImage.value = 'false';
   profileInput.value = '';
   profileImage.src = filePath + 'default-profile-image.jpg';

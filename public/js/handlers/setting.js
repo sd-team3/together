@@ -10,11 +10,9 @@ function showToast(msg) {
 let _modalCb = null;
 
 function showModal(title, msg, cb) {
-  const emojiMatch = title.match(/^(\p{Emoji})/u);
-  const emoji = emojiMatch ? emojiMatch[1] : '💡';
-  const rest  = title.replace(/^(\p{Emoji}\s*)/u, '');
+  const rest  = title.replace(/^(?:\p{Extended_Pictographic}|[\uFE0F\u200D])+\s*/u, '');
 
-  document.getElementById('modal-icon').textContent  = emoji;
+  document.getElementById('modal-icon').hidden = true;
   document.getElementById('modal-title').textContent = rest;
   document.getElementById('modal-msg').innerHTML     = msg;
 
@@ -57,7 +55,7 @@ function submitInquiry() {
   document.getElementById('inquiry-title').value = '';
   document.getElementById('inquiry-body').value  = '';
 
-  showModal('✅ 문의 접수 완료', '문의가 정상적으로 접수되었습니다.<br>가입하신 이메일로 24시간 내 답변 드리겠습니다.', null);
+  showModal('문의 접수 완료', '문의가 정상적으로 접수되었습니다.<br>가입하신 이메일로 24시간 내 답변 드리겠습니다.', null);
 }
 
 function openFaqModal() {
@@ -82,7 +80,7 @@ function toggleDarkMode(on) {
 }
 
 function confirmLogout() {
-  showModal('👋 로그아웃', '정말 로그아웃 하시겠습니까?', () => {
+  showModal('로그아웃', '정말 로그아웃 하시겠습니까?', () => {
     window.location.href = '/user/logout';
   });
 }
@@ -162,13 +160,13 @@ document.getElementById('btn-edit-profile')
   });
 
   //서비스
-  document.getElementById('btn-terms').addEventListener('click', () => { showModal('📋 서비스 이용약관', '이용약관 내용은 웹사이트를 참조해주세요.', null); });
-  document.getElementById('btn-privacy').addEventListener('click', () => { showModal('🛡️ 개인정보 처리방침', '개인정보 처리방침 내용은 웹사이트를 참조해주세요.', null); });
+  document.getElementById('btn-terms').addEventListener('click', () => { showModal('서비스 이용약관', '이용약관 내용은 웹사이트를 참조해주세요.', null); });
+  document.getElementById('btn-privacy').addEventListener('click', () => { showModal('개인정보 처리방침', '개인정보 처리방침 내용은 웹사이트를 참조해주세요.', null); });
 
   // 고객센터
   document.getElementById('btn-inquiry').addEventListener('click', openInquiryModal);
   document.getElementById('btn-faq').addEventListener('click', openFaqModal);
-  document.getElementById('btn-notice').addEventListener('click', () => { showModal('📣 공지사항', '서비스 점검 및 업데이트 소식은<br>공지사항에서 확인하실 수 있습니다.', null); });
+  document.getElementById('btn-notice').addEventListener('click', () => { showModal('공지사항', '서비스 점검 및 업데이트 소식은<br>공지사항에서 확인하실 수 있습니다.', null); });
 
   // 위험 영역
   document.getElementById('btn-logout').addEventListener('click', confirmLogout);

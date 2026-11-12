@@ -6,7 +6,9 @@ const CONSTANTS = {
         bowling: { kr: '볼링' },
         tennis: { kr: '테니스' },
         badminton: { kr: '배드민턴' },
-        tabletennis: { kr: '탁구' }
+        tabletennis: { kr: '탁구' },
+        fitness: { kr: '헬스' },
+        running: { kr: '러닝' }
     },
     DAYS: {
         mon: { kr: '월요일', short: '월' },

@@ -11,7 +11,7 @@
 <body>
 <%- include('../partials/navbar') %>
 <div class="main">
-<%- include('../partials/head', { title: '👤 마이페이지', pageId: 'page-mypage', active: '', route: '/user/profile' }) %>
+<%- include('../partials/head', { title: '마이페이지', pageId: 'page-mypage', active: '', route: '/user/profile' }) %>
 
   <div class="page-body">
     <div class="mypage-layout">
@@ -25,14 +25,14 @@
           <div class="profile-info">
             <div class="profile-name"><%= user.name %></div>
             <div class="profile-handle"><%= user.email %></div>
-            <div class="profile-location-pill">📍 <%= user.address.state %> <%= user.address.city %></div>
+            <div class="profile-location-pill"><%= user.address.state %> <%= user.address.city %></div>
 
             <div class="profile-chip-row">
-              <span class="profile-chip">🎂 <%= user.age %>세</span>
-              <span class="profile-chip">👤 <%= user.gender === 'male' ? '남성' : '여성' %></span>
-              <span class="profile-chip">👥 정기크루 <%= user.crews.length %>개</span>
-              <span class="profile-chip">🤝 친구 <%= user.friends.length %>명</span>
-              <span class="profile-chip">📅 <%= new Date(user.createdAt).toLocaleDateString('ko-KR', { year:'numeric', month:'long' }) %> 가입</span>
+              <span class="profile-chip"><%= user.age %>세</span>
+              <span class="profile-chip"><%= user.gender === 'male' ? '남성' : '여성' %></span>
+              <span class="profile-chip">정기크루 <%= user.crews.length %>개</span>
+              <span class="profile-chip">친구 <%= user.friends.length %>명</span>
+              <span class="profile-chip"><%= new Date(user.createdAt).toLocaleDateString('ko-KR', { year:'numeric', month:'long' }) %> 가입</span>
             </div>
           </div>
 
@@ -70,18 +70,18 @@
 
       <!-- Main Content -->
       <div class="mypage-main">
-      <% const sportIconMap = { soccer:'⚽', baseball:'⚾', basketball:'🏀', bowling:'🎳', tennis:'🎾', badminton:'🏸', tabletennis:'🏓' } %>
-      <% const sportNameMap = { soccer:'축구', baseball:'야구', basketball:'농구', bowling:'볼링', tennis:'테니스', badminton:'배드민턴', tabletennis:'탁구' } %>
+      <% const sportIconMap = { soccer:'⚽', baseball:'⚾', basketball:'🏀', bowling:'🎳', tennis:'🎾', badminton:'🏸', tabletennis:'🏓', fitness: '🏋️', running: '🏃' } %>
+      <% const sportNameMap = { soccer:'축구', baseball:'야구', basketball:'농구', bowling:'볼링', tennis:'테니스', badminton:'배드민턴', tabletennis:'탁구', fitness:'헬스', running:'러닝' } %>
       <div id="regular-section">
         <div class="mypage-card" style="margin-bottom: 16px;">
           <div class="mypage-card-header">
-            <div class="mypage-card-title">📅 정기 모임 요일</div>
+            <div class="mypage-card-title">정기 모임 요일</div>
           </div>
           <div id="regular-calendar" class="regular-calendar"></div>
         </div>
       <div id="regular-card" class="mypage-card">
         <div class="mypage-card-header">
-          <div class="mypage-card-title">📅 정기 모임 목록 </div>
+          <div class="mypage-card-title">정기 모임 목록 </div>
                   <div class="filter-row" id="regular-filter">
           <div class="filter-tabs">
             <button type="button" class="filter-tab active" data-role="all">전체</button>
@@ -105,7 +105,7 @@
         <div class="mypage-card-body">
           <% if(regularCrews.length === 0 || !regularCrews) { %>
               <div class="no-data-container">
-                <div class="no-data-item">🔍</div>
+                
                 <p class="no-data-item" style="font-weight: 700;">가입한 정기 모임이 없어요</p>
                 <p class="no-data-item">나와 맞는 정기 모임을 찾아보세요!</p>
                 <a href="/regular/list" class="no-data-button">정기 모임 찾아보기</a>
@@ -124,9 +124,9 @@
                   </div>
                   <p class="crew-intro"><%= crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 크루입니다. 가입해보세요.` %></p>
                   <div class="crew-meta">
-                    <span>📌 <%= crew.address.state %> <%= crew.address.city %></span>
+                    <span><%= crew.address.state %> <%= crew.address.city %></span>
                     <span class="dot">·</span>
-                    <span>👤 <%= crew.memberCount %></span>
+                    <span><%= crew.memberCount %></span>
                     <span class="dot">·</span>
                     <span><%= sportNameMap[crew.sport] || crew.sport %></span>
                   </div>
@@ -179,7 +179,7 @@
           <div class="mypage-card-body">
             <% if(upcomingInstantCrews.length === 0 || !upcomingInstantCrews) { %>
                 <div class="no-data-container">
-                  <div class="no-data-item">🔍</div>
+                  
                   <p class="no-data-item" style="font-weight: 700;">아직 가입한 실시간 모임이 없어요</p>
                   <p class="no-data-item">나와 취향이 맞는 실시간 모임을 지도에서 찾아보세요!</p>
                   <a href="/instant/list" class="no-data-button">모임 둘러보기</a>
@@ -196,9 +196,9 @@
                   </div>
                   <p class="crew-intro"><%= crew.intro && crew.intro.trim() ? crew.intro : `${crew.title} 모임입니다. 참여해보세요.` %></p>
                   <div class="crew-meta">
-                    <span>📌 <%= crew.address.state %> <%= crew.address.city %></span>
+                    <span><%= crew.address.state %> <%= crew.address.city %></span>
                     <span class="dot">·</span>
-                    <span>👤 <%= crew.memberCount %>/<%= crew.member.capacity %></span>
+                    <span><%= crew.memberCount %>/<%= crew.member.capacity %></span>
                     <span class="dot">·</span>
                     <span><%= sportNameMap[crew.sport] || crew.sport %></span>
                   </div>
@@ -220,11 +220,11 @@
         <div id="history-section" style="display:none">
           <div class="mypage-card">
             <div class="mypage-card-header">
-              <div class="mypage-card-title">🏟️ 내 경기 기록</div>
+              <div class="mypage-card-title">내 경기 기록</div>
               <span style="font-size:12px;color:var(--text-3)"><%= regularGameRecords.length + instantGameRecords.length %>경기</span>
             </div>
             <div class="game-history-tabs">
-              <button type="button" class="active" data-history-type="regular">📅 정기모임 경기</button>
+              <button type="button" class="active" data-history-type="regular">정기모임 경기</button>
               <button type="button" data-history-type="instant">⚡ 실시간 모임 경기</button>
             </div>
             <div id="regular-game-history">
@@ -234,11 +234,11 @@
                 <div class="game-record">
                   <div class="game-record-info">
                     <div class="game-record-title"><%= act.title || '정기모임 경기' %></div>
-                    <div class="game-record-meta"><%= act.crewId?.title || '정기모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br>📍 <%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
+                    <div class="game-record-meta"><%= act.crewId?.title || '정기모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br><%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
                   </div>
                   <span class="game-record-state <%= act.attendanceStatus === 'late' ? 'late' : (act.attendanceStatus === 'present' || act.attended ? 'attended' : 'absent') %>"><%= act.attendanceStatus === 'late' ? '지각' : (act.attendanceStatus === 'present' || act.attended ? '출석' : act.attendanceStatus === 'absent' ? '결석' : '미출석') %></span>
                   <% if (act.status === '종료' && act.attended) { %>
-                    <a class="btn btn-primary btn-sm game-record-action" href="/regular/act/review/<%= act._id %>"><%= act.hasReviewed ? '평가 확인' : '매너 평가' %></a>
+                    <a class="btn btn-primary btn-sm game-record-action" data-button-state="<%= act.hasReviewed ? 'success' : '' %>" href="/regular/act/review/<%= act._id %>"><%= act.hasReviewed ? '✓ 평가 완료 · 확인' : '매너 평가' %></a>
                   <% } %>
                 </div>
               <% }) } %>
@@ -250,11 +250,11 @@
                 <div class="game-record">
                   <div class="game-record-info">
                     <div class="game-record-title"><%= act.title || '실시간 모임 경기' %></div>
-                    <div class="game-record-meta"><%= act.crewId?.title || '실시간 모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br>📍 <%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
+                    <div class="game-record-meta"><%= act.crewId?.title || '실시간 모임' %> · <%= new Date(act.startTime).toLocaleString('ko-KR', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) %><br><%= act.location?.state || '' %> <%= act.location?.city || '' %> <%= act.location?.detail || '' %></div>
                   </div>
                   <span class="game-record-state <%= act.attendanceStatus === 'late' ? 'late' : (act.attendanceStatus === 'present' || act.attended ? 'attended' : 'absent') %>"><%= act.attendanceStatus === 'late' ? '지각' : (act.attendanceStatus === 'present' || act.attended ? '출석' : act.attendanceStatus === 'absent' ? '결석' : '미출석') %></span>
                   <% if (act.status === '종료' && act.attended) { %>
-                    <a class="btn btn-primary btn-sm game-record-action" href="/instant/act/review/<%= act._id %>"><%= act.hasReviewed ? '평가 확인' : '매너 평가' %></a>
+                    <a class="btn btn-primary btn-sm game-record-action" data-button-state="<%= act.hasReviewed ? 'success' : '' %>" href="/instant/act/review/<%= act._id %>"><%= act.hasReviewed ? '✓ 평가 완료 · 확인' : '매너 평가' %></a>
                   <% } %>
                 </div>
               <% }) } %>

@@ -23,7 +23,7 @@
         const sportKr = CONSTANTS.SPORTS[crew.sport]?.kr || crew.sport;
         const sportEmojiMap = {
             soccer: '⚽', baseball: '⚾', basketball: '🏀',
-            bowling: '🎳', tennis: '🎾', badminton: '🏸', tabletennis: '🏓'
+            bowling: '🎳', tennis: '🎾', badminton: '🏸', tabletennis: '🏓', fitness: '🏋️', running: '🏃'
           };
         const sportEmoji = sportEmojiMap[crew.sport] || '🏃';
         const members = crew.member.memberList;
@@ -56,8 +56,8 @@
           <% } %>
 
           <div class="popup-meta" style="margin:14px 0">
-            <span>📍 <%= crew.address.state %> <%= crew.address.city %></span>
-            <span>👥 <%= members.length %>/<%= crew.member.capacity %>명</span>
+            <span><%= crew.address.state %> <%= crew.address.city %></span>
+            <span><%= members.length %>/<%= crew.member.capacity %>명</span>
             <span>⭐ 모임 평점: <%= crew.avgReputation > 0 ? crew.avgReputation.toFixed(1) : '평점 없음' %></span>
           </div>
 
@@ -84,12 +84,12 @@
           <button class="page-tab active" data-ptab="detail"
             style="padding:12px 24px;font-size:14px;font-weight:700;border:none;background:none;cursor:pointer;
                    border-bottom:2px solid var(--text);margin-bottom:-2px;color:var(--text)">
-            📋 모임
+            모임
           </button>
           <button class="page-tab" data-ptab="chat"
             style="padding:12px 24px;font-size:14px;font-weight:700;border:none;background:none;cursor:pointer;
                    color:var(--text-3)">
-            💬 채팅방
+            채팅방
           </button>
         </div>
 
@@ -242,7 +242,7 @@
               <div style="font-size:16px;font-weight:700;color:var(--text-2);margin-bottom:8px">아직 채팅방이 없어요</div>
               <div style="font-size:13px;margin-bottom:24px">채팅방을 만들어 멤버들과 소통해보세요!</div>
               <button class="btn btn-primary" id="btn-create-chat" style="padding:12px 32px;font-size:14px">
-                💬 채팅방 만들기
+                채팅방 만들기
               </button>
             </div>
           </div>

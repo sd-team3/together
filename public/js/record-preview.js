@@ -179,7 +179,7 @@
         bowling: '🎳',
         tennis: '🎾',
         badminton: '🏸',
-        tabletennis: '🏓'
+        tabletennis: '🏓', fitness: '🏋️', running: '🏃'
     };
 
     // 다른 기록을 선택하면 이전 기록의 예시 대화를 비운다.

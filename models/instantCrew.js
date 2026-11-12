@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { SPORTS_EN } = require('../config/constants');
+const { CONSTANTS } = require('../config/constants');
 
 const memberSchema = new mongoose.Schema(
     {
@@ -59,7 +59,7 @@ const instantCrewSchema = new mongoose.Schema(
         sport: {
             type: String,
             required: true,
-            enum: SPORTS_EN
+            enum: Object.keys(CONSTANTS.SPORTS)
         },
         attender: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         attendanceRecords: [{

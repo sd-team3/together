@@ -7,7 +7,7 @@ const User = require('../models/User');
 const WebPushSubscription = require('../models/webPushSubscription');
 const { deviceFromRequest } = require('../services/webPushService');
 
-//# 회원 가입 페이지
+// 회원 가입 페이지
 const getSignup = async (req, res, next) => {
     try {
         const sportChips = await homeService.getSportChips();
@@ -21,7 +21,7 @@ const getSignup = async (req, res, next) => {
     }
 };
 
-//# 회원 가입 처리
+// 회원 가입 처리
 const postSignup = async (req, res, next) => {
     try {
         const socialUser = req.session.socialUser || null;
@@ -137,7 +137,7 @@ const getProfile = async (req, res, next) => {
 };
 
 
-//회원 수정 페이지
+// 회원 수정 페이지
 const getEditProfile = async (req, res) => {
     try {
         const user = await userService.findUserById(req.user.id);
@@ -186,14 +186,12 @@ const postEditProfile = async (req, res, next) => {
     try {
         const user = await userService.findUserById(req.user.id);
 
-        let profileImage = user.profileImage; // 기본 유지
+        let profileImage = user.profileImage; 
 
-        // 삭제 요청
         if (removeImage === "true") {
             profileImage = null;
         }
 
-        // 새 업로드
         if (req.file) {
             profileImage = req.file.filename;
         }
@@ -233,7 +231,7 @@ const postEditProfile = async (req, res, next) => {
     }
 };
 
-//회원 탈퇴 처리
+// 회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
     const password = req.body.password;
     try {
@@ -252,7 +250,7 @@ const checkEmail = async (req, res, next) => {
     const { email } = req.query;
     try {
         const available = await userService.checkEmail(email);
-        res.json({ available });//DB에 해당 email이 있으면 false, 없으면 true
+        res.json({ available }); //DB에 해당 email이 있으면 false, 없으면 true
     } catch (error) {
         next(error);
     }
@@ -263,7 +261,7 @@ const getSetting = (req, res) => {
   res.render('user/setting', { user: req.user });
 };
 
-//유저 api
+// 유저 api
 const getUserProfile = async (req, res) => {
     try {
         const targetId = req.params.userId;
@@ -305,7 +303,7 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-//프로필 비공개
+// 프로필 비공개
 const updatePrivacy = async (req, res) => {
     try {
         const { key, value } = req.body;

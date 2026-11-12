@@ -41,7 +41,7 @@ inputEl.type = inputEl.type === 'password' ? 'text' : 'password';
 btn.textContent = inputEl.type === 'password' ? '👁' : '🙈';
 }
 
-/* 모달 */
+// 모달
 let redirectAfterClose = false;
 
 function openModal(msg, shouldRedirect = false) {
@@ -59,7 +59,7 @@ function closeModal() {
     if (redirectAfterClose) window.location.href = '/user/profile';
 }
 
-/* 이미지 */
+// 이미지
 const fileInput  = document.getElementById('avatar-file');
 const avatarImg  = document.getElementById('avatar-img');
 const defaultImg = '/images/user-profile/default-profile-image.jpg';
@@ -93,7 +93,7 @@ document.getElementById('removeImage').value = 'false';
 imageChanged = true;
 });
 
-/* 변경 항목 추적 */
+// 변경 항목 추적 
 const norm = (v) => (v ?? '').toString().trim();
 
 const originalUser = {
@@ -116,7 +116,7 @@ if (norm(form.newPassword?.value) !== '')                 changes.push('비밀�
 return changes;
 }
 
-/* 실시간 유효성 검사 */
+// 실시간 유효성 검사
 // 이름
 document.getElementById('name').addEventListener('input', function () {
 if (!this.value) {
@@ -189,7 +189,7 @@ const el = document.getElementById(id);
 if (el) el.addEventListener('focus', function () { this.removeAttribute('readonly'); }, { once: true });
 });
 
-/* 폼 제출 유효성 검사*/
+// 폼 제출 유효성 검사
 document.getElementById('editForm').addEventListener('submit', async (e) => {
 e.preventDefault();
 
@@ -314,7 +314,7 @@ if (currentPwInput && newPwInput) {
     }
 }
 
-/* --- 서버 전송 --- */
+// 서버 전송
 const changes  = getChangedFields(form);
 const formData = new FormData(form);
 

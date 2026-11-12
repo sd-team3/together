@@ -522,6 +522,24 @@ select.input{cursor:pointer}
 /* ═══════════════════════════════════════
    NOTIFICATIONS PAGE
 ═══════════════════════════════════════ */
+#noti-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.noti-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #b42318;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.noti-badge[hidden] { display: none; }
 #noti-list{
   border:2px solid var(--border);
   border-radius:12px;
@@ -5325,3 +5343,11 @@ body.dark .tt-px-event {
  .regular-list-page .reg-availability { border:0; align-items:flex-end; gap:4px; }
  .regular-list-page .reg-availability strong { font-size:14px; }
 }
+
+/* Persistent action states retain readable contrast when disabled. */
+:root { --action-success-bg:#e8f5ed; --action-success-text:#166534; --action-success-border:#86cba0; --action-pending-bg:#fff4d6; --action-pending-text:#854d0e; --action-pending-border:#dfbd68; --action-unavailable-bg:#f1f3f5; --action-unavailable-text:#52606d; --action-unavailable-border:#c5cdd5; }
+body.dark { --action-success-bg:#173c2a; --action-success-text:#a7efbc; --action-success-border:#397b50; --action-pending-bg:#423416; --action-pending-text:#ffe09a; --action-pending-border:#99772c; --action-unavailable-bg:#292f36; --action-unavailable-text:#c5cdd5; --action-unavailable-border:#59636e; }
+.btn[data-button-state="success"], .join-btn[data-button-state="success"] { background:var(--action-success-bg); color:var(--action-success-text); border:1px solid var(--action-success-border); }
+.btn[data-button-state="pending"], .join-btn[data-button-state="pending"] { background:var(--action-pending-bg); color:var(--action-pending-text); border:1px solid var(--action-pending-border); }
+.btn[data-button-state="unavailable"], .join-btn[data-button-state="unavailable"] { background:var(--action-unavailable-bg); color:var(--action-unavailable-text); border:1px solid var(--action-unavailable-border); }
+.btn[data-button-state]:not([data-button-state=""]):disabled, .join-btn[data-button-state]:not([data-button-state=""]):disabled, #panel-schedule button[data-button-state]:not([data-button-state=""]):disabled, .attendance-actions .btn[data-button-state]:not([data-button-state=""]):disabled { opacity:1; cursor:default; }

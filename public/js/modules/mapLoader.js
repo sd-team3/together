@@ -105,8 +105,8 @@ const kakaoMap = {
                 window.MAP.setCenter(position);
             }
         } catch (error) {
-            console.log(error.message);
-            //일단 콘솔에 띄우긴 하는데 나중에 에러처리
+            console.error('위치를 잡지 못했습니다.', error);
+            alert('위치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
         }
     },
 
@@ -139,8 +139,8 @@ const kakaoMap = {
                 position: position
             });
         } catch (error) {
-            console.log(error.message);
-            //일단 콘솔에 띄우긴 하는데 나중에 에러처리
+            console.error('주소로 지도를 불러오지 못했습니다.', error);
+            alert('지도를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
         }
     },
     loadMapByLatLng(lat, lng) {
@@ -178,6 +178,8 @@ const kakaoMap = {
                 bowling:     '#a855f7',
                 tennis:      '#eab308',
                 tabletennis: '#10b981',
+                fitness: '#e11d48',
+                running: '#16a34a',
             };
     
             KakaoMarkers = crews.map(crew => {

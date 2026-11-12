@@ -232,13 +232,6 @@ async function postCrewUpdate(regularCrewId, updateData, updateFile) {
     return await regularCrew.findByIdAndUpdate(regularCrewId, { $set: updateData }, { new: true });;
 }
 
-async function getCrewActivity(regularCrewId) {
-    const crew = await regularCrew.findById(regularCrewId).lean();
-    const acts = await activityService.findActsByCrewId(regularCrewId);
-    crew.acts = acts;
-    return crew;
-}
-
 async function handleUserDeleted(userId) {
     // 탈퇴 유저가 host인 정기모임의 채팅방 삭제
     const hostCrews = await regularCrew.find({ host: userId }).select('_id');
@@ -299,7 +292,6 @@ module.exports = {
     getRegularCrews, 
     getRegularAPICrews,
     postCrewUpdate,
-    getCrewActivity,
     handleUserDeleted,
     getCrewReview,
     postCrewReview

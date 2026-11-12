@@ -6,14 +6,34 @@
   const status = section.querySelector('.latest-load-status');
   const button = section.querySelector('.latest-load-button');
   const mobile = matchMedia('(max-width: 768px)');
+  const fallbackImage = section.dataset.fallbackImage;
   let cursor = section.dataset.nextCursor;
   let loading = false;
   let failed = false;
+
+  function replaceBrokenImage(image) {
+    if (image.getAttribute('src') !== fallbackImage) image.src = fallbackImage;
+  }
+
+  grid.addEventListener('error', event => {
+    if (event.target.matches('.latest-thumbnail')) replaceBrokenImage(event.target);
+  }, true);
+  
+  grid.querySelectorAll('.latest-thumbnail').forEach(image => {
+    if (image.complete && !image.naturalWidth) replaceBrokenImage(image);
+  });
 
   function createCard(meeting) {
     const card = document.createElement('a');
     card.className = 'latest-card';
     card.href = `/regular/list/${encodeURIComponent(meeting.id)}`;
+    const image = document.createElement('img');
+    image.className = 'latest-thumbnail';
+    image.alt = '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.src = meeting.profileImage?.trim() || fallbackImage;
+    card.append(image);
     const add = (parent, tag, text, className) => {
       const element = document.createElement(tag);
       element.textContent = text;

@@ -18,7 +18,6 @@ function validEndpoint(endpoint) {
     if (typeof endpoint !== 'string' || endpoint.length > 2048) return false;
     try {
         const url = new URL(endpoint);
-        // Only known browser push services may receive server-side requests.
         const hostAllowed = url.hostname === 'fcm.googleapis.com' ||
             url.hostname === 'updates.push.services.mozilla.com' ||
             url.hostname.endsWith('.push.apple.com');

@@ -1,20 +1,16 @@
 const express = require('express');
+const requestValidation = require('../middlewares/requestValidation');
 const { randomBytes } = require('node:crypto');
 const Subscription = require('../models/webPushSubscription');
 const { deviceCookie, deviceFromRequest, vapidDetails, validSubscription } = require('../services/webPushService');
 
 const router = express.Router();
 
-router.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store');
-    if (!req.isAuthenticated()) return res.status(401).json({ message: '로그인이 필요합니다.' });
-    if (req.method !== 'GET' &&
-        (!req.is('application/json') || req.get('X-Together-Push') !== '1' ||
-            req.get('Sec-Fetch-Site') === 'cross-site')) {
-        return res.status(403).json({ message: '설정 화면에서 다시 시도해주세요.' });
-    }
-    next();
-});
+router.use(
+    requestValidation.noStore,
+    requestValidation.webPushLoginValidation,
+    requestValidation.webPushRequestValidation
+);
 
 router.get('/', async (req, res) => {
     const publicKey = vapidDetails()?.publicKey;

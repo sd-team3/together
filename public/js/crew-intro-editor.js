@@ -20,10 +20,11 @@
       const style = getComputedStyle(input);
       input.style.height = `${input.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)}px`;
     }
+
     function resizeInputs() {
       container.querySelectorAll('textarea').forEach(resizeInput);
     }
-    // Recalculate when a hidden edit section opens or its available width changes.
+    
     if ('ResizeObserver' in window) {
       let previousWidth = 0;
       const observer = new ResizeObserver(entries => {
@@ -42,6 +43,7 @@
       hidden.value = JSON.stringify(blocks);
       original.value = blocks.filter(b => b.type === 'text').map(b => b.text).join('\n\n');
     }
+
     function button(parent, label, action, disabled = false) {
       const element = document.createElement('button');
       element.type = 'button';
@@ -52,11 +54,13 @@
       parent.append(element);
       return element;
     }
+
     function insert(index, block) {
       if (blocks.length >= 40) { status.textContent = '항목은 최대 40개까지 넣을 수 있어요.'; return; }
       blocks.splice(index + 1, 0, block);
       render();
     }
+
     async function upload(index) {
       if (blocks.filter(b => b.type === 'image').length >= 10) {
         status.textContent = '사진은 최대 10장까지 넣을 수 있어요.'; return;
@@ -91,6 +95,7 @@
       });
       picker.click();
     }
+
     function render() {
       container.replaceChildren();
       if (!blocks.length) blocks.push({ type: 'text', text: '' });
@@ -133,6 +138,7 @@
       sync();
       requestAnimationFrame(resizeInputs);
     }
+    
     original.closest('form')?.addEventListener('submit', event => {
       if (editor.dataset.uploading === 'true') {
         event.preventDefault();

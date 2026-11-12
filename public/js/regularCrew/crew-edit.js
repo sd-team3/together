@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn =
     document.getElementById('crew-save-btn');
 
-  // 크루장이 아니면 crew-edit-area 자체가 없음
   if (!editArea) return;
 
   const editBlocks = [...editArea.querySelectorAll('[data-crew-edit-block]')];
@@ -28,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileMessage = document.getElementById('crew-profile-message');
   const originalProfile = profilePreview.src;
   let previewUrl = null;
+
   function resetProfile() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = null;
@@ -35,7 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
     profilePreview.src = originalProfile;
     profileMessage.textContent = '';
   }
+
   document.getElementById('crew-profile-reset').addEventListener('click', resetProfile);
+  
   profileInput.addEventListener('change', () => {
     const file = profileInput.files[0];
     if (!file) return;
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('크루 정보 수정 중 오류가 발생했습니다.');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.textContent = '💾 변경사항 저장';
+      saveBtn.textContent = '변경사항 저장';
     }
   }
 });
