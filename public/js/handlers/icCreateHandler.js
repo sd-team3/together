@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resultEl = document.getElementById('addr-result');
     resultEl.style.display = 'block';
-    resultEl.textContent = `✅ 위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
+    resultEl.textContent = `위치 확인 완료: ${name} (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`;
 
     hidePlaceList();
   }
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!selectedDates.length) return;
 
       document.getElementById('meetAt_date').value = dateStr;
-      selectedDateLabel.textContent = `📅 ${dateStr}`;
+      selectedDateLabel.textContent = `${dateStr}`;
 
       stepDate.style.display = 'none';
       stepTime.style.display = 'block';

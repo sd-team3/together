@@ -21,18 +21,13 @@ async function getChatRoomList(userId, crewType = null) {
         ];
     }
 
-    // console.log('[getChatRoomList] userId:', userId, 'crewType:', crewType, 'query:', JSON.stringify(query));
-
     const chatRoom = await ChatRoom.find(query)
         .populate('members.user', 'name')
         .populate('lastMessage', 'content')
         .sort({ lastMessageAt: -1 });
 
-    // console.log('[getChatRoomList] 결과 개수:', chatRoom.length);
-
     return chatRoom;
 }
-
 
 async function getMessage (roomId) {
     if (!roomId) {

@@ -1,3 +1,4 @@
+const attendanceUtils = require('../utils/attendanceUtils');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const ejs = require('ejs');
@@ -110,7 +111,7 @@ test('regular participants still check in with a valid QR and no position', asyn
     t.mock.method(Activity, 'findOne', async () => activity);
     t.mock.method(Activity, 'startSession', async () => session);
     t.mock.method(Activity, 'updateOne', async (filter, update) => {
-        assert.equal(filter.attendanceQrHash, regular.hash(token));
+        assert.equal(filter.attendanceQrHash, attendanceUtils.hash(token));
         assert.deepEqual(filter.attendanceQrExpiresAt, { $gt: date(5) });
         assert.deepEqual(update.$addToSet, { attender: member });
         return { matchedCount: 1 };

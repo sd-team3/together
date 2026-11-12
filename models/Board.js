@@ -6,15 +6,11 @@ const boardSchema = new mongoose.Schema(
         title : {type: String, required : true},
         content : {type : String, required : true},
         author : {type : mongoose.Schema.Types.ObjectId, ref : 'User', required : false, default: null},
-        // ref : 내가 무엇을 참조하는지 
-        // author : User 컬렉션 참조
-        // 몽고 DB에서 기본키를 만들어 유저의 기본키를 가져옴
         category : {
             type : String, 
-            enum : ['question', 'tip', 'free'], // 카테고리 값을 제한함
+            enum : ['question', 'tip', 'free'],
             required : true
         },
-        // enum : 열거형, 속성에 허용되는 값들을 제한
         sport: { type: String, enum: ['', ...Object.keys(CONSTANTS.SPORTS)], default: '' },
         views: { type: Number, default: 0 },
         file : {type : String, default : null},

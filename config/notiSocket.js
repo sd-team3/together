@@ -1,24 +1,5 @@
 const userService = require('../services/userService');
 
-// function notiSocket(noti) {
-//     noti.on('connection', async (socket)=>{
-//         const { userId } = socket.handshake.auth;
-//         if(!userId) { return socket.disconnect() }
-    
-//         try {
-//             const user = await userService.findUserById_WithoutPW(userId);
-//             if (!user) return socket.disconnect();
-//             socket.data.user = user;
-//             socket.join(`user:${user._id.toString()}`);
-
-            
-//         } catch (error) {
-//             socket.disconnect();
-//         }
-//     });
-// }
-
-// 알림 소켓 핸들러 파일 (notiSocket 또는 initSocket 내부)
 function notiSocket(noti) {
     noti.on('connection', async (socket)=>{
         const { userId } = socket.handshake.auth;

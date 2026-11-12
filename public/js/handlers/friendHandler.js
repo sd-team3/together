@@ -1,9 +1,9 @@
-// ── 상태 ──
+// 상태 
 const allFriends = Array.from(document.querySelectorAll('#friend-list .friend-card'));
 let removingId = null;
 const isFriendPage = !!document.getElementById('count-all');
 
-// ── 유틸 ──
+// 유틸 
 function profileImg(img) {
     return img && img !== 'default-profile-image.jpg'
         ? `/images/user-profile/${img}`
@@ -222,7 +222,7 @@ if (isFriendPage) {
     });
 }
 
-// ── 소켓 ──
+// 소켓
 let _notiSocket = null;
 
 export function initFriendSocket(socket) {

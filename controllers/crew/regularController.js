@@ -152,16 +152,6 @@ const postCrewUpdate = async (req, res) => {
     }
 }
 
-const getCrewActivity = async (req, res) => {
-    try {
-        const crew = await regularService.getCrewActivity(req.params.crewId);
-        res.render('crew/crewActivity', { crew });
-    } catch(error) {
-        console.error(error);
-        res.status(500).render('error/error_500');
-    }
-}
-
 // 후기 작성 컨트롤러
 const postCrewReview = async (req, res) => {
     try {
@@ -246,7 +236,7 @@ const getCrewReviewSummary = async (req, res) => {
 
 module.exports = {
     getRegularCreate,
-    postRegularCreate, //기능명세
+    postRegularCreate,
     postMyCrewDelete,
     postMyCrewWithdraw,
     postCrewLike,
@@ -254,7 +244,6 @@ module.exports = {
     getRegularAPI,
     postCrewUpdate,
     getRegularPage,
-    getCrewActivity,
     postCrewReview,
     getCrewReviewSummary
 };

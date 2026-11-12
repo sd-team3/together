@@ -21,9 +21,11 @@
   toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
   close.addEventListener('click', () => setOpen(false));
   backdrop.addEventListener('click', () => setOpen(false));
+
   navigation.addEventListener('click', event => {
     if (!event.target.closest('.community-toggle') && event.target.closest('a, .nav-item, .user-chip')) setOpen(false);
   });
+
   document.addEventListener('keydown', event => {
     if (!document.body.classList.contains('mobile-menu-open')) return;
     if (event.key === 'Escape') {
@@ -44,6 +46,7 @@
       }
     }
   });
+  
   mobile.addEventListener('change', () => setOpen(false, false));
   setOpen(false, false);
 })();

@@ -35,21 +35,4 @@ router.post('/review/:actId',
     activityController.postMannerReview
 );
 
-// router.post('/attend/:actId', 
-//     activityMiddleware.isActExist,
-//     activityController.postAttendance
-// );
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router;

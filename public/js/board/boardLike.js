@@ -1,4 +1,3 @@
-// public/js/boardLike.js
 async function toggleLike(userId) {
     liked = !liked;
     likeCount += liked ? 1 : -1;
@@ -13,13 +12,12 @@ async function toggleLike(userId) {
     btn.classList.toggle('liked', liked);
 
     try {
-        await fetch('/community/list/' + boardId + '/like', {  // ✅ 게시판 URL
+        await fetch('/community/list/' + boardId + '/like', {  
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ liked })
         });
     } catch (error) {
-        // 실패 시 되돌림
         liked = !liked;
         likeCount += liked ? 1 : -1;
         icon.textContent = liked ? '❤️' : '🤍';

@@ -57,7 +57,7 @@ export function renderRegularCards(regularCrews) {
   if (!regularCrews || regularCrews.length === 0) {
     cardList.innerHTML = `
       <div class="empty-regular-list">
-        <div class="empty-regular-icon">🔍</div>
+        
         <p class="empty-regular-text">조건에 맞는 정기모임이 없습니다.</p>
       </div>
     `;

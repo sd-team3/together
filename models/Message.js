@@ -12,9 +12,7 @@ const messageSchema =  new mongoose.Schema (
     }
 );
 
-// 특정 채팅방의 메시지를 시간순으로 빠르게 가져오기 위한 인덱스
 messageSchema.index({ room: 1, createdAt: 1 });
-// 최신 메시지를 먼저 가져올 때 사용
 messageSchema.index({ room: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Message", messageSchema);

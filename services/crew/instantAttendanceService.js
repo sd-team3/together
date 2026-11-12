@@ -1,30 +1,12 @@
-const crypto = require('crypto');
 const Crew = require('../../models/instantCrew');
 const User = require('../../models/User');
-const {
-    fail,
-    id,
-    hash,
-    requireId,
-    dateKey,
-    isOpen: activityIsOpen,
-    attendanceStatus,
-    attendanceDeadline,
-    attendanceScoreDelta,
-    requireNearbyPosition
-} = require('./attendanceService');
-const DURATION = 3 * 60 * 60 * 1000;
+const { ATTENDANCE_DEADLINE_MS } = require('../../config/attendance');
 
-function activity(crew) {
-    return {
-        _id: crew._id,
-        title: crew.title,
-        startTime: crew.meetAt,
-        endTime: new Date(new Date(crew.meetAt).getTime() + DURATION),
-        location: crew.address
-    };
-}
-const isOpen = (crew, now = new Date()) => activityIsOpen(activity(crew), now);
+const {
+    fail, id, hash, requireId, instantIsOpen: isOpen, attendanceStatus,
+    attendanceScoreDelta, requireNearbyPosition, createQrToken
+} = require('../../utils/attendanceUtils');
+
 async function access(crewId, userId) {
     requireId(crewId);
     const crew = await Crew.findById(crewId).lean();
@@ -38,29 +20,12 @@ async function access(crewId, userId) {
     }
     return { crew, isOwner };
 }
-function roster(crew) {
-    const attended = new Set((crew.attender || []).map(id));
-    const records = new Map((crew.attendanceRecords || []).map((record) => [id(record.user), record]));
-    const ids = [
-        ...new Set([
-            id(crew.host),
-            ...crew.member.memberList
-                .filter((m) => m.status === 'confirmed' || m.status === 'noshow')
-                .map((m) => id(m.user))
-        ])
-    ];
-    return ids.map((userId) => {
-        const record = records.get(userId);
-        const status = record?.status || (attended.has(userId) ? 'present' : crew.attendanceSettledAt ? 'absent' : 'pending');
-        return { id: userId, status, attended: status === 'present' || status === 'late' };
-    });
-}
+
 async function issueQr(crewId, userId, now = new Date()) {
     const { crew, isOwner } = await access(crewId, userId);
     if (!isOwner) throw fail(403, '모임장만 QR을 생성할 수 있습니다.');
     if (!isOpen(crew, now)) throw fail(409, '모임 시작 후 30분까지만 QR을 생성할 수 있습니다.');
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Math.min(now.getTime() + 60000, attendanceDeadline(crew.meetAt).getTime()));
+    const { token, expiresAt } = createQrToken(crew.meetAt, now);
     const result = await Crew.updateOne(
         {
             _id: crewId,
@@ -68,7 +33,7 @@ async function issueQr(crewId, userId, now = new Date()) {
             attendanceSettledAt: null,
             $and: [
                 { meetAt: crew.meetAt },
-                { meetAt: { $lte: now, $gte: new Date(now.getTime() - 30 * 60 * 1000) } }
+                { meetAt: { $lte: now, $gte: new Date(now.getTime() - ATTENDANCE_DEADLINE_MS) } }
             ]
         },
         { $set: { attendanceQrHash: hash(token), attendanceQrExpiresAt: expiresAt, attendancePolicyEnabled: true } }
@@ -76,14 +41,17 @@ async function issueQr(crewId, userId, now = new Date()) {
     if (!result.matchedCount) throw fail(409, '모임 정보가 변경되었습니다. 새로고침해주세요.');
     return { token, expiresAt };
 }
+
 async function checkIn(crewId, userId, token, now = new Date()) {
     if (typeof token !== 'string' || !/^[a-f\d]{64}$/.test(token))
         throw fail(400, 'QR을 다시 스캔해주세요.');
     return recordCheckIn(crewId, userId, now, { token });
 }
+
 async function checkInAsHost(crewId, userId, position, now = new Date()) {
     return recordCheckIn(crewId, userId, now, { position });
 }
+
 async function recordCheckIn(crewId, userId, now, { token, position }) {
     const { crew, isOwner } = await access(crewId, userId);
     if (!token && !isOwner) throw fail(403, '모임장만 위치로 출석할 수 있어요.');
@@ -110,7 +78,7 @@ async function recordCheckIn(crewId, userId, now, { token, position }) {
                 {
                     _id: crewId,
                     meetAt: token
-                        ? { $lte: now, $gte: new Date(now.getTime() - 30 * 60 * 1000) }
+                        ? { $lte: now, $gte: new Date(now.getTime() - ATTENDANCE_DEADLINE_MS) }
                         : crew.meetAt,
                     attendanceSettledAt: null,
                     $or: [
@@ -150,4 +118,8 @@ async function recordCheckIn(crewId, userId, now, { token, position }) {
     }
     return { alreadyAttended: false, attendanceStatus: status, scoreDelta };
 }
-module.exports = { access, activity, isOpen, roster, issueQr, checkIn, checkInAsHost, dateKey };
+
+async function findMemberNames(memberIds) {
+    return User.find({ _id: { $in: memberIds } }).select('name').lean();
+}
+module.exports = { access, findMemberNames, issueQr, checkIn, checkInAsHost };

@@ -99,10 +99,10 @@ export function renderNoti(noti, notiList, onChange) {
                         const data = await res.json();
                         
                         if (res.ok) {
-                            alert(`✅ 출석 성공!`);
+                            alert(`출석 성공!`);
                             location.reload(); 
                         } else {
-                            alert(`❌ 출석 실패: ${data.message || '오류가 발생했습니다.'}`);
+                            alert(`출석 실패: ${data.message || '오류가 발생했습니다.'}`);
                         }
                     } catch (error) {
                         console.error('GPS 출석 통신 에러:', error);

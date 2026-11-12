@@ -1,3 +1,4 @@
+const attendanceUtils = require('../utils/attendanceUtils');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs'),
@@ -34,7 +35,7 @@ test('instant attendance accepts only host and confirmed members', async (t) => 
     assert.equal((await service.access(crewId, member)).isOwner, false);
     await assert.rejects(service.access(crewId, outsider), { status: 403 });
     await assert.rejects(service.access('bad', member), { status: 400 });
-    assert.deepEqual(service.roster({ ...crew, attender: [member] }), [
+    assert.deepEqual(attendanceUtils.roster({ ...crew, attender: [member] }), [
         { id: host, attended: false },
         { id: member, attended: true }
     ]);
@@ -50,8 +51,8 @@ test('only host issues one-minute QR and attendance crosses midnight for three h
     const result = await service.issueQr(crewId, host, now);
     assert.equal(result.expiresAt - now, 60000);
     assert.notEqual(saved.attendanceQrHash, result.token);
-    assert(service.isOpen(crew, new Date('2026-10-25T15:30:00Z')));
-    assert(!service.isOpen(crew, new Date('2026-10-25T17:50:00Z')));
+    assert(attendanceUtils.instantIsOpen(crew, new Date('2026-10-25T15:30:00Z')));
+    assert(!attendanceUtils.instantIsOpen(crew, new Date('2026-10-25T17:50:00Z')));
     await assert.rejects(service.issueQr(crewId, host, new Date('2026-10-25T14:49:00Z')), {
         status: 409
     });
@@ -91,7 +92,7 @@ test('shared attendance page renders instant endpoints without calendar or sched
         isOwner: true,
         mode: 'day',
         date: '2026-10-25',
-        activity: service.activity(crew),
+        activity: attendanceUtils.instantActivity(crew),
         activities: [],
         members: [{ id: member, name: '<script>', attended: false }],
         canIssue: true

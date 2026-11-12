@@ -1,10 +1,10 @@
-/* 텍스트 안전 */
+// 텍스트 안전
 function setText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
 }
 
-/*XSS 공격 방지 */
+// XSS 공격 방지
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -14,15 +14,13 @@ function escapeHtml(str) {
     .replace(/'/g, '&#x27;');
 }
 
-// ── 공용 모달 ─────────────────────────────────
+// 공용 모달 
 let _modalCb = null;
 
 function showModal(title, msg, cb) {
-  const emojiMatch = title.match(/^(\p{Emoji})/u);
-  const emoji = emojiMatch ? emojiMatch[1] : '💡';
-  const rest  = title.replace(/^(\p{Emoji}\s*)/u, '');
+  const rest  = title.replace(/^(?:\p{Extended_Pictographic}|[\uFE0F\u200D])+\s*/u, '');
 
-  setText('modal-icon',  emoji);
+  document.getElementById('modal-icon').hidden = true;
   setText('modal-title', rest);
   document.getElementById('modal-msg').textContent = msg;
 
@@ -35,7 +33,7 @@ function closeModal() {
   _modalCb = null;
 }
 
-// ── 페이지 이동 (SPA 내부) ────────────────────
+// 페이지 이동 (SPA 내부)
 function goPage(p) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   const pg = document.getElementById('page-' + p);
@@ -57,7 +55,7 @@ function goPage(p) {
   }
 }
 
-// ── 지도 팝업 ─────────────────────────────────
+// 지도 팝업 
 function showMapPopup(data) {
   setText('pp-sport',   data.emoji);
   setText('pp-title',   data.title);
@@ -73,7 +71,7 @@ function closeMapPopup() {
   document.getElementById('map-popup').classList.remove('show');
 }
 
-// ── 필터 헬퍼 ─────────────────────────────────
+// 필터 헬퍼 
 function toggleFilter(el) {
   el.closest('[data-filter-group]')
     ?.querySelectorAll('.map-filter-chip')
@@ -106,7 +104,7 @@ function searchRegCards() {
   window.crewSpotlight?.filter({ sport, district, keyword });
 }
 
-// ── Leaflet 지도 ──────────────────────────────
+// Leaflet 지도 
 let leafletMap     = null;
 let leafletMarkers = [];
 let leafletMatches = [];
@@ -178,7 +176,7 @@ function initLeafletMap() {
     iconSize: [14, 14], iconAnchor: [7, 7], className: ''
   });
   L.marker([37.5447, 127.0461], { icon: myIcon }).addTo(leafletMap)
-    .bindTooltip('📍 내 위치');
+    .bindTooltip('내 위치');
 
   L.control.zoom({ position: 'topright' }).addTo(leafletMap);
 
@@ -227,7 +225,7 @@ async function performAiSearch() {
   const grid = document.querySelector('.regular-grid');
   if (!q) return;
 
-  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">🤖 AI가 찾아보는 중...</div>';
+  if (grid) grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-3)">AI가 찾아보는 중...</div>';
 
   try {
     const res  = await fetch(`/api/search/ai?q=${encodeURIComponent(q)}`);
@@ -249,7 +247,7 @@ function filterSport(el) {
 }
 //번개모임
 
-// ── DOMContentLoaded ──────────────────────────
+// DOMContentLoaded 
 document.addEventListener('DOMContentLoaded', () => {
 
   goPage('home');
@@ -282,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const title = card.dataset.modalTitle || '';
     const body  = card.dataset.modalBody  || '';
     showModal(title, body, () =>
-      showModal('✅ 신청 완료!', '모임 참가 신청이 완료되었습니다!')
+      showModal('신청 완료!', '모임 참가 신청이 완료되었습니다!')
     );
   });
 });
@@ -307,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-close-map-popup')?.addEventListener('click', closeMapPopup);
   document.getElementById('btn-popup-join')?.addEventListener('click', () => {
     closeMapPopup();
-    showModal('🎉 참가 신청 완료!', '매칭에 참가 신청이 완료되었습니다! 당일 30분 전 알림을 드립니다.');
+    showModal('참가 신청 완료!', '매칭에 참가 신청이 완료되었습니다! 당일 30분 전 알림을 드립니다.');
   });
   document.getElementById('btn-popup-share')?.addEventListener('click', closeMapPopup);
 
@@ -349,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //랭킹(테스트용)
 document.getElementById('btn-my-rank')?.addEventListener('click', () => {
   showModal(
-    '🏆 내 랭킹',
+    '내 랭킹',
     '현재  랭킹 12위입니다!'
   );
 });

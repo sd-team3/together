@@ -80,8 +80,6 @@ const regularCrewSchema = new mongoose.Schema(
         reputation: { type: Number, default: 0 },
         profileImage: {
             type: String, 
-            //여기에 저장하는 파일은 images/user-profile/<userId>-<DateTime>.jpg 형식으로 저장됨
-            //폴더나 파일 명은 적절하다고 생각하는 한도에서 사용 
             default: 'default-crew-profile.jpg'
         },
         likedBy: [{

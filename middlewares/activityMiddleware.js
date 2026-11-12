@@ -1,7 +1,7 @@
 const { authenticate } = require('passport');
 const crewService = require('../services/crew/crewService');
 const activityService = require('../services/crew/activityService');
-const { dateKey } = require('../services/crew/attendanceService');
+const { dateKey } = require('../utils/attendanceUtils');
 const activityTime = new Intl.DateTimeFormat('ko-KR', {
     timeZone: 'Asia/Seoul',
     hour: '2-digit',
@@ -20,6 +20,12 @@ const activityCreateMiddleware = (req, res, next) => {
     const { state, city, detail, lat, lng } = location || {};
     if (!state || !city || !detail || lat === undefined || lng === undefined) {
         return res.status(400).json({ message: "장소 정보가 올바르지 않습니다." });
+    }
+
+    if (lat === null || lng === null || lat === '' || lng === '' ||
+        !Number.isFinite(Number(lat)) || Math.abs(Number(lat)) > 90 ||
+        !Number.isFinite(Number(lng)) || Math.abs(Number(lng)) > 180) {
+        return res.status(400).json({ message: '장소의 좌표가 올바르지 않습니다. 위치를 다시 확인해주세요.' });
     }
 
     const start = new Date(startTime);

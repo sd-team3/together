@@ -18,6 +18,7 @@
   grid.addEventListener('error', event => {
     if (event.target.matches('.latest-thumbnail')) replaceBrokenImage(event.target);
   }, true);
+  
   grid.querySelectorAll('.latest-thumbnail').forEach(image => {
     if (image.complete && !image.naturalWidth) replaceBrokenImage(image);
   });

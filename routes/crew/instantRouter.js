@@ -42,7 +42,6 @@ router.post('/delete/:instantId',
 );
 
 //크루 강퇴
-
 router.get('/relation/:crewId/:userId', 
     crewMiddleware.loginValidation,
     applicationController.getRelation

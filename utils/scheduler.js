@@ -5,7 +5,7 @@ const regularCrew = require('../models/regularCrew');
 const instantCrew = require('../models/instantCrew');
 const notiService = require('../services/notiService');
 const webPushService = require('../services/webPushService');
-const { dateKey } = require('../services/crew/attendanceService');
+const { dateKey } = require('./attendanceUtils');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const { settleAttendance, applyAbsencePenalty } = require('../services/crew/attendanceSettlementService');
@@ -175,8 +175,6 @@ function startScheduler(io) {
                     const noShowUsers = allParticipants.filter(id => !attendedUsers.includes(id));
                     const attendedCount = attendedUsers.length;
 
-                    // QR 출석 정책이 활성화된 경기는 시작 30분 시점에 세분화 정산한다.
-                    // 기존 QR 미사용 경기는 이전 정산 규칙을 유지한다.
                     if (!act.attendancePolicyEnabled) {
                         if (attendedUsers.length > 0) {
                             await User.updateMany(

@@ -10,7 +10,7 @@
 <%- include('../partials/navbar') %>
 
 <div class="main">
-<%- include('../partials/head', { title: '👥 내 친구 목록', pageId: 'page-friends', active: '', route: '/friends' }) %>
+<%- include('../partials/head', { title: '내 친구 목록', pageId: 'page-friends', active: '', route: '/friends' }) %>
 
   <div class="friends-page-body">
 
@@ -26,7 +26,7 @@
     <div id="pending-list" class="friends-list-wrap hidden">
       <% if (pendingRequests.length === 0) { %>
         <div class="friend-empty">
-          <div class="friend-empty-icon">📭</div>
+          
           <div class="friend-empty-title">받은 친구 신청이 없어요</div>
         </div>
       <% } %>
@@ -57,7 +57,7 @@
     <div id="sent-list" class="friends-list-wrap hidden">
       <% if (sentRequests.length === 0) { %>
         <div class="friend-empty">
-          <div class="friend-empty-icon">📤</div>
+          
           <div class="friend-empty-title">보낸 친구 신청이 없어요</div>
         </div>
       <% } %>
@@ -92,7 +92,7 @@
     <div id="friend-list" class="friends-list-wrap">
       <% if (friends.length === 0) { %>
         <div class="friend-empty">
-          <div class="friend-empty-icon">👥</div>
+          
           <div class="friend-empty-title">아직 친구가 없어요</div>
           <div class="friend-empty-sub">매칭에서 친구를 추가해보세요!</div>
         </div>
@@ -128,7 +128,7 @@
 <!-- 삭제 확인 모달 -->
 <div id="remove-modal" class="friend-modal-overlay">
   <div class="friend-modal-box">
-    <div class="friend-modal-icon">🗑️</div>
+    
     <div class="friend-modal-title" id="remove-modal-name"></div>
     <div class="friend-modal-desc">정말 친구를 삭제할까요?<br>이 작업은 되돌릴 수 없어요.</div>
     <div class="friend-modal-btns">

@@ -63,7 +63,7 @@
 
   <div class="main">
     <%- include('../partials/head', {
-      title: `📋 ${crew.title}`,
+      title: `${crew.title}`,
       pageId: 'page-crew-detail',
       active: '',
       route: `/regular/list/${crew._id}`
@@ -85,9 +85,9 @@
 
         <% if (isOwner || isMember) { %>
           <div class="manage-tab-bar" role="tablist" aria-label="모임 상세 메뉴">
-            <button type="button" class="manage-tab active" id="tab-info" role="tab" aria-selected="true" aria-controls="panel-info" data-crew-tab="info">📋 모임 상세</button>
-            <button type="button" class="manage-tab" id="tab-schedule" role="tab" aria-selected="false" aria-controls="panel-schedule" tabindex="-1" data-crew-tab="schedule">📅 스케줄</button>
-            <button type="button" class="manage-tab" id="tab-members" role="tab" aria-selected="false" aria-controls="panel-members" tabindex="-1" data-crew-tab="members">👥 멤버</button>
+            <button type="button" class="manage-tab active" id="tab-info" role="tab" aria-selected="true" aria-controls="panel-info" data-crew-tab="info">모임 상세</button>
+            <button type="button" class="manage-tab" id="tab-schedule" role="tab" aria-selected="false" aria-controls="panel-schedule" tabindex="-1" data-crew-tab="schedule">스케줄</button>
+            <button type="button" class="manage-tab" id="tab-members" role="tab" aria-selected="false" aria-controls="panel-members" tabindex="-1" data-crew-tab="members">멤버</button>
           </div>
         <% } %>
 

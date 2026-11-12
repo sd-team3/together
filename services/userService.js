@@ -12,11 +12,8 @@ const notiService = require('./notiService'); // 추가
 //회원가입 서비스(DB에 회원 객체 저장)
 async function createUser({ email, password, name, address, gender, uploadFile, age, tel,provider }) {
 
-
-
     //이메일 중복 체크
     const existingUser = await User.findOne({ email });
-
 
     if (existingUser) {
         const error = new Error('이미 사용중인 이메일입니다');
@@ -24,15 +21,12 @@ async function createUser({ email, password, name, address, gender, uploadFile, 
         throw error;
     }
 
-
     //비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     //프로필 이미지 처리
     const profile = uploadFile ? uploadFile.filename : 'default-profile-image.jpg';
 
- 
     const newUser = new User({
         email,
         password: hashedPassword,
@@ -45,13 +39,8 @@ async function createUser({ email, password, name, address, gender, uploadFile, 
         provider: provider || 'local'
     });
 
-
-
     //DB 저장
     await newUser.save();
-
-    
-
     return newUser;
 }
 
@@ -72,8 +61,6 @@ const findUserById_WithoutPW = async (id) => {
 // 비밀번호 확인
 async function verifyPassword(userId, password) {
 
-
-
     const user = await User.findById(userId);
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -87,8 +74,6 @@ async function verifyPassword(userId, password) {
 
 // 회원수정
 async function updateUser(userId, { name, age, address, uploadFile, currentPassword, newPassword, tel, removeImage }) {
-
-
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new Error('사용자를 찾을 수 없습니다');
@@ -143,7 +128,6 @@ async function updateUser(userId, { name, age, address, uploadFile, currentPassw
     }
 
     await user.save();
-
 
 }
 
@@ -227,7 +211,6 @@ async function updatePrivacy(userId, field, value) {
         $set: { [field]: value }
     });
 }
-
 
 module.exports = {
     createUser,

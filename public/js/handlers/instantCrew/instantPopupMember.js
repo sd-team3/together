@@ -112,17 +112,17 @@ export function renderMemberPopupBody() {
         <button onclick="mpSetTopTab('crew')"
             style="padding:10px 18px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;
                 border-bottom:2px solid #222;color:#222;margin-bottom:-2px;">
-            📋 모임
+            모임
         </button>
         <div style="flex:1;"></div>
         <a href="/chatRoom/chatPage"
             style="display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;
                 background:#f4f4f5;color:#555;font-size:13px;font-weight:600;
                 text-decoration:none;margin-bottom:4px;">
-            💬 채팅방
+            채팅방
             <span style="font-size:15px;">→</span>
         </a>
-        ${isHost ? `<a class="btn btn-outline btn-sm" style="margin:0 0 4px 8px" href="/instant/${encodeURIComponent(crewId)}/attendance">📋 출석부</a>` : ''}
+        ${isHost ? `<a class="btn btn-outline btn-sm" style="margin:0 0 4px 8px" href="/instant/${encodeURIComponent(crewId)}/attendance">출석부</a>` : ''}
     </div>`;
 
     const stats = `
@@ -172,7 +172,7 @@ export function renderMemberPopupBody() {
                                         <button onclick="window.openProfileModal('${uid}')"
                                             style="padding:2px 8px;border-radius:6px;border:1px solid #e5e7eb;
                                                 background:#fff;color:#555;font-size:12px;cursor:pointer;">
-                                            👤 프로필
+                                            프로필
                                         </button>` : ''}
                                     </div>
                                     <div style="font-size:12px;color:#aaa;">${u.tel || ''}</div>
@@ -204,7 +204,7 @@ export function renderMemberPopupBody() {
             </div>
             <div class="popup-title" style="margin-bottom:4px;">${crew.title}</div>
             <div style="font-size:13px;color:#aaa;margin-bottom:16px;">
-                📍 ${crew.address?.state} ${crew.address?.city}
+                ${crew.address?.state} ${crew.address?.city}
                 &nbsp;·&nbsp; ⏰ ${crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR') : '미정'}
             </div>
             ${topTabs}${stats}${tabs}${cards}`;
@@ -253,7 +253,7 @@ export function renderMemberPopupBody() {
         </div>
         <div class="popup-title" style="margin-bottom:4px;">${crew.title}</div>
         <div style="font-size:13px;color:#aaa;margin-bottom:16px;">
-            📍 ${crew.address?.state} ${crew.address?.city}
+            ${crew.address?.state} ${crew.address?.city}
             &nbsp;·&nbsp; ⏰ ${crew.meetAt ? new Date(crew.meetAt).toLocaleString('ko-KR') : '미정'}
         </div>
         ${topTabs}${stats}${tabs}${filterBar}

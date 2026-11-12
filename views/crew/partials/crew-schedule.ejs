@@ -1,6 +1,6 @@
 <div class="manage-panel" id="panel-schedule" role="tabpanel" aria-labelledby="tab-schedule">
   <div class="manage-section">
-    <div class="manage-section-header"><div class="manage-section-title">📅 스케줄</div></div>
+    <div class="manage-section-header"><div class="manage-section-title">스케줄</div></div>
     <% if (!acts.length) { %>
       <p style="padding:20px;color:var(--text-3)">등록된 일정이 없어요.</p>
     <% } %>
@@ -17,9 +17,9 @@
           <div class="activity-main">
             <div class="activity-title"><%= act.title %></div>
             <div class="activity-meta">
-              <span>📅 <%= new Date(act.startTime).toLocaleString('ko-KR', dateOptions) %><%= act.endTime ? ' ~ ' + new Date(act.endTime).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }) : '' %></span>
-              <span>📍 <%= act.location?.state %> <%= act.location?.city %> <%= act.location?.detail %></span>
-              <span>👥 <%= participants.length %>/<%= act.capacity %>명 · <%= act.gameType === 'team' ? '팀전' : '개인전' %></span>
+              <span><%= new Date(act.startTime).toLocaleString('ko-KR', dateOptions) %><%= act.endTime ? ' ~ ' + new Date(act.endTime).toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }) : '' %></span>
+              <span><%= act.location?.state %> <%= act.location?.city %> <%= act.location?.detail %></span>
+              <span><%= participants.length %>/<%= act.capacity %>명 · <%= act.gameType === 'team' ? '팀전' : '개인전' %></span>
             </div>
             <% if (act.content) { %><div class="activity-desc"><%= act.content %></div><% } %>
           </div>

@@ -32,6 +32,7 @@ window.selectActivityType = (next) => {
     document.getElementById('field-group').style.display = type === 'group' ? '' : 'none';
     document.getElementById('field-solo').style.display = type === 'solo' ? '' : 'none';
 };
+
 const state = document.getElementById('stateSelect');
 const city = document.getElementById('citySelect');
 const areas = JSON.parse(state.dataset.areas);
@@ -40,12 +41,14 @@ state.addEventListener('change', () => {
     city.replaceChildren(new Option('시/군/구 선택', ''));
     (areas[state.value] || []).forEach((name) => city.add(new Option(name, name)));
 });
+
 [state, city, document.getElementById('detail-addr')].forEach((input) =>
     input.addEventListener('change', () => {
         document.getElementById('lat-input').value = '';
         document.getElementById('lng-input').value = '';
     })
 );
+
 modal.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') window.toggleAddForm();
     if (event.key === 'Tab') {
@@ -66,6 +69,7 @@ modal.addEventListener('keydown', (event) => {
         }
     }
 });
+
 window.addSchedule = async () => {
     const submit = modal.querySelector('[onclick="addSchedule()"]');
     if (submit.disabled) return;

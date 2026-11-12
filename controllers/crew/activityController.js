@@ -1,7 +1,7 @@
 const crewActivity = require('../../models/crewActivity');
 const activityService = require('../../services/crew/activityService');
 const User = require('../../models/User');
-const attendanceService = require('../../services/crew/attendanceService');
+const attendanceUtils = require('../../utils/attendanceUtils');
 
 const postActivityCreate = async (req, res)=>{
     try {
@@ -96,7 +96,7 @@ const postAttendance = async (req, res) => {
         if (
             act.status !== '활동' ||
             checkedInAt < new Date(act.startTime) ||
-            checkedInAt > attendanceService.attendanceDeadline(act.startTime)
+            checkedInAt > attendanceUtils.attendanceDeadline(act.startTime)
         ) return res.status(400).json({ message: "활동 시작 후 30분까지만 출석 체크할 수 있습니다." });
 
         const participantIds = [...(act.teamBlue || []), ...(act.teamRed || [])].map(id => id.toString());
@@ -121,8 +121,8 @@ const postAttendance = async (req, res) => {
             return res.status(400).json({ message: `모임 장소에서 너무 멉니다. (현재 거리: 약 ${limitMeter}m) 500m 이내로 접근해주세요.` });
         }
 
-        const attendanceStatus = attendanceService.attendanceStatus(act.startTime, checkedInAt);
-        const scoreDelta = attendanceService.attendanceScoreDelta(attendanceStatus);
+        const attendanceStatus = attendanceUtils.attendanceStatus(act.startTime, checkedInAt);
+        const scoreDelta = attendanceUtils.attendanceScoreDelta(attendanceStatus);
         const session = await crewActivity.startSession();
         let updateResult;
         try {

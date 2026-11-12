@@ -40,24 +40,29 @@ const findReadNotiByUserId = async (userId)=>{
     }
 }
 
-const deleteNotiByNotiId = async (notiId) => {
-    try {
-        return await notification.findByIdAndDelete(notiId)
-                                    .populate('sender', 'name')
-                                    .sort({ createdAt: -1 });
-    } catch (error) {
-        console.error('delNoti: ', error);
-        throw error;
+function requireNotificationOwner(notiId, userId) {
+    if (!mongoose.isObjectIdOrHexString(notiId) || !mongoose.isObjectIdOrHexString(userId)) {
+        throw Object.assign(new Error('올바르지 않은 알림 요청입니다.'), { status: 400 });
     }
+}
+
+function requireNotification(noti) {
+    if (!noti) throw Object.assign(new Error('알림을 찾을 수 없습니다.'), { status: 404 });
+    return noti;
+}
+
+const deleteNotiByNotiId = async (notiId, userId) => {
+    requireNotificationOwner(notiId, userId);
+    const noti = await notification.findOneAndDelete({ _id: notiId, receiver: userId });
+    return requireNotification(noti);
 };
 
-const readNotiByNotiId = async (notiId) => {
-    try {
-        return await notification.findByIdAndUpdate(notiId, { isRead: true });
-    } catch (error) {
-        console.error('readNoti: ', error);
-        throw error;
-    }
+const readNotiByNotiId = async (notiId, userId) => {
+    requireNotificationOwner(notiId, userId);
+    const noti = await notification.findOneAndUpdate(
+        { _id: notiId, receiver: userId }, { isRead: true }
+    );
+    return requireNotification(noti);
 };
 
 const readAllNotiByUserId = async (userId) => {

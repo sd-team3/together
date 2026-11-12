@@ -97,10 +97,6 @@ router.post('/manage/:crewId/update',
     regularController.postCrewUpdate
 );
 
-router.get('/activity/:crewId',
-    crewMiddleware.loginValidation,
-    regularController.getCrewActivity
-);
 router.post('/list/:crewID/like',
     crewMiddleware.loginValidation,
     regularController.postCrewLike
